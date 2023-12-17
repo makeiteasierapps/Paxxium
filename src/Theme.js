@@ -7,7 +7,9 @@ const customBlueGrey = {
     700: '#455a64', // default blue-grey for primary elements
     600: '#546e7a', // lighter blue-grey for hover states
     500: '#607d8b', // lighter still for secondary elements or accents
-    // Add more custom shades if necessary
+    400: '#78909c', 
+    300: '#90a4ae', 
+    200: '#b0bec5', 
 };
 
 export const theme = createTheme({
@@ -17,8 +19,8 @@ export const theme = createTheme({
             main: customBlueGrey[700], // primary elements like buttons, icons
         },
         secondary: {
-            main: customBlueGrey[500], // secondary elements
-            light: customBlueGrey[600], // lighter shade for hover states
+            main: customBlueGrey[600], // secondary elements
+            light: customBlueGrey[700], // lighter shade for hover states
             dark: customBlueGrey[900], // darker shade for contrast
         },
 
@@ -28,7 +30,7 @@ export const theme = createTheme({
         },
         text: {
             primary: '#ffffff', // white text for readability
-            secondary: customBlueGrey[300], // secondary text, lighter for contrast
+            secondary: customBlueGrey[200], // secondary text, lighter for contrast
         },
     },
     components: {
@@ -43,6 +45,5 @@ export const theme = createTheme({
                 },
             },
         },
-        // You can add more component overrides here as needed
     },
 });

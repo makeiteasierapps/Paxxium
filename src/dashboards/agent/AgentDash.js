@@ -1,12 +1,11 @@
-import { Button } from "@mui/material";
-import { memo, useContext, useEffect, useState } from "react";
-import { AuthContext, backendUrl } from "../../auth/AuthContext";
-import AgentMenu from "./AgentMenu";
-import Chat from "./chat/Chat";
-import { ChatContext } from "./chat/ChatContext";
-import Debate from "./debate/Debate";
+import { memo, useContext, useEffect, useState } from 'react';
+import { AuthContext, backendUrl } from '../../auth/AuthContext';
+import AgentMenu from './AgentMenu';
+import Chat from './chat/Chat';
+import { ChatContext } from './chat/ChatContext';
+import Debate from './debate/Debate';
 
-import { Container, Settings, Chats } from "./agentStyledComponents";
+import { Container, Settings,  SettingsMenuButton, SettingsMenuContainer } from './agentStyledComponents';
 
 const AgentDash = () => {
     const { setSelectedAgent, agentArray, setAgentArray } =
@@ -20,15 +19,15 @@ const AgentDash = () => {
         const getChatData = async () => {
             try {
                 const response = await fetch(`${backendUrl}/chat`, {
-                    method: "GET",
+                    method: 'GET',
                     headers: {
                         Authorization: idToken,
                     },
-                    credentials: "include",
+                    credentials: 'include',
                 });
 
                 if (!response.ok)
-                    throw new Error("Failed to load user conversations");
+                    throw new Error('Failed to load user conversations');
 
                 const data = await response.json();
                 // data is an array of objects
@@ -38,7 +37,7 @@ const AgentDash = () => {
                     const chatAgent = data.find(
                         (agent) =>
                             agent.is_open === true &&
-                            agent.agent_model !== "AgentDebate"
+                            agent.agent_model !== 'AgentDebate'
                     );
                     if (chatAgent) setSelectedAgent(chatAgent);
                 }
@@ -57,22 +56,23 @@ const AgentDash = () => {
 
     return (
         <>
-            <Container id="settings-container">
+            <SettingsMenuContainer id="settings-container">
                 {settingsOpen && (
                     <Settings id="settings">
                         <AgentMenu />
                     </Settings>
                 )}
-                <Button onClick={() => setSettingsOpen(!settingsOpen)}>
-                    {settingsOpen ? "Hide" : "Menu"}
-                </Button>
-            </Container>
+                <SettingsMenuButton
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                >
+                    {settingsOpen ? 'Hide' : 'Settings'}
+                </SettingsMenuButton>
+            </SettingsMenuContainer>
             <Container id="chats-container">
-                <Chats id="chats">
                     {agentArray
                         .filter((agent) => agent.is_open)
                         .map((agent) => {
-                            if (agent.agent_model === "AgentDebate") {
+                            if (agent.agent_model === 'AgentDebate') {
                                 return (
                                     <Debate
                                         key={agent.id}
@@ -96,7 +96,6 @@ const AgentDash = () => {
                                 );
                             }
                         })}
-                </Chats>
             </Container>
         </>
     );
