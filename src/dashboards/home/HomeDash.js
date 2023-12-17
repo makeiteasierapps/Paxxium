@@ -1,7 +1,6 @@
 import { Box, styled } from "@mui/system";
 import NewsCarousel from "./news/components/NewsCarousel";
 
-// Styled Components
 const MainContainer = styled(Box)(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
@@ -9,6 +8,7 @@ const MainContainer = styled(Box)(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
+    
 }));
 
 const HomeDash = () => {

@@ -1,12 +1,5 @@
-import NavTabs from "./NavTabs";
-
 const MainDash = ({ children }) => {
-    return (
-        <>
-            <NavTabs />
-            {children}
-        </>
-    );
+    return <>{children}</>;
 };
 
 export default MainDash;

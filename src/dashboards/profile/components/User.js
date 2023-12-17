@@ -1,10 +1,17 @@
-import { Box } from "@mui/material";
-import { useContext, useState } from "react";
-import { ProfileContext } from "../ProfileContext";
+import { Box } from '@mui/material';
+import { useContext, useState } from 'react';
+import { ProfileContext } from '../ProfileContext';
 
-import shaunoAvatar from "../../../assets/images/shaunoAvatar.png";
+import shaunoAvatar from '../../../assets/images/shaunoAvatar.png';
 
-import {UserContainer, AvatarContainer, StyledAvatar, StyledTextField, Username, TextFieldContainer} from "../styledProfileComponents";
+import {
+    UserContainer,
+    AvatarContainer,
+    StyledAvatar,
+    ProfileTextField,
+    Username,
+    TextFieldContainer,
+} from '../styledProfileComponents';
 
 const User = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -15,11 +22,11 @@ const User = () => {
             <AvatarContainer id="avatar-container">
                 <StyledAvatar alt="User Avatar" src={shaunoAvatar} />
                 <Box
-                    sx={{ display: "flex", alignItems: "center" }}
+                    sx={{ display: 'flex', alignItems: 'center' }}
                     onClick={() => setIsEditing(true)}
                 >
                     {isEditing ? (
-                        <StyledTextField
+                        <ProfileTextField
                             autoFocus
                             size="small"
                             value={profileData.username}
@@ -42,12 +49,12 @@ const User = () => {
                     )}
                 </Box>
             </AvatarContainer>
-            <TextFieldContainer id="details-container">
-                <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <StyledTextField
+            <TextFieldContainer>
+                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <ProfileTextField
                         size="small"
                         value={profileData.first_name}
-                        label={!profileData.first_name ? "First Name" : null}
+                        label={!profileData.first_name ? 'First Name' : null}
                         type="text"
                         variant="outlined"
                         onChange={(e) =>
@@ -57,10 +64,10 @@ const User = () => {
                             })
                         }
                     />
-                    <StyledTextField
+                    <ProfileTextField
                         size="small"
                         value={profileData.last_name}
-                        label={!profileData.last_name ? "Last Name" : null}
+                        label={!profileData.last_name ? 'Last Name' : null}
                         type="text"
                         variant="outlined"
                         onChange={(e) =>
@@ -71,7 +78,8 @@ const User = () => {
                         }
                     />
                 </Box>
-                <StyledTextField
+                <ProfileTextField
+                
                     size="small"
                     label="Serpapi Key"
                     type="password"
@@ -83,7 +91,7 @@ const User = () => {
                         })
                     }
                 />
-                <StyledTextField
+                <ProfileTextField
                     size="small"
                     label="OpenAI Key"
                     type="password"
