@@ -9,7 +9,6 @@ import AgentMessage from "./components/AgentMessage";
 import ChatBar from "./components/ChatBar";
 import MessageInput from "./components/MessageInput";
 import UserMessage from "./components/UserMessage";
-
 import {
     MessagesContainer,
     MessageArea,
