@@ -5,7 +5,12 @@ import Chat from './chat/Chat';
 import { ChatContext } from './chat/ChatContext';
 import Debate from './debate/Debate';
 
-import { Container, Settings,  SettingsMenuButton, SettingsMenuContainer } from './agentStyledComponents';
+import {
+    Container,
+    Settings,
+    SettingsMenuButton,
+    SettingsMenuContainer,
+} from './agentStyledComponents';
 
 const AgentDash = () => {
     const { setSelectedAgent, agentArray, setAgentArray } =
@@ -69,33 +74,32 @@ const AgentDash = () => {
                 </SettingsMenuButton>
             </SettingsMenuContainer>
             <Container id="chats-container">
-                    {agentArray
-                        .filter((agent) => agent.is_open)
-                        .map((agent) => {
-                            if (agent.agent_model === 'AgentDebate') {
-                                return (
-                                    <Debate
-                                        key={agent.id}
-                                        id={agent.id}
-                                        chatName={agent.chat_name}
-                                        topic={agent.topic}
-                                    />
-                                );
-                            } else {
-                                return (
-                                    <Chat
-                                        key={agent.id}
-                                        id={agent.id}
-                                        chatConstants={agent.chat_constants}
-                                        systemPrompt={agent.system_prompt}
-                                        chatName={agent.chat_name}
-                                        agentModel={agent.agent_model}
-                                        truetoself
-                                        useProfileData={agent.use_profile_data}
-                                    />
-                                );
-                            }
-                        })}
+                {agentArray
+                    .filter((agent) => agent.is_open)
+                    .map((agent) => {
+                        if (agent.agent_model === 'AgentDebate') {
+                            return (
+                                <Debate
+                                    key={agent.id}
+                                    id={agent.id}
+                                    chatName={agent.chat_name}
+                                    topic={agent.topic}
+                                />
+                            );
+                        } else {
+                            return (
+                                <Chat
+                                    key={agent.id}
+                                    id={agent.id}
+                                    chatConstants={agent.chat_constants}
+                                    systemPrompt={agent.system_prompt}
+                                    chatName={agent.chat_name}
+                                    agentModel={agent.agent_model}
+                                    useProfileData={agent.use_profile_data}
+                                />
+                            );
+                        }
+                    })}
             </Container>
         </>
     );
