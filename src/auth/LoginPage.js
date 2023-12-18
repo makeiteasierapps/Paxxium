@@ -1,22 +1,20 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { AuthContext } from './AuthContext';
 
+import { StyledTextField } from '../auth/authStyledComponents';
+
 export default function LoginPage() {
     const auth = getAuth();
     const { setUser } = useContext(AuthContext);
-    
+
     const handleLogin = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -60,7 +58,7 @@ export default function LoginPage() {
                     noValidate
                     sx={{ mt: 1 }}
                 >
-                    <TextField
+                    <StyledTextField
                         margin="normal"
                         required
                         fullWidth
@@ -70,7 +68,7 @@ export default function LoginPage() {
                         autoComplete="email"
                         autoFocus
                     />
-                    <TextField
+                    <StyledTextField
                         margin="normal"
                         required
                         fullWidth
@@ -80,10 +78,6 @@ export default function LoginPage() {
                         id="password"
                         autoComplete="current-password"
                     />
-                    <FormControlLabel
-                        control={<Checkbox value="remember" color="primary" />}
-                        label="Remember me"
-                    />
                     <Button
                         type="submit"
                         fullWidth
@@ -92,19 +86,10 @@ export default function LoginPage() {
                     >
                         Sign In
                     </Button>
-                    <Grid container>
-                        <Grid item xs>
-                            <Link href="#" variant="body2">
-                                Forgot password?
-                            </Link>
-                        </Grid>
-                        <Grid item>
-                            <Link href="/signup" variant="body2">
-                                {"Don't have an account? Sign Up"}
-                            </Link>
-                        </Grid>
-                    </Grid>
                 </Box>
+                <Link href="/signup" variant="body2">
+                    {"Don't have an account? Sign Up"}
+                </Link>
             </Box>
         </Container>
     );

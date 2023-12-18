@@ -1,5 +1,12 @@
 import { styled } from '@mui/system';
-import { Box, List, ListItem, Checkbox, Button } from '@mui/material';
+import {
+    Box,
+    List,
+    ListItem,
+    Checkbox,
+    Button,
+    IconButton,
+} from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
 
 // AgentDash.js
@@ -11,10 +18,10 @@ export const Container = styled(Box)(() => ({
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     color: theme.palette.text.secondary,
-    backgroundColor: theme.palette.secondary.dark,
-    margin: theme.spacing(2),
+    backgroundColor: 'transparent',
+    padding: 0,
     '&:hover': {
-        backgroundColor: theme.palette.secondary.dark,
+        backgroundColor: 'transparent',
         color: theme.palette.text.primary,
     },
 }));
@@ -23,7 +30,6 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: theme.spacing(1),
 }));
 
 export const Settings = styled(Box)(({ theme }) => ({
@@ -114,7 +120,14 @@ export const ChatBarIcons = styled(Box)(({ theme }) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+}));
+
+export const StyledIconButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.text.secondary,
+    '&:hover': {
+        backgroundColor: 'transparent',
+        color: theme.palette.text.primary,
+    },
 }));
 
 export const InputArea = styled(Box)({

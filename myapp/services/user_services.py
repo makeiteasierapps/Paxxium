@@ -1,4 +1,5 @@
 import os
+import uuid
 import base64
 from dotenv import load_dotenv
 from google.cloud import kms
@@ -9,6 +10,7 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.chat_models import ChatOpenAI
 
 from myapp.services.profile_services import ProfileService as ps
+from myapp import storage
 
 class UserService:
     def __init__(self, db):
@@ -83,7 +85,7 @@ class UserService:
         return decrypted_key.plaintext
 
     def get_profile(self, uid):
-        user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username'])
+        user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url'])
         
         return user_doc.to_dict()
 
@@ -138,10 +140,34 @@ class UserService:
         return user_doc.to_dict()
     
     def update_user_profile(self, uid, updates):
+
         user_ref = self.db.collection('users').document(uid)
         
+        if 'serp_key' in updates:
+            # Encrypt the value and update the request data
+            updates['serp_key'] = self.encrypt(updates['serp_key'])
+
+        if 'open_key' in updates:
+            # Encrypt the value and update the request data
+            updates['open_key'] = self.encrypt(updates['open_key'])
+
         if 'news_topics' in updates:
             news_topics_list = [topic.lower().strip() for topic in updates['news_topics'].split(',')]
             updates['news_topics'] = firestore.ArrayUnion(news_topics_list)
         
         user_ref.update(updates)
+
+
+    def upload_avatar_picture(self, file, uid):
+        bucket = storage.bucket()
+        unique_filename = str(uuid.uuid4())
+        blob = bucket.blob(unique_filename)
+        file_data = file.read()
+        blob.upload_from_string(file_data, content_type='image/jpeg')
+        blob.make_public()
+
+        user_ref = self.db.collection('users').document(uid)
+        user_ref.update({'avatar_url': blob.public_url})
+
+
+        return blob.public_url

@@ -1,23 +1,15 @@
-import { Box, Button, Paper } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useContext } from "react";
-import { AuthContext } from "../../auth/AuthContext";
-import { ProfileContext } from "./ProfileContext";
-import Questions from "./components/Questions";
-import User from "./components/User";
+import { Box, Button } from '@mui/material';
+import { useContext } from 'react';
+import { AuthContext } from '../../auth/AuthContext';
+import { ProfileContext } from './ProfileContext';
+import Questions from './components/Questions';
+import User from './components/User';
 import {
     handleQuestionsUpdate,
     handleUserUpdate,
-} from "./handlers/profileHandlers";
+} from './handlers/profileHandlers';
 
-const MainContainer = styled(Paper)(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    padding: theme.spacing(2),
-    margin: "auto",
-    maxWidth: "800px",
-    backgroundColor: theme.palette.background.paper,
-}));
+import { MainContainer } from './styledProfileComponents';
 
 const ProfileDash = () => {
     const { handleAnalyzeProfile, analysis, profileData, answers } =
@@ -50,11 +42,11 @@ const ProfileDash = () => {
                 sx={{
                     margin: 3,
                     padding: 2,
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
                 }}
             >
-                {analysis ? analysis : "Analyze Profile"}
+                {analysis ? analysis : 'Analyze Profile'}
             </Box>
             <Button
                 variant="contained"

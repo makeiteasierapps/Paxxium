@@ -37,6 +37,16 @@ const AgentDash = () => {
                 const data = await response.json();
                 // data is an array of objects
                 setAgentArray(data);
+                if (data.length > 0) {
+                    const openAgents = data.filter(
+                        (agent) =>
+                            agent.is_open === true &&
+                            agent.agent_model !== 'AgentDebate'
+                    );
+                    if (openAgents.length === 0) {
+                        setSettingsOpen(true);
+                    }
+                }
 
                 if (data.length > 0) {
                     const chatAgent = data.find(
@@ -68,6 +78,7 @@ const AgentDash = () => {
                     </Settings>
                 )}
                 <SettingsMenuButton
+                    disableRipple
                     onClick={() => setSettingsOpen(!settingsOpen)}
                 >
                     {settingsOpen ? 'Hide' : 'Settings'}

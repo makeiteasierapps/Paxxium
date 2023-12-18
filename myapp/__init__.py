@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_socketio import SocketIO, join_room
 from flask_cors import CORS
-from firebase_admin import firestore, credentials
+from firebase_admin import firestore, credentials, storage
 import firebase_admin
 from myapp.services.message_service import MessageService
 from myapp.services.master_agent_services import MasterAgentService
@@ -16,7 +16,10 @@ from myapp.services.profile_services import ProfileService
 
 # Initialize Firebase
 cred = credentials.Certificate('myapp/fb_config/paxxium-firebase-adminsdk-2l9cl-3bb25d079e.json')
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'paxxium.appspot.com'
+})
+bucket = storage.bucket()
 socketio = SocketIO()
 
 def create_app():

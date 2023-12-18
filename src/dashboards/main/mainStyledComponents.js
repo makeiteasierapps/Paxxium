@@ -2,7 +2,6 @@ import { styled } from '@mui/material/styles';
 import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-// Create a styled header component that has the icons on the right grouped together
 export const HeaderContainer = styled(Box)(({ theme }) => ({
     height: '6rem',
     display: 'flex',
@@ -11,11 +10,23 @@ export const HeaderContainer = styled(Box)(({ theme }) => ({
     paddingRight: '1rem',
     marginBottom: '1.5rem',
     position: 'sticky',
+    backgroundColor: theme.palette.background.paper,
+    zIndex: 1000,
     top: 0,
 }));
 
-// Custom IconButtons for the header, larger and using the primary color
-export const HeaderIconButton = styled(IconButton)(({ theme }) => ({
-    color: theme.palette.text.secondary,
-    fontSize: '10px',
-}));
+export const HeaderIconButton = styled(IconButton)(
+    ({ theme, currentpath, to }) => ({
+        color: to
+            ? currentpath === to
+                ? theme.palette.text.primary
+                : theme.palette.text.secondary
+            : theme.palette.text.secondary,
+        fontSize: '10px',
+
+        '&:hover': {
+            backgroundColor: 'transparent',
+            color: theme.palette.text.primary,
+        },
+    })
+);

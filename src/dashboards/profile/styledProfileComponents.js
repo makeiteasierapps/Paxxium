@@ -1,23 +1,47 @@
-import { Box, Tabs, TextField, Typography, Avatar } from '@mui/material';
+import { Box, Tabs, TextField, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const MainPaper = styled(Box)(({ theme }) => ({
+export const MainContainer = styled(Paper)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-    marginTop: theme.spacing(2),
+    padding: theme.spacing(2),
+    margin: 'auto',
+    maxWidth: '800px',
+    backgroundColor: theme.palette.background.paper,
 }));
+
 export const StyledTabs = styled(Tabs)(({ theme }) => ({
+    width: '100%',
+    marginBottom: theme.spacing(1),
     '& .MuiTabs-indicator': {
         display: 'none',
     },
+
+    '& .MuiTab-root': {
+        padding: theme.spacing(1),
+        color: theme.palette.primary.main,
+        '&:hover': {
+            color: theme.palette.text.primary,
+        },
+        '&.Mui-selected': {
+            color: theme.palette.text.primary,
+        },
+    },
 }));
+
+export const QuestionsContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    height: '50vh',
+    overflowY: 'scroll',
+    marginTop: theme.spacing(2),
+}));
+
 export const Question = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
-// The Answer component is a styled TextField component from Material UI
-// The theme object is passed as a prop to the styled function
+
 export const Answer = styled(TextField)(({ theme }) => ({
     // The marginBottom property adds space below the TextField
     marginBottom: theme.spacing(2),
@@ -62,11 +86,12 @@ export const AvatarContainer = styled(Box)(({ theme }) => ({
     margin: theme.spacing(4),
 }));
 
-export const StyledAvatar = styled(Avatar)(({ theme }) => ({
-    width: 96,
-    height: 100,
+export const StyledAvatar = styled('img')(({ theme }) => ({
+    width: '100px',
+    borderRadius: '50%',
+    height: 'auto',
+    cursor: 'pointer',
     margin: theme.spacing(1),
-    alignSelf: 'center',
 }));
 
 export const TextFieldContainer = styled(Box)(({ theme }) => ({
@@ -86,7 +111,7 @@ export const Username = styled(Typography)(({ theme }) => ({
 export const ProfileTextField = styled(TextField)(({ theme }) => ({
     marginBottom: theme.spacing(2),
     margin: theme.spacing(1),
-    width: '80%',
+    width: '100%',
     borderRadius: '5px',
     padding: 0,
     '& .MuiOutlinedInput-root': {
@@ -102,6 +127,11 @@ export const ProfileTextField = styled(TextField)(({ theme }) => ({
         '&.Mui-disabled fieldset': {
             borderColor: theme.palette.primary.main,
         },
+    },
+    '& input:-webkit-autofill': {
+        '-webkit-box-shadow': `0 0 0px 1000px ${theme.palette.background.paper} inset`,
+        '-webkit-text-fill-color': theme.palette.text.primary,
+        transition: 'background-color 5000s ease-in-out 0s',
     },
     '& label.Mui-focused': {
         color: theme.palette.secondary.light,

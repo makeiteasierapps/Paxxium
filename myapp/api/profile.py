@@ -51,19 +51,21 @@ def update_user():
 
     data = request.get_json()
 
-    if 'serp_key' in data:
-        # Encrypt the value and update the request data
-        data['serp_key'] = us.encrypt(data['serp_key'])
-
-    if 'open_key' in data:
-        # Encrypt the value and update the request data
-        data['open_key'] = us.encrypt(data['open_key'])
-
-    print(data)
-    
     us.update_user_profile(uid, data)
     
     return {'response': 'Profile updated successfully'}, 200
+
+@profile.route('/profile/update_avatar', methods=['POST'])
+def update_avatar():
+    """
+    Update profile data in the users collection
+    """
+    us = current_app.user_service
+    uid = authenticate_request()
+    file = request.files['compressedImage']
+    avatar_url = us.upload_avatar_picture(file, uid)
+
+    return {'AvatarUrl': avatar_url}, 200
 
 @profile.route('/profile/analyze', methods=['GET', 'POST'])
 def analyze_profile():

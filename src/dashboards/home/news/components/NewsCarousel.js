@@ -1,16 +1,16 @@
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import React, { useContext, useEffect } from "react";
-import Carousel from "react-spring-3d-carousel";
-import { NewsContext } from "../NewsContext";
-import NewsCard from "./NewsCard";
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import React, { useContext } from 'react';
+import Carousel from 'react-spring-3d-carousel';
+import { NewsContext } from '../NewsContext';
+import NewsCard from './NewsCard';
 import {
     AiSearchButton,
     SearchContainer,
     SearchField,
     SearchButton,
     CarouselContainer,
-} from "../styledNewsComponents";
+} from '../styledNewsComponents';
 
 const NewsCarousel = () => {
     const {
@@ -25,10 +25,6 @@ const NewsCarousel = () => {
         setReadFilter,
         setUnreadNewsData,
     } = useContext(NewsContext);
-
-    useEffect(() => {
-        loadNewsData();
-    }, [loadNewsData]);
 
     const newsSlides = newsData.map((news, index) => ({
         key: news.id,

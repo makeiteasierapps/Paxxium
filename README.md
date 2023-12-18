@@ -4,9 +4,7 @@
   - Add as favorite
 
 ## General Refactoring:
-- Move styled components into their own file.
 - Display loading spinners and error messages
-- Modify color scheme
 
 # <span style="color:#FF69B4">Agent</span>
 ### Chat
@@ -21,13 +19,11 @@
 # <span style="color:#FF69B4">Profile</span>
 ### Questions
 - Todo
-    - Review existing questions and decide which ones to keep or add. This will involve a review of the current questionnaire and potentially the creation of new questions. 
+    - Review existing questions and decide which ones to keep or add.
 
 - Feature updates
     - Allow users to add custom questions or remove existing ones for customization. 
 ### User Profile
-- Feature updates
-    - Allow custom avatar.
   
 
 

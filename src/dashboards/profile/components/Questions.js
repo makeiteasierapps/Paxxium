@@ -4,7 +4,8 @@ import { ProfileContext } from '../ProfileContext';
 
 import {
     StyledTabs,
-    MainPaper,
+    
+    QuestionsContainer,
     Question,
     Answer,
 } from '../styledProfileComponents';
@@ -84,15 +85,14 @@ const Questions = () => {
                 value={currentTab}
                 onChange={(_, newValue) => setCurrentTab(newValue)}
                 variant="scrollable"
-                scrollButtons
+                scrollButtons="auto"
                 allowScrollButtonsMobile
-                textColor="secondary"
             >
                 {Object.keys(questions).map((category, index) => (
-                    <Tab key={index} label={category} textColor="secondary" />
+                    <Tab disableRipple key={index} label={category} />
                 ))}
             </StyledTabs>
-            <MainPaper id="questions-container">
+            <QuestionsContainer id="questions-container">
                 {Object.entries(questions).map(
                     ([category, categoryQuestions], index) => (
                         <Box hidden={currentTab !== index} key={index}>
@@ -122,7 +122,7 @@ const Questions = () => {
                         </Box>
                     )
                 )}
-            </MainPaper>
+            </QuestionsContainer>
         </>
     );
 };

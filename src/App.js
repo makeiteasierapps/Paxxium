@@ -8,7 +8,7 @@ import {
     BrowserRouter as Router,
     Routes,
 } from 'react-router-dom';
-import { theme } from './Theme';
+import theme from './Theme';
 import { AuthContext, AuthProvider, backendUrl } from './auth/AuthContext';
 import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
@@ -17,7 +17,6 @@ import { ChatProvider } from './dashboards/agent/chat/ChatContext';
 import HomeDash from './dashboards/home/HomeDash';
 import { NewsProvider } from './dashboards/home/news/NewsContext';
 import Header from './dashboards/main/Header';
-import MainDash from './dashboards/main/MainDash';
 import { ProfileProvider } from './dashboards/profile/ProfileContext';
 import ProfileDash from './dashboards/profile/ProfileDash';
 
@@ -84,11 +83,9 @@ const AuthenticatedApp = () => {
                             <Route
                                 path={path}
                                 element={
-                                    <MainDash>
-                                        <NewsProvider>
-                                            <HomeDash />
-                                        </NewsProvider>
-                                    </MainDash>
+                                    <NewsProvider>
+                                        <HomeDash />
+                                    </NewsProvider>
                                 }
                                 key={i}
                             />
@@ -97,21 +94,19 @@ const AuthenticatedApp = () => {
                     <Route
                         path="/agents"
                         element={
-                            <MainDash>
+                            <ProfileProvider>
                                 <ChatProvider>
                                     <ChatDash />
                                 </ChatProvider>
-                            </MainDash>
+                            </ProfileProvider>
                         }
                     />
                     <Route
                         path="/profile"
                         element={
-                            <MainDash>
-                                <ProfileProvider>
-                                    <ProfileDash />
-                                </ProfileProvider>
-                            </MainDash>
+                            <ProfileProvider>
+                                <ProfileDash />
+                            </ProfileProvider>
                         }
                     />
                 </Routes>

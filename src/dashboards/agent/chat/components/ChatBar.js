@@ -11,7 +11,11 @@ import {
     handleCloseChat,
 } from '../handlers/chatBarHandlers';
 
-import { Bar, ChatBarIcons } from '../../agentStyledComponents';
+import {
+    Bar,
+    ChatBarIcons,
+    StyledIconButton,
+} from '../../agentStyledComponents';
 
 const ChatBar = ({ chatName, id }) => {
     const { setMessages, setAgentArray } = useContext(ChatContext);
@@ -20,7 +24,8 @@ const ChatBar = ({ chatName, id }) => {
         <Bar>
             <Typography variant="h6">{chatName}</Typography>
             <ChatBarIcons>
-                <IconButton
+                <StyledIconButton
+                    disableRipple
                     aria-label="clear_chat"
                     onClick={() =>
                         handleClearMessages(
@@ -32,23 +37,25 @@ const ChatBar = ({ chatName, id }) => {
                     }
                 >
                     <CommentsDisabledIcon />
-                </IconButton>
-                <IconButton
+                </StyledIconButton>
+                <StyledIconButton
+                    disableRipple
                     aria-label="delete"
                     onClick={() =>
                         handleDeleteChat(id, idToken, setAgentArray, backendUrl)
                     }
                 >
                     <DeleteIcon />
-                </IconButton>
-                <IconButton
+                </StyledIconButton>
+                <StyledIconButton
+                    disableRipple
                     aria-label="close"
                     onClick={() =>
                         handleCloseChat(id, idToken, setAgentArray, backendUrl)
                     }
                 >
                     <CloseIcon />
-                </IconButton>
+                </StyledIconButton>
             </ChatBarIcons>
         </Bar>
     );

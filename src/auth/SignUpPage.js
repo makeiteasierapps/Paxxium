@@ -1,37 +1,24 @@
-import { React, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { AuthContext } from './AuthContext';
+import { AuthContext, backendUrl } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { styled } from '@mui/system';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-const StyledContainer = styled(Container)(({ theme }) => ({
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-}));
-
-const WelcomeMessageText = styled(Typography)(({ theme }) => ({
-    marginTop: theme.spacing(2),
-    fontSize: '1.11rem',
-    textAlign: 'center',
-}));
+import {
+    StyledTextField,
+    StyledContainer,
+    WelcomeMessageText,
+} from '../auth/authStyledComponents';
 
 export default function SignUp() {
     const [formValid, setFormValid] = useState({
@@ -71,7 +58,7 @@ export default function SignUp() {
 
     const errorMessages = {
         username:
-            'Username should be 6 or more characters, and can contain alphanumeric characters and underscore.',
+            'Username should be between 5 and 10 characters, and can contain alphanumeric characters and underscores.',
         email: 'Invalid email address.',
         password:
             'Password should be 8 or more characters, and must contain at least one uppercase, one lowercase letter and a digit.',
@@ -159,7 +146,7 @@ export default function SignUp() {
             >
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <TextField
+                        <StyledTextField
                             required
                             fullWidth
                             id="username"
@@ -176,7 +163,7 @@ export default function SignUp() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
+                        <StyledTextField
                             required
                             fullWidth
                             id="email"
@@ -192,7 +179,7 @@ export default function SignUp() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
+                        <StyledTextField
                             required
                             fullWidth
                             id="openAiApiKey"
@@ -210,7 +197,7 @@ export default function SignUp() {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
+                        <StyledTextField
                             required
                             fullWidth
                             id="serpApiKey"
@@ -229,7 +216,7 @@ export default function SignUp() {
                     </Grid>
 
                     <Grid item xs={12}>
-                        <TextField
+                        <StyledTextField
                             required
                             fullWidth
                             name="password"

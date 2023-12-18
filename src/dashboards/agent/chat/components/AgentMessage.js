@@ -10,14 +10,13 @@ const AgentMessage = ({ message }) => {
             <StyledHeader>
                 <ListItemIcon>
                     <Avatar
-                        variant="square"
                         sx={{
                             bgcolor: "secondary.main",
-                            width: "30px",
-                            height: "30px",
+                            width: "33px",
+                            height: "39px",
                         }}
                     >
-                        <Icon icon="mdi:robot" style={{ fontSize: "33px" }} />
+                        <Icon icon="mdi:robot" style={{ fontSize: "30px" }} />
                     </Avatar>
                 </ListItemIcon>
                 <StyledCheckbox

@@ -2,8 +2,6 @@ import { Box } from '@mui/material';
 import { useContext, useState } from 'react';
 import { ProfileContext } from '../ProfileContext';
 
-import shaunoAvatar from '../../../assets/images/shaunoAvatar.png';
-
 import {
     UserContainer,
     AvatarContainer,
@@ -15,12 +13,22 @@ import {
 
 const User = () => {
     const [isEditing, setIsEditing] = useState(false);
-    const { profileData, setProfileData } = useContext(ProfileContext);
+    const { profileData, setProfileData, handleAvatarChange, avatar } =
+        useContext(ProfileContext);
 
     return (
         <UserContainer id="user-container" elevation={9}>
             <AvatarContainer id="avatar-container">
-                <StyledAvatar alt="User Avatar" src={shaunoAvatar} />
+                <input
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    id="avatar-input"
+                    type="file"
+                    onChange={handleAvatarChange}
+                />
+                <label htmlFor="avatar-input">
+                    <StyledAvatar alt="User Avatar" src={avatar} />
+                </label>
                 <Box
                     sx={{ display: 'flex', alignItems: 'center' }}
                     onClick={() => setIsEditing(true)}
@@ -79,7 +87,6 @@ const User = () => {
                     />
                 </Box>
                 <ProfileTextField
-                
                     size="small"
                     label="Serpapi Key"
                     type="password"

@@ -1,5 +1,11 @@
-import { useState, createContext, useCallback, useContext } from 'react';
-import { AuthContext } from '../../../auth/AuthContext';
+import {
+    useState,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+} from 'react';
+import { AuthContext, backendUrl } from '../../../auth/AuthContext';
 
 export const NewsContext = createContext();
 
@@ -9,8 +15,6 @@ export const NewsProvider = ({ children }) => {
     const [readFilter, setReadFilter] = useState(false);
     const [query, setQuery] = useState('');
     const [slideIndex, setSlideIndex] = useState(0);
-
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const updateNewsData = (updateFunc) =>
         setNewsData((prevNewsData) => updateFunc(prevNewsData));
@@ -42,7 +46,7 @@ export const NewsProvider = ({ children }) => {
             const data = await response.json();
             setNewsData(data);
         } catch (error) {}
-    }, [backendUrl, idToken]);
+    }, [idToken]);
 
     const fetchNewsData = useCallback(
         async (queryParam = query) => {
@@ -85,7 +89,12 @@ export const NewsProvider = ({ children }) => {
         } catch (error) {
             console.error(error);
         }
-    }, [backendUrl, fetchNewsData, idToken]);
+    }, [fetchNewsData, idToken]);
+
+    useEffect(() => {
+        if (!idToken) return;
+        loadNewsData();
+    }, [idToken, loadNewsData]);
 
     return (
         <NewsContext.Provider

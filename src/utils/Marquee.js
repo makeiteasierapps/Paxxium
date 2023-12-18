@@ -16,7 +16,7 @@ const Marquee = ({ text, isSelected, drawerOpen }) => {
         position: 'relative',
         overflow: 'hidden',
         width: '100%',
-        height: '1.25rem', // adjust this value as necessary
+        height: '1.25rem',
         display: 'flex',
         alignItems: 'center',
         '& > div': {

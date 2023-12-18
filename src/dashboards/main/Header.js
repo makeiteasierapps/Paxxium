@@ -8,10 +8,13 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext, auth } from '../../auth/AuthContext';
 import { Link } from 'react-router-dom';
 import { HeaderContainer, HeaderIconButton } from './mainStyledComponents';
+import { useLocation } from 'react-router-dom';
 
 const Header = () => {
     const navigate = useNavigate();
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
+
+    const location = useLocation();
 
     const handleLogout = async () => {
         try {
@@ -28,17 +31,36 @@ const Header = () => {
 
     return (
         <HeaderContainer id="header">
-            <HeaderIconButton color="inherit" component={Link} to="/home">
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/home"
+                currentpath={location.pathname}
+            >
                 <HomeIcon sx={{ fontSize: '2rem' }} />
             </HeaderIconButton>
-            <HeaderIconButton color="inherit" component={Link} to="/agents">
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/agents"
+                currentpath={location.pathname}
+            >
                 <AgentsIcon sx={{ fontSize: '2rem' }} />
             </HeaderIconButton>
-            <HeaderIconButton color="inherit" component={Link} to="/profile">
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/profile"
+                currentpath={location.pathname}
+            >
                 <ProfileIcon sx={{ fontSize: '2rem' }} />
             </HeaderIconButton>
 
-            <HeaderIconButton id="logout-button" onClick={handleLogout}>
+            <HeaderIconButton
+                disableRipple
+                id="logout-button"
+                onClick={handleLogout}
+            >
                 <LogoutIcon sx={{ fontSize: '2rem' }} />
             </HeaderIconButton>
         </HeaderContainer>
