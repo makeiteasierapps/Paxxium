@@ -3,8 +3,8 @@ import { styled } from '@mui/system';
 
 export const StyledTextField = styled(TextField)(({ theme }) => ({
     '& input:-webkit-autofill': {
-        '-webkit-box-shadow': `0 0 0px 1000px ${theme.palette.background.paper} inset`,
-        '-webkit-text-fill-color': theme.palette.text.primary,
+        WebkitBoxShadow: `0 0 0px 1000px ${theme.palette.background.paper} inset`,
+        WebkitTextFillColor: theme.palette.text.primary,
         transition: 'background-color 5000s ease-in-out 0s',
     },
 }));

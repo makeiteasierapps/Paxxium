@@ -157,7 +157,6 @@ class UserService:
         
         user_ref.update(updates)
 
-
     def upload_avatar_picture(self, file, uid):
         bucket = storage.bucket()
         unique_filename = str(uuid.uuid4())

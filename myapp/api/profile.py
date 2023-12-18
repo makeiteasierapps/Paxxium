@@ -62,10 +62,11 @@ def update_avatar():
     """
     us = current_app.user_service
     uid = authenticate_request()
-    file = request.files['compressedImage']
+    print(request.files)
+    file = request.files['avatar']
     avatar_url = us.upload_avatar_picture(file, uid)
 
-    return {'AvatarUrl': avatar_url}, 200
+    return {'avatarUrl': avatar_url}, 200
 
 @profile.route('/profile/analyze', methods=['GET', 'POST'])
 def analyze_profile():

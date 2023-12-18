@@ -88,10 +88,27 @@ export const AvatarContainer = styled(Box)(({ theme }) => ({
 
 export const StyledAvatar = styled('img')(({ theme }) => ({
     width: '100px',
+    height: '100px',
     borderRadius: '50%',
-    height: 'auto',
+    objectFit: 'contain',
     cursor: 'pointer',
     margin: theme.spacing(1),
+    backgroundColor: 'black',
+}));
+
+export const StyledAvatarPlaceholder = styled(Box)(({ theme }) => ({
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'lightgray',
+    color: 'black',
+    fontSize: '14px',
+    textAlign: 'center',
+    padding: theme.spacing(1),
+    cursor: 'pointer',
 }));
 
 export const TextFieldContainer = styled(Box)(({ theme }) => ({
@@ -129,8 +146,8 @@ export const ProfileTextField = styled(TextField)(({ theme }) => ({
         },
     },
     '& input:-webkit-autofill': {
-        '-webkit-box-shadow': `0 0 0px 1000px ${theme.palette.background.paper} inset`,
-        '-webkit-text-fill-color': theme.palette.text.primary,
+        WebkitBoxShadow: `0 0 0px 1000px ${theme.palette.background.paper} inset`,
+        WebkitTextFillColor: theme.palette.text.primary,
         transition: 'background-color 5000s ease-in-out 0s',
     },
     '& label.Mui-focused': {

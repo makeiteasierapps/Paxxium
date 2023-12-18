@@ -5,9 +5,9 @@ import {
     useEffect,
     useCallback,
 } from 'react';
+
+import 'react-image-crop/dist/ReactCrop.css';
 import { AuthContext, backendUrl } from '../../auth/AuthContext';
-import shaunoAvatar from '../../assets/images/shaunoAvatar.png';
-import { readAndCompressImage } from 'browser-image-resizer';
 
 export const ProfileContext = createContext();
 
@@ -16,7 +16,9 @@ export const ProfileProvider = ({ children }) => {
     const [profileData, setProfileData] = useState({});
     const [analysis, setAnalysis] = useState(null);
     const [answers, setAnswers] = useState({});
-    const [avatar, setAvatar] = useState(shaunoAvatar);
+    const [avatar, setAvatar] = useState();
+
+    const [upImg, setUpImg] = useState();
 
     const loadProfile = useCallback(async () => {
         try {
@@ -87,46 +89,6 @@ export const ProfileProvider = ({ children }) => {
         }));
     };
 
-    const handleAvatarChange = async (event) => {
-        if (event.target.files && event.target.files[0]) {
-            const img = event.target.files[0];
-            const config = {
-                quality: 0.5,
-                maxWidth: 500,
-                maxHeight: 500,
-                autoRotate: true,
-                debug: true,
-            };
-
-            try {
-                const compressedImage = await readAndCompressImage(img, config);
-                const reader = new FileReader();
-                reader.onloadend = function () {
-                    const base64data = reader.result;
-                    setAvatar(base64data);
-                };
-                reader.readAsDataURL(compressedImage);
-
-                const formData = new FormData();
-                formData.append('compressedImage', compressedImage);
-
-                const response = await fetch(
-                    `${backendUrl}/profile/update_avatar`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            Authorization: idToken,
-                        },
-                        body: formData,
-                    }
-                );
-                const data = await response.json();
-                console.log(data);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-    };
 
     const handleAnalyzeProfile = async () => {
         try {
@@ -159,8 +121,10 @@ export const ProfileProvider = ({ children }) => {
                 handleAnswerChange,
                 getAnswers,
                 loadProfile,
-                handleAvatarChange,
                 avatar,
+                setAvatar,
+                upImg,
+                setUpImg,
             }}
         >
             {children}
