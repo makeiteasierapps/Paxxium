@@ -4,7 +4,6 @@
   - Add as favorite
 
 
-# <span style="color:#FF69B4">Agent</span>
 ### Chat
 
 
