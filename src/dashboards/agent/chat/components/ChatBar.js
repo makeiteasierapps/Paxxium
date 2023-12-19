@@ -1,5 +1,7 @@
-import { useContext } from 'react';
-import { Typography, IconButton } from '@mui/material';
+import { useContext, useState } from 'react';
+import { Typography } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
@@ -20,33 +22,59 @@ import {
 const ChatBar = ({ chatName, id }) => {
     const { setMessages, setAgentArray } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
+
+    const [deleteClicked, setDeleteClicked] = useState(false);
+
+    const handleDeleteClick = () => {
+        if (deleteClicked) {
+            handleDeleteChat(id, idToken, setAgentArray, backendUrl);
+        } else {
+            setDeleteClicked(true);
+            setTimeout(() => {
+                setDeleteClicked(false);
+            }, 3000);
+        }
+    };
+
     return (
         <Bar>
             <Typography variant="h6">{chatName}</Typography>
             <ChatBarIcons>
-                <StyledIconButton
-                    disableRipple
-                    aria-label="clear_chat"
-                    onClick={() =>
-                        handleClearMessages(
-                            id,
-                            idToken,
-                            setMessages,
-                            backendUrl
-                        )
+                <Tooltip title="Clear Chat" placement="top">
+                    <StyledIconButton
+                        disableRipple
+                        aria-label="clear_chat"
+                        onClick={() =>
+                            handleClearMessages(
+                                id,
+                                idToken,
+                                setMessages,
+                                backendUrl
+                            )
+                        }
+                    >
+                        <CommentsDisabledIcon />
+                    </StyledIconButton>
+                </Tooltip>
+                <Tooltip
+                    title={
+                        deleteClicked
+                            ? 'Are you sure? Click again to confirm'
+                            : ''
                     }
+                    open={deleteClicked}
+                    placement="top"
                 >
-                    <CommentsDisabledIcon />
-                </StyledIconButton>
-                <StyledIconButton
-                    disableRipple
-                    aria-label="delete"
-                    onClick={() =>
-                        handleDeleteChat(id, idToken, setAgentArray, backendUrl)
-                    }
-                >
-                    <DeleteIcon />
-                </StyledIconButton>
+                    <StyledIconButton
+                        disableRipple
+                        aria-label="delete"
+                        onClick={handleDeleteClick}
+                        style={{ color: deleteClicked ? 'red' : '#b0bec5' }}
+                    >
+                        <DeleteIcon />
+                    </StyledIconButton>
+                </Tooltip>
+
                 <StyledIconButton
                     disableRipple
                     aria-label="close"

@@ -12,10 +12,10 @@ import {
     ProfileTextField,
     Username,
     TextFieldContainer,
-    StyledAvatarPlaceholder
+    StyledAvatarPlaceholder,
 } from '../styledProfileComponents';
 
-import AvatarDialog from './avatarDialog';
+import AvatarDialog from './AvatarDialog';
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
@@ -42,9 +42,7 @@ const User = () => {
     const blobUrlRef = useRef('');
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState();
-    const [scale, setScale] = useState(1);
-    const [rotate, setRotate] = useState(0);
-    const [aspect, setAspect] = useState(16 / 9);
+    const [aspect, setAspect] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
 
@@ -73,11 +71,11 @@ const User = () => {
 
     async function handleSaveCroppedImage() {
         const image = imgRef.current;
+        const scaleX = image.naturalWidth / image.width;
+        const scaleY = image.naturalHeight / image.height;
 
         const aspectRatio = image.naturalWidth / image.naturalHeight;
-
-        // Define your desired width
-        const desiredWidth = 400; // replace with your desired width
+        const desiredWidth = 400;
 
         // Calculate the height to maintain aspect ratio
         const desiredHeight = desiredWidth / aspectRatio;
@@ -91,17 +89,15 @@ const User = () => {
 
         ctx.drawImage(
             image,
+            completedCrop.x * scaleX,
+            completedCrop.y * scaleY,
+            completedCrop.width * scaleX,
+            completedCrop.height * scaleY,
             0,
             0,
-            image.naturalWidth,
-            image.naturalHeight,
-            0,
-            0,
-            desiredWidth,
-            desiredHeight
+            offscreen.width,
+            offscreen.height
         );
-        // You might want { type: "image/jpeg", quality: <0 to 1> } to
-        // reduce image size
         const blob = await offscreen.convertToBlob({
             type: 'image/png',
         });
@@ -181,6 +177,7 @@ const User = () => {
                     setCompletedCrop={setCompletedCrop}
                     imgRef={imgRef}
                     onImageLoad={onImageLoad}
+                    aspect={aspect}
                 />
                 <Box
                     sx={{ display: 'flex', alignItems: 'center' }}

@@ -5,24 +5,34 @@ import ReactCrop from 'react-image-crop';
 import { styled } from '@mui/system';
 
 const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.default,
 }));
 
 const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
 }));
 
-const AvatarDialog = ({ open, handleClose, handleSave, imgSrc, crop, setCrop, setCompletedCrop, imgRef, onImageLoad }) => {
+const AvatarDialog = ({
+    open,
+    handleClose,
+    handleSave,
+    imgSrc,
+    crop,
+    setCrop,
+    setCompletedCrop,
+    imgRef,
+    onImageLoad,
+    aspect,
+}) => {
     return (
         <Dialog open={open} onClose={handleClose}>
             <StyledDialogContent>
                 {imgSrc && (
                     <ReactCrop
                         crop={crop}
-                        onChange={(_, percentCrop) =>
-                            setCrop(percentCrop)
-                        }
+                        onChange={(_, percentCrop) => setCrop(percentCrop)}
                         onComplete={(c) => setCompletedCrop(c)}
+                        aspect={aspect}
                     >
                         <img
                             ref={imgRef}
@@ -34,8 +44,12 @@ const AvatarDialog = ({ open, handleClose, handleSave, imgSrc, crop, setCrop, se
                 )}
             </StyledDialogContent>
             <StyledDialogActions>
-                <Button variant="contained" onClick={handleClose}>Cancel</Button>
-                <Button variant="contained" onClick={handleSave}>Save</Button>
+                <Button variant="contained" onClick={handleClose}>
+                    Cancel
+                </Button>
+                <Button variant="contained" onClick={handleSave}>
+                    Save
+                </Button>
             </StyledDialogActions>
         </Dialog>
     );

@@ -9,7 +9,7 @@ import { AuthContext, auth } from '../../auth/AuthContext';
 import { Link } from 'react-router-dom';
 import { HeaderContainer, HeaderIconButton } from './mainStyledComponents';
 import { useLocation } from 'react-router-dom';
-
+import { Typography } from '@mui/material';
 const Header = () => {
     const navigate = useNavigate();
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
@@ -31,6 +31,19 @@ const Header = () => {
 
     return (
         <HeaderContainer id="header">
+            <Typography
+                component="div"
+                sx={{
+                    flexGrow: 1,
+                    textAlign: 'left',
+                    fontFamily: 'Trillium Web',
+                    fontWeight: 'bold',
+                    fontSize: '2rem',
+                    marginLeft: '2rem',
+                }}
+            >
+                Paxxium
+            </Typography>
             <HeaderIconButton
                 disableRipple
                 component={Link}

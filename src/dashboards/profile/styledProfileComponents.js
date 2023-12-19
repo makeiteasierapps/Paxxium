@@ -90,7 +90,6 @@ export const StyledAvatar = styled('img')(({ theme }) => ({
     width: '100px',
     height: '100px',
     borderRadius: '50%',
-    objectFit: 'contain',
     cursor: 'pointer',
     margin: theme.spacing(1),
     backgroundColor: 'black',

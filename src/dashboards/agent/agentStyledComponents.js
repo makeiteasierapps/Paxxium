@@ -45,8 +45,9 @@ export const Settings = styled(Box)(({ theme }) => ({
 export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    marginBottom: theme.spacing(1),
     minWidth: '80vw',
-    maxWidth: '90vw',
+    maxWidth: '80vw',
     minHeight: '40vh',
     maxHeight: '75vh',
     overflow: 'auto',
@@ -79,8 +80,10 @@ export const MessagesContainer = styled(Box)({
 export const MessageContainer = styled(ListItem)({
     backgroundColor: blueGrey[700],
     wordBreak: 'break-word',
+    flexDirection: 'row',
+    display: 'flex',
     alignItems: 'flex-start',
-    flexDirection: 'column',
+    paddingRight: '50px',
 });
 
 export const MessageContent = styled(Box)({
@@ -96,13 +99,6 @@ export const StyledCheckbox = styled(Checkbox)({
     '&.Mui-checked': {
         color: '#1C282E',
     },
-});
-
-export const StyledHeader = styled(Box)({
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
 });
 
 // Chatbar

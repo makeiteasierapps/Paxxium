@@ -8,9 +8,7 @@
 
 # <span style="color:#FF69B4">Agent</span>
 ### Chat
-- Feature updates
-    - Add a secondary check for when the chat clear or trash buttons are clicked.
-    - Add form validation to agent menu. Name and model should be required
+
 
 ### Debate
 - Bugs

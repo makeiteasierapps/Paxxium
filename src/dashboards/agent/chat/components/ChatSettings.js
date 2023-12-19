@@ -5,32 +5,35 @@ import {
     Grid,
     MenuItem,
     TextField,
-} from "@mui/material";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext, backendUrl } from "../../../../auth/AuthContext";
-import { ChatContext } from "../ChatContext";
+} from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { ChatContext } from '../ChatContext';
 
 const ChatSettings = () => {
     const { setSelectedAgent, selectedAgent, setAgentArray } =
         useContext(ChatContext);
 
-    const [agentModel, setAgentModel] = useState("");
-    const [systemPrompt, setSystemPrompt] = useState("");
-    const [chatConstants, setChatConstants] = useState("");
+    const [agentModel, setAgentModel] = useState('');
+    const [systemPrompt, setSystemPrompt] = useState('');
+    const [chatConstants, setChatConstants] = useState('');
     const [useProfileData, setUseProfileData] = useState(false);
-    const [chatName, setChatName] = useState("");
+    const [chatName, setChatName] = useState('');
+    const [errors, setErrors] = useState({
+        selectModel: '',
+        name: '',
+    });
 
     const { idToken } = useContext(AuthContext);
 
     useEffect(() => {
-        setAgentModel(selectedAgent?.agent_model || "");
-        setSystemPrompt(selectedAgent?.system_prompt || "");
-        setChatConstants(selectedAgent?.chat_constants || "");
+        setAgentModel(selectedAgent?.agent_model || '');
+        setSystemPrompt(selectedAgent?.system_prompt || '');
+        setChatConstants(selectedAgent?.chat_constants || '');
         setUseProfileData(selectedAgent?.use_profile_data || false);
-        setChatName(selectedAgent?.chat_name || "");
+        setChatName(selectedAgent?.chat_name || '');
     }, [selectedAgent]);
 
-    // START CHAT
     const startChat = async (
         agentModel,
         systemPrompt,
@@ -40,12 +43,12 @@ const ChatSettings = () => {
     ) => {
         try {
             const response = await fetch(`${backendUrl}/chat/create`, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
-                credentials: "include",
+                credentials: 'include',
                 body: JSON.stringify({
                     agentModel,
                     systemPrompt,
@@ -65,14 +68,16 @@ const ChatSettings = () => {
         }
     };
 
-    const handleSubmit = () => {
-        startChat(
-            agentModel,
-            systemPrompt,
-            chatConstants,
-            useProfileData,
-            chatName
-        );
+    const handleSubmit = (event) => {
+        if (validate()) {
+            startChat(
+                agentModel,
+                systemPrompt,
+                chatConstants,
+                useProfileData,
+                chatName
+            );
+        }
     };
 
     const updateSettings = async (id) => {
@@ -88,12 +93,12 @@ const ChatSettings = () => {
         // Update the settings in the database
         try {
             await fetch(`${backendUrl}/chat/update_settings`, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
-                credentials: "include",
+                credentials: 'include',
                 body: JSON.stringify(newAgentSettings),
             });
         } catch (error) {
@@ -110,10 +115,23 @@ const ChatSettings = () => {
         setSelectedAgent(newAgentSettings);
     };
 
+    const validate = () => {
+        let tempErrors = {};
+        tempErrors.selectModel = agentModel ? '' : 'This field is required.';
+        tempErrors.name = chatName ? '' : 'This field is required.';
+        setErrors({
+            ...tempErrors,
+        });
+
+        return Object.values(tempErrors).every((x) => x === '');
+    };
+
     return (
         <>
             <Grid item xs={12} sm={3}>
                 <TextField
+                    error={errors.selectModel ? true : false}
+                    helperText={errors.selectModel}
                     required
                     select
                     id="selectModel"
@@ -130,6 +148,8 @@ const ChatSettings = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={5}>
                 <TextField
+                    error={errors.selectModel ? true : false}
+                    helperText={errors.selectModel}
                     required
                     id="name"
                     name="name"
@@ -140,7 +160,7 @@ const ChatSettings = () => {
                     onChange={(event) => setChatName(event.target.value)}
                 />
             </Grid>
-            <Grid item xs={12} sm={3} md={4} textAlign={"center"}>
+            <Grid item xs={12} sm={3} md={4} textAlign={'center'}>
                 <FormControlLabel
                     control={
                         <Checkbox

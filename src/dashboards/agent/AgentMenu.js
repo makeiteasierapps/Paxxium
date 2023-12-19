@@ -1,14 +1,14 @@
-import { Grid, MenuItem, TextField } from "@mui/material";
-import { useContext, useState } from "react";
-import { AuthContext, backendUrl } from "../../auth/AuthContext";
-import { ChatContext } from "../../dashboards/agent/chat/ChatContext";
-import DebateSettings from "../agent/debate/DebateSettings";
-import ChatSettings from "./chat/components/ChatSettings";
+import { Grid, MenuItem, TextField } from '@mui/material';
+import { useContext, useState } from 'react';
+import { AuthContext, backendUrl } from '../../auth/AuthContext';
+import { ChatContext } from '../../dashboards/agent/chat/ChatContext';
+import DebateSettings from '../agent/debate/DebateSettings';
+import ChatSettings from './chat/components/ChatSettings';
 
 const AgentMenu = () => {
     const { idToken } = useContext(AuthContext);
     const { agentArray, setAgentArray } = useContext(ChatContext);
-    const [selectedAgent, setSelectedAgent] = useState("Chat");
+    const [selectedAgent, setSelectedAgent] = useState('Chat');
     const [selectedAgentId, setSelectedAgentId] = useState('');
 
     const handleLoadChat = async (event) => {
@@ -20,26 +20,38 @@ const AgentMenu = () => {
             const response = await fetch(
                 `${backendUrl}/chat/update_visibility`,
                 {
-                    method: "POST",
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json",
+                        'Content-Type': 'application/json',
                         Authorization: idToken,
                     },
                     body: JSON.stringify({ id: selectedId, is_open: true }),
-                    credentials: "include",
+                    credentials: 'include',
                 }
             );
 
-            if (!response.ok) throw new Error("Failed to update chat");
+            if (!response.ok) throw new Error('Failed to update chat');
 
             // Update the local state only after the database has been updated successfully
-            setAgentArray((prevAgents) =>
-                prevAgents.map((agent) =>
-                    agent.id === selectedId
-                        ? { ...agent, is_open: true }
-                        : agent
-                )
-            );
+            setAgentArray((prevAgents) => {
+                // Find the agent and update it
+                const updatedAgent = prevAgents.find(
+                    (agent) => agent.id === selectedId
+                );
+                if (updatedAgent) {
+                    updatedAgent.is_open = true;
+                }
+
+                // Filter out the updated agent from the original array
+                const filteredAgents = prevAgents.filter(
+                    (agent) => agent.id !== selectedId
+                );
+
+                // Add the updated agent to the beginning of the array
+                return updatedAgent
+                    ? [updatedAgent, ...filteredAgents]
+                    : filteredAgents;
+            });
         } catch (error) {
             console.log(error);
         }
@@ -83,7 +95,7 @@ const AgentMenu = () => {
                     })}
                 </TextField>
             </Grid>
-            {selectedAgent === "Chat" ? <ChatSettings /> : <DebateSettings />}
+            {selectedAgent === 'Chat' ? <ChatSettings /> : <DebateSettings />}
         </Grid>
     );
 };
