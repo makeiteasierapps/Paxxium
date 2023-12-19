@@ -12,7 +12,7 @@ import theme from './Theme';
 import { AuthContext, AuthProvider, backendUrl } from './auth/AuthContext';
 import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
-import ChatDash from './dashboards/agent/AgentDash';
+import AgentDash from './dashboards/agent/AgentDash';
 import { ChatProvider } from './dashboards/agent/chat/ChatContext';
 import HomeDash from './dashboards/home/HomeDash';
 import { NewsProvider } from './dashboards/home/news/NewsContext';
@@ -96,7 +96,7 @@ const AuthenticatedApp = () => {
                         element={
                             <ProfileProvider>
                                 <ChatProvider>
-                                    <ChatDash />
+                                    <AgentDash />
                                 </ChatProvider>
                             </ProfileProvider>
                         }

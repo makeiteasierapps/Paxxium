@@ -15,6 +15,7 @@ export const NewsProvider = ({ children }) => {
     const [readFilter, setReadFilter] = useState(false);
     const [query, setQuery] = useState('');
     const [slideIndex, setSlideIndex] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     const updateNewsData = (updateFunc) =>
         setNewsData((prevNewsData) => updateFunc(prevNewsData));
@@ -45,7 +46,11 @@ export const NewsProvider = ({ children }) => {
             if (!response.ok) throw new Error('Failed to load news data');
             const data = await response.json();
             setNewsData(data);
-        } catch (error) {}
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }, [idToken]);
 
     const fetchNewsData = useCallback(
@@ -68,7 +73,7 @@ export const NewsProvider = ({ children }) => {
                 console.error(error);
             }
         },
-        [backendUrl, idToken, query]
+        [idToken, query]
     );
 
     const aiNewsFetch = useCallback(async () => {
@@ -113,6 +118,7 @@ export const NewsProvider = ({ children }) => {
                 readFilter,
                 setReadFilter,
                 deleteNewsArticle,
+                loading,
             }}
         >
             {children}

@@ -2,12 +2,10 @@ import { useContext, useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { AuthContext, backendUrl } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -118,11 +116,8 @@ export default function SignUp() {
 
     return (
         <StyledContainer component="main" maxWidth="xs">
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-                Sign up
+            <Typography variant="h2" fontFamily='Trillium Web'>
+                Paxxium
             </Typography>
             <WelcomeMessageText
                 sx={{ mt: 2 }}

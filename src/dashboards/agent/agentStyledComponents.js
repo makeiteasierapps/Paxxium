@@ -14,6 +14,7 @@ export const Container = styled(Box)(() => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    justifyContent: 'center',
 }));
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({

@@ -1,18 +1,18 @@
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Button, Tooltip, Typography } from "@mui/material";
-import { motion } from "framer-motion";
-import { useContext, useState } from "react";
-import { AuthContext, backendUrl } from "../../../../auth/AuthContext";
-import { NewsContext } from "../NewsContext";
-import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Button, Tooltip, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
+import { useContext, useState } from 'react';
+import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { NewsContext } from '../NewsContext';
+import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import {
     StyledCard,
     StyledCardMedia,
     StyledCardContent,
     StyledIconButton,
-} from "../styledNewsComponents";
+} from '../styledNewsComponents';
 
 const NewsCard = ({ news, index }) => {
     const { markNewsAsRead, deleteNewsArticle, setSlideIndex } =
@@ -23,9 +23,9 @@ const NewsCard = ({ news, index }) => {
     const markArticleRead = async () => {
         try {
             const response = await fetch(`${backendUrl}/news_articles`, {
-                method: "PUT",
+                method: 'PUT',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
                 body: JSON.stringify({ articleId: news.id }),
@@ -43,9 +43,9 @@ const NewsCard = ({ news, index }) => {
     const handleArticleDelete = async () => {
         try {
             const response = await fetch(`${backendUrl}/news_articles`, {
-                method: "DELETE",
+                method: 'DELETE',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
                 body: JSON.stringify({ articleId: news.id }),
@@ -65,7 +65,7 @@ const NewsCard = ({ news, index }) => {
             initial={{ opacity: 0, scale: 0.3 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9 }}
-            style={{ height: "100%" }}
+            style={{ height: '100%' }}
         >
             <StyledCard key={news.id} onClick={() => setSlideIndex(index)}>
                 <StyledCardMedia image={news.image}>
@@ -105,7 +105,12 @@ const NewsCard = ({ news, index }) => {
                     <Typography variant="body2" color="text.secondary">
                         {news.summary}
                     </Typography>
-                    <Button variant="outlined" href={news.url}>
+                    <Button
+                        variant="contained"
+                        href={news.url}
+                        target="_blank"
+                        sx={{ margin: '1rem 0' }}
+                    >
                         Read More
                     </Button>
                 </StyledCardContent>

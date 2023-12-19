@@ -4,6 +4,7 @@ import AgentMenu from './AgentMenu';
 import Chat from './chat/Chat';
 import { ChatContext } from './chat/ChatContext';
 import Debate from './debate/Debate';
+import { Box } from '@mui/material';
 
 import {
     Container,
@@ -12,12 +13,15 @@ import {
     SettingsMenuContainer,
 } from './agentStyledComponents';
 
+import { CustomGridLoader } from '../main/customLoaders';
+
 const AgentDash = () => {
     const { setSelectedAgent, agentArray, setAgentArray } =
         useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
     const [error, setError] = useState(null);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!idToken) return;
@@ -56,6 +60,7 @@ const AgentDash = () => {
                     );
                     if (chatAgent) setSelectedAgent(chatAgent);
                 }
+                setLoading(false);
             } catch (error) {
                 console.error(error);
                 setError(error.message);
@@ -66,53 +71,66 @@ const AgentDash = () => {
     }, [idToken, setAgentArray, setSelectedAgent, setError]);
 
     if (error) {
-        return <p>Error: {error}</p>;
+        return <Box>Error: {error}</Box>;
     }
 
     return (
-        <>
-            <SettingsMenuContainer id="settings-container">
-                {settingsOpen && (
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                flexDirection: 'column',
+                height: '100vh',
+            }}
+        >
+            {settingsOpen && (
+                <SettingsMenuContainer id="settings-container">
                     <Settings id="settings">
                         <AgentMenu />
                     </Settings>
-                )}
-                <SettingsMenuButton
-                    disableRipple
-                    onClick={() => setSettingsOpen(!settingsOpen)}
-                >
-                    {settingsOpen ? 'Hide' : 'Settings'}
-                </SettingsMenuButton>
-            </SettingsMenuContainer>
-            <Container id="chats-container">
-                {agentArray
-                    .filter((agent) => agent.is_open)
-                    .map((agent) => {
-                        if (agent.agent_model === 'AgentDebate') {
-                            return (
-                                <Debate
-                                    key={agent.id}
-                                    id={agent.id}
-                                    chatName={agent.chat_name}
-                                    topic={agent.topic}
-                                />
-                            );
-                        } else {
-                            return (
-                                <Chat
-                                    key={agent.id}
-                                    id={agent.id}
-                                    chatConstants={agent.chat_constants}
-                                    systemPrompt={agent.system_prompt}
-                                    chatName={agent.chat_name}
-                                    agentModel={agent.agent_model}
-                                    useProfileData={agent.use_profile_data}
-                                />
-                            );
-                        }
-                    })}
-            </Container>
-        </>
+                </SettingsMenuContainer>
+            )}
+            <SettingsMenuButton
+                disableRipple
+                onClick={() => setSettingsOpen(!settingsOpen)}
+            >
+                {settingsOpen ? 'Hide' : 'Settings'}
+            </SettingsMenuButton>
+            {loading ? (
+                <Box marginTop={30}>
+                    <CustomGridLoader />
+                </Box>
+            ) : (
+                <Container id="chats-container">
+                    {agentArray
+                        .filter((agent) => agent.is_open)
+                        .map((agent) => {
+                            if (agent.agent_model === 'AgentDebate') {
+                                return (
+                                    <Debate
+                                        key={agent.id}
+                                        id={agent.id}
+                                        chatName={agent.chat_name}
+                                        topic={agent.topic}
+                                    />
+                                );
+                            } else {
+                                return (
+                                    <Chat
+                                        key={agent.id}
+                                        id={agent.id}
+                                        chatConstants={agent.chat_constants}
+                                        systemPrompt={agent.system_prompt}
+                                        chatName={agent.chat_name}
+                                        agentModel={agent.agent_model}
+                                        useProfileData={agent.use_profile_data}
+                                    />
+                                );
+                            }
+                        })}
+                </Container>
+            )}
+        </Box>
     );
 };
 

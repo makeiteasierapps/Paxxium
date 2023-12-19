@@ -3,8 +3,6 @@
 - Feature updates
   - Add as favorite
 
-## General Refactoring:
-- Display loading spinners and error messages
 
 # <span style="color:#FF69B4">Agent</span>
 ### Chat
@@ -24,7 +22,7 @@
 ### User Profile
   
 
-
+## General Refactoring:
 
 
 

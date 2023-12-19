@@ -172,14 +172,14 @@ const ChatSettings = () => {
                             }
                         />
                     }
-                    label="Use Profile Data"
+                    label="AI Insight"
                 />
             </Grid>
             <Grid item xs={12} sm={12}>
                 <TextField
                     id="systemPrompt"
                     name="systemPrompt"
-                    label="System Prompt"
+                    label="Personality/Role"
                     fullWidth
                     variant="standard"
                     value={systemPrompt}
@@ -190,7 +190,7 @@ const ChatSettings = () => {
                 <TextField
                     id="chatConstants"
                     name="chatConstants"
-                    label="Chat Constants"
+                    label="Things to Remember"
                     fullWidth
                     variant="standard"
                     value={chatConstants}
