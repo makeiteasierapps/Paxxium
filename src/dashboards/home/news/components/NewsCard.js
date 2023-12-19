@@ -71,6 +71,7 @@ const NewsCard = ({ news, index }) => {
                 <StyledCardMedia image={news.image}>
                     <Tooltip title="Mark read" placement="top-end">
                         <StyledIconButton
+                            disableRipple
                             style={{ right: 0 }}
                             onClick={(e) => {
                                 e.stopPropagation();
