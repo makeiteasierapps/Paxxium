@@ -1,19 +1,20 @@
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { useContext } from 'react';
-import Carousel from 'react-spring-3d-carousel';
-import { NewsContext } from '../NewsContext';
-import NewsCard from './NewsCard';
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { useContext } from "react";
+import Carousel from "react-spring-3d-carousel";
+import { NewsContext } from "../NewsContext";
+import NewsCard from "./NewsCard";
 import {
     AiSearchButton,
     SearchContainer,
     SearchField,
-    SearchButton,
     CarouselContainer,
-} from '../styledNewsComponents';
+} from "../styledNewsComponents";
 
-import { CustomGridLoader } from '../../../main/customLoaders';
+import SearchIcon from "@mui/icons-material/Search";
 
-import { Box, Checkbox } from '@mui/material';
+import { CustomGridLoader } from "../../../main/customLoaders";
+
+import { Box, Checkbox, IconButton, InputAdornment } from "@mui/material";
 const NewsCarousel = () => {
     const {
         newsData,
@@ -37,11 +38,11 @@ const NewsCarousel = () => {
     return (
         <Box
             sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-around',
-                height: '80vh',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "space-around",
+                height: "80vh",
             }}
         >
             <SearchContainer id="search-container">
@@ -58,17 +59,23 @@ const NewsCarousel = () => {
                     variant="outlined"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                />
-                <SearchButton
-                    id="search-button"
-                    onClick={(event) => {
-                        event.preventDefault();
-                        fetchNewsData(query);
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    id="search-button"
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        fetchNewsData(query);
+                                    }}
+                                    disabled={!query}
+                                >
+                                    <SearchIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
                     }}
-                    variant="contained"
-                >
-                    Submit
-                </SearchButton>
+                />
             </SearchContainer>
             <CarouselContainer id="carousel-container">
                 {loading ? (
