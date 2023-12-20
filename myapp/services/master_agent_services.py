@@ -12,9 +12,9 @@ class MasterAgentService:
         key = (uid, chat_id)
 
         if agent_model == 'GPT-4':
-            agent_model = 'gpt-4-0613'
+            agent_model = 'gpt-4-1106-preview'
         else:
-            agent_model = 'gpt-3.5-turbo-0613'
+            agent_model = 'gpt-3.5-turbo-1106'
         
         # Check if the AI instance for the given key exists in the master_agents dictionary
         if key not in self.master_agents:
