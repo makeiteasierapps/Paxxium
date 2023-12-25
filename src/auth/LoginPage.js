@@ -3,10 +3,8 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { AuthContext } from './AuthContext';
-
+import paxxiumTextLogo from '../assets/images/paxxium-logo-text-only.png';
 import { StyledTextField } from '../auth/authStyledComponents';
 
 export default function LoginPage() {
@@ -35,58 +33,72 @@ export default function LoginPage() {
     };
 
     return (
-        <Container component="main" maxWidth="xs">
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                width: '100%',
+            }}
+        >
+            <Box
+                component="img"
+                src={paxxiumTextLogo}
+                alt="Paxxium Logo"
+                sx={{
+                    height: 'auto',
+                    width: '100%',
+                    maxWidth: '300px',
+                    maxHeight: '100px',
+                }}
+            />
+
             <Box
                 sx={{
-                    marginTop: 8,
                     display: 'flex',
                     flexDirection: 'column',
+                    justifyContent: 'center',
                     alignItems: 'center',
+                    width: '90%',
                 }}
+                component="form"
+                onSubmit={handleLogin}
+                noValidate
             >
-                <Typography variant="h2" fontFamily="Trillium Web">
-                    Paxxium
-                </Typography>
-
-                <Box
-                    component="form"
-                    onSubmit={handleLogin}
-                    noValidate
-                    sx={{ mt: 1 }}
+                <StyledTextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    autoFocus
+                />
+                <StyledTextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                />
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2 }}
                 >
-                    <StyledTextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        autoComplete="email"
-                        autoFocus
-                    />
-                    <StyledTextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Sign In
-                    </Button>
-                </Box>
+                    Sign In
+                </Button>
                 <Link href="/signup" variant="body2">
                     {"Don't have an account? Sign Up"}
                 </Link>
             </Box>
-        </Container>
+        </Box>
     );
 }

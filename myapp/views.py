@@ -5,6 +5,7 @@ from myapp.api.check_authorization import auth_check
 from myapp.api.chat import chat
 from myapp.api.news import news
 from myapp.api.profile import profile
+from myapp.api.images import images
 
 def register_blueprints(app):
     app.register_blueprint(messages)
@@ -14,3 +15,4 @@ def register_blueprints(app):
     app.register_blueprint(chat)
     app.register_blueprint(news)
     app.register_blueprint(profile)
+    app.register_blueprint(images)

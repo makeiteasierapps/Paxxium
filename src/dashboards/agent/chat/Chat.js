@@ -1,19 +1,19 @@
-import { memo, useContext, useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
-import { AuthContext, backendUrl } from "../../../auth/AuthContext";
-import { ChatContext } from "../../../dashboards/agent/chat/ChatContext";
-import { handleIncomingMessageStream } from "../chat/handlers/handleIncomingMessageStream";
-import { formatBlockMessage } from "../utils/messageFormatter";
-import { processToken } from "../utils/processToken";
-import AgentMessage from "./components/AgentMessage";
-import ChatBar from "./components/ChatBar";
-import MessageInput from "./components/MessageInput";
-import UserMessage from "./components/UserMessage";
+import { memo, useContext, useEffect, useRef, useState } from 'react';
+import io from 'socket.io-client';
+import { AuthContext, backendUrl } from '../../../auth/AuthContext';
+import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
+import { handleIncomingMessageStream } from '../chat/handlers/handleIncomingMessageStream';
+import { formatBlockMessage } from '../utils/messageFormatter';
+import { processToken } from '../utils/processToken';
+import AgentMessage from './components/AgentMessage';
+import ChatBar from './components/ChatBar';
+import MessageInput from './components/MessageInput';
+import UserMessage from './components/UserMessage';
 import {
     MessagesContainer,
     MessageArea,
     ChatContainerStyled,
-} from "../agentStyledComponents";
+} from '../agentStyledComponents';
 
 const Chat = ({
     id,
@@ -27,7 +27,7 @@ const Chat = ({
     const socketRef = useRef(null);
     const [queue, setQueue] = useState([]);
     const ignoreNextTokenRef = useRef(false);
-    const languageRef = useRef("markdown");
+    const languageRef = useRef(null);
 
     const {
         messages,
@@ -56,18 +56,18 @@ const Chat = ({
                 const messageResponse = await fetch(
                     `${backendUrl}/${id}/messages`,
                     {
-                        method: "POST",
+                        method: 'POST',
                         headers: {
-                            "Content-Type": "application/json",
+                            'Content-Type': 'application/json',
                             Authorization: idToken,
                         },
-                        credentials: "include",
+                        credentials: 'include',
                         body: JSON.stringify(requestData),
                     }
                 );
 
                 if (!messageResponse.ok) {
-                    throw new Error("Failed to load messages");
+                    throw new Error('Failed to load messages');
                 }
 
                 const messageData = await messageResponse.json();
@@ -84,23 +84,25 @@ const Chat = ({
         fetchMessages();
     }, [id, idToken, setMessages]);
 
+    // Handles token stream
     useEffect(() => {
         const handleToken = (token) => {
             setQueue((prevQueue) => [...prevQueue, token]);
         };
 
         socketRef.current = io.connect(backendUrl);
-        socketRef.current.emit("join", { room: id });
-        socketRef.current.on("token", handleToken);
+        socketRef.current.emit('join', { room: id });
+        socketRef.current.on('token', handleToken);
 
         return () => {
-            socketRef.current.off("token", handleToken);
+            socketRef.current.off('token', handleToken);
             if (socketRef.current) {
                 socketRef.current.disconnect();
             }
         };
     }, [id]);
 
+    // Adds tokens to a queue
     useEffect(() => {
         if (queue.length > 0) {
             processToken(
@@ -139,12 +141,12 @@ const Chat = ({
                 idToken={idToken}
                 backendUrl={backendUrl}
             />
-            <MessagesContainer item xs={9} id="messages-container">
+            <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
                     {messages[id]?.map((message, index) => {
                         let formattedMessage = message;
-                        if (message.type === "database") {
-                            if (message.message_from === "agent") {
+                        if (message.type === 'database') {
+                            if (message.message_from === 'agent') {
                                 formattedMessage = formatBlockMessage(message);
                                 return (
                                     <AgentMessage

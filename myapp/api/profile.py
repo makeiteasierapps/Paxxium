@@ -62,9 +62,8 @@ def update_avatar():
     """
     us = current_app.user_service
     uid = authenticate_request()
-    print(request.files)
     file = request.files['avatar']
-    avatar_url = us.upload_avatar_picture(file, uid)
+    avatar_url = us.upload_profile_image_to_firebase_storage(file, uid)
 
     return {'avatarUrl': avatar_url}, 200
 

@@ -1,4 +1,3 @@
-import { Avatar } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
 import { useContext } from 'react';
 import { ProfileContext } from '../../../profile/ProfileContext';
@@ -29,8 +28,20 @@ const UserMessage = ({ message }) => {
                     color: blueGrey[700],
                 }}
             />
+            {message.image_url && (
+                <img
+                    style={{
+                        width: '90px',
+                        height: 'auto',
+                    }}
+                    src={message.image_url}
+                    alt="message content"
+                />
+            )}
 
-            <MessageContent>{message.content}</MessageContent>
+            <MessageContent imageUrl={message.image_url}>
+                {message.content}
+            </MessageContent>
         </MessageContainer>
     );
 };

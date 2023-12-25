@@ -157,16 +157,40 @@ class UserService:
         
         user_ref.update(updates)
 
-    def upload_avatar_picture(self, file, uid):
+    
+    def upload_generated_image_to_firebase_storage(self, image, uid):
         bucket = storage.bucket()
         unique_filename = str(uuid.uuid4())
-        blob = bucket.blob(unique_filename)
+        blob = bucket.blob(f'users/{uid}/dalle_images/{unique_filename}')
+        file_data = image.read()
+        blob.upload_from_string(file_data, content_type='image/jpeg')
+        blob.make_public()
+        
+        return blob.public_url
+
+    def fetch_all_from_dalle_images(self, uid):
+        bucket = storage.bucket()
+        
+        # Specify the folder path
+        folder_path = f'users/{uid}/dalle_images/'
+        
+        # List all files in the folder
+        blobs = bucket.list_blobs(prefix=folder_path)
+        
+        # Get the public url of each file
+        images_list = [blob.public_url for blob in blobs]
+        
+        return images_list
+    
+    def upload_profile_image_to_firebase_storage(self, file, uid):
+        bucket = storage.bucket()
+        unique_filename = str(uuid.uuid4())
+        blob = bucket.blob(f'users/{uid}/profile_images/{unique_filename}')
         file_data = file.read()
         blob.upload_from_string(file_data, content_type='image/jpeg')
         blob.make_public()
 
         user_ref = self.db.collection('users').document(uid)
         user_ref.update({'avatar_url': blob.public_url})
-
 
         return blob.public_url
