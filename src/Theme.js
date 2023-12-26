@@ -2,11 +2,11 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
 // Define custom blue-grey shades if needed
 const customBlueGrey = {
-    900: '#263238', 
-    800: '#37474f', 
-    700: '#455a64', 
-    600: '#546e7a', 
-    500: '#607d8b', 
+    900: '#263238',
+    800: '#37474f',
+    700: '#455a64',
+    600: '#546e7a',
+    500: '#607d8b',
     400: '#78909c',
     300: '#90a4ae',
     200: '#b0bec5',
@@ -17,6 +17,7 @@ let theme = createTheme({
         mode: 'dark',
         primary: {
             main: customBlueGrey[700], // primary elements like buttons, icons
+            dark: customBlueGrey[800], // darker shade for contrast
         },
         secondary: {
             main: customBlueGrey[600], // secondary elements

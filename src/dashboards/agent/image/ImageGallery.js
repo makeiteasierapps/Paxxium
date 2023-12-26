@@ -1,0 +1,52 @@
+import { useContext, useState } from 'react';
+import Box from '@mui/material/Box';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import ImageListItemBar from '@mui/material/ImageListItemBar';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { ImageContext } from './ImageContext';
+
+const ImageGallery = () => {
+    const { imageList, deleteImage } = useContext(ImageContext);
+
+    const [hoverIndex, setHoverIndex] = useState(false);
+    return (
+        <Box sx={{ width: '90%', height: '40%', overflowY: 'scroll' }}>
+            <ImageList variant="masonry" cols={3} gap={8}>
+                {imageList.map((image, idx) => (
+                    <ImageListItem
+                        key={idx}
+                        onMouseEnter={() => setHoverIndex(idx)}
+                        onMouseLeave={() => setHoverIndex(null)}
+                    >
+                        <img
+                            srcSet={image.url}
+                            src={image.url}
+                            alt={'Dalle'}
+                            loading="lazy"
+                        />
+                        {hoverIndex === idx && (
+                            <ImageListItemBar
+                                position="top"
+                                actionIcon={
+                                    <IconButton
+                                        sx={{
+                                            color: 'rgba(255, 255, 255, 0.54)',
+                                        }}
+                                        onClick={() => deleteImage(image.path)}
+                                        aria-label={`info about`}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                }
+                            />
+                        )}
+                    </ImageListItem>
+                ))}
+            </ImageList>
+        </Box>
+    );
+};
+
+export default ImageGallery;

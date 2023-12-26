@@ -24,10 +24,12 @@ class MessageService:
             user_id,
             message_from,
             message_content,
+            image_url=None
             ):
         new_message = {
             'message_from': message_from,
             'content': message_content,
+            'image_url': image_url,
             'type': 'database',
             'time_stamp': datetime.utcnow()
         }

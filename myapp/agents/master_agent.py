@@ -1,17 +1,16 @@
+from openai import OpenAI
 from flask import current_app
 from flask_socketio import join_room
-
 import langchain
-
 from langchain.utilities.serpapi import SerpAPIWrapper
-
 from langchain.prompts import MessagesPlaceholder
 from langchain.schema import SystemMessage
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.base import BaseCallbackHandler 
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import initialize_agent, AgentType, Tool
-from myapp.agents.tools.tools import SaveMessageTool
+
+
 
 
 class StreamResponse(BaseCallbackHandler):
@@ -26,7 +25,7 @@ class StreamResponse(BaseCallbackHandler):
         socketio.sleep(0)
 
 class MasterAgent:
-    def __init__(self, message_service, uid, chat_id, agent_name,  model="gpt-3.5-turbo-0613", system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', user_analysis=''):
+    def __init__(self, message_service, uid, chat_id, agent_name,  model="gpt-3.5-turbo-1106", system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', user_analysis=''):
         langchain.debug = True
         user_service = current_app.user_service
         encrypted_openai_key, encrypted_serp_key = user_service.get_keys(uid)
@@ -41,7 +40,6 @@ class MasterAgent:
         self.search = SerpAPIWrapper(serpapi_api_key=self.serp_key)
         self.llm = ChatOpenAI(streaming=True, callbacks=[StreamResponse(self.chat_id, agent_name)], temperature=0, model=self.model, openai_api_key=self.openai_api_key)
         self.memory=ConversationBufferWindowMemory(memory_key='memory', return_messages=True, k=3)
-        self.save_message = SaveMessageTool(memory=self.memory)
         self.tools = [
             Tool(
                 name="Search",
@@ -49,7 +47,6 @@ class MasterAgent:
                 description="useful for when you need to answer questions about current events. You should ask targeted questions",
             ),
         ]
-        self.tools.append(self.save_message)
 
         custom_system_message = SystemMessage(content=self.system_prompt)
         self.agent_kwargs = {
@@ -85,12 +82,50 @@ class MasterAgent:
         )
     
     def pass_to_master_agent(self, message_obj, conversation_id, user_id):
-        print(self.user_analysis)
         content = message_obj['content']
         message_content = f'***USER ANALYSIS***\n{self.user_analysis}\n***THINGS TO REMEMBER***\n{self.chat_constants}\n**************\n{content}'
         response = self.master_ai.run(message_content)                                 
         response_obj = self.message_service.create_message(conversation_id=conversation_id, message_from='agent', user_id=user_id, message_content=response)
         
+        return response_obj
+    
+    def pass_to_vision_model(self, new_message, conversation_id, uid):
+        from myapp import socketio
+        client = OpenAI()
+
+        image_url = new_message['image_url']
+        user_message = new_message['content']
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": user_message},
+                        {
+                            "type": "image_url",
+                            "image_url": image_url,
+                        },
+                    ],
+                }
+            ],
+            max_tokens=300,
+            stream=True,
+        )
+
+        complete_response = ""
+        join_room(self.chat_id)
+        for chunk in response:
+            for choice in chunk.choices:
+                if choice.delta.content is None:
+                    continue
+                complete_response += choice.delta.content
+                socketio.emit('token', {'message_from': 'agent', 'content': choice.delta.content, 'chat_id': self.chat_id, 'type': 'stream',}, room=self.chat_id)
+                socketio.sleep(0)
+        
+        response_obj = self.message_service.create_message(conversation_id=conversation_id, message_from='agent', user_id=uid, message_content=complete_response)
+        # add memory to agent
+        self.memory.save_context({"input": new_message['content']}, {"output": complete_response})
         return response_obj
     
     def pass_to_debateAI(self, message_obj):
@@ -120,6 +155,7 @@ class MasterAgent:
         
         # load the 3 most recent exchanges into memory
         messages = conversation['messages']
+        
         pairs = []
         for i in range(len(messages)-1, -1, -1):
             message = messages[i]
@@ -134,6 +170,7 @@ class MasterAgent:
                     pairs.append((message, {"content": "This is not a part of your conversation, end of buffer", "message_from": "chatbot"}))
             if len(pairs) == 3:
                 break
+        
         pairs.reverse()
         for pair in pairs:
             self.memory.save_context({"input": pair[0]['content']}, {"output": pair[1]['content']})

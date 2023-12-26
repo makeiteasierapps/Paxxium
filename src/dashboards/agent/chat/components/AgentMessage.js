@@ -1,10 +1,6 @@
 import { Icon } from '@iconify/react';
 import { Avatar, Box } from '@mui/material';
-import {
-    MessageContainer,
-    MessageContent,
-
-} from '../../agentStyledComponents';
+import { MessageContainer, MessageContent } from '../../agentStyledComponents';
 
 const AgentMessage = ({ message }) => {
     return (

@@ -23,9 +23,9 @@ def authenticate_request(id_token=None):
 @messages.route('/<string:conversation_id>/messages', methods=['POST'])
 def get_messages(conversation_id):
     uid = authenticate_request()
-    ms = current_app.message_service
+    message_service = current_app.message_service
     chat_data = request.get_json()
-    conversation_data = ms.get_all_messages(uid, conversation_id)
+    conversation_data = message_service.get_all_messages(uid, conversation_id)
     agent_model = chat_data['agentModel']
 
     # If the conversation requested is a debate no need to set an Agent instance
@@ -44,7 +44,20 @@ def handle_message(data):
     uid = authenticate_request(id_token)
     
     chat_id = data['chatId']
+    if data.get('image_url') is not None:
+        ms = current_app.message_service
+        # Extrtact data from request
+        message_content = data.get('content')
+        message_from = data.get('message_from')
+        image_url = data['image_url']
+        new_message = ms.create_message(conversation_id=chat_id, message_content=message_content, message_from=message_from, user_id=uid, image_url=image_url)
+        agent = current_app.master_agent_service.get_agent_by_key(uid, chat_id)
+        agent.pass_to_vision_model(new_message, chat_id, uid)
+        return
+    
     return process_message(data, uid, chat_id)
+    
+
 
 def process_message(data, uid, chat_id):
     ms = current_app.message_service
@@ -74,3 +87,11 @@ def clear_memory(conversation_id):
     message_service = current_app.message_service
     message_service.delete_all_messages(uid, conversation_id)
     return {'message': 'Memory cleared'}, 200
+
+@messages.route('/messages/utils', methods=['POST'])
+def upload_to_firebase_storage():
+    uid = authenticate_request()
+    user_service = current_app.user_service
+    file = request.files['image']
+    file_url = user_service.upload_file_to_firebase_storage(file, uid)
+    return {'fileUrl': file_url}, 200

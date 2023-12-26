@@ -17,6 +17,7 @@ import {
     Bar,
     ChatBarIcons,
     StyledIconButton,
+    CloseIconButton,
 } from '../../agentStyledComponents';
 
 const ChatBar = ({ chatName, id }) => {
@@ -38,6 +39,15 @@ const ChatBar = ({ chatName, id }) => {
 
     return (
         <Bar>
+            <CloseIconButton
+                disableRipple
+                aria-label="close"
+                onClick={() =>
+                    handleCloseChat(id, idToken, setAgentArray, backendUrl)
+                }
+            >
+                <CloseIcon sx={{ fontSize: '1rem' }} />
+            </CloseIconButton>
             <Typography variant="h6">{chatName}</Typography>
             <ChatBarIcons>
                 <Tooltip title="Clear Chat" placement="top">
@@ -74,16 +84,6 @@ const ChatBar = ({ chatName, id }) => {
                         <DeleteIcon />
                     </StyledIconButton>
                 </Tooltip>
-
-                <StyledIconButton
-                    disableRipple
-                    aria-label="close"
-                    onClick={() =>
-                        handleCloseChat(id, idToken, setAgentArray, backendUrl)
-                    }
-                >
-                    <CloseIcon />
-                </StyledIconButton>
             </ChatBarIcons>
         </Bar>
     );

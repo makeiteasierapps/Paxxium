@@ -125,6 +125,7 @@ const User = () => {
                     headers: {
                         Authorization: idToken,
                     },
+                    credentials: 'include',
                     body: formData,
                 }
             );
