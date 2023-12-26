@@ -9,6 +9,7 @@ export const ImageProvider = ({ children }) => {
     const [imageRequest, setImageRequest] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [imageList, setImageList] = useState([]);
+    const [userPrompt, setUserPrompt] = useState('');
     const { idToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -25,11 +26,9 @@ export const ImageProvider = ({ children }) => {
                     },
                     credentials: 'include',
                 });
-                const urls = await response.json();
+                const imageArray = await response.json();
 
-                const images = urls.map((url) => ({ url }));
-
-                setImageList(images);
+                setImageList(imageArray);
             } catch (error) {
                 console.log(error);
             }
@@ -37,7 +36,7 @@ export const ImageProvider = ({ children }) => {
         fetchImages();
     }, [idToken]);
 
-    const addImage = async (image) => {
+    const saveImage = async (image) => {
         try {
             const response = await fetch(`${backendUrl}/images/upload`, {
                 method: 'POST',
@@ -62,6 +61,30 @@ export const ImageProvider = ({ children }) => {
         }
     };
 
+    const deleteImage = async (path) => {
+        try {
+            const response = await fetch(`${backendUrl}/images/delete`, {
+                method: 'POST',
+                headers: {
+                    Authorization: idToken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(path),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete image');
+            }
+
+            if (response.status === 200) {
+                setImageList(imageList.filter((image) => image.path !== path));
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const handleImageRequest = async (imageRequest) => {
         setImageRequest(imageRequest);
         try {
@@ -76,7 +99,6 @@ export const ImageProvider = ({ children }) => {
             });
             const imageUrl = await response.json();
             setImageUrl(imageUrl);
-            addImage({ url: imageUrl });
         } catch (error) {
             console.log(error);
         }
@@ -95,8 +117,12 @@ export const ImageProvider = ({ children }) => {
                 setImageRequest,
                 handleImageRequest,
                 imageUrl,
-                addImage,
+                setImageUrl,
+                saveImage,
                 imageList,
+                userPrompt,
+                setUserPrompt,
+                deleteImage,
             }}
         >
             {children}

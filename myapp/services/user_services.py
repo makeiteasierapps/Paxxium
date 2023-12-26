@@ -72,7 +72,6 @@ class UserService:
 
         return ciphertext_str
 
-
     def decrypt(self, key):
         load_dotenv()
         os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -157,7 +156,6 @@ class UserService:
         
         user_ref.update(updates)
 
-    
     def upload_generated_image_to_firebase_storage(self, image, uid):
         bucket = storage.bucket()
         unique_filename = str(uuid.uuid4())
@@ -167,6 +165,12 @@ class UserService:
         blob.make_public()
         
         return blob.public_url
+    
+    # Delete the image from firebase storage
+    def delete_generated_image_from_firebase_storage(self, path):
+        bucket = storage.bucket()
+        blob = bucket.blob(path)
+        blob.delete()
 
     def fetch_all_from_dalle_images(self, uid):
         bucket = storage.bucket()
@@ -177,8 +181,8 @@ class UserService:
         # List all files in the folder
         blobs = bucket.list_blobs(prefix=folder_path)
         
-        # Get the public url of each file
-        images_list = [blob.public_url for blob in blobs]
+        # Get the public url and blob name of each file
+        images_list = [{'url': blob.public_url, 'path': blob.name} for blob in blobs]
         
         return images_list
     

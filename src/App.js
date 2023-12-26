@@ -24,6 +24,8 @@ import SideDrawer from './dashboards/main/SideDrawer';
 import { ProfileProvider } from './dashboards/profile/ProfileContext';
 import ProfileDash from './dashboards/profile/ProfileDash';
 
+
+
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
 
@@ -115,7 +117,7 @@ const AuthenticatedApp = () => {
                         }}
                     >
                         <Routes>
-                            {['/', '/dashboard', '/home'].map((path, i) => (
+                            {['/', '/home'].map((path, i) => (
                                 <Route
                                     path={path}
                                     element={

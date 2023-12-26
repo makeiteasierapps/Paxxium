@@ -7,7 +7,6 @@ import Debate from './debate/Debate';
 import { Box } from '@mui/material';
 
 import {
-    Container,
     Settings,
     SettingsMenuButton,
     SettingsMenuContainer,
@@ -101,7 +100,7 @@ const AgentDash = () => {
                     <CustomGridLoader />
                 </Box>
             ) : (
-                <Container id="chats-container">
+                <>
                     {agentArray
                         .filter((agent) => agent.is_open)
                         .map((agent) => {
@@ -128,7 +127,7 @@ const AgentDash = () => {
                                 );
                             }
                         })}
-                </Container>
+                </>
             )}
         </Box>
     );

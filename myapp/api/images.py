@@ -26,8 +26,15 @@ def get_saved_images():
     uid = authenticate_request()
     user_service = current_app.user_service
     images_list = user_service.fetch_all_from_dalle_images(uid)
-
     return jsonify(images_list), 200
+
+@images.route('/images/delete', methods=['POST'])
+def delete_image_from_firebase_storage():
+    user_service = current_app.user_service
+    path = request.get_json()
+    user_service.delete_generated_image_from_firebase_storage(path)
+
+    return jsonify({'message': 'Image deleted successfully'}), 200
 
 @images.route('/images/generate', methods=['POST'])
 def get_messages():
@@ -52,6 +59,5 @@ def upload_image():
     image_blob = io.BytesIO(image_data)
     user_service = current_app.user_service
     image_url = user_service.upload_generated_image_to_firebase_storage(image_blob, uid)
-    print(image_url)
 
     return jsonify(image_url), 200

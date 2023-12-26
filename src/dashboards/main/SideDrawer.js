@@ -3,7 +3,6 @@ import {
     Box,
     Drawer,
     Typography,
-    Menu,
     MenuItem,
     Tooltip,
     Popover,
@@ -14,12 +13,13 @@ import AgentsIcon from '@mui/icons-material/People';
 import ProfileIcon from '@mui/icons-material/AccountCircle';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { HeaderIconButton } from './mainStyledComponents';
 import { Link, useLocation } from 'react-router-dom';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import paxxiumLogo from '../../assets/images/paxxium-logo.png';
 import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
+
+import { HeaderIconButton } from './mainStyledComponents';
 
 const SideDrawer = ({
     mobileOpen,
@@ -27,55 +27,75 @@ const SideDrawer = ({
     drawerWidth,
     handleDrawerExpand,
     isDrawerExpanded,
-    setDrawerExpanded,
     expandedDrawerWidth,
 }) => {
     const location = useLocation();
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [popOverAnchor, setPopOverAnchor] = useState(null);
     const [agentsOpen, setAgentsOpen] = useState(false);
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleAgentsClick = (event) => {
-        setAgentsOpen(!agentsOpen);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
+    const ConditionalTooltip = ({ children, title, condition }) => {
+        return condition ? (
+            <Tooltip title={title} placement="right">
+                {children}
+            </Tooltip>
+        ) : (
+            children
+        );
     };
 
     const homeButton = (
-        <HeaderIconButton
-            disableRipple
-            component={Link}
-            to="/home"
-            currentPath={location.pathname}
-        >
-            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-                <HomeIcon sx={{ fontSize: '2rem' }} />
-                {isDrawerExpanded && (
-                    <Typography paddingLeft={1}>Home</Typography>
-                )}
-            </Box>
-        </HeaderIconButton>
+        <ConditionalTooltip title="Home" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/home"
+                currentPath={location.pathname}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <HomeIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Home</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
     );
 
     const profileButton = (
-        <HeaderIconButton
-            disableRipple
-            component={Link}
-            to="/profile"
-            currentPath={location.pathname}
-        >
-            <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-                <ProfileIcon sx={{ fontSize: '2rem' }} />
-                {isDrawerExpanded && (
-                    <Typography paddingLeft={1}>Profile</Typography>
-                )}
-            </Box>
-        </HeaderIconButton>
+        <ConditionalTooltip title="Profile" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/profile"
+                currentPath={location.pathname}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <ProfileIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Profile</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+
+    const AgentMenuItems = () => (
+        <>
+            <MenuItem
+                onClick={() => setPopOverAnchor(null)}
+                component={Link}
+                to="/agents"
+            >
+                Chat
+            </MenuItem>
+            <MenuItem
+                onClick={() => setPopOverAnchor(null)}
+                component={Link}
+                to="/dalle"
+            >
+                Image
+            </MenuItem>
+        </>
     );
 
     const drawer = (
@@ -83,6 +103,7 @@ const SideDrawer = ({
             sx={{
                 display: 'flex',
                 p: '5px',
+
                 width: {
                     sm: isDrawerExpanded ? expandedDrawerWidth : drawerWidth,
                 },
@@ -140,69 +161,62 @@ const SideDrawer = ({
                 )}
 
                 {/* Menu Items */}
-                {!isDrawerExpanded ? (
-                    <Tooltip title="Home" placement="right">
-                        {homeButton}
-                    </Tooltip>
-                ) : (
-                    homeButton
-                )}
+
+                {homeButton}
 
                 {!isDrawerExpanded ? (
                     <>
                         <Tooltip title="Agents" placement="right">
                             <HeaderIconButton
                                 disableRipple
-                                onClick={handleClick}
+                                onClick={(event) => {
+                                    setPopOverAnchor(event.currentTarget);
+                                }}
+                                currentPath={location.pathname}
+                                to="/agents"
                             >
                                 <Box
                                     sx={{
                                         display: 'flex',
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'space-between',
                                     }}
                                 >
                                     <AgentsIcon sx={{ fontSize: '2rem' }} />
                                     {isDrawerExpanded && (
-                                        <Typography paddingLeft={1}>
+                                        <Typography
+                                            paddingLeft={1}
+                                            paddingRight={1}
+                                        >
                                             Agents
                                         </Typography>
                                     )}
+                                    {isDrawerExpanded &&
+                                        (agentsOpen ? (
+                                            <ExpandLess />
+                                        ) : (
+                                            <ExpandMore />
+                                        ))}
                                 </Box>
                             </HeaderIconButton>
                         </Tooltip>
                         <Popover
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'center',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'center',
-                            }}
+                            open={Boolean(popOverAnchor)}
+                            anchorEl={popOverAnchor}
+                            onClick={() => setPopOverAnchor(null)}
                         >
-                            <MenuItem
-                                onClick={handleClose}
-                                component={Link}
-                                to="/agents"
-                            >
-                                Chat
-                            </MenuItem>
-                            <MenuItem
-                                onClick={handleClose}
-                                component={Link}
-                                to="/dalle"
-                            >
-                                Image
-                            </MenuItem>
+                            <AgentMenuItems />
                         </Popover>
                     </>
                 ) : (
                     <>
                         <HeaderIconButton
                             disableRipple
-                            onClick={handleAgentsClick}
+                            onClick={(event) => {
+                                setAgentsOpen(!agentsOpen);
+                            }}
+                            currentPath={location.pathname}
+                            to="/agents"
                         >
                             <Box
                                 sx={{
@@ -213,7 +227,10 @@ const SideDrawer = ({
                             >
                                 <AgentsIcon sx={{ fontSize: '2rem' }} />
                                 {isDrawerExpanded && (
-                                    <Typography paddingLeft={1} paddingRight={1}>
+                                    <Typography
+                                        paddingLeft={1}
+                                        paddingRight={1}
+                                    >
                                         Agents
                                     </Typography>
                                 )}
@@ -226,31 +243,12 @@ const SideDrawer = ({
                             </Box>
                         </HeaderIconButton>
                         <Collapse in={agentsOpen}>
-                            <MenuItem
-                                onClick={handleClose}
-                                component={Link}
-                                to="/agents"
-                            >
-                                Chat
-                            </MenuItem>
-                            <MenuItem
-                                onClick={handleClose}
-                                component={Link}
-                                to="/dalle"
-                            >
-                                Image
-                            </MenuItem>
+                            <AgentMenuItems />
                         </Collapse>
                     </>
                 )}
 
-                {!isDrawerExpanded ? (
-                    <Tooltip title="Profile" placement="right">
-                        {profileButton}
-                    </Tooltip>
-                ) : (
-                    profileButton
-                )}
+                {profileButton}
             </Box>
         </Box>
     );
@@ -272,6 +270,7 @@ const SideDrawer = ({
                 }}
                 sx={{
                     display: { xs: 'block', sm: 'none' },
+                    
                 }}
             >
                 {drawer}
@@ -295,6 +294,8 @@ const SideDrawer = ({
                 </Box>
             </Drawer>
             <Drawer
+                anchor="left"
+                id="mobileDrawer"
                 variant="permanent"
                 sx={{
                     display: { xs: 'none', sm: 'block' },

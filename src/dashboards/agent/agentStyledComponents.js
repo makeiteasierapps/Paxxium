@@ -3,14 +3,6 @@ import { Box, List, ListItem, Button, IconButton } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
 
 // AgentDash.js
-export const Container = styled(Box)(() => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-}));
-
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     color: theme.palette.text.secondary,
     backgroundColor: 'transparent',
@@ -42,10 +34,9 @@ export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     marginBottom: theme.spacing(1),
-    minWidth: '100%',
-    maxWidth: '80vw',
-    minHeight: '40vh',
-    maxHeight: '75vh',
+    width: '80%',
+    minHeight: '80%',
+    height: '100%',
     overflow: 'auto',
     borderRadius: '5px',
     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.63)',

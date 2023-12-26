@@ -33,7 +33,6 @@ StyledButton.defaultProps = {
 const DalleSettings = () => {
     const [anchorEl, setAnchorEl] = useState({});
     const open = Boolean(anchorEl);
-    const [userPrompt, setUserPrompt] = useState('');
     const {
         size,
         setSize,
@@ -42,6 +41,8 @@ const DalleSettings = () => {
         style,
         setStyle,
         handleImageRequest,
+        userPrompt,
+        setUserPrompt,
     } = useContext(ImageContext);
 
     const handleClick = (menu) => (event) => {
@@ -54,8 +55,6 @@ const DalleSettings = () => {
     const handleClose = (menu) => () => {
         setAnchorEl((prevState) => ({ ...prevState, [menu]: null }));
     };
-
-    
 
     return (
         <Grid container spacing={2} justifyContent="center">
@@ -218,6 +217,7 @@ const DalleSettings = () => {
                         multiline
                         variant="outlined"
                         label="Image Prompt"
+                        value={userPrompt}
                         onChange={(event) => {
                             setUserPrompt(event.target.value);
                         }}

@@ -19,7 +19,7 @@ const ImageDash = () => {
         >
             <DalleSettings />
             {imageRequest && (
-                <ImagePreview size={imageRequest.size}>
+                <ImagePreview>
                     <img src={imageUrl} alt={imageRequest.prompt} />
                 </ImagePreview>
             )}

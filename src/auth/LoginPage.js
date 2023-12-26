@@ -49,9 +49,10 @@ export default function LoginPage() {
                 alt="Paxxium Logo"
                 sx={{
                     height: 'auto',
-                    width: '100%',
+                    width: '90%',
                     maxWidth: '300px',
                     maxHeight: '100px',
+                    marginBottom: '40px',
                 }}
             />
 
@@ -61,7 +62,9 @@ export default function LoginPage() {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    width: '90%',
+                    width: '80%',
+                    maxWidth: '500px',
+
                 }}
                 component="form"
                 onSubmit={handleLogin}
