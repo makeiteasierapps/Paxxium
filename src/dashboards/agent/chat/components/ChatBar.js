@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -15,7 +15,7 @@ import {
 
 import {
     Bar,
-    ChatBarIcons,
+    ClearAndTrashIcons,
     StyledIconButton,
     CloseIconButton,
 } from '../../agentStyledComponents';
@@ -39,52 +39,58 @@ const ChatBar = ({ chatName, id }) => {
 
     return (
         <Bar>
-            <CloseIconButton
-                disableRipple
-                aria-label="close"
-                onClick={() =>
-                    handleCloseChat(id, idToken, setAgentArray, backendUrl)
-                }
-            >
-                <CloseIcon sx={{ fontSize: '1rem' }} />
-            </CloseIconButton>
-            <Typography variant="h6">{chatName}</Typography>
-            <ChatBarIcons>
-                <Tooltip title="Clear Chat" placement="top">
-                    <StyledIconButton
-                        disableRipple
-                        aria-label="clear_chat"
-                        onClick={() =>
-                            handleClearMessages(
-                                id,
-                                idToken,
-                                setMessages,
-                                backendUrl
-                            )
-                        }
-                    >
-                        <CommentsDisabledIcon />
-                    </StyledIconButton>
-                </Tooltip>
-                <Tooltip
-                    title={
-                        deleteClicked
-                            ? 'Are you sure? Click again to confirm'
-                            : ''
+            <Box display="flex" justifyContent="flex-start" width="33%">
+                <CloseIconButton
+                    disableRipple
+                    aria-label="close"
+                    onClick={() =>
+                        handleCloseChat(id, idToken, setAgentArray, backendUrl)
                     }
-                    open={deleteClicked}
-                    placement="top"
                 >
-                    <StyledIconButton
-                        disableRipple
-                        aria-label="delete"
-                        onClick={handleDeleteClick}
-                        style={{ color: deleteClicked ? 'red' : '#b0bec5' }}
+                    <CloseIcon sx={{ fontSize: '1rem' }} />
+                </CloseIconButton>
+            </Box>
+            <Box display="flex" justifyContent="center" width="33%">
+                <Typography variant="h6">{chatName}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="flex-end" width="33%">
+                <ClearAndTrashIcons>
+                    <Tooltip title="Clear Chat" placement="top">
+                        <StyledIconButton
+                            disableRipple
+                            aria-label="clear_chat"
+                            onClick={() =>
+                                handleClearMessages(
+                                    id,
+                                    idToken,
+                                    setMessages,
+                                    backendUrl
+                                )
+                            }
+                        >
+                            <CommentsDisabledIcon />
+                        </StyledIconButton>
+                    </Tooltip>
+                    <Tooltip
+                        title={
+                            deleteClicked
+                                ? 'Are you sure? Click again to confirm'
+                                : ''
+                        }
+                        open={deleteClicked}
+                        placement="top"
                     >
-                        <DeleteIcon />
-                    </StyledIconButton>
-                </Tooltip>
-            </ChatBarIcons>
+                        <StyledIconButton
+                            disableRipple
+                            aria-label="delete"
+                            onClick={handleDeleteClick}
+                            style={{ color: deleteClicked ? 'red' : '#b0bec5' }}
+                        >
+                            <DeleteIcon />
+                        </StyledIconButton>
+                    </Tooltip>
+                </ClearAndTrashIcons>
+            </Box>
         </Bar>
     );
 };

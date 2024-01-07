@@ -37,7 +37,7 @@ def create_app():
         join_room(room)
 
     # Configure CORS
-    CORS(app, origins=[frontend_url], supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+    CORS(app, origins=[frontend_url], supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS, PATCH'])
 
     # Create the Firestore client
     db = firestore.client()

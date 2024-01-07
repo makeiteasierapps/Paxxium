@@ -6,7 +6,7 @@ export const handleCloseChat = async (
 ) => {
     try {
         const response = await fetch(`${backendUrl}/chat/update_visibility`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: idToken,

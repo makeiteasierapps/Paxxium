@@ -1,31 +1,24 @@
-import { blueGrey } from '@mui/material/colors';
+import { Avatar } from '@mui/material';
 import { useContext } from 'react';
 import { ProfileContext } from '../../../profile/ProfileContext';
-
 import { MessageContainer, MessageContent } from '../../agentStyledComponents';
-
-import { StyledAvatar } from '../../../profile/styledProfileComponents';
 
 const UserMessage = ({ message }) => {
     const { avatar } = useContext(ProfileContext);
 
     return (
-        <MessageContainer
-            style={{
-                backgroundColor:
-                    message.message_from === 'user'
-                        ? blueGrey[800]
-                        : blueGrey[700],
-            }}
-        >
-            <StyledAvatar
+        <MessageContainer messageFrom={message.message_from}>
+            <Avatar
+                variant="rounded"
                 src={avatar}
                 sx={{
+                    margin: '0px 13px 0px 0px',
                     width: '33px',
                     height: '33px',
-                    bgcolor: '#1C282E',
-                    margin: '0px 13px 0px 0px',
-                    color: blueGrey[700],
+                    backgroundColor: 'transparent',
+                }}
+                imgProps={{
+                    style: { objectFit: 'contain' },
                 }}
             />
             {message.image_url && (

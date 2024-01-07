@@ -1,7 +1,13 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Button, Tooltip, Typography } from '@mui/material';
+import {
+    Button,
+    Tooltip,
+    Typography,
+    CardActions,
+    CardContent,
+} from '@mui/material';
 import { motion } from 'framer-motion';
 import { useContext, useState } from 'react';
 import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
@@ -10,7 +16,6 @@ import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import {
     StyledCard,
     StyledCardMedia,
-    StyledCardContent,
     StyledIconButton,
 } from '../styledNewsComponents';
 
@@ -99,22 +104,24 @@ const NewsCard = ({ news, index }) => {
                         </StyledIconButton>
                     </Tooltip>
                 </StyledCardMedia>
-                <StyledCardContent>
+                <CardContent>
                     <Typography variant="h5" component="div" gutterBottom>
                         {news.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                         {news.summary}
                     </Typography>
+                </CardContent>
+                <CardActions>
                     <Button
+                        size="small"
                         variant="contained"
                         href={news.url}
                         target="_blank"
-                        sx={{ margin: '1rem 0' }}
                     >
                         Read More
                     </Button>
-                </StyledCardContent>
+                </CardActions>
             </StyledCard>
             <DeleteConfirmationDialog
                 open={openDialog}

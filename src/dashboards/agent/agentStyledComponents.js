@@ -1,5 +1,5 @@
 import { styled } from '@mui/system';
-import { Box, List, ListItem, Button, IconButton } from '@mui/material';
+import { Box, List, ListItem, Button, IconButton, AppBar } from '@mui/material';
 import { blueGrey } from '@mui/material/colors';
 
 // AgentDash.js
@@ -36,8 +36,7 @@ export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     marginBottom: theme.spacing(1),
     width: '80%',
     minHeight: '80%',
-    height: '100%',
-    overflow: 'auto',
+    height: '87%',
     borderRadius: '5px',
     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.63)',
     // xs & sm screens: resize to take up most of the screen
@@ -65,8 +64,13 @@ export const MessagesContainer = styled(Box)({
 });
 
 // Used for Chat, Debate, and User
-export const MessageContainer = styled(ListItem)({
-    backgroundColor: blueGrey[700],
+export const MessageContainer = styled(ListItem, {
+    shouldForwardProp: (prop) => prop !== 'messageFrom',
+})(({ theme, messageFrom }) => ({
+    backgroundColor:
+        messageFrom === 'user'
+            ? theme.palette.secondary.main
+            : theme.palette.secondary.dark,
     wordBreak: 'break-word',
     flexDirection: 'row',
     display: 'flex',
@@ -74,13 +78,12 @@ export const MessageContainer = styled(ListItem)({
     paddingRight: '50px',
     paddingTop: '20px',
     paddingBottom: '20px',
-});
+}));
 
 export const MessageContent = styled(({ imageUrl, ...other }) => (
     <Box {...other} />
 ))(({ theme, imageUrl }) => ({
     maxHeight: '100%',
-    overflowY: 'auto',
     overflowX: 'hidden',
     width: '100%',
     whiteSpace: 'pre-wrap',
@@ -91,15 +94,17 @@ export const MessageContent = styled(({ imageUrl, ...other }) => (
 // Chatbar
 export const Bar = styled(Box)(({ theme }) => ({
     position: 'relative',
+    backgroundColor: theme.palette.secondary.dar,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: theme.spacing(2),
-    borderBottom: '1px solid #e0e0e0',
+    borderBottom: `2px solid ${theme.palette.secondary.main}`,
 }));
 
-export const ChatBarIcons = styled(Box)(({ theme }) => ({
+export const ClearAndTrashIcons = styled(Box)(({ theme }) => ({
+    transform: 'translate(30%, -70%)',
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -116,9 +121,9 @@ export const StyledIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 export const CloseIconButton = styled(IconButton)(({ theme }) => ({
-    position: 'absolute',
-    transform: 'translate(-100%, -140%)',
-    padding: 0,
+    transform: 'translate(-70%, -110%)',
+    padding: 1,
+    boxShadow: '0px 2px 10px 0px rgba(0,0,0,0.43)',
     color: theme.palette.text.secondary,
     '&:hover': {
         backgroundColor: 'transparent',

@@ -2,9 +2,9 @@ import { styled } from '@mui/material/styles';
 import { Box } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 
-export const HeaderContainer = styled(({ permanentDrawerOpen, ...other }) => (
-    <Box {...other} />
-))(({ theme, permanentDrawerOpen }) => ({
+export const HeaderContainer = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'permanentDrawerOpen',
+})(({ theme, permanentDrawerOpen }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: permanentDrawerOpen ? 'flex-end' : 'space-between',

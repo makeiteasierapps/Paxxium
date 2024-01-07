@@ -93,7 +93,7 @@ const ChatSettings = () => {
         // Update the settings in the database
         try {
             await fetch(`${backendUrl}/chat/update_settings`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: idToken,

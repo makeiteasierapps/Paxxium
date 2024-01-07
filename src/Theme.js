@@ -20,7 +20,7 @@ let theme = createTheme({
             dark: customBlueGrey[800], // darker shade for contrast
         },
         secondary: {
-            main: customBlueGrey[600], // secondary elements
+            main: customBlueGrey[800], // secondary elements
             light: customBlueGrey[700], // lighter shade for hover states
             dark: customBlueGrey[900], // darker shade for contrast
         },

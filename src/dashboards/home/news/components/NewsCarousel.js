@@ -1,20 +1,22 @@
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { useContext } from "react";
-import Carousel from "react-spring-3d-carousel";
-import { NewsContext } from "../NewsContext";
-import NewsCard from "./NewsCard";
+import { useContext } from 'react';
+import Carousel from 'react-spring-3d-carousel';
+import { NewsContext } from '../NewsContext';
+import NewsCard from './NewsCard';
 import {
-    AiSearchButton,
     SearchContainer,
     SearchField,
     CarouselContainer,
-} from "../styledNewsComponents";
-
-import SearchIcon from "@mui/icons-material/Search";
-
-import { CustomGridLoader } from "../../../main/customLoaders";
-
-import { Box, Checkbox, IconButton, InputAdornment } from "@mui/material";
+} from '../styledNewsComponents';
+import SearchIcon from '@mui/icons-material/Search';
+import { CustomGridLoader } from '../../../main/customLoaders';
+import {
+    Box,
+    Switch,
+    IconButton,
+    InputAdornment,
+    Tooltip,
+    Button,
+} from '@mui/material';
 const NewsCarousel = () => {
     const {
         newsData,
@@ -38,21 +40,22 @@ const NewsCarousel = () => {
     return (
         <Box
             sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "space-around",
-                height: "80vh",
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                height: '100vh',
+                gap: 2
             }}
         >
             <SearchContainer id="search-container">
-                <AiSearchButton
+                <Button
                     id="ai-fetch-news-button"
                     onClick={aiNewsFetch}
                     variant="contained"
                 >
                     Let AI pick your news
-                </AiSearchButton>
+                </Button>
                 <SearchField
                     id="search-field"
                     label="Search"
@@ -81,36 +84,37 @@ const NewsCarousel = () => {
                 {loading ? (
                     <CustomGridLoader />
                 ) : newsData.length > 0 ? (
-                    <>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={readFilter}
-                                    onChange={(event) => {
-                                        setReadFilter(event.target.checked);
-                                        if (event.target.checked) {
-                                            setUnreadNewsData();
-                                        } else {
-                                            loadNewsData();
-                                        }
-                                    }}
-                                    name="readFilter"
-                                    color="primary"
-                                />
-                            }
-                            label="Hide read articles"
-                        />
-                        <Carousel
-                            id="carousel"
-                            slides={newsSlides}
-                            goToSlide={slideIndex}
-                        />
-                    </>
+                    <Carousel
+                        id="carousel"
+                        slides={newsSlides}
+                        goToSlide={slideIndex}
+                    />
                 ) : (
                     <Box>No news data available</Box>
                 )}
-                <></>
             </CarouselContainer>
+            <Box sx={{ display: 'flex' }}>
+                <Tooltip
+                    title={
+                        readFilter ? 'Show all articles' : 'Hide read articles'
+                    }
+                    placement={readFilter ? 'right' : 'left'}
+                >
+                    <Switch
+                        checked={readFilter}
+                        onChange={(event) => {
+                            setReadFilter(event.target.checked);
+                            if (event.target.checked) {
+                                setUnreadNewsData();
+                            } else {
+                                loadNewsData();
+                            }
+                        }}
+                        name="readFilter"
+                        color="primary"
+                    />
+                </Tooltip>
+            </Box>
         </Box>
     );
 };

@@ -75,7 +75,7 @@ def delete_chat(chat_id):
     
     return {'message': 'Conversation deleted'}, 200
 
-@chat.route('/chat/update_visibility', methods=['POST'])
+@chat.route('/chat/update_visibility', methods=['PATCH'])
 def update_visibility():
     uid = authenticate_request()
     
@@ -91,7 +91,7 @@ def update_visibility():
     
     return jsonify({'message': 'Conversation updated'}), 200
 
-@chat.route('/chat/update_settings', methods=['POST'])
+@chat.route('/chat/update_settings', methods=['PUT'])
 def update_settings():
     uid = authenticate_request()
 
