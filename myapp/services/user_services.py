@@ -198,3 +198,16 @@ class UserService:
         user_ref.update({'avatar_url': blob.public_url})
 
         return blob.public_url
+    
+    def upload_file_to_firebase_storage(self, file, uid):
+        bucket = storage.bucket()
+        unique_filename = str(uuid.uuid4())
+        blob = bucket.blob(f'users/{uid}/gpt-vision/{unique_filename}')
+        file_data = file.read()
+        blob.upload_from_string(file_data, content_type='image/jpeg')
+        blob.make_public()
+
+        user_ref = self.db.collection('users').document(uid)
+        user_ref.update({'avatar_url': blob.public_url})
+
+        return blob.public_url

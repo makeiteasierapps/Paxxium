@@ -61,6 +61,7 @@ export const sendMessage = async (
 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data);
                     resolve(data.fileUrl); // Resolve the Promise with the imageUrl
                 } else {
                     resolve(null); // Resolve the Promise with null if the response is not ok
