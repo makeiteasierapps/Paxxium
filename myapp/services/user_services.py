@@ -207,7 +207,4 @@ class UserService:
         blob.upload_from_string(file_data, content_type='image/jpeg')
         blob.make_public()
 
-        user_ref = self.db.collection('users').document(uid)
-        user_ref.update({'avatar_url': blob.public_url})
-
         return blob.public_url
