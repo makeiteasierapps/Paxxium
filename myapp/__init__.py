@@ -29,7 +29,6 @@ def create_app():
     
     # Create the Flask application
     app = Flask(__name__)
-    
 
     @socketio.on('join')
     def on_join(data):

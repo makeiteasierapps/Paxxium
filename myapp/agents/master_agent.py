@@ -11,8 +11,6 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain.agents import initialize_agent, AgentType, Tool
 
 
-
-
 class StreamResponse(BaseCallbackHandler):
     def __init__(self, chat_id, agent_name: str):
         self.chat_id = chat_id
