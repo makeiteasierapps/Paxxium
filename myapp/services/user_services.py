@@ -57,7 +57,7 @@ class UserService:
 
         # Use the KMS API to encrypt the data.
         kms_client = kms.KeyManagementServiceClient()
-        kms_key_name = 'projects/paxxium/locations/global/keyRings/agentKeys/cryptoKeys/agents/cryptoKeyVersions/1'
+        kms_key_name = os.environ.get("KMS_KEY_NAME")
         encrypt_response = kms_client.encrypt(request={'name': kms_key_name, 'plaintext': plaintext_bytes, 'plaintext_crc32c': plaintext_crc32c})
       
         # Integrity verification on encrypt_response.
@@ -76,11 +76,10 @@ class UserService:
         load_dotenv()
         os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
         
-        # Use the KMS API to encrypt the data.
         kms_client = kms.KeyManagementServiceClient()
         kms_key_name = os.environ.get("KMS_KEY_NAME")
         decrypted_key = kms_client.decrypt(request={'name': kms_key_name, 'ciphertext': key,})
-
+        print(decrypted_key.plaintext)
         return decrypted_key.plaintext
 
     def get_profile(self, uid):
@@ -141,7 +140,8 @@ class UserService:
     def update_user_profile(self, uid, updates):
 
         user_ref = self.db.collection('users').document(uid)
-        
+        doc = user_ref.get()
+
         if 'serp_key' in updates:
             # Encrypt the value and update the request data
             updates['serp_key'] = self.encrypt(updates['serp_key'])
@@ -154,7 +154,10 @@ class UserService:
             news_topics_list = [topic.lower().strip() for topic in updates['news_topics'].split(',')]
             updates['news_topics'] = firestore.ArrayUnion(news_topics_list)
         
-        user_ref.update(updates)
+        if doc.exists:
+            user_ref.update(updates)
+        else:
+            user_ref.set(updates)
 
     def upload_generated_image_to_firebase_storage(self, image, uid):
         bucket = storage.bucket()
@@ -206,5 +209,8 @@ class UserService:
         file_data = file.read()
         blob.upload_from_string(file_data, content_type='image/jpeg')
         blob.make_public()
+
+        user_ref = self.db.collection('users').document(uid)
+        user_ref.update({'avatar_url': blob.public_url})
 
         return blob.public_url

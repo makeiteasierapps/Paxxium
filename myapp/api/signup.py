@@ -17,18 +17,14 @@ def add_user():
     serp_api_key = req_data.get('serpApiKey')
     authorized = req_data.get('authorized')
 
-    # Encrypt the keys
-    encrypted_openai_api_key = user_service.encrypt(openai_api_key)
-    encrypted_serp_api_key = user_service.encrypt(serp_api_key)
-
     # Update the user profile
     data_package = {    
         'username': username,
-        'open_key': encrypted_openai_api_key,
-        'serp_key': encrypted_serp_api_key,
+        'open_key': openai_api_key,
+        'serp_key': serp_api_key,
         'authorized': authorized,}
     
-    user_service.update_profile(uid, data_package)
+    user_service.update_user_profile(uid, data_package)
     
     return jsonify({'message': 'User added successfully'}), 200
 
