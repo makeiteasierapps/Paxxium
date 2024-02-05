@@ -15,7 +15,7 @@ from myapp.services.profile_services import ProfileService
 
 
 # Initialize Firebase
-cred = credentials.Certificate('myapp/fb_config/paxxium-firebase-adminsdk-2l9cl-3bb25d079e.json')
+cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 firebase_admin.initialize_app(cred, {
     'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
 })

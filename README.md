@@ -125,18 +125,14 @@ For the server `.env` file, specify the path to your `fb_config` folder and the 
 <img src="readme/kmsConfig.png" width="200">
 
 
-
-Use the storgae bucket from above here.
+Use the storgae bucket here and add the other JSON file from the `fb_config` folder.
 ```
 GOOGLE_APPLICATION_CREDENTIALS='myapp/fb_config/your_file.json'
 KMS_KEY_NAME='the_path_you_copied_from_google_cloud_in_step_2'
 GNEWS_API_KEY='your_gnews_api_key'
 FIREBASE_STORAGE_BUCKET=
+FIREBASE_ADMIN_SDK='myapp/fb_config/your_file.json'
 ```
-
-**Note:** Update line 18 in `myapp/__init__.py` with the path to the `firebase-admin-sdk.json` file you downloaded from Firebase.
-
-<img src="readme/adminSdkPath.png" width="500">
 
 
 ## Project Setup Commands
