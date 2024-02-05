@@ -1,6 +1,8 @@
 # <span style="color:#78909c">Paxxium</span>
 ### Intro
 I started building Paxxium during the backend course of my coding bootcamp right during the time ChatGPT was becoming popular. As soon as I realized there was an API I started building. I didn't know React and had very little experience building out a server with Python and Flask but decided what better way to learn. With that being said, this was a school project, it does work but the code could be crap, I don't know I am still learning. There are basic implementations of all modalities, GPT 3.5/4, GPT-vision, and Dall-e
+
+My over all goal is to create a personalized AI system that know who I am
 ### Before you start
 This is a work in progress, though everything works the client feedback isn't that good right now. If you find that you are asking yourself "is this working?" give it some time. Especially with the News Feature. When you search it is scrapping 10 different news articles then sending each one of those to OpenAI to summarize. This can take a while. 
 
