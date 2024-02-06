@@ -48,6 +48,7 @@ To get started with Paxxium, you'll need to set up several services. These instr
 
 3. **Configuration:**
    - Note the configuration data provided upon creating a new web app. This information will be added to the client-side `.env` file.
+
      <img src="readme/clientFirebaseConfig.png" width="400">
 
 4. **Enable Services:**
@@ -80,6 +81,7 @@ To get started with Paxxium, you'll need to set up several services. These instr
    - Assign the role `Cloud KMS CryptoKey Encrypter/Decrypter`.
 
      <img src="readme/role.png" width="300">
+
    - Add a key to this account, choosing JSON format. This file is also added to the `fb_config` folder.
 
      <img src="readme/kmsKey.png" width="400">
