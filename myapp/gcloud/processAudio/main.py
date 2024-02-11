@@ -1,57 +1,57 @@
-import requests
-from pydub import AudioSegment
-from io import BytesIO
+from openai import OpenAI
+import os
+from firebase_admin import firestore, credentials, initialize_app
+from datetime import datetime
 
-from myapp.utils.token_counter import token_counter
+from token_counter import token_counter
 
+cred = credentials.ApplicationDefault()
+initialize_app(cred, {
+    'projectId': 'paxxiumv1',
+})
+db = firestore.client()
+client = OpenAI()
 
-def process_audio():
+def process_audio(request):
     """
     Takes in wav file from external device. 
     """
-    
+    counter = 0
     wav_data = request.data
     if not wav_data:
         return {'message': 'No audio data provided'}, 400
     
-    # Load audio file
-    audio_data = BytesIO(request.data)
-    audio = AudioSegment.from_file(audio_data, format="wav")
+    # Save the audio file to disk
+    file_path = '/tmp/audio.wav'
+    with open(file_path, 'wb') as audio_file:
+        audio_file.write(wav_data)
+    print(f'Audio data saved to {file_path}')
 
-    # Increase the volume by 10 dB
-    increased_audio = audio + 10
-    new_wav = BytesIO()
-    increased_audio.export(new_wav, format="wav")
-    new_wav.seek(0)
+    try:
+        # Open the file again for reading
+        with open(file_path, 'rb') as audio_file:
+            transcript = client.audio.transcriptions.create(model='whisper-1', file=audio_file)
+        print('transcript', transcript)
 
-    headers = {
-        'Authorization': 'Bearer YOUR_OPENAI_API_KEY',
-        'Content-Type': 'application/json',
-    }
-    data = {
-        'file': new_wav.read(),
-        'model': 'whisper-1',
-        'language': 'en',  
-        'prompt': '',  
-    }
+        # Assuming token_counter function can handle the transcript text directly
+        token_count = token_counter(transcript.text, model="gpt-4-0125-preview")
+        print('token_count', token_count)
 
-    response = requests.post('https://api.openai.com/v1/audio/transcriptions', headers=headers, files=data, timeout=60)
+    finally:
+        # Delete the file after processing
+        os.remove(file_path)
+        print(f'File {file_path} has been deleted')
+        now = datetime.now()
+        path = f"recordings/{now.strftime('%Y-%m')}/{now.strftime('%d')}/{now.strftime('%H%M%S')}"
+        
+        db.document(path).set({
+            'transcript': transcript.text,
+            'token_count': token_count,
+            'created_at': firestore.firestore.SERVER_TIMESTAMP
+        })
 
-    if response.status_code == 200:
-        transcription = response.json()
-
-    count = 0
-    transcriptions = []
-    while count < 5:
-        # concate transcriptions into one text file
-        transcriptions.append(transcription)
-        count += 1
-
-    transcriptions = ' '.join(transcriptions)
-
-    token_count = token_counter(transcriptions, model="gpt-4-0125-preview")
+        counter += 1
+        print(f'Counter: {counter}')
 
     return {'message': 'Audio processed successfully', 'token_count': token_count}, 200
-    
-
 
