@@ -8,5 +8,4 @@ gcloud functions deploy process-transcripts \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \
-  --set-env-vars=OPENAI_API_KEY=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
 
