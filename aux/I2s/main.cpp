@@ -70,13 +70,15 @@ void sendWav(const std::string &filePath)
     CURL *curl;
     CURLcode res;
     const char *supabaseUrlEnv = getenv("SUPABASE_URL");
-    if (!supabaseUrlEnv)
+    const char *gcloudUrlEnv = getenv("GCLOUD_URL");
+    if (!supabaseUrlEnv || !gcloudUrlEnv)
     {
-        std::cerr << "Environment variable SUPABASE_URL is not set." << std::endl;
-        return; // or handle the error as appropriate
+        std::cerr << "One or more environment variables (SUPABASE_URL, GCLOUD_URL) are not set." << std::endl;
+        return;
     }
 
-    std::string url = std::string(supabaseUrlEnv) + "/functions/v1/process-audio";
+    std::string supabaseUrl = std::string(supabaseUrlEnv) + "/functions/v1/process-audio";
+    std::string gcloudUrl = std::string(gcloudUrlEnv);
     std::string authToken = getenv("AUTH_TOKEN");
 
     // Use filesystem to get the file size
@@ -87,42 +89,49 @@ void sendWav(const std::string &filePath)
         return;
     }
 
-    // Initialize CURL
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-    if (curl)
+    // Function to initialize and send request
+    auto sendRequest = [&](const std::string &url)
     {
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, ("Authorization: Bearer " + authToken).c_str());
-        headers = curl_slist_append(headers, "Content-Type: audio/wav");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, static_cast<long>(fileSize));
-
-        // Open file for reading in binary mode
-        FILE *fd = fopen(filePath.c_str(), "rb");
-        if (!fd)
+        // Initialize CURL for each URL
+        curl_global_init(CURL_GLOBAL_ALL);
+        CURL *curl = curl_easy_init();
+        if (curl)
         {
-            std::cerr << "Failed to open file: " << filePath << std::endl;
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers, ("Authorization: Bearer " + authToken).c_str());
+            headers = curl_slist_append(headers, "Content-Type: audio/wav");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_POST, 1L);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, static_cast<long>(fileSize));
+
+            // Open file for reading in binary mode
+            FILE *fd = fopen(filePath.c_str(), "rb");
+            if (!fd)
+            {
+                std::cerr << "Failed to open file: " << filePath << std::endl;
+                curl_easy_cleanup(curl);
+                return;
+            }
+            curl_easy_setopt(curl, CURLOPT_READDATA, fd);
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); // Enable verbose for testing
+
+            CURLcode res = curl_easy_perform(curl);
+            if (res != CURLE_OK)
+                std::cerr << "curl_easy_perform() failed for " << url << ": " << curl_easy_strerror(res) << std::endl;
+
+            // Cleanup
+            fclose(fd);
+            curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
-            return;
         }
-        curl_easy_setopt(curl, CURLOPT_READDATA, fd);
-        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); // Enable verbose for testing
+        curl_global_cleanup();
+    };
 
-        res = curl_easy_perform(curl);
-        if (res != CURLE_OK)
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
-
-        // Cleanup
-        fclose(fd);
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-    }
-    curl_global_cleanup();
+    // Send to both endpoints
+    sendRequest(supabaseUrl);
+    sendRequest(gcloudUrl);
 }
-
 void writeWavHeader(std::ofstream &file, int bitsPerSample, int dataSize)
 {
     file.write("RIFF", 4);

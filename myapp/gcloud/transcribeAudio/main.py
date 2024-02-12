@@ -36,12 +36,16 @@ def transcribe_audio(request):
     finally:
         os.remove(file_path)
         now = datetime.now()
-        path = f"recordings/{now.strftime('%Y-%m')}/{now.strftime('%d')}/{now.strftime('%H%M')}"
-        
-        db.document(path).set({
+        month_text = now.strftime('%B')
+        day_digit = now.strftime('%d')
+
+        db.collection('recordings').add({
             'transcript': transcript.text,
             'token_count': token_count,
-            'created_at': firestore.firestore.SERVER_TIMESTAMP
+            'created_at': firestore.firestore.SERVER_TIMESTAMP,
+            'processed': False,
+            'month': month_text,
+            'day': day_digit
         })
 
     return {'message': 'Audio processed successfully', 'token_count': token_count}, 200
