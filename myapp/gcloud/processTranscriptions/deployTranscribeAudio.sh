@@ -8,4 +8,5 @@ gcloud functions deploy process-transcripts \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \
+  --timeout=540s \
 

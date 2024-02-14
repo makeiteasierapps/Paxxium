@@ -1,5 +1,5 @@
-from openai import OpenAI
 import json
+from openai import OpenAI
 from firebase_admin import firestore, credentials, initialize_app
 
 cred = credentials.ApplicationDefault()
@@ -26,13 +26,9 @@ def process_transcripts(request):
         if total_tokens + token_count > 1000:
             break
 
-        concatenated_transcript += f" {transcript}"
+        concatenated_transcript += transcript
         total_tokens += token_count
-        processed_docs.append(doc.reference)
-
-    # Mark documents as processed
-    for doc_ref in processed_docs:
-        doc_ref.update({'processed': True})
+        processed_docs.append({'ref': doc.reference, 'transcript': transcript})
 
     print(concatenated_transcript)
     
@@ -44,7 +40,7 @@ def process_transcripts(request):
             {"role": "system", "content": '''
             These transcripts contain information about your user. 
             Your task is to organize the information in a way that makes sense to you.
-            Your response must be in json format with the three following keys: "corrected_version", "summary", "topics".
+            Your response must be in json format with the three following keys: "summary", "topics".
             '''},
             {"role": "user", "content": f'''{concatenated_transcript}\n\nGiven the information about the user,
             a summary, and the topics discussed\n.
@@ -55,7 +51,7 @@ def process_transcripts(request):
         response_format={"type": "json_object"}
     )
 
-    response_data = json.loads(response.data.choices[0].message.content)
+    response_data = json.loads(response.model_dump()['choices'][0]['message']['content'])
     print(response_data)
 
     # Assuming responseData is a dictionary that contains 'summary' and 'topics'
@@ -76,7 +72,7 @@ def process_transcripts(request):
                 },
                 {
                     "role": "user",
-                    "content": f'''${doc.raw_text}\n\nGiven the information about the user,
+                    "content": f'''{doc['transcript']}\n\nGiven the information about the user,
                         provide a verbose version of the transcript, and the topics discussed\n.
                         *** Verbose version must include all the information in the original transcript, but in a more verbose manner.\n
                         *** Topics must be a list of topics that were discussed in the transcript, include topics not mentioned but that relate to the topics discussed.\n\n'''
@@ -84,30 +80,34 @@ def process_transcripts(request):
             ],
             response_format={"type": "json_object"}
         )
-        response_data = json.loads(response.data.choices[0].message.content)
+        response_data = json.loads(response.model_dump()['choices'][0]['message']['content'])
         print(response_data)
 
-        transcript_and_metadata[doc.id] = {
-            "raw_text": doc.raw_text,
+        transcript_and_metadata[doc['ref'].id] = {
+            "raw_text": doc['transcript'],
             'verbose_version': response_data['verbose_version'],
             'topics': response_data['topics'],
-            "summary": f'This is an summary of the broader conversation so you have more context ${summary}',
+            "summary": f'This is an summary of the broader conversation so you have more context {summary}',
         }
 
 
-    flattened_data = ''
-    for metadata in transcript_and_metadata.items():
-        topics_str = ', '.join(metadata['topics'] + topics) 
-        flattened_data += f"Raw Text: {metadata['raw_text']}, Verbose Version: {metadata['verbose_version']}, Topics: {topics_str}, Summary: {metadata['summary']}."
+     
+    for id, metadata in transcript_and_metadata.items():
+        joined_topics = metadata['topics'] + topics
+        topics_str = ', '.join(joined_topics)
+        flattened_data = f"Raw Text: {metadata['raw_text']}, Verbose Version: {metadata['verbose_version']}, Topics: {topics_str}, Summary: {metadata['summary']}."
 
         embeddings_response = client.embeddings.create(
             model='text-embedding-3-small',
             input=flattened_data
         )
-        embeddings = embeddings_response['data'][0]['embedding']
-        print('Embeddings:', embeddings)
-
-        
+        embeddings = embeddings_response.data[0].embedding
+        print(embeddings)
 
 
-    return response_data
+
+    # Mark documents as processed
+    for doc in processed_docs:
+        doc['ref'].update({'processed': True})
+
+    return response_data, transcript_and_metadata
