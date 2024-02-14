@@ -1,4 +1,5 @@
 from openai import OpenAI
+import json
 from firebase_admin import firestore, credentials, initialize_app
 
 cred = credentials.ApplicationDefault()
@@ -41,27 +42,72 @@ def process_transcripts(request):
         model="gpt-4-0125-preview",
         messages=[
             {"role": "system", "content": '''
-            These are transcripts contain information about your user. 
+            These transcripts contain information about your user. 
             Your task is to organize the information in a way that makes sense to you.
             Your response must be in json format with the three following keys: "corrected_version", "summary", "topics".
             '''},
             {"role": "user", "content": f'''{concatenated_transcript}\n\nGiven the information about the user,
-             please provide a corrected version of the transcript, a summary, and the topics discussed\n.
-             *** Corrected Version must maintain the same information as the original transcript, but in a more coherent manner.\n
-             -- Remove repetive tokens - FOR EXAMPLE: "I am a student. I am a student." should be "I am a student."\n
-             -- Check for gramatical errors and spelling mistakes.\n\n
+            a summary, and the topics discussed\n.
             *** Summary must be a brief overview of the transcript.\n\n
-            *** Topics must be a list of topics that were discussed in the transcript.\n\n
+            *** Topics must be a list of topics that were discussed in the transcript, include topics not mentioned but that relate to the topics discussed.\n\n
              '''}
             ],
         response_format={"type": "json_object"}
     )
 
-    # embeddings = client.embeddings.create(
-    #     input=
-    #     model="text-embedding-3-small"
-    # )
-    
-    response_data = response.choices[0].message.content
-    return response_data
+    response_data = json.loads(response.data.choices[0].message.content)
+    print(response_data)
 
+    # Assuming responseData is a dictionary that contains 'summary' and 'topics'
+    summary = response_data['summary']
+    topics = response_data['topics']
+
+    transcript_and_metadata = {}
+
+    for doc in processed_docs:
+        response = client.chat.completions.create(
+            model='gpt-4-0125-preview',
+            messages=[
+                {
+                    "role": "system",
+                    "content": '''This is a transcript that contains information about your user.\n 
+                        Your task is to organize the information in a way that makes sense to you.\n
+                        Your response must be in json format with the three following keys: "verbose_version", "topics".'''
+                },
+                {
+                    "role": "user",
+                    "content": f'''${doc.raw_text}\n\nGiven the information about the user,
+                        provide a verbose version of the transcript, and the topics discussed\n.
+                        *** Verbose version must include all the information in the original transcript, but in a more verbose manner.\n
+                        *** Topics must be a list of topics that were discussed in the transcript, include topics not mentioned but that relate to the topics discussed.\n\n'''
+                }
+            ],
+            response_format={"type": "json_object"}
+        )
+        response_data = json.loads(response.data.choices[0].message.content)
+        print(response_data)
+
+        transcript_and_metadata[doc.id] = {
+            "raw_text": doc.raw_text,
+            'verbose_version': response_data['verbose_version'],
+            'topics': response_data['topics'],
+            "summary": f'This is an summary of the broader conversation so you have more context ${summary}',
+        }
+
+
+    flattened_data = ''
+    for metadata in transcript_and_metadata.items():
+        topics_str = ', '.join(metadata['topics'] + topics) 
+        flattened_data += f"Raw Text: {metadata['raw_text']}, Verbose Version: {metadata['verbose_version']}, Topics: {topics_str}, Summary: {metadata['summary']}."
+
+        embeddings_response = client.embeddings.create(
+            model='text-embedding-3-small',
+            input=flattened_data
+        )
+        embeddings = embeddings_response['data'][0]['embedding']
+        print('Embeddings:', embeddings)
+
+        
+
+
+    return response_data
