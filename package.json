@@ -2,6 +2,7 @@
   "name": "paxxium",
   "version": "0.1.0",
   "private": true,
+  "main": "electron.js",
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
@@ -30,7 +31,42 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron-start": "NODE_ENV=development electron .",
+    "electron-pack": "electron-builder --dir",
+    "electron-dist": "electron-builder"
+    
+  },
+  "build": {
+    "appId": "com.yourcompany.paxxium",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg"
+      ]
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "main.js",
+      "package.json"
+    ],
+    "extraFiles": [
+      {
+        "from": "./myapp/",
+        "to": "server/myapp",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "./run.py",
+        "to": "server/run.py",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +88,8 @@
   },
   "devDependencies": {
     "@iconify/react": "^4.1.0",
+    "electron": "^29.0.1",
+    "electron-builder": "^23.0.3",
     "eslint-config-react-app": "^7.0.1"
   }
 }
