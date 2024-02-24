@@ -26,16 +26,19 @@ export const AuthProvider = ({ children }) => {
     const [isAuthorized, setIsAuthorized] = useState(false);
 
     useEffect(() => {
-        auth.onAuthStateChanged(async function (user) {
+        const unsubscribe = auth.onIdTokenChanged(async function (user) {
             if (user) {
+                // User is signed in or their token has been refreshed.
                 const token = await user.getIdToken();
-                setIdToken(token);
-                setUid(user.uid);
-                setUser(user);
+                setIdToken(token); // Update the ID token in your state.
+                setUid(user.uid); // Update the user's UID in your state.
+                setUser(user); // Update the user object in your state.
             } else {
+                // User is signed out.
                 console.log('No user is signed in.');
             }
         });
+        return () => unsubscribe();
     }, []);
     return (
         <AuthContext.Provider
