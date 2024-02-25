@@ -79,7 +79,6 @@ class UserService:
         kms_client = kms.KeyManagementServiceClient()
         kms_key_name = os.environ.get("KMS_KEY_NAME")
         decrypted_key = kms_client.decrypt(request={'name': kms_key_name, 'ciphertext': key,})
-        print(decrypted_key.plaintext)
         return decrypted_key.plaintext
 
     def get_profile(self, uid):

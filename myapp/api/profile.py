@@ -17,16 +17,16 @@ def handle_questions():
     Handle profile questions data in the users collection
     """
     uid = authenticate_request()
-    ps = current_app.profile_service
+    profile_service = current_app.profile_service
 
     # Updating profile questions
     if request.method == 'POST':
-        ps.update_profile_questions(uid, request.get_json())
+        profile_service.update_profile_questions(uid, request.get_json())
         return {'response': 'Profile questions updated successfully'}, 200
         
 
     # Handling a GET request
-    profile_data = ps.load_profile_questions(uid)
+    profile_data = profile_service.load_profile_questions(uid)
     return jsonify(profile_data), 200
 
 @profile.route('/profile', methods=['GET'])
@@ -35,9 +35,9 @@ def get_profile():
     Get profile data from the users collection
     """
     uid = authenticate_request()
-    us = current_app.user_service
+    user_service = current_app.user_service
     
-    profile_data = us.get_profile(uid)
+    profile_data = user_service.get_profile(uid)
     
     return jsonify(profile_data), 200
 
@@ -73,11 +73,11 @@ def analyze_profile():
     Update profile data in the users collection
     """
     uid = authenticate_request()
-    us = current_app.user_service
+    user_service = current_app.user_service
 
     if request.method == 'POST':
-        parsed_analysis = us.analyze_profile(uid)
-        us.update_user_profile(uid, parsed_analysis)
+        parsed_analysis = user_service.analyze_profile(uid)
+        user_service.update_user_profile(uid, parsed_analysis)
 
         if 'news_topics' in parsed_analysis:
             parsed_analysis['news_topics'] = parsed_analysis['news_topics'].values
@@ -85,5 +85,5 @@ def analyze_profile():
         return jsonify(parsed_analysis), 200
     
     # GET request
-    profile_analysis = us.get_profile_analysis(uid)
+    profile_analysis = user_service.get_profile_analysis(uid)
     return jsonify(profile_analysis), 200

@@ -143,32 +143,21 @@ class MasterAgent:
         )
     
     def load_history_to_memory(self, conversation):
-        """ 
+        """
         Takes a conversation object and loads the last 6 messages into memory
         """
         # Return out of method if memory already exists
         memory_variables = self.memory.load_memory_variables({})
         if memory_variables and memory_variables.get('memory'):
             return
-        
-        # load the 3 most recent exchanges into memory
-        messages = conversation['messages']
-        
-        pairs = []
-        for i in range(len(messages)-1, -1, -1):
-            message = messages[i]
-            message_from = message['message_from']
-            if message_from == 'user':
-                if i != 0:
-                    next_message = messages[i-1]
-                    next_message_from = next_message['message_from']
-                    if next_message_from == 'chatbot':
-                        pairs.append((message, next_message))
-                else:
-                    pairs.append((message, {"content": "This is not a part of your conversation, end of buffer", "message_from": "chatbot"}))
-            if len(pairs) == 3:
-                break
-        
-        pairs.reverse()
-        for pair in pairs:
-            self.memory.save_context({"input": pair[0]['content']}, {"output": pair[1]['content']})
+
+        # Get the last 6 messages, maintaining their natural order
+        last_six_messages = conversation['messages'][-6:]
+
+        for index in range(0, len(last_six_messages), 2):
+            if index + 1 < len(last_six_messages):
+                input_message = last_six_messages[index]['content']
+                output_message = last_six_messages[index + 1]['content']
+                self.memory.save_context({"input": input_message}, {"output": output_message})
+        print("Last 6 messages loaded into memory")
+
