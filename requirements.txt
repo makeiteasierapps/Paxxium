@@ -19,6 +19,8 @@ cssselect==1.2.0
 dataclasses-json==0.5.14
 deprecation==2.1.0
 distro==1.8.0
+dnspython==2.6.1
+eventlet==0.35.2
 feedfinder2==0.0.4
 feedparser==6.0.10
 filelock==3.12.3
@@ -40,6 +42,7 @@ google-crc32c==1.5.0
 google-resumable-media==2.6.0
 google-search-results==2.4.2
 googleapis-common-protos==1.60.0
+greenlet==3.0.3
 grpc-google-iam-v1==0.12.6
 grpcio==1.58.0
 grpcio-status==1.58.0
@@ -73,6 +76,7 @@ numpy==1.25.2
 openai==1.6.0
 packaging==23.2
 Pillow==10.0.0
+pinecone-client==3.0.2
 proto-plus==1.22.3
 protobuf==4.24.3
 pyasn1==0.5.0

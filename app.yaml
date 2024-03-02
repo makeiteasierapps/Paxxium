@@ -1,0 +1,18 @@
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT main:app
+
+runtime_config:
+    operating_system: "ubuntu22"
+    runtime_version: "3.11"
+
+# You can specify environment variables here (if needed)
+env_variables:
+  GOOGLE_APPLICATION_CREDENTIALS: 'myapp/fb_config/paxxiumv1-970c33acb09a.json'
+  FRONTEND_URL: https://paxxiumv1.web.app
+  KMS_KEY_NAME: 'projects/paxxiumv1/locations/global/keyRings/paxxiumv1/cryptoKeys/paxxiumv1'
+  GNEWS_API_KEY: 709275582e38121da8551f65b66e1243
+  FIREBASE_STORAGE_BUCKET: paxxiumv1.appspot.com
+  FIREBASE_ADMIN_SDK: 'myapp/fb_config/paxxiumv1-firebase-adminsdk-glfks-c40a3714a3.json'
+  OPENAI_API_KEY: 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
+  PINECONE_API_KEY: 7c5ffcb9-7ada-4293-b49d-d2e7b18c36b4

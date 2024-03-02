@@ -16,7 +16,10 @@ initializeApp(firebaseConfig);
 // Get a reference to the Firebase auth service
 export const auth = getAuth();
 export const AuthContext = createContext();
-export const backendUrl = process.env.REACT_APP_BACKEND_URL;
+export const backendUrl =
+    process.env.NODE_ENV === 'production'
+        ? process.env.REACT_APP_BACKEND_URL_PROD
+        : process.env.REACT_APP_BACKEND_URL;
 
 export const AuthProvider = ({ children }) => {
     const [idToken, setIdToken] = useState(null);
