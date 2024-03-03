@@ -19,15 +19,15 @@ def get_news():
     """
     #TODO: allow for mulitple word queries, split then add hyphens? Check docs
     uid = authenticate_request()
-    ns = current_app.news_service
+    news_service = current_app.news_service
     
     if not uid:
         return {'message': 'Invalid token'}, 403
     data = request.get_json()
     query = data['query']
-    urls = ns.get_article_urls(query)
-    news_data = ns.summarize_articles(urls)
-    ns.upload_news_data(uid, news_data)
+    urls = news_service.get_article_urls(query)
+    news_data = news_service.summarize_articles(urls)
+    news_service.upload_news_data(uid, news_data)
     
     return news_data, 200
 

@@ -46,12 +46,12 @@ def update_user():
     """
     Update profile data in the users collection
     """
-    us = current_app.user_service
+    usert_service = current_app.user_service
     uid = authenticate_request()
 
     data = request.get_json()
 
-    us.update_user_profile(uid, data)
+    usert_service.update_user_profile(uid, data)
     
     return {'response': 'Profile updated successfully'}, 200
 
@@ -60,10 +60,10 @@ def update_avatar():
     """
     Update profile data in the users collection
     """
-    us = current_app.user_service
+    user_service = current_app.user_service
     uid = authenticate_request()
     file = request.files['avatar']
-    avatar_url = us.upload_profile_image_to_firebase_storage(file, uid)
+    avatar_url = user_service.upload_profile_image_to_firebase_storage(file, uid)
 
     return {'avatarUrl': avatar_url}, 200
 

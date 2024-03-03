@@ -1,6 +1,6 @@
 from flask import current_app
 from datetime import datetime
-from myapp.agents.master_agent import MasterAgent
+from myapp.agents.BossAgent import BossAgent
 
 class DebateManager:
     def __init__(self, uid, conversation_id, role1, role2, num_rounds=3):
@@ -14,8 +14,8 @@ class DebateManager:
         message_service = current_app.message_service
         
         # Initialize two agents
-        self.agent1 = MasterAgent(message_service, self.uid, self.conversation_id, 'agent1', system_prompt=self.role1)
-        self.agent2 = MasterAgent(message_service, self.uid, self.conversation_id, 'agent2', system_prompt=self.role2)
+        self.agent1 = BossAgent(message_service, self.uid, self.conversation_id, 'agent1', system_prompt=self.role1)
+        self.agent2 = BossAgent(message_service, self.uid, self.conversation_id, 'agent2', system_prompt=self.role2)
 
     @staticmethod
     def create_debate(user_id):

@@ -2,7 +2,7 @@ import pytest
 from flask import current_app
 from myapp.services.message_service import MessageService
 from myapp.services.firebase_service import FirebaseService
-from myapp.agents.master_agent import MasterAgent
+from myapp.agents.BossAgent import BossAgent
 from myapp import create_app
 
 @pytest.fixture
@@ -34,4 +34,4 @@ def message_service(app):
 @pytest.fixture
 def master_ai(message_service):
     # You may need to provide any required dependencies for the MasterAI constructor here
-    return MasterAgent(message_service)
+    return BossAgent(message_service)

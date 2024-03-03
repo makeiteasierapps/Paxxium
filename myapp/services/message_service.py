@@ -37,30 +37,17 @@ class MessageService:
         return new_message
 
     def get_all_messages(self, user_id, conversation_id):
-        # Get the reference to the conversation document
         conversation_ref = self.db.collection('users').document(user_id).collection('conversations').document(conversation_id)
-
-        # Fetch the conversation document
         conversation = conversation_ref.get()
-
-        # Fetch bot_name from the conversation document
         agent_model = conversation.get('agent_model') if conversation.exists else None
-
-        # Fetch the messages from the conversation
         messages = conversation_ref.collection('messages').order_by('time_stamp', direction=firestore.Query.ASCENDING).stream()
-
-        # Return the bot_name along with the messages
+        
         return {"agent_model": agent_model, "messages": [msg.to_dict() for msg in messages]}
     
     def delete_all_messages(self, user_id, conversation_id):
-        master_agent_service = current_app.master_agent_service
         messages_ref = self.db.collection('users').document(user_id).collection('conversations').document(conversation_id).collection('messages')
         
         batch = self.db.batch()
         for doc in messages_ref.stream():
             batch.delete(doc.reference)
         batch.commit()
-
-        agent_ref = master_agent_service.get_agent_by_key(user_id, conversation_id)
-        
-        agent_ref.clear_memory()

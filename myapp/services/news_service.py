@@ -115,10 +115,8 @@ class NewsService:
             query = news_ref.where('url', '==', url).limit(1).get()
             
             if len(query) == 0:
-                # URL does not exist, add the news_data to the collection
                 news_ref.add(news_data)
             else:
-                # URL already exists, skip adding it
                 print(f"URL '{url}' already exists, skipping...")
 
 
