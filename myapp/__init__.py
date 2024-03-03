@@ -36,7 +36,7 @@ def create_app():
         join_room(room)
 
     # Configure CORS
-    CORS(app, origins=[frontend_url], supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS, PATCH'])
+    CORS(app, origins='*', supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS, PATCH'])
 
     # Create the Firestore client
     db = firestore.client()
@@ -55,6 +55,7 @@ def create_app():
     # Register blueprints
     from myapp import views
     views.register_blueprints(app)
-    socketio.init_app(app, cors_allowed_origins=frontend_url,)
+    socketio.init_app(app, cors_allowed_origins='*')
 
     return app
+
