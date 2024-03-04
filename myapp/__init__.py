@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask
-from flask_socketio import SocketIO
 from flask_cors import CORS
 from firebase_admin import firestore, credentials, storage
 import firebase_admin
@@ -19,8 +18,6 @@ firebase_admin.initialize_app(cred, {
     'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
 })
 bucket = storage.bucket()
-socketio = SocketIO()
-
 def create_app():
 
     load_dotenv()
@@ -30,7 +27,7 @@ def create_app():
     app = Flask(__name__)
 
     # Configure CORS
-    CORS(app, origins='*', supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS, PATCH'])
+    CORS(app, origins='*', supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 
     # Create the Firestore client
     db = firestore.client()

@@ -10,12 +10,10 @@ class DebateManager:
         self.role2 = role2
         self.num_rounds = num_rounds
         self.response_content = None
-
-        message_service = current_app.message_service
         
         # Initialize two agents
-        self.agent1 = BossAgent(message_service, self.uid, self.conversation_id, 'agent1', system_prompt=self.role1)
-        self.agent2 = BossAgent(message_service, self.uid, self.conversation_id, 'agent2', system_prompt=self.role2)
+        self.agent1 = BossAgent(self.uid, current_app.user_service, self.conversation_id,  system_prompt=self.role1)
+        self.agent2 = BossAgent(self.uid, current_app.user_service, self.conversation_id, system_prompt=self.role2)
 
     @staticmethod
     def create_debate(user_id):

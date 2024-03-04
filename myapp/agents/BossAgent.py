@@ -1,7 +1,5 @@
 from openai import OpenAI
-
-# Stream response shape
-
+import logging
 
 class BossAgent:
     def __init__(self, uid, user_service, model='', system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', use_profile_data=False):
@@ -58,6 +56,7 @@ class BossAgent:
                     'content': chunk.choices[0].delta.content,
                     'type': 'stream',
                 }
+                logging.info(stream_obj)
                 yield stream_obj
     
     def pass_to_vision_model(self, new_message):

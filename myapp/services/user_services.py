@@ -28,7 +28,6 @@ class UserService:
         
         return user_doc.to_dict()['open_key'], user_doc.to_dict()['serp_key']
 
-
     @staticmethod
     def crc32c(data: bytes) -> int:
         """

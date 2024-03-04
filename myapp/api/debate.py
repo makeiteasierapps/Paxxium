@@ -1,8 +1,5 @@
-from flask_socketio import emit
 from flask import Blueprint, request, current_app
 from myapp.services.debate_services import DebateManager
-
-from myapp import socketio
 
 debate = Blueprint('debate', __name__)
 
@@ -43,8 +40,7 @@ def create_debate():
     }
     
     return debate_data, 200
-
-@socketio.on('start_debate')
+# Create a HTTP route to handle the start of a debate
 def start_debate(data):
     uid_debate_id_list = data.get('uid_debate_id_tuple')  # Get the tuple from the client data
     uid_debate_id_tuple = tuple(uid_debate_id_list)
@@ -58,11 +54,12 @@ def start_debate(data):
     debate_manager = debate_managers[uid_debate_id_tuple]
     response_content, has_more_turns, agent_responding = debate_manager.start_debate(topic, turn)
     
-    emit('debate_started', {'hasMoreTurns': has_more_turns, 'message': {
-            'content': response_content,
-            'message_from': agent_responding,
-            'agent_model': 'AgentDebate',
-            'topic': topic,
-            'id': debate_manager.conversation_id,
-            'user_id': uid_debate_id_tuple[0],
-        }})
+    # Send the response to the client
+    # ('debate_started', {'hasMoreTurns': has_more_turns, 'message': {
+    #         'content': response_content,
+    #         'message_from': agent_responding,
+    #         'agent_model': 'AgentDebate',
+    #         'topic': topic,
+    #         'id': debate_manager.conversation_id,
+    #         'user_id': uid_debate_id_tuple[0],
+    #     }})
