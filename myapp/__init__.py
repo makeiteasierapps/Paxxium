@@ -1,12 +1,11 @@
 import os
 from dotenv import load_dotenv
 from flask import Flask
-from flask_socketio import SocketIO, join_room
+from flask_socketio import SocketIO
 from flask_cors import CORS
 from firebase_admin import firestore, credentials, storage
 import firebase_admin
 from myapp.services.message_service import MessageService
-from myapp.agents.BossAgent import BossAgent
 from myapp.services.user_services import UserService
 from myapp.services.chat_services import ChatService
 from myapp.services.firebase_service import FirebaseService
@@ -30,11 +29,6 @@ def create_app():
     # Create the Flask application
     app = Flask(__name__)
 
-    @socketio.on('join')
-    def on_join(data):
-        room = data['room']
-        join_room(room)
-
     # Configure CORS
     CORS(app, origins='*', supports_credentials=True, allow_headers=['Content-Type', 'Authorization'], methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS, PATCH'])
 
@@ -43,7 +37,6 @@ def create_app():
 
     # app config settings
     app.config['db'] = db
-
     app.message_service = MessageService(db)
     app.user_service = UserService(db)
     app.firebase_service = FirebaseService()
@@ -54,7 +47,6 @@ def create_app():
     # Register blueprints
     from myapp import views
     views.register_blueprints(app)
-    socketio.init_app(app, cors_allowed_origins='*')
 
     return app
 

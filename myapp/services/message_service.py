@@ -20,8 +20,8 @@ class MessageService:
 
     def create_message(
             self,
-            conversation_id,
-            user_id,
+            chat_id,
+            uid,
             message_from,
             message_content,
             image_url=None
@@ -33,7 +33,7 @@ class MessageService:
             'type': 'database',
             'time_stamp': datetime.utcnow()
         }
-        self.db.collection('users').document(user_id).collection('conversations').document(conversation_id).collection('messages').add(new_message)
+        self.db.collection('users').document(uid).collection('conversations').document(chat_id).collection('messages').add(new_message)
         return new_message
 
     def get_all_messages(self, user_id, conversation_id):

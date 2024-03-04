@@ -1,3 +1,5 @@
+import { processToken } from '../../utils/processToken';
+
 function resizeImage(file, maxWidth, maxHeight, callback) {
     const img = document.createElement('img');
     const canvas = document.createElement('canvas');
@@ -37,10 +39,15 @@ export const sendMessage = async (
     uid,
     backendUrl,
     addMessage,
-    socketRef,
+    getMessages,
     idToken,
     chatId,
-    agentModel,
+    chatSettings,
+    insideCodeBlock,
+    setInsideCodeBlock,
+    ignoreNextTokenRef,
+    languageRef,
+    setMessages,
     image = null
 ) => {
     let imageUrl = null;
@@ -79,17 +86,57 @@ export const sendMessage = async (
         type: 'database',
         image_url: imageUrl,
     };
-
     addMessage(chatId, userMessage);
 
-    // Emit the 'message' event to the server
-    socketRef.current.emit('message', {
-        idToken: idToken,
-        chatId: chatId,
-        content: input,
-        message_from: 'user',
-        user_id: uid,
-        agentModel: agentModel,
+    const convoHistory = await getMessages(chatId);
+
+    const dataPacket = {
+        chatSettings,
+        userMessage,
+        convoHistory,
         image_url: imageUrl,
+    };
+
+    const response = await fetch(`${backendUrl}/messages`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: idToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify(dataPacket),
     });
+
+    if (response.body) {
+        const reader = response.body.getReader();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            const decodedValue = new TextDecoder('utf-8').decode(value);
+            // Split the decoded value by newline and filter out any empty lines
+            const jsonChunks = decodedValue
+                .split('\n')
+                .filter((line) => line.trim() !== '');
+            try {
+                jsonChunks.forEach((chunk) => {
+                    const messageObj = JSON.parse(chunk);
+                    processToken(
+                        messageObj,
+                        setInsideCodeBlock,
+                        insideCodeBlock,
+                        setMessages,
+                        chatId,
+                        ignoreNextTokenRef,
+                        languageRef
+                    );
+                });
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        }
+    } else {
+        console.log('No response body');
+    }
 };

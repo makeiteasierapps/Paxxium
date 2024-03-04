@@ -10,11 +10,15 @@ export const ChatProvider = ({ children }) => {
 
 
     // Used to add a new user message to the messages state
-    const addMessage = (agentId, newMessage) => {
+    const addMessage = (chatId, newMessage) => {
         setMessages((prevMessageParts) => ({
             ...prevMessageParts,
-            [agentId]: [...(prevMessageParts[agentId] || []), newMessage],
+            [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
         }));
+    };
+
+    const getMessages = (chatId) => {
+        return messages[chatId] || [];
     };
 
     return (
@@ -27,6 +31,7 @@ export const ChatProvider = ({ children }) => {
                 messages,
                 setMessages,
                 addMessage,
+                getMessages,
                 insideCodeBlock,
                 setInsideCodeBlock,
             }}

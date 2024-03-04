@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, Response, stream_with_context
 from ..agents.BossAgent import BossAgent
+import json
 
 messages = Blueprint('messages', __name__)
 
@@ -30,11 +31,15 @@ def get_messages(conversation_id):
 
 @messages.route('/messages', methods=['POST'])
 def handle_message_http():
-    data = request.json
-    id_token = data.get('idToken')
-    chat_id = data.get('chatId')
+    id_token = request.headers.get('Authorization')
     uid = authenticate_request(id_token)
-    boss_agent = BossAgent(uid)
+
+    data = request.json
+    print(data)
+    user_message = data.get('userMessage')
+    convo_history = data.get('convoHistory')
+    chat_settings = data.get('chatSettings')
+    chat_id = chat_settings['chatId']
     
     if data.get('image_url') is not None:
         message_service = current_app.message_service
@@ -43,31 +48,39 @@ def handle_message_http():
         message_from = data.get('message_from')
         image_url = data['image_url']
         new_message = message_service.create_message(conversation_id=chat_id, message_content=message_content, message_from=message_from, user_id=uid, image_url=image_url)
-        boss_agent.pass_to_vision_model(new_message, chat_id, uid)
+        boss_agent = BossAgent(uid, current_app.user_service)
+        boss_agent.pass_to_vision_model(new_message)
         return
     
-    response_from_llm = process_message(data, uid, chat_id)
+    generator = process_message(uid, chat_id, user_message, chat_settings, convo_history, current_app.message_service, current_app.user_service)
     
-    return jsonify(response_from_llm), 200
+    return Response(generator, mimetype='application/json')
     
 
-def process_message(data, uid, chat_id):
-    message_service = current_app.message_service
-    boss_agent = BossAgent(uid)
-
-    message_content = data.get('content')
-    message_from = data.get('message_from')
+def process_message(uid, chat_id, user_message, chat_settings, convo_history, message_service, user_service):
+    model = chat_settings['agentModel']
+    system_prompt = chat_settings['systemPrompt']
+    chat_constants = chat_settings['chatConstants']
+    use_profile_data = chat_settings['useProfileData']
+    boss_agent = BossAgent(uid=uid, user_service=user_service, model=model, system_prompt=system_prompt, chat_constants=chat_constants, use_profile_data=use_profile_data)
+    message_content = user_message['content']
+    message_from = user_message['message_from']
 
     # Create a new message in the database
-    new_message = message_service.create_message(conversation_id=chat_id, message_content=message_content, message_from=message_from, user_id=uid)
+    message_service.create_message(chat_id, uid, message_from, message_content)
     
     # Pass message to Agent
-    response_from_llm = boss_agent.pass_to_boss_agent(message_obj=new_message, conversation_id=chat_id, user_id=uid)
+    message_obj = {
+        'user_message': message_content,
+        'convo_history': convo_history
+    }
+    complete_message = ''
+    for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
+        complete_message += response_chunk['content']
+        response_chunk['chat_id'] = chat_id
+        yield json.dumps(response_chunk) + '\n'
     
-    # Convert the timestamp to a string and add it back to the dictionary
-    response_from_llm['time_stamp'] = str(response_from_llm['time_stamp'])
-
-    return response_from_llm
+    message_service.create_message(chat_id, uid, 'agent', complete_message)
 
 @messages.route('/<string:conversation_id>/messages/clear', methods=['DELETE'])
 def clear_memory(conversation_id):

@@ -1,48 +1,70 @@
 from openai import OpenAI
-from flask import current_app
-from flask_socketio import join_room
 
+# Stream response shape
 
-
-
-# Stream resonse shape
-token_stream = {'message_from': 'agent', 'content': 'token', 'chat_id': 'chat_id', 'type': 'stream',}
- 
 
 class BossAgent:
-    def __init__(self, uid, model="gpt-3.5-turbo-0125", system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', user_analysis=''):
-        user_service = current_app.user_service
+    def __init__(self, uid, user_service, model='', system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', use_profile_data=False):
         encrypted_openai_key, encrypted_serp_key = user_service.get_keys(uid)
+        self.client = OpenAI()
         self.uid = uid
         self.openai_api_key = user_service.decrypt(encrypted_openai_key)
         self.serp_key = user_service.decrypt(encrypted_serp_key)
-        self.model = model
         self.system_prompt = system_prompt
         self.chat_constants = chat_constants
-        self.user_analysis = user_analysis
+        self.user_analysis = ""
+        
+        if model == 'GPT-4':
+            self.model = 'gpt-4-0125-preview'
+        else:
+            self.model = 'gpt-3.5-turbo-0125'
+
+        if use_profile_data:
+            profile_data = user_service.get_profile_analysis(uid)
+            self.user_analysis = profile_data['user_analysis']
 
     def __repr__(self):
-        return f"<BossAgent id={self.uid}>"
-
-    def update_chat_settings(self, model, system_prompt):
-        self.model = model
-        self.system_prompt = system_prompt
-        
+        return f"<BossAgent id={self.uid}>"        
     
-    def pass_to_boss_agent(self, message_obj, conversation_id, user_id):
-        content = message_obj['content']
-        message_content = f'***USER ANALYSIS***\n{self.user_analysis}\n***THINGS TO REMEMBER***\n{self.chat_constants}\n**************\n{content}'
-        response = self.master_ai.run(message_content)                                 
-        
-        return response
-    
-    def pass_to_vision_model(self, new_message, conversation_id, uid):
-        from myapp import socketio
-        client = OpenAI()
+    def pass_to_boss_agent(self, message_obj):
+        new_user_message = message_obj['user_message']
+        convo_history = message_obj['convo_history']
+        print(f"Convo History: {convo_history}")
 
+        new_convo_history = self.manage_memory(convo_history, new_user_message)
+
+        messages = [
+            {
+                "role": "system",
+                "content": self.system_prompt,
+            },
+        ]
+        print("new_user_message: ", new_user_message)
+        message_content = f'***USER ANALYSIS***\n{self.user_analysis}\n***THINGS TO REMEMBER***\n{self.chat_constants}\n**************\n{new_user_message}'
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": message_content,
+                }
+            ],
+            stream=True,
+        )
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                stream_obj = {
+                    'message_from': 'agent',
+                    'content': chunk.choices[0].delta.content,
+                    'type': 'stream',
+                }
+                yield stream_obj
+    
+    def pass_to_vision_model(self, new_message):
+        
         image_url = new_message['image_url']
         user_message = new_message['content']
-        response = client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model="gpt-4-vision-preview",
             messages=[
                 {
@@ -56,40 +78,40 @@ class BossAgent:
                     ],
                 }
             ],
-            max_tokens=300,
             stream=True,
         )
 
         complete_response = ""
-        join_room(conversation_id)
-        for chunk in response:
-            for choice in chunk.choices:
-                if choice.delta.content is None:
-                    continue
-                complete_response += choice.delta.content
-                socketio.emit('token', {'message_from': 'agent', 'content': choice.delta.content, 'chat_id': self.chat_id, 'type': 'stream',}, room=self.chat_id)
-                socketio.sleep(0)
         
-        response_obj = self.message_service.create_message(conversation_id=conversation_id, message_from='agent', user_id=uid, message_content=complete_response)
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                complete_response += chunk.choices[0].delta.content
+
+        # Need to return the stream here
+        
         # add memory to agent
-        self.memory.save_context({"input": new_message['content']}, {"output": complete_response})
-        return response_obj
+        return complete_response
     
     def pass_to_debateAI(self, message_obj):
         message_content = message_obj['content']
-        response = self.master_ai.run(message_content)
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": 
+                        {"type": "text", "text": message_content},
+                }
+            ],
+            stream=True,
+        )
         return response
 
-        
-    
-    def load_history_to_memory(self, conversation):
+    def manage_memory(self, conversation, user_message):
         """
         Takes a conversation object extracts x amount of tokens and returns a message
         object ready to pass into OpenAI chat completion
         """
+        history = []
         
-        return
-                
-        
-
-
+        return history

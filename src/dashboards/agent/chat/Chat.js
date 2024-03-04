@@ -1,10 +1,7 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
-import io from 'socket.io-client';
+import { memo, useContext, useEffect, useRef } from 'react';
 import { AuthContext, backendUrl } from '../../../auth/AuthContext';
 import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
-import { handleIncomingMessageStream } from '../chat/handlers/handleIncomingMessageStream';
 import { formatBlockMessage } from '../utils/messageFormatter';
-import { processToken } from '../utils/processToken';
 import AgentMessage from './components/AgentMessage';
 import ChatBar from './components/ChatBar';
 import MessageInput from './components/MessageInput';
@@ -24,16 +21,9 @@ const Chat = ({
     useProfileData,
 }) => {
     const nodeRef = useRef(null);
-    const socketRef = useRef(null);
-    const [queue, setQueue] = useState([]);
-    const ignoreNextTokenRef = useRef(false);
-    const languageRef = useRef(null);
-
     const {
         messages,
         setMessages,
-        setInsideCodeBlock,
-        insideCodeBlock,
         setSelectedAgent,
         agentArray,
     } = useContext(ChatContext);
@@ -82,43 +72,8 @@ const Chat = ({
             }
         };
         fetchMessages();
-    }, [id, idToken, setMessages]);
+    }, [agentModel, chatConstants, chatName, id, idToken, setMessages, systemPrompt, useProfileData]);
 
-    // Handles token stream
-    useEffect(() => {
-        const handleToken = (token) => {
-            setQueue((prevQueue) => [...prevQueue, token]);
-        };
-
-        socketRef.current = io.connect(backendUrl);
-        socketRef.current.emit('join', { room: id });
-        socketRef.current.on('token', handleToken);
-
-        return () => {
-            socketRef.current.off('token', handleToken);
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-        };
-    }, [id]);
-
-    // Adds tokens to a queue
-    useEffect(() => {
-        if (queue.length > 0) {
-            processToken(
-                queue[0],
-                setInsideCodeBlock,
-                insideCodeBlock,
-                setMessages,
-                handleIncomingMessageStream,
-                id,
-                ignoreNextTokenRef,
-                languageRef
-            );
-
-            setQueue((prevQueue) => prevQueue.slice(1));
-        }
-    }, [queue, setMessages, setInsideCodeBlock, insideCodeBlock, id]);
 
     // scrolls chat window to the bottom
     useEffect(() => {
@@ -178,6 +133,7 @@ const Chat = ({
                     agentModel={agentModel}
                     systemPrompt={systemPrompt}
                     chatConstants={chatConstants}
+                    useProfileData={useProfileData}
                 />
             </MessagesContainer>
         </ChatContainerStyled>

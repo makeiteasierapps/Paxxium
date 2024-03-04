@@ -3,7 +3,6 @@ import io from "socket.io-client";
 import { AuthContext, backendUrl } from "../../../auth/AuthContext";
 import { ChatContext } from "../../../dashboards/agent/chat/ChatContext";
 import ChatBar from "../chat/components/ChatBar";
-import { handleIncomingMessageStream } from "../chat/handlers/handleIncomingMessageStream";
 import { formatBlockMessage } from "../utils/messageFormatter";
 import { processToken } from "../utils/processToken";
 import DebateMessage from "./DebateMessage";
@@ -133,7 +132,6 @@ const Debate = ({ id, chatName, topic }) => {
                 setInsideCodeBlock,
                 insideCodeBlock,
                 setDebateMessages,
-                handleIncomingMessageStream,
                 id,
                 ignoreNextTokenRef,
                 languageRef

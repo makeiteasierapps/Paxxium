@@ -1,12 +1,4 @@
-import {
-    useContext,
-    useState,
-    useEffect,
-    useRef,
-    useCallback,
-    forwardRef,
-} from 'react';
-import io from 'socket.io-client';
+import { useContext, useState, useRef, useCallback, forwardRef } from 'react';
 import { TextField, InputAdornment, Box, InputLabel } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import SendIcon from '@mui/icons-material/Send';
@@ -77,16 +69,37 @@ const ImageOverlay = styled(Box)(({ theme }) => ({
     },
 }));
 
-const MessageInput = ({ chatId, agentModel }) => {
+const MessageInput = ({
+    chatId,
+    agentModel,
+    systemPrompt,
+    chatConstants,
+    useProfileData,
+}) => {
     const { uid, idToken } = useContext(AuthContext);
-    const { addMessage } = useContext(ChatContext);
+    const {
+        addMessage,
+        getMessages,
+        insideCodeBlock,
+        setInsideCodeBlock,
+        setMessages,
+    } = useContext(ChatContext);
     const [input, setInput] = useState('');
     const [image, setImage] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [isFocused, setIsFocused] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
-
     const inputRef = useRef();
+    const ignoreNextTokenRef = useRef(false);
+    const languageRef = useRef(null);
+
+    const chatSettings = {
+        chatId,
+        agentModel,
+        systemPrompt,
+        chatConstants,
+        useProfileData,
+    };
 
     const handleFileInput = (event) => {
         const file = event.target.files[0];
@@ -95,17 +108,6 @@ const MessageInput = ({ chatId, agentModel }) => {
             setImage(file);
         }
     };
-
-    const socketRef = useRef(null);
-
-    // Set up the socket connection on mount and disconnect on unmount.
-    useEffect(() => {
-        socketRef.current = io.connect(backendUrl);
-
-        return () => {
-            socketRef.current.disconnect();
-        };
-    }, []);
 
     const onDrop = useCallback(
         (acceptedFiles) => {
@@ -143,7 +145,7 @@ const MessageInput = ({ chatId, agentModel }) => {
                             src={URL.createObjectURL(image)}
                             alt="preview"
                             style={{
-                                display:'flex',
+                                display: 'flex',
                             }}
                         />
                         <ImageOverlay
@@ -182,10 +184,15 @@ const MessageInput = ({ chatId, agentModel }) => {
                                 uid,
                                 backendUrl,
                                 addMessage,
-                                socketRef,
+                                getMessages,
                                 idToken,
                                 chatId,
-                                agentModel,
+                                chatSettings,
+                                insideCodeBlock,
+                                setInsideCodeBlock,
+                                ignoreNextTokenRef,
+                                languageRef,
+                                setMessages,
                                 image
                             );
                             setInput('');
@@ -227,10 +234,15 @@ const MessageInput = ({ chatId, agentModel }) => {
                                                 uid,
                                                 backendUrl,
                                                 addMessage,
-                                                socketRef,
+                                                getMessages,
                                                 idToken,
                                                 chatId,
-                                                agentModel,
+                                                chatSettings,
+                                                insideCodeBlock,
+                                                setInsideCodeBlock,
+                                                ignoreNextTokenRef,
+                                                languageRef,
+                                                setMessages,
                                                 image
                                             );
                                             setInput('');
