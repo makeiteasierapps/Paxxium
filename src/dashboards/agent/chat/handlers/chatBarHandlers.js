@@ -5,6 +5,7 @@ export const handleCloseChat = async (
     backendUrl
 ) => {
     try {
+        console.log(idToken);
         const response = await fetch(`${backendUrl}/chat/update_visibility`, {
             method: 'PATCH',
             headers: {
@@ -12,7 +13,6 @@ export const handleCloseChat = async (
                 Authorization: idToken,
             },
             body: JSON.stringify({ id: id, is_open: false }),
-            credentials: 'include',
         });
         if (!response.ok) throw new Error('Failed to update chat');
         // Update the local state only after the database has been updated successfully
@@ -33,10 +33,13 @@ export const handleClearMessages = async (
     backendUrl
 ) => {
     try {
-        const response = await fetch(`${backendUrl}/${id}/messages/clear`, {
+        const response = await fetch(`${backendUrl}/messages/clear`, {
             method: 'DELETE',
-            headers: { Authorization: idToken },
-            credentials: 'include',
+            headers: {
+                Authorization: idToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: id }),
         });
         if (!response.ok) throw new Error('Failed to clear messages');
         setMessages((prevMessageParts) => ({
@@ -55,10 +58,13 @@ export const handleDeleteChat = async (
     backendUrl
 ) => {
     try {
-        const response = await fetch(`${backendUrl}/chat/${id}/delete`, {
+        const response = await fetch(`${backendUrl}/chat/delete`, {
             method: 'DELETE',
-            headers: { Authorization: idToken },
-            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: idToken,
+            },
+            body: JSON.stringify({ id: id }),
         });
         if (!response.ok) throw new Error('Failed to delete conversation');
         setAgentArray((prevChatArray) =>

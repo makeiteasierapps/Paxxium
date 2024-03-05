@@ -9,8 +9,7 @@ from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.chat_models import ChatOpenAI
 
-from myapp.services.profile_services import ProfileService as ps
-
+from profile_services import ProfileService as profile_service
 from firebase_admin import storage
 
 class UserService:
@@ -71,8 +70,13 @@ class UserService:
         
         kms_client = kms.KeyManagementServiceClient()
         kms_key_name = os.environ.get("KMS_KEY_NAME")
-        decrypted_key = kms_client.decrypt(request={'name': kms_key_name, 'ciphertext': key,})
-        return decrypted_key.plaintext
+
+        # Decode the base64-encoded key to bytes
+        ciphertext_bytes = base64.b64decode(key)
+        decrypted_key_response = kms_client.decrypt(request={'name': kms_key_name, 'ciphertext': ciphertext_bytes})
+        decrypted_key = decrypted_key_response.plaintext.decode('utf-8')
+
+        return decrypted_key
 
     def get_profile(self, uid):
         user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url'])
@@ -91,13 +95,12 @@ class UserService:
         
         return prompt
     
-    @staticmethod
-    def analyze_profile(uid):
+    def analyze_profile(self, uid):
         """
         Generates an analysis of the user's profile
         """
         
-        q_a = ps.load_profile_questions(uid)
+        q_a = profile_service.load_profile_questions(uid, self.db)
         prompt = UserService.extract_data_for_prompt(q_a)
 
 

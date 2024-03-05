@@ -48,7 +48,6 @@ const ChatSettings = () => {
                     'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
-                credentials: 'include',
                 body: JSON.stringify({
                     agentModel,
                     systemPrompt,
@@ -98,7 +97,6 @@ const ChatSettings = () => {
                     'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
-                credentials: 'include',
                 body: JSON.stringify(newAgentSettings),
             });
         } catch (error) {

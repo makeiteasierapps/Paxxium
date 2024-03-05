@@ -1,7 +1,6 @@
 from datetime import datetime
 from google.cloud import firestore
 
-
 class MessageService:
     def __init__(self, db):
         self.db = db

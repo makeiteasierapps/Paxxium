@@ -9,6 +9,7 @@ from BossAgent import BossAgent
 cred = credentials.ApplicationDefault()
 initialize_app(cred, {
     'projectId': 'paxxiumv1',
+    'storageBucket': 'paxxiumv1.appspot.com'
 })
 db = firestore.client()
 firebase_service = FirebaseService()
@@ -42,7 +43,6 @@ def process_message(uid, chat_id, user_message, chat_settings, convo_history):
     message_service.create_message(chat_id, uid, 'agent', complete_message)
 
 def messages_manager(request):
-    # Initialize response dictionary and headers
     response = {}
     if request.method == "OPTIONS":
         headers = {
@@ -67,6 +67,13 @@ def messages_manager(request):
 
     if request.path == '/':
         data = request.json
+        conversation_id = data.get('id')
+        conversation_data = message_service.get_all_messages(uid, conversation_id)
+    
+        return (conversation_data, 200, headers)
+    
+    if request.path == '/post':
+        data = request.json
         user_message = data.get('userMessage')
         convo_history = data.get('convoHistory')
         chat_settings = data.get('chatSettings')
@@ -85,5 +92,17 @@ def messages_manager(request):
     
         generator = process_message(uid, chat_id, user_message, chat_settings, convo_history)
     
-        return Response(generator, mimetype='application/json')
+        return (Response(generator, mimetype='application/json'), 200, headers)
+    
+    if request.path == '/clear':
+        data = request.json
+        chat_id = data.get('id')
+        message_service.delete_all_messages(uid, chat_id)
+        return ('Memory Cleared', 200, headers)
+    
+    if request.path == '/utils':
+        file = request.files['image']
+        file_url = user_service.upload_file_to_firebase_storage(file, uid)
+        return (file_url, 200, headers)
+
 

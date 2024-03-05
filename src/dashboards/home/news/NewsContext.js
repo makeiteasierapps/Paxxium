@@ -35,7 +35,7 @@ export const NewsProvider = ({ children }) => {
 
     const loadNewsData = useCallback(async () => {
         try {
-            const response = await fetch(`${backendUrl}/news/load`, {
+            const response = await fetch(`${backendUrl}/news`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

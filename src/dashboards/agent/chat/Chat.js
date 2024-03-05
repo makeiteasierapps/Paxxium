@@ -21,12 +21,8 @@ const Chat = ({
     useProfileData,
 }) => {
     const nodeRef = useRef(null);
-    const {
-        messages,
-        setMessages,
-        setSelectedAgent,
-        agentArray,
-    } = useContext(ChatContext);
+    const { messages, setMessages, setSelectedAgent, agentArray } =
+        useContext(ChatContext);
 
     const { idToken } = useContext(AuthContext);
 
@@ -34,27 +30,14 @@ const Chat = ({
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const requestData = {
-                    id,
-                    chatConstants,
-                    systemPrompt,
-                    chatName,
-                    agentModel,
-                    useProfileData,
-                };
-
-                const messageResponse = await fetch(
-                    `${backendUrl}/${id}/messages`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: idToken,
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify(requestData),
-                    }
-                );
+                const messageResponse = await fetch(`${backendUrl}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: JSON.stringify({ id: id }),
+                });
 
                 if (!messageResponse.ok) {
                     throw new Error('Failed to load messages');
@@ -72,8 +55,16 @@ const Chat = ({
             }
         };
         fetchMessages();
-    }, [agentModel, chatConstants, chatName, id, idToken, setMessages, systemPrompt, useProfileData]);
-
+    }, [
+        agentModel,
+        chatConstants,
+        chatName,
+        id,
+        idToken,
+        setMessages,
+        systemPrompt,
+        useProfileData,
+    ]);
 
     // scrolls chat window to the bottom
     useEffect(() => {

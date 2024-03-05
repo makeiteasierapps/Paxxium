@@ -2,20 +2,18 @@ import os
 from dotenv import load_dotenv
 import requests
 from newspaper import Article
-from langchain.schema import (
-    HumanMessage
-)
-from langchain.chat_models import ChatOpenAI
+from user_services import UserService
 import uuid
+from BossAgent import BossAgent
 
-
+user_service = UserService()
 load_dotenv()
-os.getenv('OPENAI_API_KEY')
 
 class NewsService:
-    def __init__(self, db):
+    def __init__(self, db, uid):
         self.db = db
         self.apikey = os.getenv('GNEWS_API_KEY')
+        self.uid = uid
 
     # Fetch article URLs based on query
     def get_article_urls(self, query):
@@ -69,7 +67,7 @@ class NewsService:
             article_text = article.text
 
             # Prepare prompt template
-            template = """You are a very good assistant that summarizes online articles.
+            template = f"""You are a very good assistant that summarizes online articles.
 
             Here's the article you want to summarize.
 
@@ -82,14 +80,12 @@ class NewsService:
             Write a summary of the previous article.
             """
 
-            prompt = template.format(article_title=article_title, article_text=article_text)
 
-            messages = [HumanMessage(content=prompt)]
-
-            chat = ChatOpenAI(model_name="gpt-3.5-turbo-0613", temperature=0)
+            news_agent = BossAgent(uid=self.uid, user_service=user_service)
+            
+            summary = news_agent.pass_to_news_agent(template)
 
             # Generate summary using chat model
-            summary = chat(messages)
             unique_id = str(uuid.uuid4())
 
             # Create article dictionary

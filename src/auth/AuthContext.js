@@ -17,9 +17,7 @@ initializeApp(firebaseConfig);
 export const auth = getAuth();
 export const AuthContext = createContext();
 export const backendUrl =
-    process.env.NODE_ENV === 'production'
-        ? process.env.REACT_APP_BACKEND_URL_PROD
-        : process.env.REACT_APP_BACKEND_URL;
+    'https://us-west1-paxxiumv1.cloudfunctions.net';
 
 export const AuthProvider = ({ children }) => {
     const [idToken, setIdToken] = useState(null);

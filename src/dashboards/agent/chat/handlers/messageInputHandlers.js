@@ -62,13 +62,11 @@ export const sendMessage = async (
                     headers: {
                         Authorization: idToken,
                     },
-                    credentials: 'include',
                     body: formData,
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
                     resolve(data.fileUrl); // Resolve the Promise with the imageUrl
                 } else {
                     resolve(null); // Resolve the Promise with null if the response is not ok
@@ -97,13 +95,12 @@ export const sendMessage = async (
         image_url: imageUrl,
     };
 
-    const response = await fetch(`${backendUrl}/messages`, {
+    const response = await fetch(`${backendUrl}/messages/post`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: idToken,
         },
-        credentials: 'include',
         body: JSON.stringify(dataPacket),
     });
 

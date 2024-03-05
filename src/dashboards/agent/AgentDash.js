@@ -31,13 +31,14 @@ const AgentDash = () => {
                     headers: {
                         Authorization: idToken,
                     },
-                    credentials: 'include',
                 });
 
                 if (!response.ok)
                     throw new Error('Failed to load user conversations');
 
+        
                 const data = await response.json();
+                
                 // data is an array of objects
                 setAgentArray(data);
                 if (data.length > 0) {

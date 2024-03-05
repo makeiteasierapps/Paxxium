@@ -26,7 +26,6 @@ const AgentMenu = () => {
                         Authorization: idToken,
                     },
                     body: JSON.stringify({ id: selectedId, is_open: true }),
-                    credentials: 'include',
                 }
             );
 
