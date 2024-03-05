@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from firebase_admin import firestore, credentials, storage
+from firebase_admin import firestore, credentials
 import firebase_admin
 from myapp.services.message_service import MessageService
 from myapp.services.user_services import UserService
@@ -17,7 +17,7 @@ cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 firebase_admin.initialize_app(cred, {
     'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET')
 })
-bucket = storage.bucket()
+
 def create_app():
 
     load_dotenv()

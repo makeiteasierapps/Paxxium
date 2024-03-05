@@ -62,8 +62,9 @@ def chat_manager(request):
         }
         return (chat_data, 200, headers)
     
-    if request.path.startswith('/') and request.method == 'DELETE':
-        chat_id = request.path.split('/')[-1]
+    if request.path == '/delete':
+        data = request.get_json()
+        chat_id = data['id']
         chat_service.delete_conversation(uid, chat_id)
         return ('Conversation deleted', 200, headers)
     

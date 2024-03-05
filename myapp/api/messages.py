@@ -35,7 +35,6 @@ def handle_message_http():
     uid = authenticate_request(id_token)
 
     data = request.json
-    print(data)
     user_message = data.get('userMessage')
     convo_history = data.get('convoHistory')
     chat_settings = data.get('chatSettings')
@@ -77,7 +76,6 @@ def process_message(uid, chat_id, user_message, chat_settings, convo_history, me
     complete_message = ''
     for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
         complete_message += response_chunk['content']
-        print(response_chunk['content'])
         response_chunk['chat_id'] = chat_id
         yield json.dumps(response_chunk) + '\n'
     
