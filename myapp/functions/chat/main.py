@@ -13,19 +13,20 @@ chat_service = ChatService(db)
 logging.basicConfig(level=logging.INFO)
 
 def chat_manager(request):
-
+    logging.info('path: %s', request.headers)
+    logging.info('path: %s', dict(request.headers))
     # Initialize response dictionary and headers
     response = {}
-    headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-        'Access-Control-Max-Age': '3600'
-    }
+    if request.method == "OPTIONS":
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT, PATCH",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
 
-    if request.method == 'OPTIONS':
-        return ('', 204, headers)
-
+        return ("", 204, headers)
+    headers = {"Access-Control-Allow-Origin": "*"}
     id_token = request.headers.get('Authorization')
     if not id_token:
         response['message'] = 'Missing token'
@@ -38,9 +39,55 @@ def chat_manager(request):
 
     uid = decoded_token['uid']
 
-    chat_data_list = chat_service.get_all_chats(uid)
-    logging.info('chat_data_list: %s', chat_data_list)
+    if request.path == '/':
+        chat_data_list = chat_service.get_all_chats(uid)
+        return (chat_data_list, 200, headers)
     
-    return (chat_data_list, 200, headers)
+    if request.path == '/create':
+        data = request.get_json()
+        chat_name = data['chatName']
+        agent_model = data['agentModel']
+        system_prompt = data['systemPrompt']
+        chat_constants = data['chatConstants']
+        use_profile_data = data['useProfileData']
+        new_chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
+        chat_data = {
+            'id': new_chat_id,
+            'chat_name': chat_name,
+            'agent_model': agent_model,
+            'system_prompt': system_prompt,
+            'chat_constants': chat_constants,
+            'use_profile_data': use_profile_data,
+            'is_open': True
+        }
+        return (chat_data, 200, headers)
+    
+    if request.path.startswith('/') and request.method == 'DELETE':
+        chat_id = request.path.split('/')[-1]
+        chat_service.delete_conversation(uid, chat_id)
+        return ('Conversation deleted', 200, headers)
+    
+    if request.path == '/update_visibility':
+        data = request.get_json()
+        chat_id = data['id']
+        is_open = data['is_open']
+        chat_service.update_visibility(uid, chat_id, is_open)
+        return ('Chat visibility updated', 200, headers)
+    
+    if request.path == '/update_settings':
+        data = request.get_json()
+        use_profile_data = data.get('use_profile_data')
+        chat_name = data.get('chat_name')
+        new_chat_id = data.get('id')
+        agent_model = data.get('agent_model')
+        system_prompt = data.get('system_prompt')
+        chat_constants = data.get('chat_constants')
+        chat_service.update_settings(uid, new_chat_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
+        return ('Chat settings updated', 200, headers)
+    
+
+    
+    
+    
 
     
