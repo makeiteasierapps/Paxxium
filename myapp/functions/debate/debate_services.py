@@ -1,10 +1,12 @@
-from flask import current_app
 from datetime import datetime
 from myapp.agents.BossAgent import BossAgent
 
 class DebateManager:
-    def __init__(self, uid, conversation_id, role1, role2, num_rounds=3):
+    def __init__(self, db, uid, user_service, message_service, conversation_id, role1, role2, num_rounds=3):
+        self.db = db
         self.uid = uid
+        self.user_service = user_service
+        self.message_service = message_service  
         self.conversation_id = conversation_id
         self.role1 = role1
         self.role2 = role2
@@ -12,29 +14,28 @@ class DebateManager:
         self.response_content = None
         
         # Initialize two agents
-        self.agent1 = BossAgent(self.uid, current_app.user_service, self.conversation_id,  system_prompt=self.role1)
-        self.agent2 = BossAgent(self.uid, current_app.user_service, self.conversation_id, system_prompt=self.role2)
+        self.agent1 = BossAgent(self.uid, self.user_service, self.conversation_id,  system_prompt=self.role1)
+        self.agent2 = BossAgent(self.uid, self.user_service, self.conversation_id, system_prompt=self.role2)
 
-    @staticmethod
-    def create_debate(user_id):
+    def create_debate(self, user_id):
         """
         Creates a new debate in the database and returns the id of the debate
         Returning the ID allows me to create a component in the UI for the debate.
         When that component mounts it will start the debate by calling the start_debate endpoint.
         """
-        db = current_app.config['db']
+
         new_chat = {
             'chat_name': 'Debate',
             'agent_model': 'AgentDebate',
             'created_at': datetime.utcnow(),
             'is_open': True,
         }
-        new_chat_ref = db.collection('users').document(user_id).collection('conversations').add(new_chat)
+        new_chat_ref = self.db.collection('users').document(user_id).collection('conversations').add(new_chat)
         new_chat_id = new_chat_ref[1].id
         return  new_chat_id
     
     def start_debate(self, topic, turn):
-        message_service = current_app.message_service
+        message_service = self.message_service
         agent_responding = None
         if turn == 0:
             opening_argument_content = self.agent1.pass_to_debateAI({'content': f"You are in a debate and have been chosen to go first. The topic to be debated is: {topic}. Please make your opening argument."})
