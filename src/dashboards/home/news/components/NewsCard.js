@@ -27,7 +27,7 @@ const NewsCard = ({ news, index }) => {
 
     const markArticleRead = async () => {
         try {
-            const response = await fetch(`${backendUrl}/news_articles`, {
+            const response = await fetch(`${backendUrl}/news/news_articles`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ const NewsCard = ({ news, index }) => {
 
     const handleArticleDelete = async () => {
         try {
-            const response = await fetch(`${backendUrl}/news_articles`, {
+            const response = await fetch(`${backendUrl}/news/news_articles`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,6 +55,7 @@ const NewsCard = ({ news, index }) => {
                 },
                 body: JSON.stringify({ articleId: news.id }),
             });
+            console.log(response);
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message);

@@ -24,7 +24,6 @@ export const ImageProvider = ({ children }) => {
                         Authorization: idToken,
                         'Content-Type': 'application/json',
                     },
-                    credentials: 'include',
                 });
                 const imageArray = await response.json();
 
@@ -44,14 +43,13 @@ export const ImageProvider = ({ children }) => {
                     Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify({ image: image.url }),
             });
 
             if (!response.ok) {
                 throw new Error('Failed to upload image');
             }
-            const firebaseUrl = await response.json();
+            const firebaseUrl = await response.text()
             const downloadedImage = {
                 url: firebaseUrl,
             };
@@ -69,7 +67,6 @@ export const ImageProvider = ({ children }) => {
                     Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify(path),
             });
 
@@ -94,10 +91,9 @@ export const ImageProvider = ({ children }) => {
                     Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify(imageRequest),
             });
-            const imageUrl = await response.json();
+            const imageUrl = await response.text();
             setImageUrl(imageUrl);
         } catch (error) {
             console.log(error);

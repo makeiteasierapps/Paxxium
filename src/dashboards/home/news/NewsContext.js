@@ -56,7 +56,7 @@ export const NewsProvider = ({ children }) => {
     const fetchNewsData = useCallback(
         async (queryParam = query) => {
             try {
-                const response = await fetch(`${backendUrl}/news`, {
+                const response = await fetch(`${backendUrl}/news/query`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export const NewsProvider = ({ children }) => {
 
     const aiNewsFetch = useCallback(async () => {
         try {
-            const response = await fetch(`${backendUrl}/news_topics`, {
+            const response = await fetch(`${backendUrl}/get-news-topics`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

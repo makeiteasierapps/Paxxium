@@ -39,7 +39,7 @@ def news_manager(request):
         news_data = news_service.get_all_news_articles(uid)
         return (news_data, 200, headers)
 
-    if request.path == '/get-articles':
+    if request.path == '/query':
         data = request.get_json()
         query = data['query']
         urls = news_service.get_article_urls(query)
@@ -57,7 +57,7 @@ def news_manager(request):
         doc_id = data['articleId']
         if request.method == 'PUT':
             news_service.mark_is_read(uid, doc_id)
-            return ("Updated successfully", 200, headers)
+            return ({"message": "Updated successfully"}, 200, headers) 
         if request.method == 'DELETE':
             news_service.delete_news_article(uid, doc_id)
-            return ("Deleted successfully", 200, headers)
+            return ({"message": "Deleted successfully"}, 200, headers)

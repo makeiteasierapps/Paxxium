@@ -6,7 +6,7 @@ from user_services import UserService
 import uuid
 from BossAgent import BossAgent
 
-user_service = UserService()
+
 load_dotenv()
 
 class NewsService:
@@ -14,11 +14,12 @@ class NewsService:
         self.db = db
         self.apikey = os.getenv('GNEWS_API_KEY')
         self.uid = uid
+        self.user_service = UserService(self.db)
 
     # Fetch article URLs based on query
     def get_article_urls(self, query):
         # Construct API URL
-        url = f"https://gnews.io/api/v4/search?q={query}&lang=en&country=us&max=10&apikey={self.apikey}"
+        url = f"https://gnews.io/api/v4/search?q={query}&lang=en&country=us&max=3&apikey={self.apikey}"
 
         try:
             articles = requests.get(url, timeout=10)
@@ -81,7 +82,7 @@ class NewsService:
             """
 
 
-            news_agent = BossAgent(uid=self.uid, user_service=user_service)
+            news_agent = BossAgent(uid=self.uid, user_service=self.user_service)
             
             summary = news_agent.pass_to_news_agent(template)
 
@@ -92,7 +93,7 @@ class NewsService:
             article_dict = {
                 'id': unique_id,
                 'title': article_title,
-                'summary': summary.content,
+                'summary': summary,
                 'image': article.top_image,
                 'url': article_url
             }
