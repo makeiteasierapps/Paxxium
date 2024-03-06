@@ -78,7 +78,7 @@ export const NewsProvider = ({ children }) => {
 
     const aiNewsFetch = useCallback(async () => {
         try {
-            const response = await fetch(`${backendUrl}/get-news-topics`, {
+            const response = await fetch(`${backendUrl}/news/get-news-topics`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

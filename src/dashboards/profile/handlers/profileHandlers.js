@@ -23,7 +23,6 @@ export const handleQuestionsUpdate = async (idToken, answers) => {
                 'Content-Type': 'application/json',
                 Authorization: idToken,
             },
-            credentials: 'include',
             body: JSON.stringify({ answers }),
         });
     } catch (error) {

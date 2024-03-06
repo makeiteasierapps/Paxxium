@@ -12,7 +12,7 @@ db = firestore.client()
 firebase_service = FirebaseService()
 
 user_service = UserService(db)
-profile_service = ProfileService(db)
+profile_service = ProfileService()
 
 def profile_manager(request):
     response = {}
@@ -37,15 +37,20 @@ def profile_manager(request):
 
     uid = decoded_token['uid']
 
+    if request.path == '/':
+        if request.method == 'GET':
+            user_profile = user_service.get_profile(uid)
+            return (user_profile, 200, headers)
+
     if request.path == '/questions':
         if request.method == 'POST':
             
             data = request.get_json()
-            profile_service.update_profile_questions(uid, data)
+            profile_service.update_profile_questions(uid, data, db)
             
             return ({'response': 'Profile questions updated successfully'}, 200, headers)
 
-        profile_data = profile_service.load_profile_questions(uid)
+        profile_data = profile_service.load_profile_questions(uid, db)
         return (profile_data, 200, headers)
     
     if request.path == '/user':

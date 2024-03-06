@@ -27,7 +27,6 @@ export const ProfileProvider = ({ children }) => {
                 headers: {
                     Authorization: idToken,
                 },
-                credentials: 'include',
             });
 
             const data = await response.json();
@@ -45,7 +44,6 @@ export const ProfileProvider = ({ children }) => {
                 headers: {
                     Authorization: idToken,
                 },
-                credentials: 'include',
             });
             const data = await response.json();
             setAnswers(data.answers);
@@ -61,7 +59,6 @@ export const ProfileProvider = ({ children }) => {
                 headers: {
                     Authorization: idToken,
                 },
-                credentials: 'include',
             });
             const data = await response.json();
             setAnalysis(data.analysis);
