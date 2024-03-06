@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Deploy the auth_check function to Google Cloud Functions
-gcloud functions deploy debate \
+gcloud functions deploy profile \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=debate_manager \
+  --entry-point=profile_manager \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

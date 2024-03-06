@@ -69,7 +69,6 @@ const Debate = ({ id, chatName, topic }) => {
 
             // Send 'start_debate' event to the server
             socketRef.current.emit("start_debate", {
-                uid_debate_id_tuple: [uid, id],
                 topic: topic,
                 turn: turn,
             });
