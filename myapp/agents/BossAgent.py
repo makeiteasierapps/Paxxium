@@ -4,9 +4,9 @@ import logging
 class BossAgent:
     def __init__(self, uid, user_service, model='', system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', use_profile_data=False):
         encrypted_openai_key, encrypted_serp_key = user_service.get_keys(uid)
-        self.client = OpenAI()
         self.uid = uid
         self.openai_api_key = user_service.decrypt(encrypted_openai_key)
+        self.client = OpenAI(api_key=self.openai_api_key)
         self.serp_key = user_service.decrypt(encrypted_serp_key)
         self.system_prompt = system_prompt
         self.chat_constants = chat_constants
@@ -106,6 +106,19 @@ class BossAgent:
         )
         return response
 
+    def pass_to_news_agent(self, article_to_summarize):
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": article_to_summarize,
+                }
+            ],
+        )
+
+        return response.choices[0].message.content
+    
     def manage_memory(self, conversation, user_message):
         """
         Takes a conversation object extracts x amount of tokens and returns a message
@@ -114,3 +127,21 @@ class BossAgent:
         history = []
         
         return history
+
+    def generate_image(self, request):
+        prompt = request['prompt']
+        size=request['size'].lower()
+        quality=request['quality'].lower()
+        style=request['style'].lower()
+        
+
+        response = self.client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            n=1,
+            size=size,
+            quality=quality,
+            style=style,
+        )
+
+        return response.data[0].url
