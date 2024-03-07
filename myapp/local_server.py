@@ -10,11 +10,11 @@ from functions.signup.main import signup_manager
 
 app = Flask(__name__)
 
-@app.route('/auth_check', methods=['GET', 'POST'])
+@app.route('/auth_check', methods=[ 'POST', 'OPTIONS'])
 def handle_auth_check():
     return check_authorization(request)
 
-@app.route('/chat', methods=['GET', 'POST'])
+@app.route('/chat', methods=['GET', 'POST', 'OPTIONS'])
 def handle_chat():
     return chat_manager(request)
 

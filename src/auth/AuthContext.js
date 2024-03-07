@@ -16,9 +16,11 @@ initializeApp(firebaseConfig);
 // Get a reference to the Firebase auth service
 export const auth = getAuth();
 export const AuthContext = createContext();
-export const backendUrl =
-    'https://us-west1-paxxiumv1.cloudfunctions.net';
+export const backendUrl = 'http://localhost:8080';
 
+console.log('process.env.REACT_APP_BACKEND_URL', process.env.REACT_APP_BACKEND_URL);
+console.log('backendUrl', backendUrl);
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 export const AuthProvider = ({ children }) => {
     const [idToken, setIdToken] = useState(null);
     const [uid, setUid] = useState(null);
