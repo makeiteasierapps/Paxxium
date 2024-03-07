@@ -1,12 +1,23 @@
+import os
 from firebase_admin import firestore, credentials, initialize_app
-from firebase_service import FirebaseService
+from dotenv import load_dotenv
 
-cred = credentials.ApplicationDefault()
+load_dotenv()
+cred = None
+if os.getenv('LOCAL_DEV') == 'True':
+    from .firebase_service import FirebaseService
+    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
+else:
+    from firebase_service import FirebaseService
+    cred = credentials.ApplicationDefault()
+
 initialize_app(cred, {
     'projectId': 'paxxiumv1',
 })
 db = firestore.client()
 firebase_service = FirebaseService()
+
+os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
 def check_authorization(request):
     """

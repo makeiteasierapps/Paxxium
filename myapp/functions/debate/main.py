@@ -1,15 +1,30 @@
+import os
+from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
-from firebase_service import FirebaseService
-from user_services import UserService
-from message_service import MessageService
-from debate_service import DebateService
 
+load_dotenv()
+cred = None
+if os.getenv('LOCAL_DEV') == 'True':
+    from .firebase_service import FirebaseService
+    from .user_services import UserService
+    from .message_service import MessageService
+    from .debate_service import DebateService
+    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
+else:
+    from firebase_service import FirebaseService
+    from user_services import UserService
+    from message_service import MessageService
+    from debate_service import DebateService
+    cred = credentials.ApplicationDefault()
 
-cred = credentials.ApplicationDefault()
-initialize_app(cred, {
-    'projectId': 'paxxiumv1',
-    'storageBucket': 'paxxiumv1.appspot.com'
-})
+try:
+    initialize_app(cred, {
+        'projectId': 'paxxiumv1',
+        'storageBucket': 'paxxiumv1.appspot.com'
+    })
+except ValueError:
+    pass
+
 db = firestore.client()
 firebase_service = FirebaseService()
 

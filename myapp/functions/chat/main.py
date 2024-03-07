@@ -1,12 +1,26 @@
+import os
 import logging
+from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
-from firebase_service import FirebaseService
-from chat_services import ChatService
 
-cred = credentials.ApplicationDefault()
-initialize_app(cred, {
-    'projectId': 'paxxiumv1',
-})
+load_dotenv()
+cred = None
+if os.getenv('LOCAL_DEV') == 'True':
+    from .firebase_service import FirebaseService
+    from .chat_services import ChatService
+    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
+else:
+    from firebase_service import FirebaseService
+    from chat_services import ChatService
+    cred = credentials.ApplicationDefault()
+
+try:
+    initialize_app(cred, {
+        'projectId': 'paxxiumv1',
+    })
+except ValueError:
+    pass
+
 db = firestore.client()
 firebase_service = FirebaseService()
 chat_service = ChatService(db)

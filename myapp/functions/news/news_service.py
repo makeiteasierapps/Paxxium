@@ -2,12 +2,16 @@ import os
 from dotenv import load_dotenv
 import requests
 from newspaper import Article
-from user_services import UserService
-import uuid
-from BossAgent import BossAgent
 
+import uuid
 
 load_dotenv()
+if os.getenv('LOCAL_DEV') == 'True':
+    from .BossAgent import BossAgent
+    from .user_services import UserService
+else:
+    from BossAgent import BossAgent
+    from user_services import UserService
 
 class NewsService:
     def __init__(self, db, uid):

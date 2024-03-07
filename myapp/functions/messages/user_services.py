@@ -9,7 +9,11 @@ from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain.chat_models import ChatOpenAI
 
-from profile_service import ProfileService as profile_service
+if os.getenv('LOCAL_DEV') == 'True':
+    from .profile_service import ProfileService as profile_service
+else:
+    from profile_service import ProfileService as profile_service
+    
 from firebase_admin import storage
 
 class UserService:

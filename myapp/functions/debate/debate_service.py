@@ -1,6 +1,13 @@
+import os
+from dotenv import load_dotenv
 from datetime import datetime
-from BossAgent import BossAgent
 
+load_dotenv()
+if os.getenv('LOCAL_DEV') == 'True':
+    from .BossAgent import BossAgent
+else:
+    from BossAgent import BossAgent
+    
 class DebateService:
     def __init__(self, db, uid, chat_id, user_service, message_service, role1, role2, num_rounds=3):
         self.db = db
