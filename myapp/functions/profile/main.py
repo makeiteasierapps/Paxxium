@@ -29,7 +29,7 @@ firebase_service = FirebaseService()
 user_service = UserService(db)
 profile_service = ProfileService()
 
-def profile_manager(request):
+def profile(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {
@@ -53,9 +53,8 @@ def profile_manager(request):
     uid = decoded_token['uid']
 
     if request.path == '/':
-        if request.method == 'GET':
-            user_profile = user_service.get_profile(uid)
-            return (user_profile, 200, headers)
+        user_profile = user_service.get_profile(uid)
+        return (user_profile, 200, headers)
 
     if request.path == '/questions':
         if request.method == 'POST':

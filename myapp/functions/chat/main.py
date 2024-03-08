@@ -26,11 +26,10 @@ firebase_service = FirebaseService()
 chat_service = ChatService(db)
 logging.basicConfig(level=logging.INFO)
 
-def chat_manager(request):
-    logging.info('path: %s', request.headers)
-    logging.info('path: %s', dict(request.headers))
-    # Initialize response dictionary and headers
+def chat(request):
+    print (request.path)
     response = {}
+    print('request.path', request.path)
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",

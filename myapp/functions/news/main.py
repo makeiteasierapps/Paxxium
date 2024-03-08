@@ -25,7 +25,7 @@ db = firestore.client()
 firebase_service = FirebaseService()
 
 
-def news_manager(request):
+def news(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {

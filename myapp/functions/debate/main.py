@@ -31,7 +31,7 @@ firebase_service = FirebaseService()
 user_service = UserService(db)
 message_service = MessageService(db)
 
-def debate_manager(request):
+def debate(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {

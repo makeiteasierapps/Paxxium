@@ -26,7 +26,7 @@ firebase_service = FirebaseService()
 
 user_service = UserService(db)
 
-def signup_manager(request):
+def signup(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {

@@ -1,8 +1,16 @@
 import json
+import os
+from dotenv import load_dotenv
 from openai import OpenAI
 from firebase_admin import firestore, credentials, initialize_app
 
-cred = credentials.ApplicationDefault()
+load_dotenv()
+cred = None
+if os.getenv('LOCAL_DEV') == 'True':
+    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
+else:
+    cred = credentials.ApplicationDefault()
+    
 initialize_app(cred, {
     'projectId': 'paxxiumv1',
 })

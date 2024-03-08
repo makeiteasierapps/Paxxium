@@ -1,14 +1,21 @@
 import os
 from datetime import datetime
 from openai import OpenAI
-
+from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
-from token_counter import token_counter
+from .token_counter import token_counter
 
-cred = credentials.ApplicationDefault()
+load_dotenv()
+cred = None
+if os.getenv('LOCAL_DEV') == 'True':
+    cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
+else:
+    cred = credentials.ApplicationDefault()
+
 initialize_app(cred, {
     'projectId': 'paxxiumv1',
 })
+
 db = firestore.client()
 client = OpenAI()
 

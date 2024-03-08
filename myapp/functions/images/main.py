@@ -30,7 +30,7 @@ firebase_service = FirebaseService()
 
 user_service = UserService(db)
 
-def images_manager(request):
+def images(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {

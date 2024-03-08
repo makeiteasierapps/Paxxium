@@ -10,11 +10,13 @@ if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
     from .message_service import MessageService
     from .user_services import UserService
+    from .BossAgent import BossAgent
     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 else:
     from firebase_service import FirebaseService
     from message_service import MessageService
     from user_services import UserService
+    from BossAgent import BossAgent
     cred = credentials.ApplicationDefault()
 
 try:
@@ -55,7 +57,7 @@ def process_message(uid, chat_id, user_message, chat_settings, convo_history):
     
     message_service.create_message(chat_id, uid, 'agent', complete_message)
 
-def messages_manager(request):
+def messages(request):
     response = {}
     if request.method == "OPTIONS":
         headers = {

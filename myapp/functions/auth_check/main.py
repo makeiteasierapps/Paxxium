@@ -19,7 +19,7 @@ firebase_service = FirebaseService()
 
 os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
-def check_authorization(request):
+def auth_check(request):
     """
     Checks if admin has granted access to the user
     """
