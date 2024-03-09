@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import 'react-image-crop/dist/ReactCrop.css';
-import { AuthContext, backendUrl } from '../../auth/AuthContext';
+import { AuthContext } from '../../auth/AuthContext';
 
 export const ProfileContext = createContext();
 
@@ -17,8 +17,12 @@ export const ProfileProvider = ({ children }) => {
     const [analysis, setAnalysis] = useState(null);
     const [answers, setAnswers] = useState({});
     const [avatar, setAvatar] = useState();
-
     const [upImg, setUpImg] = useState();
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_PROFILE_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const loadProfile = useCallback(async () => {
         try {

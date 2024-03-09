@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useContext, useState, useRef } from 'react';
 import { ProfileContext } from '../ProfileContext';
-import { AuthContext, backendUrl } from '../../../auth/AuthContext';
+import { AuthContext } from '../../../auth/AuthContext';
 import { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -45,6 +45,10 @@ const User = () => {
     const [aspect, setAspect] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_PROFILE_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const { idToken } = useContext(AuthContext);
 

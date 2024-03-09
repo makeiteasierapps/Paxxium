@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { AuthContext, backendUrl } from './AuthContext';
+import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
@@ -38,6 +38,11 @@ export default function SignUp() {
     const navigate = useNavigate();
     const auth = getAuth();
     const { idToken } = useContext(AuthContext);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_SIGNUP_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const isValid = {
         // username must be between 5 and 10 characters long and can only contain alphanumeric characters and underscores

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
-import { AuthContext, backendUrl } from "../../../auth/AuthContext";
+import { AuthContext } from "../../../auth/AuthContext";
 import { ChatContext } from "../../../dashboards/agent/chat/ChatContext";
 import ChatBar from "../chat/components/ChatBar";
 import { formatBlockMessage } from "../utils/messageFormatter";
@@ -19,6 +19,11 @@ const Debate = ({ id, chatName, topic }) => {
 
     const { insideCodeBlock, setInsideCodeBlock } = useContext(ChatContext);
     const { uid, idToken } = useContext(AuthContext);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_DEBATE_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const fetchMessages = useCallback(async () => {
         try {

@@ -1,5 +1,5 @@
 import { useState, createContext, useContext, useEffect } from 'react';
-import { AuthContext, backendUrl } from '../../../auth/AuthContext';
+import { AuthContext } from '../../../auth/AuthContext';
 export const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {
@@ -12,13 +12,18 @@ export const ImageProvider = ({ children }) => {
     const [userPrompt, setUserPrompt] = useState('');
     const { idToken } = useContext(AuthContext);
 
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_IMAGES_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
+
     useEffect(() => {
         if (!idToken) {
             return;
         }
         const fetchImages = async () => {
             try {
-                const response = await fetch(`${backendUrl}/images/get_saved`, {
+                const response = await fetch(`${backendUrl}/images`, {
                     method: 'GET',
                     headers: {
                         Authorization: idToken,

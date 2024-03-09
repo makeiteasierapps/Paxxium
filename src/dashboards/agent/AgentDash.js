@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useState } from 'react';
-import { AuthContext, backendUrl } from '../../auth/AuthContext';
+import { AuthContext } from '../../auth/AuthContext';
 import AgentMenu from './AgentMenu';
 import Chat from './chat/Chat';
 import { ChatContext } from './chat/ChatContext';
@@ -22,6 +22,11 @@ const AgentDash = () => {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_CHAT_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
+
     useEffect(() => {
         if (!idToken) return;
         const getChatData = async () => {
@@ -36,9 +41,8 @@ const AgentDash = () => {
                 if (!response.ok)
                     throw new Error('Failed to load user conversations');
 
-        
                 const data = await response.json();
-                
+
                 // data is an array of objects
                 setAgentArray(data);
                 if (data.length > 0) {

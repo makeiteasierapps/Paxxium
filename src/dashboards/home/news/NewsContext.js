@@ -5,7 +5,7 @@ import {
     useContext,
     useEffect,
 } from 'react';
-import { AuthContext, backendUrl } from '../../../auth/AuthContext';
+import { AuthContext } from '../../../auth/AuthContext';
 
 export const NewsContext = createContext();
 
@@ -16,6 +16,11 @@ export const NewsProvider = ({ children }) => {
     const [query, setQuery] = useState('');
     const [slideIndex, setSlideIndex] = useState(0);
     const [loading, setLoading] = useState(true);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_NEWS_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const updateNewsData = (updateFunc) =>
         setNewsData((prevNewsData) => updateFunc(prevNewsData));

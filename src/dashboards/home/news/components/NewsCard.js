@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useContext, useState } from 'react';
-import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { AuthContext } from '../../../../auth/AuthContext';
 import { NewsContext } from '../NewsContext';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import {
@@ -24,6 +24,11 @@ const NewsCard = ({ news, index }) => {
         useContext(NewsContext);
     const { idToken } = useContext(AuthContext);
     const [openDialog, setOpenDialog] = useState(false);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_NEWS_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const markArticleRead = async () => {
         try {

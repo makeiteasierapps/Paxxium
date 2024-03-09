@@ -10,7 +10,7 @@ import {
     Routes,
 } from 'react-router-dom';
 import theme from './Theme';
-import { AuthContext, AuthProvider, backendUrl } from './auth/AuthContext';
+import { AuthContext, AuthProvider } from './auth/AuthContext';
 import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
 import AgentDash from './dashboards/agent/AgentDash';
@@ -23,8 +23,6 @@ import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
 import { ProfileProvider } from './dashboards/profile/ProfileContext';
 import ProfileDash from './dashboards/profile/ProfileDash';
-
-
 
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
@@ -48,6 +46,11 @@ const AuthenticatedApp = () => {
     const handleDrawerExpand = () => {
         setDrawerExpanded(!isDrawerExpanded);
     };
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_AUTH_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
     // Fetches auth status from the db then loads the user into state.
     useEffect(() => {
         if (isAuthorized) return;

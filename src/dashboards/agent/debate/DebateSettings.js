@@ -1,18 +1,9 @@
 import { Button, FormGroup, TextField, Grid } from "@mui/material";
 import { styled } from "@mui/system";
 import { useContext, useState } from "react";
-import { AuthContext, backendUrl } from "../../../auth/AuthContext";
+import { AuthContext } from "../../../auth/AuthContext";
 import { ChatContext } from "../../../dashboards/agent/chat/ChatContext";
-import { Settings } from "../agentStyledComponents";
 
-// Styled components
-const FormContainer = styled(FormGroup)(({ theme }) => ({
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    paddingTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-}));
 
 function DebateSettings() {
     const [topic, setTopic] = useState("");
@@ -20,6 +11,11 @@ function DebateSettings() {
     const [role2Description, setRole2Description] = useState("");
     const { idToken } = useContext(AuthContext);
     const { setAgentArray } = useContext(ChatContext);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_DEBATE_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const createDebate = async () => {
         try {

@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useRef } from 'react';
-import { AuthContext, backendUrl } from '../../../auth/AuthContext';
+import { AuthContext } from '../../../auth/AuthContext';
 import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
 import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
@@ -25,6 +25,11 @@ const Chat = ({
         useContext(ChatContext);
 
     const { idToken } = useContext(AuthContext);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_MESSAGES_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     // Fetch messages from the database
     useEffect(() => {

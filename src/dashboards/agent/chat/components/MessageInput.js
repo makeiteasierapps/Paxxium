@@ -4,7 +4,7 @@ import Tooltip from '@mui/material/Tooltip';
 import SendIcon from '@mui/icons-material/Send';
 import AddBox from '@mui/icons-material/AddBox';
 import ClearIcon from '@mui/icons-material/Clear';
-import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { AuthContext } from '../../../../auth/AuthContext';
 import { ChatContext } from '../ChatContext';
 import { sendMessage } from '../handlers/messageInputHandlers';
 import { InputArea, StyledIconButton } from '../../agentStyledComponents';
@@ -92,6 +92,11 @@ const MessageInput = ({
     const inputRef = useRef();
     const ignoreNextTokenRef = useRef(false);
     const languageRef = useRef(null);
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_MESSAGES_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const chatSettings = {
         chatId,

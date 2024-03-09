@@ -1,4 +1,7 @@
-import { backendUrl } from '../../../auth/AuthContext';
+const backendUrl =
+    process.env.NODE_ENV === 'development'
+        ? process.env.REACT_APP_PROFILE_URL
+        : process.env.REACT_APP_BACKEND_URL_PROD;
 
 export const handleUserUpdate = async (idToken, profileData) => {
     try {

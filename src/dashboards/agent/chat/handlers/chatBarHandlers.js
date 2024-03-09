@@ -2,10 +2,12 @@ export const handleCloseChat = async (
     id,
     idToken,
     setAgentArray,
-    backendUrl
 ) => {
     try {
-        console.log(idToken);
+        const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_CHAT_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
         const response = await fetch(`${backendUrl}/chat/update_visibility`, {
             method: 'PATCH',
             headers: {
@@ -30,9 +32,12 @@ export const handleClearMessages = async (
     id,
     idToken,
     setMessages,
-    backendUrl
 ) => {
     try {
+        const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_MESSAGES_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
         const response = await fetch(`${backendUrl}/messages/clear`, {
             method: 'DELETE',
             headers: {
@@ -55,9 +60,12 @@ export const handleDeleteChat = async (
     id,
     idToken,
     setAgentArray,
-    backendUrl
 ) => {
     try {
+        const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_CHAT_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
         const response = await fetch(`${backendUrl}/chat/delete`, {
             method: 'DELETE',
             headers: {

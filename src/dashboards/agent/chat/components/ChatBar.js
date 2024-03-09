@@ -5,7 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
-import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { AuthContext } from '../../../../auth/AuthContext';
 import { ChatContext } from '../ChatContext';
 import {
     handleClearMessages,
@@ -28,7 +28,7 @@ const ChatBar = ({ chatName, id }) => {
 
     const handleDeleteClick = () => {
         if (deleteClicked) {
-            handleDeleteChat(id, idToken, setAgentArray, backendUrl);
+            handleDeleteChat(id, idToken, setAgentArray);
         } else {
             setDeleteClicked(true);
             setTimeout(() => {
@@ -44,7 +44,7 @@ const ChatBar = ({ chatName, id }) => {
                     disableRipple
                     aria-label="close"
                     onClick={() =>
-                        handleCloseChat(id, idToken, setAgentArray, backendUrl)
+                        handleCloseChat(id, idToken, setAgentArray)
                     }
                 >
                     <CloseIcon sx={{ fontSize: '1rem' }} />
@@ -64,7 +64,6 @@ const ChatBar = ({ chatName, id }) => {
                                     id,
                                     idToken,
                                     setMessages,
-                                    backendUrl
                                 )
                             }
                         >

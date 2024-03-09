@@ -1,6 +1,6 @@
 import { Grid, MenuItem, TextField } from '@mui/material';
 import { useContext, useState } from 'react';
-import { AuthContext, backendUrl } from '../../auth/AuthContext';
+import { AuthContext } from '../../auth/AuthContext';
 import { ChatContext } from '../../dashboards/agent/chat/ChatContext';
 import DebateSettings from '../agent/debate/DebateSettings';
 import ChatSettings from './chat/components/ChatSettings';
@@ -10,6 +10,11 @@ const AgentMenu = () => {
     const { agentArray, setAgentArray } = useContext(ChatContext);
     const [selectedAgent, setSelectedAgent] = useState('Chat');
     const [selectedAgentId, setSelectedAgentId] = useState('');
+
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_CHAT_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const handleLoadChat = async (event) => {
         const selectedId = event.target.value;

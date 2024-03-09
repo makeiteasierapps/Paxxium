@@ -7,7 +7,7 @@ import {
     TextField,
 } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { AuthContext, backendUrl } from '../../../../auth/AuthContext';
+import { AuthContext } from '../../../../auth/AuthContext';
 import { ChatContext } from '../ChatContext';
 
 const ChatSettings = () => {
@@ -24,6 +24,11 @@ const ChatSettings = () => {
         name: '',
     });
 
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_CHAT_URL
+            : process.env.REACT_APP_BACKEND_URL_PROD;
+            
     const { idToken } = useContext(AuthContext);
 
     useEffect(() => {
