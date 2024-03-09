@@ -49,11 +49,11 @@ def news(request):
     uid = decoded_token['uid']
     news_service = NewsService(db, uid)
 
-    if request.path == '/':
+    if request.path in ('/', '/news'):
         news_data = news_service.get_all_news_articles(uid)
         return (news_data, 200, headers)
 
-    if request.path == '/query':
+    if request.path in ('/query', '/news/query'):
         data = request.get_json()
         query = data['query']
         urls = news_service.get_article_urls(query)
@@ -62,11 +62,11 @@ def news(request):
 
         return (news_data, 200, headers)
     
-    if request.path == '/get-news-topics':
+    if request.path in ('/get-news-topics', '/news/get-news-topics'):
         news_topics = news_service.get_user_news_topics(uid)
         return (news_topics, 200, headers)
     
-    if request.path == '/news_articles':
+    if request.path in ('/news_articles', '/news/news_articles'):
         data = request.get_json()
         doc_id = data['articleId']
         if request.method == 'PUT':

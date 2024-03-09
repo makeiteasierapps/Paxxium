@@ -31,6 +31,7 @@ profile_service = ProfileService()
 
 def profile(request):
     response = {}
+    print(request.path)
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -52,11 +53,11 @@ def profile(request):
 
     uid = decoded_token['uid']
 
-    if request.path == '/':
+    if request.path in ('/', '/profile'):
         user_profile = user_service.get_profile(uid)
         return (user_profile, 200, headers)
 
-    if request.path == '/questions':
+    if request.path in ('/questions', '/profile/questions'):
         if request.method == 'POST':
             
             data = request.get_json()
@@ -67,18 +68,18 @@ def profile(request):
         profile_data = profile_service.load_profile_questions(uid, db)
         return (profile_data, 200, headers)
     
-    if request.path == '/user':
+    if request.path in ('/user', '/profile/user'):
         data = request.get_json()
         user_service.update_user_profile(uid, data)
         return ({'response': 'User profile updated successfully'}, 200, headers)
     
-    if request.path == '/avatar':
+    if request.path in ('/avatar', '/profile/avatar'):
         file = request.files['avatar']
         avatar_url = user_service.upload_profile_image_to_firebase_storage(file, uid)
 
         return ({'avatar_url': avatar_url}, 200, headers)
     
-    if request.path == '/analyze':
+    if request.path in ('/analyze', '/profile/analyze'):
         if request.method == 'POST':
             parsed_analysis = user_service.analyze_profile(uid)
             user_service.update_user_profile(uid, parsed_analysis)

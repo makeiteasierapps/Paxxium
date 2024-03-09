@@ -42,5 +42,3 @@ done
 
 # Wait for any function to exit
 wait
-
-# Cleanup function will be called automatically due to the trap

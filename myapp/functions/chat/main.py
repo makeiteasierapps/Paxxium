@@ -27,9 +27,8 @@ chat_service = ChatService(db)
 logging.basicConfig(level=logging.INFO)
 
 def chat(request):
-    print (request.path)
-    response = {}
     print('request.path', request.path)
+    response = {}
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -52,11 +51,11 @@ def chat(request):
 
     uid = decoded_token['uid']
 
-    if request.path == '/':
+    if request.path in ('/', '/chat'):
         chat_data_list = chat_service.get_all_chats(uid)
         return (chat_data_list, 200, headers)
     
-    if request.path == '/create':
+    if request.path in ('/create', '/chat/create'):
         data = request.get_json()
         chat_name = data['chatName']
         agent_model = data['agentModel']
@@ -75,20 +74,20 @@ def chat(request):
         }
         return (chat_data, 200, headers)
     
-    if request.path == '/delete':
+    if request.path in ('/delete', '/chat/delete'):
         data = request.get_json()
         chat_id = data['id']
         chat_service.delete_conversation(uid, chat_id)
         return ('Conversation deleted', 200, headers)
     
-    if request.path == '/update_visibility':
+    if request.path in ('/update_visibility', '/chat/update_visibility'):
         data = request.get_json()
         chat_id = data['id']
         is_open = data['is_open']
         chat_service.update_visibility(uid, chat_id, is_open)
         return ('Chat visibility updated', 200, headers)
     
-    if request.path == '/update_settings':
+    if request.path in ('/update_settings', '/chat/update_settings'):
         data = request.get_json()
         use_profile_data = data.get('use_profile_data')
         chat_name = data.get('chat_name')

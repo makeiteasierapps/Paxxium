@@ -53,22 +53,22 @@ def images(request):
 
     uid = decoded_token['uid']
 
-    if request.path == '/generate':
+    if request.path in ('/generate', '/images/generate'):
         image_request = request.get_json()
         image_agent = BossAgent(uid, user_service)
         image_url = image_agent.generate_image(image_request)
         return (image_url, 200, headers)
     
-    if request.path == '/get_saved':
+    if request.path in ('/', '/images'):
         images_list = user_service.fetch_all_from_dalle_images(uid)
         return (images_list, 200, headers)
     
-    if request.path == '/delete':
+    if request.path in ('/delete', '/images/delete'):
         path = request.get_json()
         user_service.delete_generated_image_from_firebase_storage(path)
         return ({'message': 'Image deleted successfully'}, 200, headers)
 
-    if request.path == '/upload':
+    if request.path in ('/upload', '/images/upload'):
         data = request.get_json()
         url = data.get('image')  
         response = requests.get(url, timeout=10)

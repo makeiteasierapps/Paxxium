@@ -49,7 +49,7 @@ def signup(request):
 
     uid = decoded_token['uid']
 
-    if request.path == '/':
+    if request.path in ('/', '/signup'):
         req_data = request.get_json()
         username = req_data.get('username')
         uid = req_data.get('uid')

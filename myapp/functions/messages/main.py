@@ -80,14 +80,14 @@ def messages(request):
 
     uid = decoded_token['uid']
 
-    if request.path == '/':
+    if request.path in ('/', '/messages'):
         data = request.json
         conversation_id = data.get('id')
         conversation_data = message_service.get_all_messages(uid, conversation_id)
     
         return (conversation_data, 200, headers)
     
-    if request.path == '/post':
+    if request.path in ('/post', '/messages/post'):
         data = request.json
         user_message = data.get('userMessage')
         convo_history = data.get('convoHistory')
@@ -109,13 +109,13 @@ def messages(request):
     
         return (Response(generator, mimetype='application/json'), 200, headers)
     
-    if request.path == '/clear':
+    if request.path in ('/clear', '/messages/clear'):
         data = request.json
         chat_id = data.get('id')
         message_service.delete_all_messages(uid, chat_id)
         return ('Memory Cleared', 200, headers)
     
-    if request.path == '/utils':
+    if request.path in ('/utils', '/messages/utils'):
         file = request.files['image']
         file_url = user_service.upload_file_to_firebase_storage(file, uid)
         return (file_url, 200, headers)
