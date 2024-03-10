@@ -9,7 +9,7 @@ gcloud functions deploy auth_check \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=check_authorization \
+  --entry-point=auth_check \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

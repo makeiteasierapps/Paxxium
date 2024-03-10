@@ -3,3 +3,6 @@ langchain==0.1.10
 google-cloud-kms==2.21.2
 google-cloud-firestore==2.15.0
 python-dotenv==1.0.1
+crcmod==1.7
+six==1.16
+

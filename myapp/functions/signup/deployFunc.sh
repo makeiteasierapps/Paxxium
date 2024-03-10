@@ -12,7 +12,7 @@ gcloud functions deploy signup \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=signup_manager \
+  --entry-point=signup \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

@@ -12,7 +12,7 @@ gcloud functions deploy profile \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=profile_manager \
+  --entry-point=profile \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

@@ -18,7 +18,7 @@ gcloud functions deploy debate \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=debate_manager \
+  --entry-point=debate \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

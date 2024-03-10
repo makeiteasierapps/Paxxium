@@ -16,7 +16,7 @@ gcloud functions deploy news \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=news_manager \
+  --entry-point=news \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

@@ -16,7 +16,7 @@ gcloud functions deploy images \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=images_manager \
+  --entry-point=images \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \

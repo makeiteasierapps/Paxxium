@@ -16,7 +16,7 @@ gcloud functions deploy messages \
   --gen2 \
   --runtime=python311 \
   --trigger-http \
-  --entry-point=messages_manager \
+  --entry-point=messages \
   --region=us-west1 \
   --source=. \
   --allow-unauthenticated \
