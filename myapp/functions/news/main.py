@@ -64,6 +64,8 @@ def news(request):
     
     if request.path in ('/get-news-topics', '/news/get-news-topics'):
         news_topics = news_service.get_user_news_topics(uid)
+        if not news_topics:
+            return ({"message": "No news topics found, please answer some questions in the profile section and analyze"}, 404, headers)
         return (news_topics, 200, headers)
     
     if request.path in ('/news_articles', '/news/news_articles'):

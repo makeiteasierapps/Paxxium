@@ -2,21 +2,9 @@
 
 # Path to the current directory, assuming this script is inside the functions directory
 FUNCTIONS_DIR=$(pwd)
-PORT=8081
+PORT=50000
 
-# Array to keep track of process IDs
-declare -a PIDS
-
-# Function to kill all background processes on exit
-cleanup() {
-  echo "Cleaning up..."
-  for pid in "${PIDS[@]}"; do
-    kill "$pid"
-  done
-}
-
-# Trap script exit signals (EXIT, INT, TERM) to run the cleanup function
-trap cleanup EXIT INT TERM
+lsof -ti:50000-50009 | xargs kill
 
 # Iterate over each subdirectory in the current directory
 for dir in "$FUNCTIONS_DIR"/*; do
