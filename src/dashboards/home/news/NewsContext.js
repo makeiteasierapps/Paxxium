@@ -6,16 +6,18 @@ import {
     useEffect,
 } from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
+import { SnackbarContext } from '../../../SnackbarContext';
 
 export const NewsContext = createContext();
 
 export const NewsProvider = ({ children }) => {
     const { idToken } = useContext(AuthContext);
+    const { showSnackbar } = useContext(SnackbarContext);
     const [newsData, setNewsData] = useState([]);
     const [readFilter, setReadFilter] = useState(false);
     const [query, setQuery] = useState('');
     const [slideIndex, setSlideIndex] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -48,19 +50,23 @@ export const NewsProvider = ({ children }) => {
                 },
             });
 
-            if (!response.ok) throw new Error('Failed to load news data');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             setNewsData(data);
         } catch (error) {
             console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
-    }, [idToken]);
+    }, [backendUrl, idToken, showSnackbar]);
 
     const fetchNewsData = useCallback(
         async (queryParam = query) => {
             try {
+                setIsLoading(true);
                 const response = await fetch(`${backendUrl}/news/query`, {
                     method: 'POST',
                     headers: {
@@ -71,17 +77,29 @@ export const NewsProvider = ({ children }) => {
                         query: queryParam,
                     }),
                 });
-                if (!response.ok) throw new Error('Failed to fetch news data');
-                const data = await response.json();
-                setNewsData(data);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const newData = await response.json();
+                setNewsData((currentNewsData) => [
+                    ...newData,
+                    ...currentNewsData,
+                ]);
             } catch (error) {
                 console.error(error);
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
+            } finally {
+                setIsLoading(false);
             }
         },
         [idToken, query]
     );
 
     const aiNewsFetch = useCallback(async () => {
+        setIsLoading(true);
         try {
             const response = await fetch(`${backendUrl}/news/get-news-topics`, {
                 method: 'GET',
@@ -91,15 +109,24 @@ export const NewsProvider = ({ children }) => {
                 },
             });
 
-            if (!response.ok)
-                throw new Error('Failed to fetch user news topics');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
+            if (!data.news_topics) {
+                showSnackbar(data.message, 'warning');
+                return;
+            }
             const randIdx = Math.floor(Math.random() * data.news_topics.length);
             fetchNewsData(data.news_topics[randIdx]);
         } catch (error) {
             console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
         }
-    }, [fetchNewsData, idToken]);
+    }, [backendUrl, fetchNewsData, idToken, showSnackbar]);
 
     useEffect(() => {
         if (!idToken) return;
@@ -123,7 +150,7 @@ export const NewsProvider = ({ children }) => {
                 readFilter,
                 setReadFilter,
                 deleteNewsArticle,
-                loading,
+                isLoading,
             }}
         >
             {children}

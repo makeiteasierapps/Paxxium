@@ -15,14 +15,15 @@ import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
 import AgentDash from './dashboards/agent/AgentDash';
 import ImageDash from './dashboards/agent/image/ImageDash';
+import ProfileDash from './dashboards/profile/ProfileDash';
+import HomeDash from './dashboards/home/HomeDash';
 import { ImageProvider } from './dashboards/agent/image/ImageContext';
 import { ChatProvider } from './dashboards/agent/chat/ChatContext';
-import HomeDash from './dashboards/home/HomeDash';
 import { NewsProvider } from './dashboards/home/news/NewsContext';
+import { ProfileProvider } from './dashboards/profile/ProfileContext';
+import { SnackbarProvider } from './SnackbarContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
-import { ProfileProvider } from './dashboards/profile/ProfileContext';
-import ProfileDash from './dashboards/profile/ProfileDash';
 
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
@@ -176,11 +177,13 @@ const App = () => {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AuthProvider>
-                <Router>
-                    <AuthenticatedApp />
-                </Router>
-            </AuthProvider>
+            <SnackbarProvider>
+                <AuthProvider>
+                    <Router>
+                        <AuthenticatedApp />
+                    </Router>
+                </AuthProvider>
+            </SnackbarProvider>
         </ThemeProvider>
     );
 };

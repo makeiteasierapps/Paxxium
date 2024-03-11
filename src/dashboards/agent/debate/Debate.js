@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
 import { AuthContext } from "../../../auth/AuthContext";
 import { ChatContext } from "../../../dashboards/agent/chat/ChatContext";
 import ChatBar from "../chat/components/ChatBar";
@@ -11,7 +10,6 @@ import { MessageArea, MessagesContainer, ChatContainerStyled } from "../agentSty
 
 const Debate = ({ id, chatName, topic }) => {
     const nodeRef = useRef(null);
-    const socketRef = useRef(null);
     const [queue, setQueue] = useState([]);
     const ignoreNextTokenRef = useRef(false);
     const languageRef = useRef("markdown");
@@ -49,84 +47,24 @@ const Debate = ({ id, chatName, topic }) => {
         }
     }, [id, idToken]);
 
-    // Initialize/Close socket connection
-    useEffect(() => {
-        socketRef.current = io.connect(backendUrl);
-
-        return () => socketRef.current.close();
-    }, []);
 
     // Runs when component mounts to either fetch messages or start the debate
     useEffect(() => {
         // Start the debate when the component mounts
         const startDebate = async (turn = 0) => {
-            if (!socketRef.current) return;
-
-            // Try to fetch messages first
-            const messages = await fetchMessages();
-            if (messages[id].length > 0) {
-                setDebateMessages(messages);
-                return;
-            }
-
-            // Join the room named after the debate's id
-            socketRef.current.emit("join", { room: id });
-
-            // Send 'start_debate' event to the server
-            socketRef.current.emit("start_debate", {
-                topic: topic,
-                turn: turn,
-            });
+            
         };
         startDebate();
     }, [fetchMessages, id, setDebateMessages, topic, uid]);
 
-    // Manages the debate after it starts
-    useEffect(() => {
-        if (!socketRef.current) return;
 
-        socketRef.current.on("debate_started", (data) => {
-            setDebateMessages((prevMessages) => {
-                return {
-                    ...prevMessages,
-                    [id]: [
-                        ...prevMessages[id].slice(
-                            0,
-                            prevMessages[id].length - 1
-                        ),
-                        data.message,
-                    ],
-                };
-            });
 
-            // Continue the debate if there are more turns
-            if (data.hasMoreTurns) {
-                socketRef.current.emit("start_debate", {
-                    uid_debate_id_tuple: [uid, id],
-                    topic: topic,
-                    turn: debateMessages[id].length, // The turn is the current number of messages
-                });
-            }
-        });
-
-        return () => socketRef.current.off("debate_started");
-    }, [
-        uid,
-        id,
-        topic,
-        setDebateMessages,
-        debateMessages.length,
-        debateMessages,
-    ]);
 
     useEffect(() => {
         const handleToken = (token) => {
             setQueue((prevQueue) => [...prevQueue, token]);
         };
 
-        socketRef.current = io.connect(backendUrl);
-        socketRef.current.emit("join", { room: id });
-        socketRef.current.on("token", handleToken);
     }, [id]);
 
     useEffect(() => {

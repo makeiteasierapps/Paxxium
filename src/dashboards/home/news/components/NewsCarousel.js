@@ -1,12 +1,14 @@
 import { useContext } from 'react';
 import Carousel from 'react-spring-3d-carousel';
 import { NewsContext } from '../NewsContext';
+import {SnackbarContext} from '../../../../SnackbarContext';
 import NewsCard from './NewsCard';
 import {
     SearchContainer,
     SearchField,
     CarouselContainer,
 } from '../styledNewsComponents';
+import MySnackbar from '../../../../SnackBar';
 import SearchIcon from '@mui/icons-material/Search';
 import { CustomGridLoader } from '../../../main/customLoaders';
 import {
@@ -29,9 +31,10 @@ const NewsCarousel = () => {
         readFilter,
         setReadFilter,
         setUnreadNewsData,
-        loading,
+        isLoading,
     } = useContext(NewsContext);
 
+    const { hideSnackbar, snackbarInfo } = useContext(SnackbarContext);
     const newsSlides = newsData.map((news, index) => ({
         key: news.id,
         content: <NewsCard news={news} index={index} />,
@@ -51,6 +54,7 @@ const NewsCarousel = () => {
             <SearchContainer id="search-container">
                 <Button
                     id="ai-fetch-news-button"
+                    disabled={isLoading}
                     onClick={aiNewsFetch}
                     variant="contained"
                 >
@@ -70,8 +74,9 @@ const NewsCarousel = () => {
                                     onClick={(event) => {
                                         event.preventDefault();
                                         fetchNewsData(query);
+                                        setQuery('');
                                     }}
-                                    disabled={!query}
+                                    disabled={!query || isLoading}
                                 >
                                     <SearchIcon />
                                 </IconButton>
@@ -81,7 +86,7 @@ const NewsCarousel = () => {
                 />
             </SearchContainer>
             <CarouselContainer id="carousel-container">
-                {loading ? (
+                {isLoading ? (
                     <CustomGridLoader />
                 ) : newsData.length > 0 ? (
                     <Carousel
@@ -115,6 +120,12 @@ const NewsCarousel = () => {
                     />
                 </Tooltip>
             </Box>
+            <MySnackbar
+                open={snackbarInfo.open}
+                message={snackbarInfo.message}
+                severity={snackbarInfo.severity}
+                handleClose={hideSnackbar}
+            />
         </Box>
     );
 };

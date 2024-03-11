@@ -33,6 +33,7 @@ StyledButton.defaultProps = {
 const DalleSettings = () => {
     const [anchorEl, setAnchorEl] = useState({});
     const open = Boolean(anchorEl);
+    
     const {
         size,
         setSize,
@@ -43,6 +44,8 @@ const DalleSettings = () => {
         handleImageRequest,
         userPrompt,
         setUserPrompt,
+        setIsLoading,
+        isLoading,
     } = useContext(ImageContext);
 
     const handleClick = (menu) => (event) => {
@@ -231,6 +234,7 @@ const DalleSettings = () => {
                                         }}
                                         onClick={(event) => {
                                             event.preventDefault();
+                                            setIsLoading(true);
                                             const imageRequest = {
                                                 size: size,
                                                 quality: quality,
@@ -239,7 +243,7 @@ const DalleSettings = () => {
                                             };
                                             handleImageRequest(imageRequest);
                                         }}
-                                        disabled={!userPrompt}
+                                        disabled={!userPrompt || isLoading}
                                     >
                                         <SendIcon />
                                     </IconButton>

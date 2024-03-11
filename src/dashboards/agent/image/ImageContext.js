@@ -1,5 +1,6 @@
 import { useState, createContext, useContext, useEffect } from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
+import { SnackbarContext } from '../../../SnackbarContext';
 export const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {
@@ -10,7 +11,9 @@ export const ImageProvider = ({ children }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [imageList, setImageList] = useState([]);
     const [userPrompt, setUserPrompt] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { idToken } = useContext(AuthContext);
+    const { showSnackbar } = useContext(SnackbarContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -30,15 +33,22 @@ export const ImageProvider = ({ children }) => {
                         'Content-Type': 'application/json',
                     },
                 });
-                const imageArray = await response.json();
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const imageArray = await response.json();
                 setImageList(imageArray);
             } catch (error) {
-                console.log(error);
+                console.error(error);
+                showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchImages();
-    }, [idToken]);
+    }, [backendUrl, idToken, showSnackbar]);
 
     const saveImage = async (image) => {
         try {
@@ -52,15 +62,22 @@ export const ImageProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to upload image');
+                const errorText = await response.text();
+                throw new Error(
+                    `Failed to save image. Server responded with: ${errorText}`
+                );
             }
-            const firebaseUrl = await response.text()
+
+            const firebaseUrl = await response.text();
             const downloadedImage = {
                 url: firebaseUrl,
             };
             setImageList([...imageList, downloadedImage]);
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            showSnackbar(`Network or save error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -76,14 +93,15 @@ export const ImageProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete image');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            if (response.status === 200) {
-                setImageList(imageList.filter((image) => image.path !== path));
-            }
+            setImageList(imageList.filter((image) => image.path !== path));
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            showSnackbar(`Network or delete error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -98,10 +116,21 @@ export const ImageProvider = ({ children }) => {
                 },
                 body: JSON.stringify(imageRequest),
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const imageUrl = await response.text();
-            setImageUrl(imageUrl);
+
+            if (imageUrl) {
+                setImageUrl(imageUrl);
+            }
         } catch (error) {
             console.log(error);
+            showSnackbar(`Network or generate error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -124,6 +153,8 @@ export const ImageProvider = ({ children }) => {
                 userPrompt,
                 setUserPrompt,
                 deleteImage,
+                isLoading,
+                setIsLoading,
             }}
         >
             {children}

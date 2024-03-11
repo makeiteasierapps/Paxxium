@@ -1,18 +1,25 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import { AuthContext } from './AuthContext';
+import { SnackbarContext } from '../SnackbarContext';
 import paxxiumTextLogo from '../assets/images/paxxium-logo-text-only.png';
 import { StyledTextField } from '../auth/authStyledComponents';
+import MySnackBar from '../SnackBar';
 
 export default function LoginPage() {
     const auth = getAuth();
     const { setUser } = useContext(AuthContext);
+    const { showSnackbar, hideSnackbar, snackbarInfo } =
+        useContext(SnackbarContext);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleLogin = async (event) => {
         event.preventDefault();
+        setIsLoading(true);
         const data = new FormData(event.currentTarget);
         try {
             const email = data.get('email');
@@ -24,11 +31,16 @@ export default function LoginPage() {
             );
             const user = userCredential.user;
             setUser(user);
+            setIsLoading(false);
         } catch (error) {
-            console.error(
-                'There has been a problem with your login operation:',
-                error
-            );
+            let errorMessage = 'Login failed with token';
+            if (error.response && error.response.data) {
+                errorMessage = error.response.data;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            showSnackbar(errorMessage, 'error');
+            setIsLoading(false);
         }
     };
 
@@ -64,7 +76,6 @@ export default function LoginPage() {
                     alignItems: 'center',
                     width: '80%',
                     maxWidth: '500px',
-
                 }}
                 component="form"
                 onSubmit={handleLogin}
@@ -92,6 +103,7 @@ export default function LoginPage() {
                 />
                 <Button
                     type="submit"
+                    disabled={isLoading}
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
@@ -102,6 +114,12 @@ export default function LoginPage() {
                     {"Don't have an account? Sign Up"}
                 </Link>
             </Box>
+            <MySnackBar
+                open={snackbarInfo.open}
+                message={snackbarInfo.message}
+                severity={snackbarInfo.severity}
+                handleClose={hideSnackbar}
+            />
         </Box>
     );
 }
