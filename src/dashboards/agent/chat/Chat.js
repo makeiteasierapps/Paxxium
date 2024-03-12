@@ -60,16 +60,7 @@ const Chat = ({
             }
         };
         fetchMessages();
-    }, [
-        agentModel,
-        chatConstants,
-        chatName,
-        id,
-        idToken,
-        setMessages,
-        systemPrompt,
-        useProfileData,
-    ]);
+    }, [agentModel, backendUrl, chatConstants, chatName, id, idToken, setMessages, systemPrompt, useProfileData]);
 
     // scrolls chat window to the bottom
     useEffect(() => {

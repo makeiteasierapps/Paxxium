@@ -64,7 +64,7 @@ def profile(request):
             profile_service.update_profile_questions(uid, data, db)
             
             return ({'response': 'Profile questions updated successfully'}, 200, headers)
-
+        print('getting profile questions')
         profile_data = profile_service.load_profile_questions(uid, db)
         return (profile_data, 200, headers)
     

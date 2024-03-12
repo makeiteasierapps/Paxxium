@@ -1,8 +1,9 @@
 from openai import OpenAI
 import logging
+import tiktoken
 
 class BossAgent:
-    def __init__(self, uid, user_service, model='', system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants='', use_profile_data=False):
+    def __init__(self, uid, user_service, model='', system_prompt="You are a friendly but genuine AI Agent. Don't be annoyingly nice, but don't be rude either.", chat_constants=None, use_profile_data=False):
         encrypted_openai_key, encrypted_serp_key = user_service.get_keys(uid)
         self.uid = uid
         self.openai_api_key = user_service.decrypt(encrypted_openai_key)
@@ -26,27 +27,14 @@ class BossAgent:
     
     def pass_to_boss_agent(self, message_obj):
         new_user_message = message_obj['user_message']
-        convo_history = message_obj['convo_history']
-        print(f"Convo History: {convo_history}")
+        chat_history = message_obj['chat_history']
+        print(f"Convo History: {chat_history}")
 
-        new_convo_history = self.manage_memory(convo_history, new_user_message)
+        new_chat_history = self.manage_chat(chat_history, new_user_message)
 
-        messages = [
-            {
-                "role": "system",
-                "content": self.system_prompt,
-            },
-        ]
-        print("new_user_message: ", new_user_message)
-        message_content = f'***USER ANALYSIS***\n{self.user_analysis}\n***THINGS TO REMEMBER***\n{self.chat_constants}\n**************\n{new_user_message}'
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": message_content,
-                }
-            ],
+            messages=new_chat_history,
             stream=True,
         )
         for chunk in response:
@@ -119,14 +107,49 @@ class BossAgent:
 
         return response.choices[0].message.content
     
-    def manage_memory(self, conversation, user_message):
+    def manage_chat(self, chat_history, new_user_message):
         """
-        Takes a conversation object extracts x amount of tokens and returns a message
+        Takes a chat object extracts x amount of tokens and returns a message
         object ready to pass into OpenAI chat completion
         """
-        history = []
+
+        formatted_messages = [{
+                "role": "system",
+                "content": self.system_prompt,
+            },
+        ]
+        token_limit = 500
+        token_count = 0
+        for message in chat_history:
+            if token_count > token_limit:
+                break
+            if message['message_from'] == 'user':
+                token_count += self.token_counter(message['content'])
+                formatted_messages.append({
+                    "role": "user",
+                    "content": message['content'],
+                })
+            else:
+                token_count += self.token_counter(message['content'])
+                formatted_messages.append({
+                    "role": "assistant",
+                    "content": message['content'],
+                })
+
+        message_parts = []
+        if self.user_analysis:
+            message_parts.append(f"***USER ANALYSIS***\n{self.user_analysis}\n**************")
+        if self.chat_constants:
+            message_parts.append(f"***THINGS TO REMEMBER***\n{self.chat_constants}\n**************")
+        message_parts.append(new_user_message)
+        message_content = "\n".join(message_parts)
         
-        return history
+        formatted_messages.append({
+            "role": "user",
+            "content": message_content,
+        })
+        
+        return formatted_messages
 
     def generate_image(self, request):
         prompt = request['prompt']
@@ -145,3 +168,18 @@ class BossAgent:
         )
 
         return response.data[0].url
+    
+    def token_counter(self, message):
+        """Return the number of tokens in a string."""
+        try:
+            encoding = tiktoken.encoding_for_model(self.model)
+        except KeyError:
+            print("Warning: model not found. Using cl100k_base encoding.")
+            encoding = tiktoken.get_encoding("cl100k_base")
+        
+        tokens_per_message = 3
+        num_tokens = 0
+        num_tokens += tokens_per_message
+        num_tokens += len(encoding.encode(message))
+        num_tokens += 3  # every reply is primed with <|im_start|>assistant<|im_sep|>
+        return num_tokens

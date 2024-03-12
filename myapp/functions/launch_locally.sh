@@ -4,7 +4,9 @@
 FUNCTIONS_DIR=$(pwd)
 PORT=50000
 
-lsof -ti:50000-50009 | xargs kill
+lsof -ti:50000-50007 | xargs kill
+
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 # Iterate over each subdirectory in the current directory
 for dir in "$FUNCTIONS_DIR"/*; do
@@ -17,9 +19,7 @@ for dir in "$FUNCTIONS_DIR"/*; do
     if [ -f "$MAIN_PY" ]; then
       echo "Starting function $FUNCTION_NAME on port $PORT"
       # Start the function locally in the background
-      (cd "$dir" && functions-framework --target="$FUNCTION_NAME" --port="$PORT" &)
-      # Save the PID of the background process
-      PIDS+=($!)
+      (cd "$dir" && functions-framework --target="$FUNCTION_NAME" --port="$PORT" --debug &)
       # Increment the port number for the next function
       PORT=$((PORT + 1))
     else

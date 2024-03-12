@@ -21,7 +21,7 @@ export const ProfileProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_PROFILE_URL
+            ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const loadProfile = useCallback(async () => {
@@ -39,7 +39,7 @@ export const ProfileProvider = ({ children }) => {
         } catch (error) {
             console.log(error);
         }
-    }, [idToken, setProfileData]);
+    }, [backendUrl, idToken]);
 
     const getAnswers = useCallback(async () => {
         try {
@@ -50,11 +50,12 @@ export const ProfileProvider = ({ children }) => {
                 },
             });
             const data = await response.json();
+            console.log(data);
             setAnswers(data.answers);
         } catch (error) {
             console.log(error);
         }
-    }, [idToken, setAnswers]);
+    }, [backendUrl, idToken]);
 
     const getAnalysis = useCallback(async () => {
         try {
@@ -89,7 +90,6 @@ export const ProfileProvider = ({ children }) => {
             },
         }));
     };
-
 
     const handleAnalyzeProfile = async () => {
         try {

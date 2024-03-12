@@ -93,3 +93,8 @@ Tech and Gadgets:
 8. Do you have any favorite tech influencers or experts that you follow?
 9. Are there any particular areas within technology that you are passionate about or want to learn more about?
 10. Are you open to exploring new technologies and gadgets, or do you prefer sticking to what you are familiar with?
+
+
+sudo lsof -nP -iTCP -sTCP:LISTEN   # list all open ports
+
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
