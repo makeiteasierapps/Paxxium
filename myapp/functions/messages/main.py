@@ -32,7 +32,7 @@ message_service = MessageService(db)
 user_service = UserService(db)
 
 
-def process_message(uid, chat_id, user_message, chat_settings, convo_history):
+def process_message(uid, chat_id, user_message, chat_settings, chat_history):
     model = chat_settings['agentModel']
     system_prompt = chat_settings['systemPrompt']
     chat_constants = chat_settings['chatConstants']
@@ -47,8 +47,9 @@ def process_message(uid, chat_id, user_message, chat_settings, convo_history):
     # Pass message to Agent
     message_obj = {
         'user_message': message_content,
-        'convo_history': convo_history
+        'chat_history': chat_history
     }
+
     complete_message = ''
     for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
         complete_message += response_chunk['content']
@@ -90,7 +91,7 @@ def messages(request):
     if request.path in ('/post', '/messages/post'):
         data = request.json
         user_message = data.get('userMessage')
-        convo_history = data.get('convoHistory')
+        chat_history = data.get('chatHistory')
         chat_settings = data.get('chatSettings')
         chat_id = chat_settings['chatId']
     
@@ -105,7 +106,7 @@ def messages(request):
             boss_agent.pass_to_vision_model(new_message)
             return
     
-        generator = process_message(uid, chat_id, user_message, chat_settings, convo_history)
+        generator = process_message(uid, chat_id, user_message, chat_settings, chat_history)
     
         return (Response(generator, mimetype='application/json'), 200, headers)
     

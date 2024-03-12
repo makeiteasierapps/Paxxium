@@ -28,7 +28,6 @@ class BossAgent:
     def pass_to_boss_agent(self, message_obj):
         new_user_message = message_obj['user_message']
         chat_history = message_obj['chat_history']
-        print(f"Convo History: {chat_history}")
 
         new_chat_history = self.manage_chat(chat_history, new_user_message)
 
@@ -47,6 +46,31 @@ class BossAgent:
                 logging.info(stream_obj)
                 yield stream_obj
     
+    def pass_to_profile_agent(self, message):
+        print(f"Message: {message}")
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": '''
+                    You are an expert in identify the personality traits of your user.
+                    Your response must be in json format with the following structure:
+                    - analysis: provide a personality analysis of the user based on their answers to the questions. Do not simply summarize the answers, but provide a unique analysis of the user.
+                    - news_topics: Should be a list of queries that are one or two words and be a good query parameter for calling a news API. Your topics should be derived from your analyis. Example formats: 2 words - Rock climbing - 1 word -AI
+                    '''
+                },
+                {
+                'role': 'user',
+                'content': f'''{message}''',
+                }
+                
+            ],
+            response_format="json",
+        )
+        return response.choices[0].message.content
+
+    # This hasn't been refactored yet
     def pass_to_vision_model(self, new_message):
         
         image_url = new_message['image_url']
@@ -78,7 +102,7 @@ class BossAgent:
         
         # add memory to agent
         return complete_response
-    
+    # This hasn't been refactored yet
     def pass_to_debateAI(self, message_obj):
         message_content = message_obj['content']
         response = self.client.chat.completions.create(

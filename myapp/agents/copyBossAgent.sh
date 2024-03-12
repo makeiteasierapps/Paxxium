@@ -9,6 +9,7 @@ TARGET_DIRS=(
     "../functions/images"
     "../functions/messages"
     "../functions/news"
+    "../functions/profile"
 )
 
 # Loop through each target directory and copy the source file to it

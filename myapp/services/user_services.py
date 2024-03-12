@@ -4,13 +4,11 @@ import base64
 from dotenv import load_dotenv
 from google.cloud import kms
 from google.cloud import firestore
-from langchain.chains import LLMChain
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.chat_models import ChatOpenAI
+
 
 if os.getenv('LOCAL_DEV') == 'True':
     from .profile_service import ProfileService as profile_service
+
 else:
     from profile_service import ProfileService as profile_service
     
@@ -99,37 +97,15 @@ class UserService:
         
         return prompt
     
-    def analyze_profile(self, uid):
+    def prepare_analysis_prompt(self, uid):
         """
-        Generates an analysis of the user's profile
+        Generates a prompt to analyze
         """
         
         q_a = profile_service.load_profile_questions(uid, self.db)
         prompt = UserService.extract_data_for_prompt(q_a)
 
-
-        model = ChatOpenAI(temperature=0.7, model='gpt-4-0613')
-        response_schemas = [
-            ResponseSchema(name="analysis", description="provide a personality analysis of the user based on their answers to the questions. Do not simply summarize the answers, but provide a unique analysis of the user."),
-            ResponseSchema(name="news_topics", description="Should be a list of queries that are one or two words and be a good query parameter for calling a news API. Your topics should be derived from your analyis. Example formats: 2 words - Rock climbing - 1 word -AI"),
-            # ResponseSchema(name="skills_assessment", description="Based on the user's answers around things they are learning, provide a list of 10 questions to gauge their skill level in the topic. Example: If the user says they are learning *Skill*, ask them to rate their skill level from 1-10.")
-        ]
-        output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-
-        format_instructions = output_parser.get_format_instructions()
-
-        chat_prompt_template = ChatPromptTemplate(
-            messages=[HumanMessagePromptTemplate.from_template("Here are the users answers to the questions:\n{format_instructions}\n{q_a}")],
-            partial_variables={"format_instructions": format_instructions},
-            output_parser=output_parser,
-        )
-
-        llm_chain = LLMChain(llm=model, prompt=chat_prompt_template, output_parser=output_parser)
-
-        response = llm_chain({"q_a": prompt, "format_instructions": format_instructions})
-
-        parsed_response = response['text']
-        return parsed_response
+        return prompt
     
     def get_profile_analysis(self, uid):
         user_doc = self.db.collection('users').document(uid).get(['analysis'])

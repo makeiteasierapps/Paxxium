@@ -44,11 +44,6 @@ const handleIncomingMessageStream = (
         const lastMessageIndex = newPrevMessage[id].length - 1;
         let lastMessage = newPrevMessage[id][lastMessageIndex];
 
-        // If lastMessage is not an array, convert it into an array
-        if (!Array.isArray(lastMessage)) {
-            lastMessage = [lastMessage];
-        }
-
         // Check if the last message is of type 'text' and append the new content to it
         // Get the last object in the lastMessage array
         const lastMessageObject = lastMessage[lastMessage.length - 1];

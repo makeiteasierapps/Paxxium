@@ -8,11 +8,13 @@ if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
     from .profile_service import ProfileService
     from .user_services import UserService
+    from .BossAgent import BossAgent
     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 else:
     from firebase_service import FirebaseService
     from profile_service import ProfileService
     from user_services import UserService
+    from BossAgent import BossAgent
     cred = credentials.ApplicationDefault()
 
 try:
@@ -81,13 +83,16 @@ def profile(request):
     
     if request.path in ('/analyze', '/profile/analyze'):
         if request.method == 'POST':
-            parsed_analysis = user_service.analyze_profile(uid)
-            user_service.update_user_profile(uid, parsed_analysis)
+            profile_agent = BossAgent(uid, user_service, model='GPT-4')
+            prompt = user_service.prepare_analysis_prompt(uid)
+            response = profile_agent.pass_to_profile_agent(prompt)
+            print(response)
+            user_service.update_user_profile(uid, response)
 
-            if 'news_topics' in parsed_analysis:
-                parsed_analysis['news_topics'] = list(parsed_analysis['news_topics'].values())
+            if 'news_topics' in response:
+                response['news_topics'] = list(response['news_topics'].values())
 
-            return (parsed_analysis, 200, headers)
+            return (response, 200, headers)
         # GET request
         profile_analysis = user_service.get_profile_analysis(uid)
         return (profile_analysis, 200, headers)

@@ -86,12 +86,13 @@ export const sendMessage = async (
     };
     addMessage(chatId, userMessage);
 
-    const convoHistory = await getMessages(chatId);
+    const chatHistory = await getMessages(chatId);
+    console.log('chatHistory:', chatHistory);
 
     const dataPacket = {
         chatSettings,
         userMessage,
-        convoHistory,
+        chatHistory,
         image_url: imageUrl,
     };
 
@@ -106,6 +107,7 @@ export const sendMessage = async (
 
     if (response.body) {
         const reader = response.body.getReader();
+        let completeMessage = '';
         while (true) {
             const { done, value } = await reader.read();
             if (done) {
@@ -116,8 +118,9 @@ export const sendMessage = async (
             const jsonChunks = decodedValue
                 .split('\n')
                 .filter((line) => line.trim() !== '');
+
             try {
-                jsonChunks.forEach((chunk) => {
+                const messages = jsonChunks.map((chunk) => {
                     const messageObj = JSON.parse(chunk);
                     processToken(
                         messageObj,
@@ -128,11 +131,27 @@ export const sendMessage = async (
                         ignoreNextTokenRef,
                         languageRef
                     );
+                    return messageObj.content;
                 });
+                completeMessage += messages.join('');
             } catch (error) {
                 console.error('Error parsing JSON:', error);
             }
         }
+        setMessages((prevMessages) => {
+            const updatedMessages = prevMessages[chatId].slice(0, -1);
+            updatedMessages.push({
+                content: completeMessage,
+                message_from: 'agent',
+                type: 'database',
+            });
+
+            return {
+                ...prevMessages,
+                [chatId]: updatedMessages,
+            };
+        });
+        console.log(completeMessage);
     } else {
         console.log('No response body');
     }
