@@ -52,6 +52,7 @@ export const ImageProvider = ({ children }) => {
 
     const saveImage = async (image) => {
         try {
+            setIsLoading(true);
             const response = await fetch(`${backendUrl}/images/upload`, {
                 method: 'POST',
                 headers: {

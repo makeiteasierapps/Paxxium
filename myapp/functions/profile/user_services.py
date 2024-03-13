@@ -5,12 +5,6 @@ from dotenv import load_dotenv
 from google.cloud import kms
 from google.cloud import firestore
 
-
-if os.getenv('LOCAL_DEV') == 'True':
-    from .profile_service import ProfileService as profile_service
-
-else:
-    from profile_service import ProfileService as profile_service
     
 from firebase_admin import storage
 
@@ -102,7 +96,7 @@ class UserService:
         Generates a prompt to analyze
         """
         
-        q_a = profile_service.load_profile_questions(uid, self.db)
+        q_a = self.load_profile_questions(uid)
         prompt = UserService.extract_data_for_prompt(q_a)
 
         return prompt
@@ -111,6 +105,29 @@ class UserService:
         user_doc = self.db.collection('users').document(uid).get(['analysis'])
         
         return user_doc.to_dict()
+    
+        
+    def update_profile_questions(self, uid, data):
+        """
+        Add profile data to the users collection
+        """
+        doc_ref = self.db.collection('users').document(uid)
+        profile_ref = doc_ref.collection('profile').document('questions')
+        profile_ref.set(data)
+
+        return {'message': 'User profile updated'}, 200
+
+    
+    def load_profile_questions(self, uid):
+        """
+        Get profile data from the users collection
+        """
+        
+        doc_ref = self.db.collection('users').document(uid)
+        profile_ref = doc_ref.collection('profile').document('questions')
+        profile = profile_ref.get()
+        
+        return profile.to_dict()
     
     def update_user_profile(self, uid, updates):
 

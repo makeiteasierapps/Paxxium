@@ -1,9 +1,11 @@
 import { useContext, useState } from 'react';
-import Box from '@mui/material/Box';
-import ImageList from '@mui/material/ImageList';
-import ImageListItem from '@mui/material/ImageListItem';
-import ImageListItemBar from '@mui/material/ImageListItemBar';
-import IconButton from '@mui/material/IconButton';
+import {
+    ImageList,
+    ImageListItem,
+    ImageListItemBar,
+    IconButton,
+    Box,
+} from '@mui/material/';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ImageContext } from './ImageContext';
 

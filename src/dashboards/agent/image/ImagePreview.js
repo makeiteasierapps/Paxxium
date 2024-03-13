@@ -1,8 +1,6 @@
 import { useState, useContext } from 'react';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
+import { IconButton, Tooltip, Paper, CircularProgress } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ImageContext } from './ImageContext';
 
@@ -14,6 +12,7 @@ const ImagePreview = ({ children }) => {
         saveImage,
         setImageUrl,
         setUserPrompt,
+        isLoading,
     } = useContext(ImageContext);
     const [width, height] = imageRequest.size.split('x').map(Number);
     const aspectRatio = width / height;
@@ -32,10 +31,15 @@ const ImagePreview = ({ children }) => {
     };
 
     const handleSave = () => {
-        saveImage({ url: imageUrl });
-        setUserPrompt('');
-        setImageRequest(null);
-        setImageUrl(null);
+        saveImage({ url: imageUrl })
+            .then(() => {
+                setUserPrompt('');
+                setImageRequest(null);
+                setImageUrl(null);
+            })
+            .catch((error) => {
+                console.error("Error saving image:", error);
+            });
     };
 
     const handleMouseLeave = () => {
@@ -55,8 +59,24 @@ const ImagePreview = ({ children }) => {
             }}
             elevation={3}
         >
-            {children}
-            {hover && (
+            {isLoading && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <CircularProgress size={50} />
+                </div>
+            )}
+            {!isLoading && children}
+            {hover && !isLoading && (
                 <div
                     style={{
                         position: 'absolute',

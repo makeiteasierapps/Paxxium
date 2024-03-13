@@ -7,13 +7,11 @@ load_dotenv()
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
-    from .profile_service import ProfileService
     from .user_services import UserService
     from .BossAgent import BossAgent
     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 else:
     from firebase_service import FirebaseService
-    from profile_service import ProfileService
     from user_services import UserService
     from BossAgent import BossAgent
     cred = credentials.ApplicationDefault()
@@ -30,7 +28,7 @@ db = firestore.client()
 firebase_service = FirebaseService()
 
 user_service = UserService(db)
-profile_service = ProfileService()
+
 
 def profile(request):
     response = {}
@@ -64,11 +62,11 @@ def profile(request):
         if request.method == 'POST':
             
             data = request.get_json()
-            profile_service.update_profile_questions(uid, data, db)
+            user_service.update_profile_questions(uid, data)
             
             return ({'response': 'Profile questions updated successfully'}, 200, headers)
         print('getting profile questions')
-        profile_data = profile_service.load_profile_questions(uid, db)
+        profile_data = user_service.load_profile_questions(uid)
         return (profile_data, 200, headers)
     
     if request.path in ('/user', '/profile/user'):
