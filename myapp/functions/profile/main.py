@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
 
@@ -86,13 +87,11 @@ def profile(request):
             profile_agent = BossAgent(uid, user_service, model='GPT-4')
             prompt = user_service.prepare_analysis_prompt(uid)
             response = profile_agent.pass_to_profile_agent(prompt)
-            print(response)
-            user_service.update_user_profile(uid, response)
+            analyis_obj = json.loads(response)
 
-            if 'news_topics' in response:
-                response['news_topics'] = list(response['news_topics'].values())
+            user_service.update_user_profile(uid, analyis_obj)
 
-            return (response, 200, headers)
+            return (analyis_obj, 200, headers)
         # GET request
         profile_analysis = user_service.get_profile_analysis(uid)
         return (profile_analysis, 200, headers)

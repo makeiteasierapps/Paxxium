@@ -90,8 +90,10 @@ def messages(request):
     
     if request.path in ('/post', '/messages/post'):
         data = request.json
+        print('data', data)
         user_message = data.get('userMessage')
         chat_history = data.get('chatHistory')
+        print(chat_history)
         chat_settings = data.get('chatSettings')
         chat_id = chat_settings['chatId']
     

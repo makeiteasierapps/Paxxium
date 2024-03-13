@@ -126,7 +126,7 @@ class UserService:
             updates['open_key'] = self.encrypt(updates['open_key'])
 
         if 'news_topics' in updates:
-            news_topics_list = [topic.lower().strip() for topic in updates['news_topics'].split(',')]
+            news_topics_list = [topic.lower().strip() for topic in updates['news_topics']]
             updates['news_topics'] = firestore.ArrayUnion(news_topics_list)
         
         if doc.exists:
