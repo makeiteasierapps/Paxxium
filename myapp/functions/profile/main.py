@@ -88,9 +88,8 @@ def profile(request):
             prompt = user_service.prepare_analysis_prompt(uid)
             response = profile_agent.pass_to_profile_agent(prompt)
             analyis_obj = json.loads(response)
-
-            user_service.update_user_profile(uid, analyis_obj)
-
+            user_service.update_user_profile(uid, analyis_obj.copy())
+            
             return (analyis_obj, 200, headers)
         # GET request
         profile_analysis = user_service.get_profile_analysis(uid)

@@ -70,7 +70,7 @@ export const ProfileProvider = ({ children }) => {
         } catch (error) {
             console.log(error);
         }
-    }, [idToken]);
+    }, [backendUrl, idToken]);
 
     useEffect(() => {
         if (!idToken) {

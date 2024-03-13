@@ -81,6 +81,7 @@ export const NewsProvider = ({ children }) => {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const newData = await response.json();
+                console.log(newData);
                 setNewsData((currentNewsData) => [
                     ...newData,
                     ...currentNewsData,
@@ -95,13 +96,13 @@ export const NewsProvider = ({ children }) => {
                 setIsLoading(false);
             }
         },
-        [idToken, query]
+        [backendUrl, idToken, query, showSnackbar]
     );
 
     const aiNewsFetch = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${backendUrl}/news/get-news-topics`, {
+            const response = await fetch(`${backendUrl}/news/ai-fetch-news`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -110,23 +111,28 @@ export const NewsProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                if (response.status === 404) {
+                    const errorData = await response.json(); // Assuming the error message is in JSON format
+                    showSnackbar(errorData.message, 'warning'); // Display the custom error message
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return; // Exit the function early as we've handled the error case
             }
-            
+
             const data = await response.json();
-            if (!data.news_topics) {
-                showSnackbar(data.message, 'warning');
-                return;
-            }
-            const randIdx = Math.floor(Math.random() * data.news_topics.length);
-            fetchNewsData(data.news_topics[randIdx]);
+            setNewsData((currentNewsData) => [
+                ...data,
+                ...currentNewsData,
+            ]);
+
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         } finally {
             setIsLoading(false);
         }
-    }, [backendUrl, fetchNewsData, idToken, showSnackbar]);
+    }, [backendUrl, idToken, showSnackbar]);
 
     useEffect(() => {
         if (!idToken) return;

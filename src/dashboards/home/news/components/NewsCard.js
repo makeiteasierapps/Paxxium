@@ -60,7 +60,6 @@ const NewsCard = ({ news, index }) => {
                 },
                 body: JSON.stringify({ articleId: news.id }),
             });
-            console.log(response);
             const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message);

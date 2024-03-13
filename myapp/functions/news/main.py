@@ -1,4 +1,5 @@
 import os
+import random
 from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
 
@@ -62,11 +63,17 @@ def news(request):
 
         return (news_data, 200, headers)
     
-    if request.path in ('/get-news-topics', '/news/get-news-topics'):
+    if request.path in ('/ai-fetch-news', '/news/ai-fetch-news'):
         news_topics = news_service.get_user_news_topics(uid)
         if not news_topics:
             return ({"message": "No news topics found, please answer some questions in the profile section and analyze"}, 404, headers)
-        return (news_topics, 200, headers)
+        
+        random_topic = random.choice(news_topics)
+        urls = news_service.get_article_urls(random_topic)
+        
+        news_data = news_service.summarize_articles(urls)
+        news_service.upload_news_data(uid, news_data)
+        return (news_data, 200, headers)
     
     if request.path in ('/news_articles', '/news/news_articles'):
         data = request.get_json()
