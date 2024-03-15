@@ -96,7 +96,7 @@ class UserService:
         Generates a prompt to analyze
         """
         
-        q_a = self.load_profile_questions(uid)
+        q_a = self.load_profile_answers(uid)
         prompt = UserService.extract_data_for_prompt(q_a)
 
         return prompt
@@ -107,20 +107,20 @@ class UserService:
         return user_doc.to_dict()
     
         
-    def update_profile_questions(self, uid, data):
+    def update_profile_answers(self, uid, data):
         """
-        Add profile data to the users collection
+        Update the question/answer map in the user's profile
         """
         doc_ref = self.db.collection('users').document(uid)
         profile_ref = doc_ref.collection('profile').document('questions')
         profile_ref.set(data)
 
-        return {'message': 'User profile updated'}, 200
+        return {'message': 'User question/answers updated'}, 200
 
     
-    def load_profile_questions(self, uid):
+    def load_profile_answers(self, uid):
         """
-        Get profile data from the users collection
+        Fetches the question/anwers map from the user's profile
         """
         
         doc_ref = self.db.collection('users').document(uid)

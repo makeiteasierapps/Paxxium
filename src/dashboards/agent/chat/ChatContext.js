@@ -1,4 +1,10 @@
-import { useState, createContext, useContext, useRef } from 'react';
+import {
+    useState,
+    createContext,
+    useContext,
+    useRef,
+    useCallback,
+} from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
 import { processToken } from '../utils/processToken';
 import { resizeImage } from '../utils/resizeImage';
@@ -56,7 +62,7 @@ export const ChatProvider = ({ children }) => {
             return data;
         } catch (error) {
             console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
 
@@ -86,7 +92,7 @@ export const ChatProvider = ({ children }) => {
 
                 // Filter out the updated agent from the original array
                 const filteredAgents = prevAgents.filter(
-                    (agent) => agent.id !== chatId
+                    (agent) => agent.chatId !== chatId
                 );
 
                 // Add the updated agent to the beginning of the array
@@ -101,33 +107,39 @@ export const ChatProvider = ({ children }) => {
     };
 
     // Fetch messages from the database
-    const loadMessages = async (chatId) => {
-        try {
-            const messageResponse = await fetch(`${messagesUrl}/messages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify({ chatId }),
-            });
+    const loadMessages = useCallback(
+        async (chatId) => {
+            try {
+                const messageResponse = await fetch(`${messagesUrl}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: JSON.stringify({ chatId }),
+                });
 
-            if (!messageResponse.ok) {
-                throw new Error('Failed to load messages');
-            }
+                if (!messageResponse.ok) {
+                    throw new Error('Failed to load messages');
+                }
 
-            const messageData = await messageResponse.json();
-            if (messageData && messageData.messages.length > 0) {
-                setMessages((prevMessageParts) => ({
-                    ...prevMessageParts,
-                    [chatId]: messageData.messages,
-                }));
+                const messageData = await messageResponse.json();
+                if (messageData && messageData.messages.length > 0) {
+                    setMessages((prevMessageParts) => ({
+                        ...prevMessageParts,
+                        [chatId]: messageData.messages,
+                    }));
+                }
+            } catch (error) {
+                console.error(error);
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
             }
-        } catch (error) {
-            console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-        }
-    };
+        },
+        [messagesUrl, idToken, setMessages, showSnackbar]
+    );
 
     const sendMessage = async (input, chatId, chatSettings, image = null) => {
         let imageUrl = null;
@@ -265,7 +277,7 @@ export const ChatProvider = ({ children }) => {
             // Update the local state only after the database has been updated successfully
             setAgentArray((prevChatArray) =>
                 prevChatArray.map((chatObj) =>
-                    chatObj.id === chatId
+                    chatObj.chatId === chatId
                         ? { ...chatObj, is_open: false }
                         : chatObj
                 )
@@ -381,7 +393,7 @@ export const ChatProvider = ({ children }) => {
         // Update the local settings state
         setAgentArray((prevAgentArray) =>
             prevAgentArray.map((agent) =>
-                agent.id === newAgentSettings.id
+                agent.chatId === newAgentSettings.chatId
                     ? { ...agent, ...newAgentSettings }
                     : agent
             )

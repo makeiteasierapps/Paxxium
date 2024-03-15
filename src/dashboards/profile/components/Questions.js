@@ -4,7 +4,6 @@ import { ProfileContext } from '../ProfileContext';
 
 import {
     StyledTabs,
-    
     QuestionsContainer,
     Question,
     Answer,

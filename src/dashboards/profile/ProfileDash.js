@@ -1,29 +1,27 @@
 import { Box, Button } from '@mui/material';
 import { useContext } from 'react';
-import { AuthContext } from '../../auth/AuthContext';
 import { ProfileContext } from './ProfileContext';
+import { SnackbarContext } from '../../SnackbarContext';
+import MySnackbar from '../../SnackBar';
 import Questions from './components/Questions';
 import User from './components/User';
-import {
-    handleQuestionsUpdate,
-    handleUserUpdate,
-} from './handlers/profileHandlers';
 
 import { MainContainer } from './styledProfileComponents';
 
 const ProfileDash = () => {
-    const { handleAnalyzeProfile, analysis, profileData, answers } =
-        useContext(ProfileContext);
+    const {
+        analyzeProfile,
+        analysis,
+        profileData,
+        answers,
+        updateUserProfile,
+        updateAnswers,
+    } = useContext(ProfileContext);
+    const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
-    const { idToken } = useContext(AuthContext);
-
-    const handleUpdate = async (
-        idToken = null,
-        profileData = null,
-        answers = null
-    ) => {
-        await handleUserUpdate(idToken, profileData);
-        await handleQuestionsUpdate(idToken, answers);
+    const handleUpdate = async (profileData = null, answers = null) => {
+        await updateUserProfile(profileData);
+        await updateAnswers(answers);
     };
 
     return (
@@ -33,7 +31,7 @@ const ProfileDash = () => {
             <Button
                 id="update-profile-button"
                 variant="contained"
-                onClick={() => handleUpdate(idToken, profileData, answers)}
+                onClick={() => handleUpdate(profileData, answers)}
                 sx={{ margin: 3 }}
             >
                 Save
@@ -50,11 +48,17 @@ const ProfileDash = () => {
             </Box>
             <Button
                 variant="contained"
-                onClick={handleAnalyzeProfile}
+                onClick={analyzeProfile}
                 sx={{ margin: 3 }}
             >
                 Analyze
             </Button>
+            <MySnackbar
+                open={snackbarInfo.open}
+                message={snackbarInfo.message}
+                severity={snackbarInfo.severity}
+                handleClose={hideSnackbar}
+            />
         </MainContainer>
     );
 };

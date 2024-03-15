@@ -60,6 +60,7 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history):
 
 def messages(request):
     response = {}
+    print(request.path)
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -83,10 +84,11 @@ def messages(request):
 
     if request.path in ('/', '/messages'):
         data = request.json
-        conversation_id = data.get('chatId')
-        conversation_data = message_service.get_all_messages(uid, conversation_id)
+        print(data)
+        chat_id = data.get('chatId')
+        chat_data = message_service.get_all_messages(uid, chat_id)
     
-        return (conversation_data, 200, headers)
+        return (chat_data, 200, headers)
     
     if request.path in ('/post', '/messages/post'):
         data = request.json

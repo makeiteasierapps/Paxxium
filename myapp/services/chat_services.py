@@ -27,7 +27,7 @@ class ChatService:
         Returns a list of conversation ids for a given user
         """
         conversations = self.db.collection('users').document(user_id).collection('conversations').order_by('created_at', direction=firestore.Query.DESCENDING).stream()
-        return [{**conv.to_dict(), 'id': conv.id} for conv in conversations]
+        return [{**conv.to_dict(), 'chatId': conv.id} for conv in conversations]
     
     def get_single_chat(self, user_id, chat_id):
         """

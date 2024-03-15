@@ -32,7 +32,6 @@ user_service = UserService(db)
 
 def profile(request):
     response = {}
-    print(request.path)
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -58,15 +57,14 @@ def profile(request):
         user_profile = user_service.get_profile(uid)
         return (user_profile, 200, headers)
 
-    if request.path in ('/questions', '/profile/questions'):
+    if request.path in ('/answers', '/profile/answers'):
         if request.method == 'POST':
             
             data = request.get_json()
-            user_service.update_profile_questions(uid, data)
+            user_service.update_profile_answers(uid, data)
             
-            return ({'response': 'Profile questions updated successfully'}, 200, headers)
-        print('getting profile questions')
-        profile_data = user_service.load_profile_questions(uid)
+            return ({'response': 'Profile questions/answers updated successfully'}, 200, headers)
+        profile_data = user_service.load_profile_answers(uid)
         return (profile_data, 200, headers)
     
     if request.path in ('/user', '/profile/user'):
@@ -74,7 +72,7 @@ def profile(request):
         user_service.update_user_profile(uid, data)
         return ({'response': 'User profile updated successfully'}, 200, headers)
     
-    if request.path in ('/avatar', '/profile/avatar'):
+    if request.path in ('/update_avatar', '/profile/update_avatar'):
         file = request.files['avatar']
         avatar_url = user_service.upload_profile_image_to_firebase_storage(file, uid)
 

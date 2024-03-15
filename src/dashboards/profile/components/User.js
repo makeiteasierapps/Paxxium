@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import { useContext, useState, useRef } from 'react';
 import { ProfileContext } from '../ProfileContext';
-import { AuthContext } from '../../../auth/AuthContext';
 import { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -45,14 +44,8 @@ const User = () => {
     const [aspect, setAspect] = useState(1);
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
-    const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_PROFILE_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
 
-    const { idToken } = useContext(AuthContext);
-
-    const { profileData, setProfileData, avatar, setAvatar } =
+    const { profileData, setProfileData, avatar, updateAvatar } =
         useContext(ProfileContext);
 
     const handleClose = () => {
@@ -119,25 +112,8 @@ const User = () => {
         const formData = new FormData();
         // append the cropped image blob to the FormData object
         formData.append('avatar', blob);
+        updateAvatar(formData);
 
-        // send the FormData object to the server
-        try {
-            const response = await fetch(
-                `${backendUrl}/profile/update_avatar`,
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: idToken,
-                    },
-                    credentials: 'include',
-                    body: formData,
-                }
-            );
-            const data = await response.json();
-            setAvatar(data.avatarUrl);
-        } catch (error) {
-            console.error(error);
-        }
     }
 
     function onSelectFile(e) {

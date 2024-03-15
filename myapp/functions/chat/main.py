@@ -27,7 +27,6 @@ chat_service = ChatService(db)
 logging.basicConfig(level=logging.INFO)
 
 def chat(request):
-    print('request.path', request.path)
     response = {}
     if request.method == "OPTIONS":
         headers = {
@@ -91,7 +90,7 @@ def chat(request):
         data = request.get_json()
         use_profile_data = data.get('use_profile_data')
         chat_name = data.get('chat_name')
-        chat_id = data.get('id')
+        chat_id = data.get('chatId')
         agent_model = data.get('agent_model')
         system_prompt = data.get('system_prompt')
         chat_constants = data.get('chat_constants')
