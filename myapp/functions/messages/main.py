@@ -83,17 +83,15 @@ def messages(request):
 
     if request.path in ('/', '/messages'):
         data = request.json
-        conversation_id = data.get('id')
+        conversation_id = data.get('chatId')
         conversation_data = message_service.get_all_messages(uid, conversation_id)
     
         return (conversation_data, 200, headers)
     
     if request.path in ('/post', '/messages/post'):
         data = request.json
-        print('data', data)
         user_message = data.get('userMessage')
         chat_history = data.get('chatHistory')
-        print(chat_history)
         chat_settings = data.get('chatSettings')
         chat_id = chat_settings['chatId']
     
@@ -114,7 +112,7 @@ def messages(request):
     
     if request.path in ('/clear', '/messages/clear'):
         data = request.json
-        chat_id = data.get('id')
+        chat_id = data.get('chatId')
         message_service.delete_all_messages(uid, chat_id)
         return ('Memory Cleared', 200, headers)
     

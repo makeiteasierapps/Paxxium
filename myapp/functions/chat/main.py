@@ -62,9 +62,9 @@ def chat(request):
         system_prompt = data['systemPrompt']
         chat_constants = data['chatConstants']
         use_profile_data = data['useProfileData']
-        new_chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
+        chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
         chat_data = {
-            'id': new_chat_id,
+            'chatId': chat_id,
             'chat_name': chat_name,
             'agent_model': agent_model,
             'system_prompt': system_prompt,
@@ -76,13 +76,13 @@ def chat(request):
     
     if request.path in ('/delete', '/chat/delete'):
         data = request.get_json()
-        chat_id = data['id']
+        chat_id = data['chatId']
         chat_service.delete_conversation(uid, chat_id)
         return ('Conversation deleted', 200, headers)
     
     if request.path in ('/update_visibility', '/chat/update_visibility'):
         data = request.get_json()
-        chat_id = data['id']
+        chat_id = data['chatId']
         is_open = data['is_open']
         chat_service.update_visibility(uid, chat_id, is_open)
         return ('Chat visibility updated', 200, headers)
@@ -91,11 +91,11 @@ def chat(request):
         data = request.get_json()
         use_profile_data = data.get('use_profile_data')
         chat_name = data.get('chat_name')
-        new_chat_id = data.get('id')
+        chat_id = data.get('id')
         agent_model = data.get('agent_model')
         system_prompt = data.get('system_prompt')
         chat_constants = data.get('chat_constants')
-        chat_service.update_settings(uid, new_chat_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
+        chat_service.update_settings(uid, chat_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
         return ('Chat settings updated', 200, headers)
     
 

@@ -44,7 +44,7 @@ const ChatSettings = () => {
 
   const handleUpdateSettings = () => {
     const newAgentSettings = {
-      id: selectedAgent.id,
+      chatId: selectedAgent.chatId,
       agent_model: agentModel,
       system_prompt: systemPrompt,
       chat_constants: chatConstants,

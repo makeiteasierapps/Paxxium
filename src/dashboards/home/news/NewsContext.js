@@ -51,10 +51,12 @@ export const NewsProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('Failed to load news data');
             }
+
             const data = await response.json();
             setNewsData(data);
+            
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -121,11 +123,7 @@ export const NewsProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setNewsData((currentNewsData) => [
-                ...data,
-                ...currentNewsData,
-            ]);
-
+            setNewsData((currentNewsData) => [...data, ...currentNewsData]);
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');

@@ -76,8 +76,8 @@ const AgentDash = () => {
               if (agent.agent_model === "AgentDebate") {
                 return (
                   <Debate
-                    key={agent.id}
-                    id={agent.id}
+                    key={agent.chatId}
+                    id={agent.chatId}
                     chatName={agent.chat_name}
                     topic={agent.topic}
                   />
@@ -85,8 +85,8 @@ const AgentDash = () => {
               } else {
                 return (
                   <Chat
-                    key={agent.id}
-                    chatId={agent.id}
+                    key={agent.chatId}
+                    chatId={agent.chatId}
                     chatConstants={agent.chat_constants}
                     systemPrompt={agent.system_prompt}
                     chatName={agent.chat_name}

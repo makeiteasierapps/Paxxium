@@ -37,7 +37,7 @@ const Chat = ({
   return (
     <ChatContainerStyled
       onClick={() => {
-        const selectedAgent = agentArray.find((agent) => agent.id === chatId);
+        const selectedAgent = agentArray.find((agent) => agent.chatId === chatId);
         setSelectedAgent(selectedAgent);
       }}
     >

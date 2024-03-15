@@ -10,9 +10,9 @@ const AgentMenu = () => {
     const [selectedAgentId, setSelectedAgentId] = useState('');
 
     const handleLoadChat = async (event) => {
-        const selectedId = event.target.value;
-        setSelectedAgentId(selectedId);
-        loadChat(selectedId);
+        const chatId = event.target.value;
+        setSelectedAgentId(chatId);
+        loadChat(chatId);
     };
 
     return (
@@ -46,7 +46,7 @@ const AgentMenu = () => {
                 >
                     {agentArray.map((agent) => {
                         return (
-                            <MenuItem key={agent.id} value={agent.id}>
+                            <MenuItem key={agent.chatId} value={agent.chatId}>
                                 {agent.chat_name}
                             </MenuItem>
                         );
