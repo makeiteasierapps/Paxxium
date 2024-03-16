@@ -113,7 +113,6 @@ const User = () => {
         // append the cropped image blob to the FormData object
         formData.append('avatar', blob);
         updateAvatar(formData);
-
     }
 
     function onSelectFile(e) {
@@ -219,7 +218,7 @@ const User = () => {
                 </Box>
                 <ProfileTextField
                     size="small"
-                    label="Serpapi Key"
+                    label="Update Serpapi Key"
                     type="password"
                     variant="outlined"
                     onChange={(e) =>
@@ -231,7 +230,7 @@ const User = () => {
                 />
                 <ProfileTextField
                     size="small"
-                    label="OpenAI Key"
+                    label="Update OpenAI Key"
                     type="password"
                     variant="outlined"
                     onChange={(e) =>

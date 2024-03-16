@@ -41,22 +41,35 @@ export const NewsProvider = ({ children }) => {
         updateNewsData((prev) => prev.filter((news) => !news.is_read));
 
     const loadNewsData = useCallback(async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch(`${backendUrl}/news`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-            });
+            // Attempt to retrieve the news data from local storage
+            const cachedNewsData = localStorage.getItem('newsData');
+            if (cachedNewsData) {
+                const parsedNewsData = JSON.parse(cachedNewsData);
+                // Optionally, check if the data is not outdated here
+                // For simplicity, we're directly using the cached data
+                console.log('Using cached news data');
+                setNewsData(parsedNewsData);
+            } else {
+                // If no cached data, fetch from the backend
+                const response = await fetch(`${backendUrl}/news`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                });
 
-            if (!response.ok) {
-                throw new Error('Failed to load news data');
+                if (!response.ok) {
+                    throw new Error('Failed to load news data');
+                }
+
+                const data = await response.json();
+                setNewsData(data);
+                // Cache the fetched data in local storage
+                localStorage.setItem('newsData', JSON.stringify(data));
             }
-
-            const data = await response.json();
-            setNewsData(data);
-            
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -83,11 +96,18 @@ export const NewsProvider = ({ children }) => {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const newData = await response.json();
-                console.log(newData);
-                setNewsData((currentNewsData) => [
-                    ...newData,
-                    ...currentNewsData,
-                ]);
+                setNewsData((currentNewsData) => {
+                    // Merge the new data with the current news data
+                    const updatedNewsData = [...newData, ...currentNewsData];
+
+                    // Update the local storage with the merged data
+                    localStorage.setItem(
+                        'newsData',
+                        JSON.stringify(updatedNewsData)
+                    );
+
+                    return updatedNewsData;
+                });
             } catch (error) {
                 console.error(error);
                 showSnackbar(
@@ -114,16 +134,27 @@ export const NewsProvider = ({ children }) => {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    const errorData = await response.json(); // Assuming the error message is in JSON format
-                    showSnackbar(errorData.message, 'warning'); // Display the custom error message
+                    const errorData = await response.json(); 
+                    showSnackbar(errorData.message, 'warning'); 
                 } else {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return; // Exit the function early as we've handled the error case
+                return;
             }
 
             const data = await response.json();
-            setNewsData((currentNewsData) => [...data, ...currentNewsData]);
+            setNewsData((currentNewsData) => {
+                // Merge the new data with the current news data
+                const updatedNewsData = [...data, ...currentNewsData];
+
+                // Update the local storage with the merged data
+                localStorage.setItem(
+                    'newsData',
+                    JSON.stringify(updatedNewsData)
+                );
+
+                return updatedNewsData;
+            });
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');

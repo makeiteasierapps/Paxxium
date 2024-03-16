@@ -75,7 +75,7 @@ class UserService:
         return decrypted_key
 
     def get_profile(self, uid):
-        user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url'])
+        user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url', 'analysis'])
         
         return user_doc.to_dict()
 
@@ -100,12 +100,6 @@ class UserService:
         prompt = UserService.extract_data_for_prompt(q_a)
 
         return prompt
-    
-    def get_profile_analysis(self, uid):
-        user_doc = self.db.collection('users').document(uid).get(['analysis'])
-        
-        return user_doc.to_dict()
-    
         
     def update_profile_answers(self, uid, data):
         """

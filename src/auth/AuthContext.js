@@ -30,9 +30,9 @@ export const AuthProvider = ({ children }) => {
             if (user) {
                 // User is signed in or their token has been refreshed.
                 const token = await user.getIdToken();
-                setIdToken(token); // Update the ID token in your state.
-                setUid(user.uid); // Update the user's UID in your state.
-                setUser(user); // Update the user object in your state.
+                setIdToken(token);
+                setUid(user.uid);
+                setUser(user);
             } else {
                 // User is signed out.
                 console.log('No user is signed in.');

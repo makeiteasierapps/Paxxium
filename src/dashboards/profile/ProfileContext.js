@@ -46,6 +46,17 @@ export const ProfileProvider = ({ children }) => {
 
                 const data = await response.json();
                 setAvatar(data.avatar_url);
+
+                // Update avatar_url in local storage
+                const cachedProfileData = localStorage.getItem('profileData');
+                if (cachedProfileData) {
+                    const profileData = JSON.parse(cachedProfileData);
+                    profileData.avatar_url = data.avatar_url; // Update the avatar_url
+                    localStorage.setItem(
+                        'profileData',
+                        JSON.stringify(profileData)
+                    ); // Save back to local storage
+                }
             } catch (error) {
                 showSnackbar(
                     `Network or fetch error: ${error.message}`,
@@ -59,6 +70,16 @@ export const ProfileProvider = ({ children }) => {
 
     const loadProfile = useCallback(async () => {
         try {
+            // Attempt to retrieve the profile data from local storage
+            const cachedProfileData = localStorage.getItem('profileData');
+            if (cachedProfileData) {
+                const data = JSON.parse(cachedProfileData);
+                setProfileData(data);
+                setAvatar(data.avatar_url);
+                return; // Exit the function early as we've used cached data
+            }
+
+            // If no cached data, proceed to fetch from the backend
             const response = await fetch(`${backendUrl}/profile`, {
                 method: 'GET',
                 headers: {
@@ -73,14 +94,49 @@ export const ProfileProvider = ({ children }) => {
             const data = await response.json();
             setProfileData(data);
             setAvatar(data.avatar_url);
+
+            // Cache the fetched profile data in local storage
+            localStorage.setItem('profileData', JSON.stringify(data));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
     }, [backendUrl, idToken, showSnackbar]);
 
+    const updateUserProfile = async (profileData) => {
+        console.log('updateUserProfile', profileData);
+        try {
+            const response = await fetch(`${backendUrl}/profile/user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: idToken,
+                },
+                body: JSON.stringify(profileData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update user profile');
+            }
+
+            localStorage.setItem('profileData', JSON.stringify(profileData));
+
+            showSnackbar('User profile updated', 'success');
+        } catch (error) {
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            console.log(error);
+        }
+    };
+
     const getAnswers = useCallback(async () => {
         try {
+            // Attempt to retrieve the answers from local storage first
+            const cachedAnswers = localStorage.getItem('profileAnswers');
+            if (cachedAnswers) {
+                setAnswers(JSON.parse(cachedAnswers));
+                return; // Exit the function early
+            }
+
             const response = await fetch(`${backendUrl}/profile/answers`, {
                 method: 'GET',
                 headers: {
@@ -94,31 +150,39 @@ export const ProfileProvider = ({ children }) => {
 
             const data = await response.json();
             setAnswers(data.answers);
+
+            // Cache the fetched answers in local storage
+            localStorage.setItem(
+                'profileAnswers',
+                JSON.stringify(data.answers)
+            );
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
     }, [backendUrl, idToken, showSnackbar]);
 
-    const getAnalysis = useCallback(async () => {
+    const updateAnswers = async (answers) => {
         try {
-            const response = await fetch(`${backendUrl}/profile/analyze`, {
-                method: 'GET',
+            const response = await fetch(`${backendUrl}/profile/answers`, {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     Authorization: idToken,
                 },
+                body: JSON.stringify({ answers }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch analysis');
+                throw new Error('Failed to update answers');
             }
 
-            const data = await response.json();
-            setAnalysis(data.analysis);
+            localStorage.setItem('profileAnswers', JSON.stringify(answers));
         } catch (error) {
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, idToken]);
+    };
 
     const analyzeProfile = async () => {
         try {
@@ -135,52 +199,19 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setAnalysis(data['analysis']);
+            setAnalysis(data.analysis);
+            const cachedProfileData = localStorage.getItem('profileData');
+            if (cachedProfileData) {
+                const profileData = JSON.parse(cachedProfileData);
+                profileData.analysis = data.analysis;
+                localStorage.setItem(
+                    'profileData',
+                    JSON.stringify(profileData)
+                ); // Save back to local storage
+            }
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);
-        }
-    };
-
-    const updateUserProfile = async (profileData) => {
-        try {
-            const response = await fetch(`${backendUrl}/profile/user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify(profileData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update user profile');
-            }
-
-            showSnackbar('User profile updated', 'success');
-        } catch (error) {
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            console.log(error);
-        }
-    };
-
-    const updateAnswers = async (answers) => {
-        try {
-            const response = await fetch(`${backendUrl}/profile/answers`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify({ answers }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update answers');
-            }
-        } catch (error) {
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            console.log(error);
         }
     };
 
@@ -188,10 +219,9 @@ export const ProfileProvider = ({ children }) => {
         if (!idToken) {
             return;
         }
-        getAnalysis();
         loadProfile();
         getAnswers();
-    }, [loadProfile, getAnswers, idToken, getAnalysis]);
+    }, [loadProfile, getAnswers, idToken]);
 
     const handleAnswerChange = (category, question, answer) => {
         setAnswers((prevAnswers) => ({

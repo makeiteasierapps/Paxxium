@@ -19,7 +19,7 @@ const Header = ({ setMobileOpen, setDrawerExpanded }) => {
             setIdToken(null);
             setUser(null);
             setIsAuthorized(false);
-            localStorage.setItem('isAuthorized', 'false');
+            localStorage.clear();
             navigate('/');
         } catch (error) {
             console.log(error);

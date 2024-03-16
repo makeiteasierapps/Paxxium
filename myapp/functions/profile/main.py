@@ -77,17 +77,13 @@ def profile(request):
         avatar_url = user_service.upload_profile_image_to_firebase_storage(file, uid)
 
         return ({'avatar_url': avatar_url}, 200, headers)
-    
-    if request.path in ('/analyze', '/profile/analyze'):
-        if request.method == 'POST':
-            profile_agent = BossAgent(uid, user_service, model='GPT-4')
-            prompt = user_service.prepare_analysis_prompt(uid)
-            response = profile_agent.pass_to_profile_agent(prompt)
-            analyis_obj = json.loads(response)
-            user_service.update_user_profile(uid, analyis_obj.copy())
-            
-            return (analyis_obj, 200, headers)
-        # GET request
-        profile_analysis = user_service.get_profile_analysis(uid)
-        return (profile_analysis, 200, headers)
 
+    if request.path in ('/analyze', '/profile/analyze'):
+
+        profile_agent = BossAgent(uid, user_service, model='GPT-4')
+        prompt = user_service.prepare_analysis_prompt(uid)
+        response = profile_agent.pass_to_profile_agent(prompt)
+        analyis_obj = json.loads(response)
+        user_service.update_user_profile(uid, analyis_obj.copy())
+
+        return (analyis_obj, 200, headers)
