@@ -105,7 +105,6 @@ export const ProfileProvider = ({ children }) => {
     }, [backendUrl, idToken, showSnackbar]);
 
     const updateUserProfile = async (profileData) => {
-        console.log('updateUserProfile', profileData);
         try {
             const response = await fetch(`${backendUrl}/profile/user`, {
                 method: 'POST',
@@ -209,6 +208,11 @@ export const ProfileProvider = ({ children }) => {
                     JSON.stringify(profileData)
                 ); // Save back to local storage
             }
+
+            setProfileData((prevProfileData) => ({
+                ...prevProfileData,
+                analysis: data.analysis,
+            }));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);

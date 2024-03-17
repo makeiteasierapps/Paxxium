@@ -1,5 +1,5 @@
-import { Box, Button } from '@mui/material';
-import { useContext } from 'react';
+import { Box, Button, CircularProgress } from '@mui/material';
+import { useContext, useState } from 'react';
 import { ProfileContext } from './ProfileContext';
 import { SnackbarContext } from '../../SnackbarContext';
 import MySnackbar from '../../SnackBar';
@@ -18,9 +18,20 @@ const ProfileDash = () => {
     } = useContext(ProfileContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
+    // State to manage analysis loading indicator
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
     const handleUpdate = async (profileData = null, answers = null) => {
+        setIsUpdating(true);
         await updateUserProfile(profileData);
         await updateAnswers(answers);
+        setIsUpdating(false);
+    };
+
+    const handleAnalyzeProfile = async () => {
+        setIsAnalyzing(true); // Start loading
+        await analyzeProfile();
+        setIsAnalyzing(false); // End loading
     };
 
     return (
@@ -32,8 +43,9 @@ const ProfileDash = () => {
                 variant="contained"
                 onClick={() => handleUpdate(profileData, answers)}
                 sx={{ margin: 3 }}
+                disabled={isUpdating}
             >
-                Save
+                {isUpdating ? <CircularProgress size={24} /> : 'Save'}
             </Button>
             <Box
                 sx={{
@@ -47,10 +59,11 @@ const ProfileDash = () => {
             </Box>
             <Button
                 variant="contained"
-                onClick={analyzeProfile}
+                onClick={handleAnalyzeProfile}
                 sx={{ margin: 3 }}
+                disabled={isAnalyzing}
             >
-                Analyze
+                {isAnalyzing ? <CircularProgress size={24} /> : 'Analyze'}
             </Button>
             <MySnackbar
                 open={snackbarInfo.open}
