@@ -110,7 +110,6 @@ class UserService:
         profile_ref.set(data)
 
         return {'message': 'User question/answers updated'}, 200
-
     
     def load_profile_answers(self, uid):
         """
@@ -155,7 +154,6 @@ class UserService:
         
         return blob.public_url
     
-    # Delete the image from firebase storage
     def delete_generated_image_from_firebase_storage(self, path):
         bucket = storage.bucket()
         blob = bucket.blob(path)
@@ -195,8 +193,5 @@ class UserService:
         file_data = file.read()
         blob.upload_from_string(file_data, content_type='image/jpeg')
         blob.make_public()
-
-        user_ref = self.db.collection('users').document(uid)
-        user_ref.update({'avatar_url': blob.public_url})
 
         return blob.public_url

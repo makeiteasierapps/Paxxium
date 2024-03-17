@@ -50,7 +50,7 @@ const AuthenticatedApp = () => {
 
   const backendUrl =
     process.env.NODE_ENV === "development"
-      ? process.env.REACT_APP_AUTH_URL
+      ? "http://localhost:50000"
       : process.env.REACT_APP_BACKEND_URL_PROD;
   // Fetches auth status from the db then loads the user into state.
   useEffect(() => {

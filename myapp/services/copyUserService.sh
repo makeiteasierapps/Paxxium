@@ -5,7 +5,6 @@ SOURCE_FILE="user_services.py"
 
 # Define the target directories
 TARGET_DIRS=(
-    "../functions/debate"
     "../functions/images"
     "../functions/messages"
     "../functions/news"

@@ -5,7 +5,6 @@ import MySnackbar from '../../SnackBar';
 import AgentMenu from './AgentMenu';
 import Chat from './chat/Chat';
 import { ChatContext } from './chat/ChatContext';
-import Debate from './debate/Debate';
 import { Box } from '@mui/material';
 
 import {
@@ -17,8 +16,7 @@ import {
 import { CustomGridLoader } from '../main/customLoaders';
 
 const AgentDash = () => {
-    const { setSelectedAgent, getChatData, agentArray } =
-        useContext(ChatContext);
+    const { setSelectedAgent, getChats, agentArray } = useContext(ChatContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
     const { idToken } = useContext(AuthContext);
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -26,14 +24,10 @@ const AgentDash = () => {
 
     useEffect(() => {
         if (!idToken) return;
-        const data = getChatData();
+        const data = getChats();
 
         if (data.length > 0) {
-            const openAgents = data.filter(
-                (agent) =>
-                    agent.is_open === true &&
-                    agent.agent_model !== 'AgentDebate'
-            );
+            const openAgents = data.filter((agent) => agent.is_open === true);
 
             // Set settings open if no open agents are found
             setSettingsOpen(openAgents.length === 0);
@@ -44,7 +38,7 @@ const AgentDash = () => {
         }
 
         setLoading(false);
-    }, [idToken, setSelectedAgent]);
+    }, [idToken, setSelectedAgent, getChats]);
 
     useEffect(() => {});
 
@@ -79,28 +73,17 @@ const AgentDash = () => {
                     {agentArray
                         .filter((agent) => agent.is_open)
                         .map((agent) => {
-                            if (agent.agent_model === 'AgentDebate') {
-                                return (
-                                    <Debate
-                                        key={agent.chatId}
-                                        id={agent.chatId}
-                                        chatName={agent.chat_name}
-                                        topic={agent.topic}
-                                    />
-                                );
-                            } else {
-                                return (
-                                    <Chat
-                                        key={agent.chatId}
-                                        chatId={agent.chatId}
-                                        chatConstants={agent.chat_constants}
-                                        systemPrompt={agent.system_prompt}
-                                        chatName={agent.chat_name}
-                                        agentModel={agent.agent_model}
-                                        useProfileData={agent.use_profile_data}
-                                    />
-                                );
-                            }
+                            return (
+                                <Chat
+                                    key={agent.chatId}
+                                    chatId={agent.chatId}
+                                    chatConstants={agent.chat_constants}
+                                    systemPrompt={agent.system_prompt}
+                                    chatName={agent.chat_name}
+                                    agentModel={agent.agent_model}
+                                    useProfileData={agent.use_profile_data}
+                                />
+                            );
                         })}
                 </>
             )}

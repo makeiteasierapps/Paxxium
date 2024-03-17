@@ -11,7 +11,6 @@ import { MainContainer } from './styledProfileComponents';
 const ProfileDash = () => {
     const {
         analyzeProfile,
-        analysis,
         profileData,
         answers,
         updateUserProfile,
@@ -44,7 +43,7 @@ const ProfileDash = () => {
                     borderRadius: '4px',
                 }}
             >
-                {analysis ? analysis : 'Analyze Profile'}
+                {profileData.analysis ? profileData.analysis : 'Analyze Profile'}
             </Box>
             <Button
                 variant="contained"

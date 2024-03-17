@@ -16,13 +16,12 @@ export const ProfileProvider = ({ children }) => {
     const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
     const [profileData, setProfileData] = useState({});
-    const [analysis, setAnalysis] = useState(null);
     const [answers, setAnswers] = useState({});
     const [avatar, setAvatar] = useState();
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_PROFILE_URL
+            ? 'http://localhost:50005'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const updateAvatar = useCallback(
@@ -92,6 +91,8 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
+            console.log(data);
+
             setProfileData(data);
             setAvatar(data.avatar_url);
 
@@ -199,7 +200,6 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            setAnalysis(data.analysis);
             const cachedProfileData = localStorage.getItem('profileData');
             if (cachedProfileData) {
                 const profileData = JSON.parse(cachedProfileData);
@@ -241,7 +241,6 @@ export const ProfileProvider = ({ children }) => {
                 answers,
                 setAnswers,
                 analyzeProfile,
-                analysis,
                 handleAnswerChange,
                 getAnswers,
                 loadProfile,

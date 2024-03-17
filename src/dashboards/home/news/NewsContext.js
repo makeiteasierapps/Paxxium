@@ -21,7 +21,7 @@ export const NewsProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_NEWS_URL
+            ? 'http://localhost:50004'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const updateNewsData = (updateFunc) =>

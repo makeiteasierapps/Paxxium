@@ -4,7 +4,7 @@
 FUNCTIONS_DIR=$(pwd)
 PORT=50000
 
-lsof -ti:50000-50007 | xargs kill
+lsof -ti:50000-50006 | xargs kill
 
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 

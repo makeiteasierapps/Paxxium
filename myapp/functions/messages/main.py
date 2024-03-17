@@ -43,7 +43,7 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
     image_url = user_message['image_url']
 
     # Create a new message in the database
-    message_service.create_message(chat_id, uid, message_from, message_content)
+    message_service.create_message(chat_id, uid, message_from, message_content, image_url)
 
     # Pass message to Agent
     message_obj = {
@@ -57,9 +57,9 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
         for response_chunk in boss_agent.pass_to_vision_model(message_obj):
             complete_message += response_chunk['content']
             response_chunk['chat_id'] = chat_id
-            print(response_chunk)
             yield json.dumps(response_chunk) + '\n'
     else:
+        print('No image')
         complete_message = ''
         for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
             complete_message += response_chunk['content']
@@ -70,7 +70,6 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
 
 def messages(request):
     response = {}
-    print(request.path)
     if request.method == "OPTIONS":
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -94,7 +93,6 @@ def messages(request):
 
     if request.path in ('/', '/messages'):
         data = request.json
-        print(data)
         chat_id = data.get('chatId')
         chat_data = message_service.get_all_messages(uid, chat_id)
     

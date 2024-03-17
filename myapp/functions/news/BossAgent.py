@@ -77,6 +77,7 @@ class BossAgent:
             model="gpt-4-vision-preview",
             messages=new_chat_history,
             stream=True,
+            max_tokens=1000,
         )
         
         for chunk in response:
@@ -88,22 +89,6 @@ class BossAgent:
                 }
                 yield stream_obj
         
-    # This hasn't been refactored yet
-    def pass_to_debateAI(self, message_obj):
-        message_content = message_obj['content']
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": 
-                        {"type": "text", "text": message_content},
-                }
-            ],
-            stream=True,
-        )
-        return response
-
     def pass_to_news_agent(self, article_to_summarize):
         response = self.client.chat.completions.create(
             model=self.model,
@@ -125,7 +110,11 @@ class BossAgent:
 
         formatted_messages = [{
                 "role": "system",
-                "content": self.system_prompt,
+                "content": 
+                f'''
+                    {self.system_prompt}\n***USER ANALYSIS***\n{self.user_analysis}\n**************
+                    ***THINGS TO REMEMBER***\n{self.chat_constants}\n**************
+                ''',
             },
         ]
         token_limit = 500
@@ -146,14 +135,6 @@ class BossAgent:
                     "content": message['content'],
                 })
 
-        message_parts = []
-        if self.user_analysis:
-            message_parts.append(f"***USER ANALYSIS***\n{self.user_analysis}\n**************")
-        if self.chat_constants:
-            message_parts.append(f"***THINGS TO REMEMBER***\n{self.chat_constants}\n**************")
-        message_parts.append(new_user_message)
-        
-        message_content = "\n".join(message_parts)
         
         if image_url:
             formatted_messages.append({
@@ -162,20 +143,18 @@ class BossAgent:
                 [
                     {
                         "type": "text", 
-                        "text": message_content
+                        "text": new_user_message
                     },
                     {
                         "type": "image_url",
-                        "image_url": {
-                            "url": image_url
-                        },
+                        "image_url": image_url
                     },
                 ],
             })
         else:
             formatted_messages.append({
                 "role": "user",
-                "content": message_content,
+                "content": new_user_message,
             })
         
         return formatted_messages

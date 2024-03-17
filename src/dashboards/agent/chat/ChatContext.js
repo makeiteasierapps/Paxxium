@@ -24,12 +24,12 @@ export const ChatProvider = ({ children }) => {
 
     const messagesUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_MESSAGES_URL
+            ? 'http://localhost:50003'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const chatUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_CHAT_URL
+            ? 'http://localhost:50001'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     // Used to add a new user message to the messages state
@@ -39,7 +39,6 @@ export const ChatProvider = ({ children }) => {
                 ...prevMessageParts,
                 [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
             };
-            console.log(updatedMessages);
             localStorage.setItem('messages', JSON.stringify(updatedMessages));
             return updatedMessages;
         });
@@ -51,12 +50,12 @@ export const ChatProvider = ({ children }) => {
         return messages[chatId] || [];
     };
 
-    const getChats = async () => {
+    const getChats = useCallback(async () => {
         try {
             const cachedChats = localStorage.getItem('agentArray');
             if (cachedChats) {
                 setAgentArray(JSON.parse(cachedChats));
-                return;
+                return JSON.parse(cachedChats);
             }
             const response = await fetch(`${chatUrl}/chat`, {
                 method: 'GET',
@@ -76,7 +75,7 @@ export const ChatProvider = ({ children }) => {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
-    };
+    }, [chatUrl, idToken, setAgentArray, showSnackbar]);
 
     const loadChat = async (chatId) => {
         // This is done so that the chat visibility persists even after the page is refreshed
@@ -233,7 +232,6 @@ export const ChatProvider = ({ children }) => {
             chatHistory,
             image_url: imageUrl,
         };
-        console.log(dataPacket.image_url);
         try {
             const response = await fetch(`${messagesUrl}/messages/post`, {
                 method: 'POST',
@@ -495,7 +493,7 @@ export const ChatProvider = ({ children }) => {
                 deleteChat,
                 createChat,
                 updateSettings,
-                getChatData: getChats,
+                getChats,
                 loadChat,
             }}
         >

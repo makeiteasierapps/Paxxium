@@ -41,7 +41,7 @@ export default function SignUp() {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_SIGNUP_URL
+            ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const isValid = {
