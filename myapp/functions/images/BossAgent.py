@@ -1,5 +1,4 @@
 from openai import OpenAI
-import logging
 import tiktoken
 
 class BossAgent:
@@ -43,11 +42,9 @@ class BossAgent:
                     'content': chunk.choices[0].delta.content,
                     'type': 'stream',
                 }
-                logging.info(stream_obj)
                 yield stream_obj
     
     def pass_to_profile_agent(self, message):
-        print(f"Message: {message}")
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
@@ -70,38 +67,27 @@ class BossAgent:
         )
         return response.choices[0].message.content
 
-    # This hasn't been refactored yet
-    def pass_to_vision_model(self, new_message):
-        
-        image_url = new_message['image_url']
-        user_message = new_message['content']
+    def pass_to_vision_model(self, message_obj):
+        new_user_message = message_obj['user_message']
+        chat_history = message_obj['chat_history']
+        image_url = message_obj['image_url']
+        new_chat_history = self.manage_chat(chat_history, new_user_message, image_url)
+
         response = self.client.chat.completions.create(
             model="gpt-4-vision-preview",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": user_message},
-                        {
-                            "type": "image_url",
-                            "image_url": image_url,
-                        },
-                    ],
-                }
-            ],
+            messages=new_chat_history,
             stream=True,
         )
-
-        complete_response = ""
         
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
-                complete_response += chunk.choices[0].delta.content
-
-        # Need to return the stream here
+                stream_obj = {
+                    'message_from': 'agent',
+                    'content': chunk.choices[0].delta.content,
+                    'type': 'stream',
+                }
+                yield stream_obj
         
-        # add memory to agent
-        return complete_response
     # This hasn't been refactored yet
     def pass_to_debateAI(self, message_obj):
         message_content = message_obj['content']
@@ -131,7 +117,7 @@ class BossAgent:
 
         return response.choices[0].message.content
     
-    def manage_chat(self, chat_history, new_user_message):
+    def manage_chat(self, chat_history, new_user_message, image_url=None):
         """
         Takes a chat object extracts x amount of tokens and returns a message
         object ready to pass into OpenAI chat completion
@@ -166,12 +152,31 @@ class BossAgent:
         if self.chat_constants:
             message_parts.append(f"***THINGS TO REMEMBER***\n{self.chat_constants}\n**************")
         message_parts.append(new_user_message)
+        
         message_content = "\n".join(message_parts)
         
-        formatted_messages.append({
-            "role": "user",
-            "content": message_content,
-        })
+        if image_url:
+            formatted_messages.append({
+                "role": "user",
+                "content": 
+                [
+                    {
+                        "type": "text", 
+                        "text": message_content
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": image_url
+                        },
+                    },
+                ],
+            })
+        else:
+            formatted_messages.append({
+                "role": "user",
+                "content": message_content,
+            })
         
         return formatted_messages
 

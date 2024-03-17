@@ -32,7 +32,7 @@ message_service = MessageService(db)
 user_service = UserService(db)
 
 
-def process_message(uid, chat_id, user_message, chat_settings, chat_history):
+def process_message(uid, chat_id, user_message, chat_settings, chat_history, image_url=None):
     model = chat_settings['agentModel']
     system_prompt = chat_settings['systemPrompt']
     chat_constants = chat_settings['chatConstants']
@@ -40,21 +40,31 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history):
     boss_agent = BossAgent(uid=uid, user_service=user_service, model=model, system_prompt=system_prompt, chat_constants=chat_constants, use_profile_data=use_profile_data)
     message_content = user_message['content']
     message_from = user_message['message_from']
+    image_url = user_message['image_url']
 
     # Create a new message in the database
     message_service.create_message(chat_id, uid, message_from, message_content)
-    
+
     # Pass message to Agent
     message_obj = {
         'user_message': message_content,
         'chat_history': chat_history
     }
 
-    complete_message = ''
-    for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
-        complete_message += response_chunk['content']
-        response_chunk['chat_id'] = chat_id
-        yield json.dumps(response_chunk) + '\n'
+    if image_url is not None:
+        message_obj['image_url'] = image_url
+        complete_message = ''
+        for response_chunk in boss_agent.pass_to_vision_model(message_obj):
+            complete_message += response_chunk['content']
+            response_chunk['chat_id'] = chat_id
+            print(response_chunk)
+            yield json.dumps(response_chunk) + '\n'
+    else:
+        complete_message = ''
+        for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
+            complete_message += response_chunk['content']
+            response_chunk['chat_id'] = chat_id
+            yield json.dumps(response_chunk) + '\n'
     
     message_service.create_message(chat_id, uid, 'agent', complete_message)
 
@@ -96,19 +106,12 @@ def messages(request):
         chat_history = data.get('chatHistory')
         chat_settings = data.get('chatSettings')
         chat_id = chat_settings['chatId']
+        image_url = None
     
         if data.get('image_url') is not None:
-            
-            # Extract data from request
-            message_content = data.get('content')
-            message_from = data.get('message_from')
             image_url = data['image_url']
-            new_message = message_service.create_message(chat_id=chat_id, uid=uid, message_content=message_content, message_from=message_from, image_url=image_url)
-            boss_agent = BossAgent(uid, user_service)
-            boss_agent.pass_to_vision_model(new_message)
-            return
     
-        generator = process_message(uid, chat_id, user_message, chat_settings, chat_history)
+        generator = process_message(uid, chat_id, user_message, chat_settings, chat_history, image_url)
     
         return (Response(generator, mimetype='application/json'), 200, headers)
     
@@ -121,6 +124,6 @@ def messages(request):
     if request.path in ('/utils', '/messages/utils'):
         file = request.files['image']
         file_url = user_service.upload_file_to_firebase_storage(file, uid)
-        return (file_url, 200, headers)
+        return (json.dumps({'fileUrl': file_url}), 200, headers)
 
 
