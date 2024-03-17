@@ -24,6 +24,12 @@ export const ImageProvider = ({ children }) => {
         if (!idToken) {
             return;
         }
+
+        const cachedImageUrls = localStorage.getItem('imageList');
+        if (cachedImageUrls) {
+            setImageList(JSON.parse(cachedImageUrls));
+            return;
+        }
         const fetchImages = async () => {
             try {
                 const response = await fetch(`${backendUrl}/images`, {
@@ -40,9 +46,14 @@ export const ImageProvider = ({ children }) => {
 
                 const imageArray = await response.json();
                 setImageList(imageArray);
+
+                localStorage.setItem('imageList', JSON.stringify(imageArray));
             } catch (error) {
                 console.error(error);
-                showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -74,6 +85,10 @@ export const ImageProvider = ({ children }) => {
                 url: firebaseUrl,
             };
             setImageList([...imageList, downloadedImage]);
+            localStorage.setItem(
+                'imageList',
+                JSON.stringify([...imageList, downloadedImage])
+            );
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or save error: ${error.message}`, 'error');
@@ -98,6 +113,10 @@ export const ImageProvider = ({ children }) => {
             }
 
             setImageList(imageList.filter((image) => image.path !== path));
+            localStorage.setItem(
+                'imageList',
+                JSON.stringify(imageList.filter((image) => image.path !== path))
+            );
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or delete error: ${error.message}`, 'error');
@@ -129,7 +148,10 @@ export const ImageProvider = ({ children }) => {
             }
         } catch (error) {
             console.log(error);
-            showSnackbar(`Network or generate error: ${error.message}`, 'error');
+            showSnackbar(
+                `Network or generate error: ${error.message}`,
+                'error'
+            );
         } finally {
             setIsLoading(false);
         }
