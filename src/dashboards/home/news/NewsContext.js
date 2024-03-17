@@ -49,7 +49,6 @@ export const NewsProvider = ({ children }) => {
                 const parsedNewsData = JSON.parse(cachedNewsData);
                 // Optionally, check if the data is not outdated here
                 // For simplicity, we're directly using the cached data
-                console.log('Using cached news data');
                 setNewsData(parsedNewsData);
             } else {
                 // If no cached data, fetch from the backend

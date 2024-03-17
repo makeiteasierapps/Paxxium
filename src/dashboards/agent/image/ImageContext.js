@@ -125,7 +125,7 @@ export const ImageProvider = ({ children }) => {
         }
     };
 
-    const handleImageRequest = async (imageRequest) => {
+    const generateDalleImage = async (imageRequest) => {
         setImageRequest(imageRequest);
         try {
             const response = await fetch(`${backendUrl}/images/generate`, {
@@ -168,7 +168,7 @@ export const ImageProvider = ({ children }) => {
                 setStyle,
                 imageRequest,
                 setImageRequest,
-                handleImageRequest,
+                generateDalleImage,
                 imageUrl,
                 setImageUrl,
                 saveImage,

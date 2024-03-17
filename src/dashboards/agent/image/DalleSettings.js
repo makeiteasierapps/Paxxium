@@ -41,7 +41,7 @@ const DalleSettings = () => {
         setQuality,
         style,
         setStyle,
-        handleImageRequest,
+        generateDalleImage,
         userPrompt,
         setUserPrompt,
         setIsLoading,
@@ -241,7 +241,7 @@ const DalleSettings = () => {
                                                 style: style,
                                                 prompt: userPrompt,
                                             };
-                                            handleImageRequest(imageRequest);
+                                            generateDalleImage(imageRequest);
                                         }}
                                         disabled={!userPrompt || isLoading}
                                     >

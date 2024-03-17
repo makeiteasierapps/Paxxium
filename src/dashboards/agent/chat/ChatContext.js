@@ -34,19 +34,30 @@ export const ChatProvider = ({ children }) => {
 
     // Used to add a new user message to the messages state
     const addMessage = (chatId, newMessage) => {
-        setMessages((prevMessageParts) => ({
-            ...prevMessageParts,
-            [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
-        }));
+        setMessages((prevMessageParts) => {
+            const updatedMessages = {
+                ...prevMessageParts,
+                [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
+            };
+            console.log(updatedMessages);
+            localStorage.setItem('messages', JSON.stringify(updatedMessages));
+            return updatedMessages;
+        });
     };
 
     // Used to get the messages for a specific chat
+    // Sent in as chat history
     const getMessages = (chatId) => {
         return messages[chatId] || [];
     };
 
-    const getChatData = async () => {
+    const getChats = async () => {
         try {
+            const cachedChats = localStorage.getItem('agentArray');
+            if (cachedChats) {
+                setAgentArray(JSON.parse(cachedChats));
+                return;
+            }
             const response = await fetch(`${chatUrl}/chat`, {
                 method: 'GET',
                 headers: {
@@ -59,6 +70,7 @@ export const ChatProvider = ({ children }) => {
 
             const data = await response.json();
             setAgentArray(data);
+            localStorage.setItem('agentArray', JSON.stringify(data));
             return data;
         } catch (error) {
             console.error(error);
@@ -82,23 +94,26 @@ export const ChatProvider = ({ children }) => {
 
             // Update the local state only after the database has been updated successfully
             setAgentArray((prevAgents) => {
-                // Find the agent and update it
-                const updatedAgent = prevAgents.find(
-                    (agent) => agent.chatId === chatId
-                );
-                if (updatedAgent) {
-                    updatedAgent.is_open = true;
+                let updatedAgentIndex = -1;
+                const updatedAgents = prevAgents.reduce((acc, agent, index) => {
+                    if (agent.chatId === chatId) {
+                        updatedAgentIndex = index; // Capture the index of the agent to be updated
+                        return [{ ...agent, is_open: true }, ...acc]; // Place updated agent at the start
+                    } else {
+                        return [...acc, agent]; // Append other agents as they are
+                    }
+                }, []);
+
+                // Cache the updated agents array in local storage
+                if (updatedAgentIndex !== -1) {
+                    localStorage.setItem(
+                        'agentArray',
+                        JSON.stringify(updatedAgents)
+                    );
                 }
 
-                // Filter out the updated agent from the original array
-                const filteredAgents = prevAgents.filter(
-                    (agent) => agent.chatId !== chatId
-                );
-
-                // Add the updated agent to the beginning of the array
-                return updatedAgent
-                    ? [updatedAgent, ...filteredAgents]
-                    : filteredAgents;
+                // If the agent was not found and updated, return the original array to avoid unnecessary state updates
+                return updatedAgentIndex !== -1 ? updatedAgents : prevAgents;
             });
         } catch (error) {
             console.log(error);
@@ -109,6 +124,15 @@ export const ChatProvider = ({ children }) => {
     // Fetch messages from the database
     const loadMessages = useCallback(
         async (chatId) => {
+            const cachedMessages = JSON.parse(localStorage.getItem('messages'));
+            if (cachedMessages) {
+                setMessages((prevMessageParts) => ({
+                    ...prevMessageParts,
+                    [chatId]: cachedMessages[chatId],
+                }));
+
+                return;
+            }
             try {
                 const messageResponse = await fetch(`${messagesUrl}/messages`, {
                     method: 'POST',
@@ -125,10 +149,18 @@ export const ChatProvider = ({ children }) => {
 
                 const messageData = await messageResponse.json();
                 if (messageData && messageData.messages.length > 0) {
-                    setMessages((prevMessageParts) => ({
-                        ...prevMessageParts,
-                        [chatId]: messageData.messages,
-                    }));
+                    setMessages((prevMessageParts) => {
+                        const updatedMessages = {
+                            ...prevMessageParts,
+                            [chatId]: messageData.messages,
+                        };
+                        // Correctly update local storage with the updated messages state
+                        localStorage.setItem(
+                            'messages',
+                            JSON.stringify(updatedMessages)
+                        );
+                        return updatedMessages;
+                    });
                 }
             } catch (error) {
                 console.error(error);
@@ -174,7 +206,10 @@ export const ChatProvider = ({ children }) => {
                 });
             }).catch((error) => {
                 console.error(error);
-                showSnackbar(`Network or fetch error: ${error.message}`);
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
                 return null;
             });
         }
@@ -198,6 +233,7 @@ export const ChatProvider = ({ children }) => {
             chatHistory,
             image_url: imageUrl,
         };
+        console.log(dataPacket.image_url);
         try {
             const response = await fetch(`${messagesUrl}/messages/post`, {
                 method: 'POST',
@@ -240,7 +276,7 @@ export const ChatProvider = ({ children }) => {
                 });
                 completeMessage += messages.join('');
             }
-            // While stream an array of objects is built by the stream.
+            // While streaming an array of objects is being built for the stream.
             // This sets that array to a message object in the state
             setMessages((prevMessages) => {
                 const updatedMessages = prevMessages[chatId].slice(0, -1);
@@ -250,10 +286,16 @@ export const ChatProvider = ({ children }) => {
                     type: 'database',
                 });
 
-                return {
+                const newMessagesState = {
                     ...prevMessages,
                     [chatId]: updatedMessages,
                 };
+
+                localStorage.setItem(
+                    'messages',
+                    JSON.stringify(newMessagesState)
+                );
+                return newMessagesState;
             });
         } catch (error) {
             console.error(error);
@@ -274,14 +316,21 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to update chat');
 
-            // Update the local state only after the database has been updated successfully
-            setAgentArray((prevChatArray) =>
-                prevChatArray.map((chatObj) =>
+            setAgentArray((prevChatArray) => {
+                const updatedChatArray = prevChatArray.map((chatObj) =>
                     chatObj.chatId === chatId
                         ? { ...chatObj, is_open: false }
                         : chatObj
-                )
-            );
+                );
+
+                // Store the updated array in local storage
+                localStorage.setItem(
+                    'agentArray',
+                    JSON.stringify(updatedChatArray)
+                );
+
+                return updatedChatArray;
+            });
         } catch (error) {
             console.log(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -301,10 +350,18 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to clear messages');
 
-            setMessages((prevMessageParts) => ({
-                ...prevMessageParts,
-                [chatId]: [],
-            }));
+            setMessages((prevMessageParts) => {
+                const updatedMessages = {
+                    ...prevMessageParts,
+                    [chatId]: [],
+                };
+                // Update local storage with the cleared messages for the chat
+                localStorage.setItem(
+                    'messages',
+                    JSON.stringify(updatedMessages)
+                );
+                return updatedMessages;
+            });
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -324,9 +381,18 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to delete conversation');
 
-            setAgentArray((prevChatArray) =>
-                prevChatArray.filter((chatObj) => chatObj.chatId !== chatId)
-            );
+            setAgentArray((prevChatArray) => {
+                const updatedChatArray = prevChatArray.filter(
+                    (chatObj) => chatObj.chatId !== chatId
+                );
+
+                localStorage.setItem(
+                    'agentArray',
+                    JSON.stringify(updatedChatArray)
+                );
+
+                return updatedChatArray;
+            });
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -360,7 +426,14 @@ export const ChatProvider = ({ children }) => {
 
             const data = await response.json();
             // Update the agentArray directly here
-            setAgentArray((prevAgents) => [data, ...prevAgents]);
+            setAgentArray((prevAgents) => {
+                const updatedAgentArray = [data, ...prevAgents];
+                localStorage.setItem(
+                    'agentArray',
+                    JSON.stringify(updatedAgentArray)
+                );
+                return updatedAgentArray;
+            });
 
             // Set the new agent as the selectedAgent
             setSelectedAgent(data);
@@ -391,13 +464,18 @@ export const ChatProvider = ({ children }) => {
         }
 
         // Update the local settings state
-        setAgentArray((prevAgentArray) =>
-            prevAgentArray.map((agent) =>
+        setAgentArray((prevAgentArray) => {
+            const updatedAgentArray = prevAgentArray.map((agent) =>
                 agent.chatId === newAgentSettings.chatId
                     ? { ...agent, ...newAgentSettings }
                     : agent
-            )
-        );
+            );
+            localStorage.setItem(
+                'agentArray',
+                JSON.stringify(updatedAgentArray)
+            );
+            return updatedAgentArray;
+        });
         // Update the selected agent in the ChatContext
         setSelectedAgent(newAgentSettings);
     };
@@ -417,7 +495,7 @@ export const ChatProvider = ({ children }) => {
                 deleteChat,
                 createChat,
                 updateSettings,
-                getChatData,
+                getChatData: getChats,
                 loadChat,
             }}
         >
