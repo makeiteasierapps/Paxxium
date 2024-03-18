@@ -260,17 +260,11 @@ const SideDrawer = ({
                 variant="temporary"
                 open={mobileOpen}
                 onClose={setMobileOpen}
-                PaperProps={{
-                    style: {
-                        backgroundColor: 'black',
-                    },
-                }}
                 ModalProps={{
                     keepMounted: true, // Better open performance on mobile.
                 }}
                 sx={{
                     display: { xs: 'block', sm: 'none' },
-                    
                 }}
             >
                 {drawer}

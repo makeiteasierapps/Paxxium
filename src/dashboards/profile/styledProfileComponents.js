@@ -1,13 +1,16 @@
 import { Box, Tabs, TextField, Typography, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const MainContainer = styled(Paper)(({ theme }) => ({
+export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: theme.spacing(2),
+    gap: theme.spacing(10),
     margin: 'auto',
-    maxWidth: '800px',
-    backgroundColor: theme.palette.background.paper,
+    maxWidth: '1200px',
+    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
 }));
 
 export const StyledTabs = styled(Tabs)(({ theme }) => ({
@@ -16,15 +19,17 @@ export const StyledTabs = styled(Tabs)(({ theme }) => ({
     '& .MuiTabs-indicator': {
         display: 'none',
     },
-
+    '& .MuiTabs-flexContainer': {
+        justifyContent: 'center',
+    },
     '& .MuiTab-root': {
         padding: theme.spacing(1),
-        color: theme.palette.primary.main,
+        color: theme.palette.text.primary,
         '&:hover': {
-            color: theme.palette.text.primary,
+            color: theme.palette.text.secondary,
         },
         '&.Mui-selected': {
-            color: theme.palette.text.primary,
+            color: theme.palette.text.secondary,
         },
     },
 }));
@@ -32,6 +37,7 @@ export const StyledTabs = styled(Tabs)(({ theme }) => ({
 export const QuestionsContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     width: '100%',
     height: '50vh',
     overflowY: 'scroll',
@@ -70,6 +76,8 @@ export const Answer = styled(TextField)(({ theme }) => ({
 export const UserContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: theme.spacing(2),
     margin: 'auto',
     width: '100%',

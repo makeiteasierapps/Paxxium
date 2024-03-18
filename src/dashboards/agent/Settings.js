@@ -1,9 +1,9 @@
 import { Grid, MenuItem, TextField } from '@mui/material';
 import { useContext, useState } from 'react';
-import { ChatContext } from '../../dashboards/agent/chat/ChatContext';
+import { ChatContext } from './chat/ChatContext';
 import ChatSettings from './chat/components/ChatSettings';
 
-const AgentMenu = () => {
+const Settings = () => {
     const { agentArray, loadChat } = useContext(ChatContext);
     const [selectedAgentId, setSelectedAgentId] = useState('');
 
@@ -40,4 +40,4 @@ const AgentMenu = () => {
     );
 };
 
-export default AgentMenu;
+export default Settings;

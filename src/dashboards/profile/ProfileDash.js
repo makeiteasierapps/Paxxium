@@ -37,6 +37,7 @@ const ProfileDash = () => {
     return (
         <MainContainer id="main-container">
             <User />
+
             <Questions />
             <Button
                 id="update-profile-button"
@@ -48,23 +49,32 @@ const ProfileDash = () => {
                 {isUpdating ? <CircularProgress size={24} /> : 'Save'}
             </Button>
             <Box
-                sx={{
-                    margin: 3,
-                    padding: 2,
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                }}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
             >
-                {profileData.analysis ? profileData.analysis : 'Analyze Profile'}
+                <Box
+                    sx={{
+                        padding: 2,
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                    }}
+                >
+                    {profileData.analysis
+                        ? profileData.analysis
+                        : 'Analyze Profile'}
+                </Box>
+                <Button
+                    variant="contained"
+                    onClick={handleAnalyzeProfile}
+                    sx={{ margin: 3 }}
+                    disabled={isAnalyzing}
+                >
+                    {isAnalyzing ? <CircularProgress size={24} /> : 'Analyze'}
+                </Button>
             </Box>
-            <Button
-                variant="contained"
-                onClick={handleAnalyzeProfile}
-                sx={{ margin: 3 }}
-                disabled={isAnalyzing}
-            >
-                {isAnalyzing ? <CircularProgress size={24} /> : 'Analyze'}
-            </Button>
+
             <MySnackbar
                 open={snackbarInfo.open}
                 message={snackbarInfo.message}

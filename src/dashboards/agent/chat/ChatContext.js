@@ -16,9 +16,9 @@ export const ChatProvider = ({ children }) => {
     const { showSnackbar } = useContext(SnackbarContext);
     const { idToken, uid } = useContext(AuthContext);
     const [agentArray, setAgentArray] = useState([]);
-    const [selectedAgent, setSelectedAgent] = useState(null);
     const [messages, setMessages] = useState({});
     const [insideCodeBlock, setInsideCodeBlock] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const ignoreNextTokenRef = useRef(false);
     const languageRef = useRef(null);
 
@@ -433,8 +433,6 @@ export const ChatProvider = ({ children }) => {
                 return updatedAgentArray;
             });
 
-            // Set the new agent as the selectedAgent
-            setSelectedAgent(data);
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -474,8 +472,6 @@ export const ChatProvider = ({ children }) => {
             );
             return updatedAgentArray;
         });
-        // Update the selected agent in the ChatContext
-        setSelectedAgent(newAgentSettings);
     };
 
     return (
@@ -483,8 +479,6 @@ export const ChatProvider = ({ children }) => {
             value={{
                 agentArray,
                 setAgentArray,
-                selectedAgent,
-                setSelectedAgent,
                 messages,
                 loadMessages,
                 sendMessage,
@@ -495,6 +489,8 @@ export const ChatProvider = ({ children }) => {
                 updateSettings,
                 getChats,
                 loadChat,
+                settingsOpen,
+                setSettingsOpen,
             }}
         >
             {children}

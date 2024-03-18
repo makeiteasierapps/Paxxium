@@ -2,6 +2,7 @@ import { memo, useContext, useEffect, useRef } from 'react';
 import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
 import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
+import Settings from '../Settings';
 import ChatBar from './components/ChatBar';
 import MessageInput from './components/MessageInput';
 import UserMessage from './components/UserMessage';
@@ -9,6 +10,7 @@ import {
     MessagesContainer,
     MessageArea,
     ChatContainerStyled,
+    SettingsMenuContainer,
 } from '../agentStyledComponents';
 
 const Chat = ({
@@ -20,8 +22,7 @@ const Chat = ({
     useProfileData,
 }) => {
     const nodeRef = useRef(null);
-    const { messages, setSelectedAgent, agentArray, loadMessages } =
-        useContext(ChatContext);
+    const { messages, loadMessages, settingsOpen } = useContext(ChatContext);
 
     // Fetch messages from the database
     useEffect(() => {
@@ -35,14 +36,7 @@ const Chat = ({
     }, [messages]);
 
     return (
-        <ChatContainerStyled
-            onClick={() => {
-                const selectedAgent = agentArray.find(
-                    (agent) => agent.chatId === chatId
-                );
-                setSelectedAgent(selectedAgent);
-            }}
-        >
+        <ChatContainerStyled>
             <ChatBar chatName={chatName} chatId={chatId} />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
@@ -84,6 +78,11 @@ const Chat = ({
                     useProfileData={useProfileData}
                 />
             </MessagesContainer>
+            {settingsOpen && (
+                <SettingsMenuContainer id="settings-container">
+                    <Settings />
+                </SettingsMenuContainer>
+            )}
         </ChatContainerStyled>
     );
 };

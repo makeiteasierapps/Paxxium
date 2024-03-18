@@ -1,3 +1,4 @@
+import { grey } from '@mui/material/colors';
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
 // Define custom blue-grey shades if needed
@@ -16,22 +17,24 @@ let theme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: customBlueGrey[700], // primary elements like buttons, icons
-            dark: customBlueGrey[800], // darker shade for contrast
+            main: '#66CCCC', // primary elements like buttons, icons
+            dark: '#66CCCC', // darker shade for contrast
         },
         secondary: {
-            main: customBlueGrey[800], // secondary elements
-            light: customBlueGrey[700], // lighter shade for hover states
-            dark: customBlueGrey[900], // darker shade for contrast
+            main: '#66CCCC', // secondary elements
+            light: '#66CCCC', // lighter shade for hover states
+            dark: '#66CCCC', // darker shade for contrast
         },
         background: {
-            default: customBlueGrey[900], // main background
-            paper: customBlueGrey[900], // backgrounds of elements like cards, modals
+            default: 'black', // main background
+            paper: 'black', // backgrounds of elements like cards, modals
+            agent: 'black',
+            user: '#660099',
         },
         text: {
             primary: '#ffffff', // white text for readability
-            secondary: customBlueGrey[200], // secondary text, lighter for contrast
-            disabled: customBlueGrey[400], // disabled text
+            secondary: '#66CCCC', // secondary text, lighter for contrast
+            disabled: grey, // dark grey
         },
     },
     components: {
@@ -39,9 +42,9 @@ let theme = createTheme({
             styleOverrides: {
                 root: {
                     textTransform: 'none',
-                    backgroundColor: customBlueGrey[700], // Button background
+                    backgroundColor: '#CC00FF', // Button background
                     '&:hover': {
-                        backgroundColor: customBlueGrey[600], // Button hover state
+                        backgroundColor: '#3891a6', // Button hover state
                     },
                 },
             },

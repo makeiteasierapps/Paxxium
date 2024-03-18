@@ -110,10 +110,10 @@ const NewsCard = ({ news, index }) => {
                     </Tooltip>
                 </StyledCardMedia>
                 <CardContent>
-                    <Typography variant="h5" component="div" gutterBottom>
+                    <Typography variant="h5" component="div" gutterBottom color="text.secondary" align="center">
                         {news.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.primary" align="center">
                         {news.summary}
                     </Typography>
                 </CardContent>

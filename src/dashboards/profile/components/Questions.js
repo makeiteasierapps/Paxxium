@@ -78,7 +78,7 @@ const Questions = () => {
     const [currentTab, setCurrentTab] = useState(0);
 
     return (
-        <>
+        <QuestionsContainer id="questions-container">
             <StyledTabs
                 id="question-category-tabs"
                 value={currentTab}
@@ -86,43 +86,37 @@ const Questions = () => {
                 variant="scrollable"
                 scrollButtons="auto"
                 allowScrollButtonsMobile
+                
             >
                 {Object.keys(questions).map((category, index) => (
                     <Tab disableRipple key={index} label={category} />
                 ))}
             </StyledTabs>
-            <QuestionsContainer id="questions-container">
-                {Object.entries(questions).map(
-                    ([category, categoryQuestions], index) => (
-                        <Box hidden={currentTab !== index} key={index}>
-                            {categoryQuestions.map(
-                                (question, questionIndex) => (
-                                    <Box key={questionIndex}>
-                                        <Question variant="body1">{`${question}`}</Question>
-                                        <Answer
-                                            fullWidth
-                                            label="Answer"
-                                            variant="outlined"
-                                            value={
-                                                answers[category]?.[question] ||
-                                                ''
-                                            }
-                                            onChange={(e) =>
-                                                handleAnswerChange(
-                                                    category,
-                                                    question,
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                    </Box>
-                                )
-                            )}
-                        </Box>
-                    )
-                )}
-            </QuestionsContainer>
-        </>
+            {Object.entries(questions).map(
+                ([category, categoryQuestions], index) => (
+                    <Box hidden={currentTab !== index} key={index}>
+                        {categoryQuestions.map((question, questionIndex) => (
+                            <Box key={questionIndex}>
+                                <Question variant="body1">{`${question}`}</Question>
+                                <Answer
+                                    fullWidth
+                                    label="Answer"
+                                    variant="outlined"
+                                    value={answers[category]?.[question] || ''}
+                                    onChange={(e) =>
+                                        handleAnswerChange(
+                                            category,
+                                            question,
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                            </Box>
+                        ))}
+                    </Box>
+                )
+            )}
+        </QuestionsContainer>
     );
 };
 

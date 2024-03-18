@@ -126,7 +126,7 @@ const User = () => {
     }
 
     return (
-        <UserContainer id="user-container" elevation={9}>
+        <UserContainer id="user-container">
             <AvatarContainer id="avatar-container">
                 <input
                     accept="image/*"
