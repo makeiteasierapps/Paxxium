@@ -1,8 +1,9 @@
-import { memo, useContext, useEffect, useRef } from 'react';
+import { memo, useContext, useEffect, useRef, useState } from 'react';
+import { CSSTransition } from 'react-transition-group';
 import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
 import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
-import Settings from '../Settings';
+import ChatSettings from '../chat/components/ChatSettings';
 import ChatBar from './components/ChatBar';
 import MessageInput from './components/MessageInput';
 import UserMessage from './components/UserMessage';
@@ -21,8 +22,23 @@ const Chat = ({
     agentModel,
     useProfileData,
 }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+
     const nodeRef = useRef(null);
-    const { messages, loadMessages, settingsOpen } = useContext(ChatContext);
+    const { messages, loadMessages } = useContext(ChatContext);
+
+    useEffect(() => {
+        if (isVisible) {
+            setIsAnimating(true); // Start animating in
+        }
+    }, [isVisible]);
+
+    const onAnimationEnd = () => {
+        if (!isVisible) {
+            setIsAnimating(false); // Animation ended, now remove it from DOM
+        }
+    };
 
     // Fetch messages from the database
     useEffect(() => {
@@ -37,7 +53,12 @@ const Chat = ({
 
     return (
         <ChatContainerStyled>
-            <ChatBar chatName={chatName} chatId={chatId} />
+            <ChatBar
+                chatName={chatName}
+                chatId={chatId}
+                isVisible={isVisible}
+                setIsVisible={setIsVisible}
+            />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
                     {messages[chatId]?.map((message, index) => {
@@ -78,10 +99,27 @@ const Chat = ({
                     useProfileData={useProfileData}
                 />
             </MessagesContainer>
-            {settingsOpen && (
-                <SettingsMenuContainer id="settings-container">
-                    <Settings />
-                </SettingsMenuContainer>
+            {isVisible && (
+                <CSSTransition
+                    in={isVisible}
+                    timeout={300}
+                    classNames="expand"
+                    unmountOnExit
+                >
+                    <SettingsMenuContainer
+                        id="settings-container"
+                        isVisible={isVisible}
+                    >
+                        <ChatSettings
+                            chatId={chatId}
+                            chatConstants={chatConstants}
+                            systemPrompt={systemPrompt}
+                            chatName={chatName}
+                            agentModel={agentModel}
+                            useProfileData={useProfileData}
+                        />
+                    </SettingsMenuContainer>
+                </CSSTransition>
             )}
         </ChatContainerStyled>
     );

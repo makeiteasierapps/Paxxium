@@ -14,8 +14,8 @@ import {
     CloseIconButton,
 } from '../../agentStyledComponents';
 
-const ChatBar = ({ chatName, chatId }) => {
-    const { closeChat, clearChat, deleteChat, settingsOpen, setSettingsOpen } = useContext(ChatContext);
+const ChatBar = ({ chatName, chatId, isVisible, setIsVisible }) => {
+    const { closeChat, clearChat, deleteChat } = useContext(ChatContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
 
     const handleDeleteClick = () => {
@@ -49,7 +49,7 @@ const ChatBar = ({ chatName, chatId }) => {
                         <StyledIconButton
                             disableRipple
                             aria-label="settings"
-                            onClick={() => setSettingsOpen(!settingsOpen)}
+                            onClick={() => setIsVisible(!isVisible)}
                         >
                             <SettingsIcon />
                         </StyledIconButton>

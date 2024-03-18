@@ -1,4 +1,5 @@
 import { styled } from '@mui/system';
+import { keyframes } from '@emotion/react';
 import { Box, List, ListItem, Button, IconButton } from '@mui/material';
 
 // AgentDash.js
@@ -12,23 +13,50 @@ export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
+const expandEnter = keyframes`
+  from {
+    transform: scale(0.1);
+    opacity: 0;
+    transform-origin: top right;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+`;
+
+const expandExit = keyframes`
+  from {
+    transform: scale(1);
+    opacity: 1;
+    transform-origin: center;
+  }
+
+  to {
+    transform: scale(0.1);
+    opacity: 0;
+    transform-origin: top right;
+  }
+`;
+
+export const SettingsMenuContainer = styled(Box)(({ theme, isVisible }) => ({
     width: '100%',
     maxWidth: 600,
-    zIndex: 100,
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(2),
-    marginTop: theme.spacing(2),
-    boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.63)',
+    zIndex: 110,
+    top: 100,
+    left: 0,
+    right: 0,
+    margin: 'auto',
+    position: 'absolute',
+    backgroundColor: theme.palette.background.default,
+    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
+    animation: `${isVisible ? `${expandEnter} 500ms ease-in-out forwards` : `${expandExit} 500ms ease-in-out forwards`}`,
 }));
 
 export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    position: 'relative',
     marginBottom: theme.spacing(3),
     width: '80%',
     minHeight: '80%',
