@@ -3,9 +3,9 @@ import { AuthContext } from '../../auth/AuthContext';
 import { SnackbarContext } from '../../SnackbarContext';
 import MySnackbar from '../../SnackBar';
 import Chat from './chat/Chat';
+import ChatSettings from './chat/components/ChatSettings';
 import { ChatContext } from './chat/ChatContext';
 import { Box } from '@mui/material';
-
 
 import { CustomGridLoader } from '../main/customLoaders';
 
@@ -32,17 +32,16 @@ const AgentDash = () => {
                 height: '100vh',
             }}
         >
-            
             {loading ? (
                 <Box marginTop={30}>
                     <CustomGridLoader />
                 </Box>
             ) : (
                 <>
-                    {agentArray
-                        .filter((agent) => agent.is_open)
-                        .map((agent) => {
-                            return (
+                    {agentArray.filter((agent) => agent.is_open).length > 0 ? (
+                        agentArray
+                            .filter((agent) => agent.is_open)
+                            .map((agent) => (
                                 <Chat
                                     key={agent.chatId}
                                     chatId={agent.chatId}
@@ -52,8 +51,10 @@ const AgentDash = () => {
                                     agentModel={agent.agent_model}
                                     useProfileData={agent.use_profile_data}
                                 />
-                            );
-                        })}
+                            ))
+                    ) : (
+                        <ChatSettings />
+                    )}
                 </>
             )}
             <MySnackbar

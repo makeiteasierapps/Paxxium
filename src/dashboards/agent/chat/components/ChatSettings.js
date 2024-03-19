@@ -1,23 +1,48 @@
 import {
     Button,
-    Checkbox,
     FormControlLabel,
-    Grid,
     MenuItem,
     TextField,
+    Grid,
+    Typography,
+    IconButton,
+    Switch,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useContext, useState } from 'react';
 import { ChatContext } from '../ChatContext';
+import { SettingsMenuContainer } from '../../agentStyledComponents';
+
+const settingsMenuVariants = {
+    visible: {
+        scale: 1,
+        opacity: 1,
+        transition: { duration: 0.7 },
+        transformOrigin: 'top right',
+    },
+    hidden: {
+        scale: 0,
+        opacity: 0,
+        transition: { duration: 0.7 },
+        transformOrigin: 'top right',
+    },
+};
 
 const ChatSettings = ({
-    chatId,
-    chatConstants: initialChatConstants,
-    systemPrompt: initialSystemPrompt,
-    chatName: initialChatName,
-    agentModel: initialAgentModel,
-    useProfileData: initialUseProfileData,
+    chatId = '',
+    chatConstants: initialChatConstants = '',
+    systemPrompt: initialSystemPrompt = '',
+    chatName: initialChatName = '',
+    agentModel: initialAgentModel = '',
+    useProfileData: initialUseProfileData = false,
 }) => {
-    const { createChat, updateSettings, agentArray, loadChat } = useContext(ChatContext);
+    const {
+        createChat,
+        updateSettings,
+        agentArray,
+        loadChat,
+        setIsSettingsOpen,
+    } = useContext(ChatContext);
 
     const [agentModel, setAgentModel] = useState(initialAgentModel);
     const [systemPrompt, setSystemPrompt] = useState(initialSystemPrompt);
@@ -30,12 +55,10 @@ const ChatSettings = ({
         name: '',
     });
 
-    const [selectedAgentId, setSelectedAgentId] = useState('');
-
     const handleLoadChat = async (event) => {
         const chatId = event.target.value;
-        setSelectedAgentId(chatId);
         loadChat(chatId);
+        setIsSettingsOpen(false);
     };
 
     const handleSubmit = () => {
@@ -74,18 +97,38 @@ const ChatSettings = ({
     };
 
     return (
-        <>
-            <Grid item xs={12} sm={3}>
-                <Grid item xs={12} sm={9}>
+        <SettingsMenuContainer
+            id="settings-container"
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={settingsMenuVariants}
+        >
+            <Grid container spacing={2} direction="column" padding={2}>
+                <Grid
+                    item
+                    xs={12}
+                    container
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                >
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setIsSettingsOpen(false)}
+                        sx={{ padding: 0 }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
                     <TextField
                         select
                         id="loadChat"
                         name="loadChat"
-                        label="Load Chat"
-                        fullWidth
-                        variant="standard"
-                        value={selectedAgentId}
+                        value=""
+                        label="Load"
+                        variant="outlined"
                         onChange={handleLoadChat}
+                        style={{ width: '15%' }}
                     >
                         {agentArray.map((agent) => {
                             return (
@@ -99,97 +142,149 @@ const ChatSettings = ({
                         })}
                     </TextField>
                 </Grid>
-                <TextField
-                    error={errors.selectModel ? true : false}
-                    helperText={errors.selectModel}
-                    required
-                    select
-                    id="selectModel"
-                    name="selectModel"
-                    label="Select Model"
-                    fullWidth
-                    variant="standard"
-                    value={agentModel}
-                    onChange={(event) => setAgentModel(event.target.value)}
+                <Grid
+                    item
+                    xs={12}
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                    display="flex"
                 >
-                    <MenuItem value="GPT-3.5">GPT 3.5</MenuItem>
-                    <MenuItem value="GPT-4">GPT 4</MenuItem>
-                </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6} md={5}>
-                <TextField
-                    error={errors.selectModel ? true : false}
-                    helperText={errors.selectModel}
-                    required
-                    id="name"
-                    name="name"
-                    label="Name"
-                    fullWidth
-                    variant="standard"
-                    value={chatName}
-                    onChange={(event) => setChatName(event.target.value)}
-                />
-            </Grid>
-            <Grid item xs={12} sm={3} md={4} textAlign={'center'}>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            color="secondary"
-                            name="useProfileData"
-                            checked={useProfileData}
+                    <TextField
+                        error={errors.selectModel ? true : false}
+                        helperText={errors.selectModel}
+                        required
+                        select
+                        id="selectModel"
+                        name="selectModel"
+                        label="Select Model"
+                        variant="outlined"
+                        value={agentModel}
+                        onChange={(event) => setAgentModel(event.target.value)}
+                        sx={{ width: '28%' }}
+                    >
+                        <MenuItem value="GPT-3.5">GPT 3.5</MenuItem>
+                        <MenuItem value="GPT-4">GPT 4</MenuItem>
+                    </TextField>
+                </Grid>
+
+                <Grid
+                    item
+                    xs={12}
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                    display="flex"
+                >
+                    <TextField
+                        error={errors.selectModel ? true : false}
+                        helperText={errors.selectModel}
+                        required
+                        id="name"
+                        name="name"
+                        label="Name"
+                        variant="outlined"
+                        value={chatName}
+                        onChange={(event) => setChatName(event.target.value)}
+                        inputProps={{ style: { textAlign: 'center' } }}
+                    />
+                </Grid>
+
+                <Grid item container spacing={2} xs={12}>
+                    <Grid item xs={6}>
+                        <Typography
+                            variant="subtitle1"
+                            color="textSecondary"
+                            align="center"
+                        >
+                            Personality/Role
+                        </Typography>
+
+                        <TextField
+                            id="systemPrompt"
+                            name="systemPrompt"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            variant="outlined"
+                            value={systemPrompt}
                             onChange={(event) =>
-                                setUseProfileData(event.target.checked)
+                                setSystemPrompt(event.target.value)
                             }
                         />
-                    }
-                    label="AI Insight"
-                />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-                <TextField
-                    id="systemPrompt"
-                    name="systemPrompt"
-                    label="Personality/Role"
-                    fullWidth
-                    variant="standard"
-                    value={systemPrompt}
-                    onChange={(event) => setSystemPrompt(event.target.value)}
-                />
-            </Grid>
-            <Grid item xs={12} sm={12}>
-                <TextField
-                    id="chatConstants"
-                    name="chatConstants"
-                    label="Things to Remember"
-                    fullWidth
-                    variant="standard"
-                    value={chatConstants}
-                    onChange={(event) => setChatConstants(event.target.value)}
-                />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-                <Button
-                    id="createButton"
-                    name="createButton"
-                    fullWidth
-                    variant="contained"
-                    onClick={handleSubmit}
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Typography
+                            variant="subtitle1"
+                            color="textSecondary"
+                            align="center"
+                        >
+                            Things to Remember
+                        </Typography>
+
+                        <TextField
+                            id="chatConstants"
+                            name="chatConstants"
+                            multiline
+                            rows={4}
+                            fullWidth
+                            variant="outlined"
+                            value={chatConstants}
+                            onChange={(event) =>
+                                setChatConstants(event.target.value)
+                            }
+                        />
+                    </Grid>
+                </Grid>
+                <Grid
+                    item
+                    xs={12}
+                    justifyContent="center"
+                    alignItems="center"
+                    display="flex"
                 >
-                    Create
-                </Button>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                color="secondary"
+                                name="useProfileData"
+                                checked={useProfileData}
+                                onChange={(event) =>
+                                    setUseProfileData(event.target.checked)
+                                }
+                                size="large"
+                            />
+                        }
+                        label="AI Insight"
+                    />
+                </Grid>
+
+                <Grid item container spacing={2} xs={12}>
+                    <Grid item xs={6}>
+                        <Button
+                            id="createButton"
+                            name="createButton"
+                            fullWidth
+                            variant="contained"
+                            onClick={handleSubmit}
+                        >
+                            Create
+                        </Button>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Button
+                            id="updateButton"
+                            name="updateButton"
+                            fullWidth
+                            variant="contained"
+                            onClick={handleUpdateSettings}
+                        >
+                            Update
+                        </Button>
+                    </Grid>
+                </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-                <Button
-                    id="updateButton"
-                    name="updateButton"
-                    fullWidth
-                    variant="contained"
-                    onClick={handleUpdateSettings}
-                >
-                    Update
-                </Button>
-            </Grid>
-        </>
+        </SettingsMenuContainer>
     );
 };
 

@@ -18,8 +18,7 @@ class BossAgent:
             self.model = 'gpt-3.5-turbo-0125'
 
         if use_profile_data:
-            profile_data = user_service.get_profile_analysis(uid)
-            self.user_analysis = profile_data['user_analysis']
+            self.user_analysis = user_service.get_user_analysis(uid)
 
     def __repr__(self):
         return f"<BossAgent id={self.uid}>"        

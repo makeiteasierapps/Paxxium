@@ -78,6 +78,11 @@ class UserService:
         user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url', 'analysis'])
         
         return user_doc.to_dict()
+    
+    def get_user_analysis(self, uid):
+        user_doc = self.db.collection('users').document(uid).get(['analysis'])
+        
+        return user_doc.to_dict()
 
     @staticmethod
     def extract_data_for_prompt(answers):

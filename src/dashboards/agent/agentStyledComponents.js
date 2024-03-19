@@ -1,5 +1,5 @@
 import { styled } from '@mui/system';
-import { keyframes } from '@emotion/react';
+import { motion } from 'framer-motion';
 import { Box, List, ListItem, Button, IconButton } from '@mui/material';
 
 // AgentDash.js
@@ -13,33 +13,10 @@ export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-const expandEnter = keyframes`
-  from {
-    transform: scale(0.1);
-    opacity: 0;
-    transform-origin: top right;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-`;
+// Convert Box to a motion component and apply variants directly
+const MotionBox = motion(Box);
 
-const expandExit = keyframes`
-  from {
-    transform: scale(1);
-    opacity: 1;
-    transform-origin: center;
-  }
-
-  to {
-    transform: scale(0.1);
-    opacity: 0;
-    transform-origin: top right;
-  }
-`;
-
-export const SettingsMenuContainer = styled(Box)(({ theme, isVisible }) => ({
+export const SettingsMenuContainer = styled(MotionBox)(({ theme }) => ({
     width: '100%',
     maxWidth: 600,
     zIndex: 110,
@@ -50,7 +27,6 @@ export const SettingsMenuContainer = styled(Box)(({ theme, isVisible }) => ({
     position: 'absolute',
     backgroundColor: theme.palette.background.default,
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-    animation: `${isVisible ? `${expandEnter} 500ms ease-in-out forwards` : `${expandExit} 500ms ease-in-out forwards`}`,
 }));
 
 export const ChatContainerStyled = styled(Box)(({ theme }) => ({

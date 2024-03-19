@@ -18,6 +18,7 @@ export const ChatProvider = ({ children }) => {
     const [agentArray, setAgentArray] = useState([]);
     const [messages, setMessages] = useState({});
     const [insideCodeBlock, setInsideCodeBlock] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const ignoreNextTokenRef = useRef(false);
     const languageRef = useRef(null);
 
@@ -488,6 +489,8 @@ export const ChatProvider = ({ children }) => {
                 updateSettings,
                 getChats,
                 loadChat,
+                isSettingsOpen,
+                setIsSettingsOpen,
             }}
         >
             {children}

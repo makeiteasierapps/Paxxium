@@ -59,7 +59,6 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
             response_chunk['chat_id'] = chat_id
             yield json.dumps(response_chunk) + '\n'
     else:
-        print('No image')
         complete_message = ''
         for response_chunk in boss_agent.pass_to_boss_agent(message_obj):
             complete_message += response_chunk['content']

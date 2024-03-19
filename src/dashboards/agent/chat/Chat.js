@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { CSSTransition } from 'react-transition-group';
+import { AnimatePresence } from 'framer-motion';
 import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
 import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
@@ -11,7 +11,6 @@ import {
     MessagesContainer,
     MessageArea,
     ChatContainerStyled,
-    SettingsMenuContainer,
 } from '../agentStyledComponents';
 
 const Chat = ({
@@ -22,23 +21,9 @@ const Chat = ({
     agentModel,
     useProfileData,
 }) => {
-    const [isVisible, setIsVisible] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
 
     const nodeRef = useRef(null);
-    const { messages, loadMessages } = useContext(ChatContext);
-
-    useEffect(() => {
-        if (isVisible) {
-            setIsAnimating(true); // Start animating in
-        }
-    }, [isVisible]);
-
-    const onAnimationEnd = () => {
-        if (!isVisible) {
-            setIsAnimating(false); // Animation ended, now remove it from DOM
-        }
-    };
+    const { messages, loadMessages, isSettingsOpen } = useContext(ChatContext);
 
     // Fetch messages from the database
     useEffect(() => {
@@ -56,8 +41,6 @@ const Chat = ({
             <ChatBar
                 chatName={chatName}
                 chatId={chatId}
-                isVisible={isVisible}
-                setIsVisible={setIsVisible}
             />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
@@ -99,28 +82,18 @@ const Chat = ({
                     useProfileData={useProfileData}
                 />
             </MessagesContainer>
-            {isVisible && (
-                <CSSTransition
-                    in={isVisible}
-                    timeout={300}
-                    classNames="expand"
-                    unmountOnExit
-                >
-                    <SettingsMenuContainer
-                        id="settings-container"
-                        isVisible={isVisible}
-                    >
-                        <ChatSettings
-                            chatId={chatId}
-                            chatConstants={chatConstants}
-                            systemPrompt={systemPrompt}
-                            chatName={chatName}
-                            agentModel={agentModel}
-                            useProfileData={useProfileData}
-                        />
-                    </SettingsMenuContainer>
-                </CSSTransition>
-            )}
+            <AnimatePresence>
+                {isSettingsOpen ? (
+                    <ChatSettings
+                        chatId={chatId}
+                        chatConstants={chatConstants}
+                        systemPrompt={systemPrompt}
+                        chatName={chatName}
+                        agentModel={agentModel}
+                        useProfileData={useProfileData}
+                    />
+                ) : null}
+            </AnimatePresence>
         </ChatContainerStyled>
     );
 };
