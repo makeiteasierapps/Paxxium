@@ -15,13 +15,12 @@ import SendIcon from '@mui/icons-material/Send';
 import { ImageContext } from './ImageContext';
 
 const StyledButton = styled(Button)(({ theme }) => ({
-    backgroundColor: theme.palette.primary.dark,
     color: theme.palette.text.secondary,
     width: '110px',
     height: '40px',
     '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
     },
 }));
 
