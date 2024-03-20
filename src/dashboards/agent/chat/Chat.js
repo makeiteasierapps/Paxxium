@@ -23,7 +23,9 @@ const Chat = ({
 }) => {
 
     const nodeRef = useRef(null);
-    const { messages, loadMessages, isSettingsOpen } = useContext(ChatContext);
+    const { messages, loadMessages } = useContext(ChatContext);
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // Fetch messages from the database
     useEffect(() => {
@@ -41,6 +43,8 @@ const Chat = ({
             <ChatBar
                 chatName={chatName}
                 chatId={chatId}
+                isSettingsOpen={isSettingsOpen}
+                setIsSettingsOpen={setIsSettingsOpen}
             />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
@@ -91,6 +95,7 @@ const Chat = ({
                         chatName={chatName}
                         agentModel={agentModel}
                         useProfileData={useProfileData}
+                        setIsSettingsOpen={setIsSettingsOpen}
                     />
                 ) : null}
             </AnimatePresence>
