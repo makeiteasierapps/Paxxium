@@ -1,17 +1,45 @@
 import { styled } from '@mui/system';
 import { motion } from 'framer-motion';
-import { Box, List, ListItem, Button, IconButton } from '@mui/material';
+import { Box, List, ListItem, Button, IconButton, TextField } from '@mui/material';
 
 // AgentDash.js
-export const SettingsMenuButton = styled(Button)(({ theme }) => ({
-    color: theme.palette.text.secondary,
+export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
-    padding: 0,
     '&:hover': {
-        backgroundColor: 'transparent',
-        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
     },
 }));
+
+SettingsSubmitButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};
+
+export const SettingsMenuButton = styled(Button)(({ theme }) => ({
+    color: theme.palette.text.secondary,
+    width: '33%',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
+    },
+}));
+
+SettingsMenuButton.defaultProps = {
+    disableRipple: true,
+    variant: 'contained',
+};
+
+export const InvisibleInput = styled(TextField)({
+    '& .MuiInputBase-input': {
+        height: 'auto',
+        fontSize: 'inherit',
+        padding: 0,
+    },
+    '& .MuiInput-underline:before, & .MuiInput-underline:after': {
+        display: 'none',
+    },
+});
 
 // Convert Box to a motion component and apply variants directly
 const MotionBox = motion(Box);
