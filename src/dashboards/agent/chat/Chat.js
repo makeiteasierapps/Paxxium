@@ -96,6 +96,7 @@ const Chat = ({
                         agentModel={agentModel}
                         useProfileData={useProfileData}
                         setIsSettingsOpen={setIsSettingsOpen}
+                        isSettingsOpen={isSettingsOpen}
                     />
                 ) : null}
             </AnimatePresence>

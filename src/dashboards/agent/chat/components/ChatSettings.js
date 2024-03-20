@@ -139,10 +139,10 @@ const ChatSettings = ({
                     xs={12}
                     container
                     display="flex"
-                    justifyContent="space-between"
+                    justifyContent={chatId ? 'space-between' : 'right'}
                     alignItems="center"
                 >
-                    {setIsSettingsOpen && (
+                    {chatId && (
                         <IconButton
                             aria-label="close"
                             onClick={() => setIsSettingsOpen(false)}
@@ -249,6 +249,7 @@ const ChatSettings = ({
                     justifyContent="center"
                     alignItems="center"
                     display="flex"
+                    
                 >
                     <SettingsMenuButton
                         error={errors.selectModel ? true : false}
@@ -266,8 +267,10 @@ const ChatSettings = ({
                                 onKeyDown={handleKeyPress}
                                 fullWidth
                             />
-                        ) : (
+                        ) : chatName ? (
                             chatName
+                        ) : (
+                            'Chat Name'
                         )}
                     </SettingsMenuButton>
                 </Grid>
@@ -278,6 +281,8 @@ const ChatSettings = ({
                             variant="subtitle1"
                             color="textSecondary"
                             align="center"
+                            fontWeight="bold"
+                            fontFamily={'Titillium Web, sans-serif'}
                         >
                             Personality/Role
                         </Typography>
@@ -300,6 +305,8 @@ const ChatSettings = ({
                             variant="subtitle1"
                             color="textSecondary"
                             align="center"
+                            fontWeight="bold"
+                            fontFamily={'Titillium Web, sans-serif'}
                         >
                             Things to Remember
                         </Typography>
@@ -337,7 +344,11 @@ const ChatSettings = ({
                                 size="large"
                             />
                         }
-                        label="AI Insight"
+                        label={
+                            <Typography color="secondary" fontWeight="bold" fontFamily={'Titillium Web, sans-serif'}>
+                                AI Insight
+                            </Typography>
+                        }
                     />
                 </Grid>
 

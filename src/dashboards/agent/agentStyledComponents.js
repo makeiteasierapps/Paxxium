@@ -1,10 +1,20 @@
 import { styled } from '@mui/system';
 import { motion } from 'framer-motion';
-import { Box, List, ListItem, Button, IconButton, TextField } from '@mui/material';
+import {
+    Box,
+    List,
+    ListItem,
+    Button,
+    IconButton,
+    TextField,
+} from '@mui/material';
 
 // AgentDash.js
 export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
@@ -17,8 +27,12 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
-    color: theme.palette.text.secondary,
+    color: 'black',
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
     width: '33%',
+    height: '40px',
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
@@ -32,16 +46,22 @@ SettingsMenuButton.defaultProps = {
 
 export const InvisibleInput = styled(TextField)({
     '& .MuiInputBase-input': {
-        height: 'auto',
+        width: '100%',
+        height: '40px',
         fontSize: 'inherit',
         padding: 0,
+        color: 'black',
     },
     '& .MuiInput-underline:before, & .MuiInput-underline:after': {
         display: 'none',
     },
+    '& .MuiOutlinedInput-root': {
+        '&.Mui-focused fieldset': {
+            border: 'none',
+        },
+    },
 });
 
-// Convert Box to a motion component and apply variants directly
 const MotionBox = motion(Box);
 
 export const SettingsMenuContainer = styled(MotionBox)(({ theme }) => ({
