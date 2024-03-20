@@ -30,7 +30,7 @@ const settingsMenuVariants = {
 
 const ChatSettings = ({
   chatId = "",
-  setIsSettingsOpen,
+  setIsSettingsOpen = null,
   chatConstants: initialChatConstants = "",
   systemPrompt: initialSystemPrompt = "",
   chatName: initialChatName = "",
@@ -54,7 +54,9 @@ const ChatSettings = ({
   const handleLoadChat = async (event) => {
     const chatId = event.target.value;
     loadChat(chatId);
-    setIsSettingsOpen(false);
+    if (setIsSettingsOpen) {
+      setIsSettingsOpen(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -109,13 +111,15 @@ const ChatSettings = ({
           justifyContent="space-between"
           alignItems="center"
         >
-          <IconButton
-            aria-label="close"
-            onClick={() => setIsSettingsOpen(false)}
-            sx={{ padding: 0 }}
-          >
-            <CloseIcon />
-          </IconButton>
+          {setIsSettingsOpen && (
+            <IconButton
+              aria-label="close"
+              onClick={() => setIsSettingsOpen(false)}
+              sx={{ padding: 0 }}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
           <TextField
             select
             id="loadChat"
