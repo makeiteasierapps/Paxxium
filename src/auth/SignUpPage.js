@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import styled from '@mui/system/styled';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -43,6 +44,22 @@ export default function SignUp() {
         process.env.NODE_ENV === 'development'
             ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
+
+    const StyledButton = styled(Button)(({ theme }) => ({
+        fontFamily: 'Titillium Web, sans-serif',
+        fontWeight: 'bold',
+        fontSize: '1rem',
+        backgroundColor: 'transparent',
+        '&:hover': {
+            backgroundColor: theme.palette.primary.main,
+            color: 'black',
+        },
+    }));
+
+    StyledButton.defaultProps = {
+        disableRipple: true,
+        variant: 'outlined',
+    };
 
     const isValid = {
         // username must be between 5 and 10 characters long and can only contain alphanumeric characters and underscores
@@ -121,7 +138,7 @@ export default function SignUp() {
 
     return (
         <StyledContainer component="main" maxWidth="xs">
-            <Typography variant="h2" fontFamily='Trillium Web'>
+            <Typography variant="h2" fontFamily="Trillium Web">
                 Paxxium
             </Typography>
             <WelcomeMessageText
@@ -235,14 +252,9 @@ export default function SignUp() {
                         />
                     </Grid>
                 </Grid>
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                >
+                <StyledButton type="submit" fullWidth sx={{ mt: 3, mb: 2 }}>
                     Sign Up
-                </Button>
+                </StyledButton>
                 <Grid container justifyContent="center">
                     <Grid item>
                         <Link href="/" variant="body2">

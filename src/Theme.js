@@ -41,8 +41,9 @@ let theme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
+                    variant: 'outlined',
                     textTransform: 'none',
-                    backgroundColor: '#CC00FF', // Button background
+                    backgroundColor: 'transparent', // Button background
                     '&:hover': {
                         backgroundColor: '#3891a6', // Button hover state
                     },

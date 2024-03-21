@@ -15,9 +15,12 @@ import SendIcon from '@mui/icons-material/Send';
 import { ImageContext } from './ImageContext';
 
 const StyledButton = styled(Button)(({ theme }) => ({
-    color: theme.palette.text.secondary,
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
     width: '110px',
     height: '40px',
+    backgroundColor: 'transparent',
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
@@ -26,13 +29,13 @@ const StyledButton = styled(Button)(({ theme }) => ({
 
 StyledButton.defaultProps = {
     disableRipple: true,
-    variant: 'contained',
+    variant: 'outlined',
 };
 
 const DalleSettings = () => {
     const [anchorEl, setAnchorEl] = useState({});
     const open = Boolean(anchorEl);
-    
+
     const {
         size,
         setSize,

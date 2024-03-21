@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import styled from '@mui/system/styled';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
@@ -8,6 +9,22 @@ import { SnackbarContext } from '../SnackbarContext';
 import paxxiumTextLogo from '../assets/images/paxxium-logo-text-only.png';
 import { StyledTextField } from '../auth/authStyledComponents';
 import MySnackBar from '../SnackBar';
+
+export const StyledButton = styled(Button)(({ theme }) => ({
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    backgroundColor: 'transparent',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
+    },
+}));
+
+StyledButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};
 
 export default function LoginPage() {
     const auth = getAuth();
@@ -101,15 +118,14 @@ export default function LoginPage() {
                     id="password"
                     autoComplete="current-password"
                 />
-                <Button
+                <StyledButton
                     type="submit"
                     disabled={isLoading}
                     fullWidth
-                    variant="contained"
                     sx={{ mt: 3, mb: 2 }}
                 >
                     Sign In
-                </Button>
+                </StyledButton>
                 <Link href="/signup" variant="body2">
                     {"Don't have an account? Sign Up"}
                 </Link>

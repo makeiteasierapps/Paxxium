@@ -1,7 +1,8 @@
 import { useContext } from 'react';
+import { styled } from '@mui/system';
 import Carousel from 'react-spring-3d-carousel';
 import { NewsContext } from '../NewsContext';
-import {SnackbarContext} from '../../../../SnackbarContext';
+import { SnackbarContext } from '../../../../SnackbarContext';
 import NewsCard from './NewsCard';
 import {
     SearchContainer,
@@ -19,6 +20,23 @@ import {
     Tooltip,
     Button,
 } from '@mui/material';
+
+const StyledButton = styled(Button)(({ theme }) => ({
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    height: '40px',
+    backgroundColor: 'transparent',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
+    },
+}));
+
+StyledButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};
 const NewsCarousel = () => {
     const {
         newsData,
@@ -48,18 +66,17 @@ const NewsCarousel = () => {
                 alignItems: 'center',
                 justifyContent: 'flex-start',
                 height: '100vh',
-                gap: 2
+                gap: 2,
             }}
         >
             <SearchContainer id="search-container">
-                <Button
+                <StyledButton
                     id="ai-fetch-news-button"
                     disabled={isLoading}
                     onClick={aiNewsFetch}
-                    variant="contained"
                 >
                     Let AI pick your news
-                </Button>
+                </StyledButton>
                 <SearchField
                     id="search-field"
                     label="Search"

@@ -1,5 +1,12 @@
 import { styled } from '@mui/system';
-import { Card, CardMedia, IconButton, TextField, Box } from '@mui/material';
+import {
+    Card,
+    CardMedia,
+    IconButton,
+    TextField,
+    Box,
+    Button,
+} from '@mui/material';
 
 export const StyledCard = styled(Card)(({ theme }) => ({
     width: '50vw',
@@ -19,6 +26,22 @@ export const StyledIconButton = styled(IconButton)(({ theme }) => ({
     opacity: 0.3,
     '&:hover': { opacity: 1 },
 }));
+export const StyledButton = styled(Button)(({ theme }) => ({
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    height: '40px',
+    backgroundColor: 'transparent',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
+    },
+}));
+
+StyledButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};
 
 export const SearchField = styled(TextField)(({ theme }) => ({
     display: 'flex',

@@ -1,4 +1,4 @@
-import { Box, Tabs, TextField, Typography, Paper } from '@mui/material';
+import { Box, Tabs, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const MainContainer = styled(Box)(({ theme }) => ({
@@ -164,3 +164,19 @@ export const ProfileTextField = styled(TextField)(({ theme }) => ({
         color: theme.palette.secondary.light,
     },
 }));
+
+export const StyledButton = styled(Button)(({ theme }) => ({
+    fontFamily: 'Titillium Web, sans-serif',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    backgroundColor: 'transparent',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: 'black',
+    },
+}));
+
+StyledButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};

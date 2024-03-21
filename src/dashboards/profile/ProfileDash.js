@@ -6,7 +6,7 @@ import MySnackbar from '../../SnackBar';
 import Questions from './components/Questions';
 import User from './components/User';
 
-import { MainContainer } from './styledProfileComponents';
+import { MainContainer, StyledButton } from './styledProfileComponents';
 
 const ProfileDash = () => {
     const {
@@ -39,15 +39,15 @@ const ProfileDash = () => {
             <User />
 
             <Questions />
-            <Button
+            <StyledButton
                 id="update-profile-button"
-                variant="contained"
                 onClick={() => handleUpdate(profileData, answers)}
+                size="large"
                 sx={{ margin: 3 }}
                 disabled={isUpdating}
             >
                 {isUpdating ? <CircularProgress size={24} /> : 'Save'}
-            </Button>
+            </StyledButton>
             <Box
                 display="flex"
                 flexDirection="column"
@@ -65,14 +65,14 @@ const ProfileDash = () => {
                         ? profileData.analysis
                         : 'Analyze Profile'}
                 </Box>
-                <Button
-                    variant="contained"
+                <StyledButton
                     onClick={handleAnalyzeProfile}
-                    sx={{ margin: 3 }}
+                    size="large"
                     disabled={isAnalyzing}
+                    sx={{ margin: 3 }}
                 >
                     {isAnalyzing ? <CircularProgress size={24} /> : 'Analyze'}
-                </Button>
+                </StyledButton>
             </Box>
 
             <MySnackbar

@@ -27,12 +27,12 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
-    color: 'black',
     fontFamily: 'Titillium Web, sans-serif',
     fontWeight: 'bold',
     fontSize: '1rem',
     width: '33%',
     height: '40px',
+    backgroundColor: 'transparent',
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
@@ -41,7 +41,7 @@ export const SettingsMenuButton = styled(Button)(({ theme }) => ({
 
 SettingsMenuButton.defaultProps = {
     disableRipple: true,
-    variant: 'contained',
+    variant: 'outlined',
 };
 
 export const InvisibleInput = styled(TextField)({

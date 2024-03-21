@@ -17,6 +17,7 @@ import {
     StyledCard,
     StyledCardMedia,
     StyledIconButton,
+    StyledButton,
 } from '../styledNewsComponents';
 
 const NewsCard = ({ news, index }) => {
@@ -118,14 +119,13 @@ const NewsCard = ({ news, index }) => {
                     </Typography>
                 </CardContent>
                 <CardActions>
-                    <Button
-                        size="small"
-                        variant="contained"
+                    <StyledButton
+                        size="medium"
                         href={news.url}
                         target="_blank"
                     >
                         Read More
-                    </Button>
+                    </StyledButton>
                 </CardActions>
             </StyledCard>
             <DeleteConfirmationDialog
