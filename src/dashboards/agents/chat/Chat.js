@@ -1,9 +1,9 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ChatContext } from '../../../dashboards/agent/chat/ChatContext';
+import { ChatContext } from './ChatContext';
 import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
-import ChatSettings from '../chat/components/ChatSettings';
+import ChatSettings from './components/ChatSettings';
 import ChatBar from './components/ChatBar';
 import MessageInput from './components/MessageInput';
 import UserMessage from './components/UserMessage';

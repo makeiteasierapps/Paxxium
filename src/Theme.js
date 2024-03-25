@@ -1,18 +1,6 @@
 import { grey } from '@mui/material/colors';
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
-// Define custom blue-grey shades if needed
-const customBlueGrey = {
-    900: '#263238',
-    800: '#37474f',
-    700: '#455a64',
-    600: '#546e7a',
-    500: '#607d8b',
-    400: '#78909c',
-    300: '#90a4ae',
-    200: '#b0bec5',
-};
-
 let theme = createTheme({
     palette: {
         mode: 'dark',
@@ -26,9 +14,9 @@ let theme = createTheme({
             dark: '#66CCCC', // darker shade for contrast
         },
         background: {
-            default: 'black', // main background
-            paper: 'black', // backgrounds of elements like cards, modals
-            agent: 'black',
+            default: '#000', // main background
+            paper: '#000', // backgrounds of elements like cards, modals
+            agent: '#000',
             user: '#660099',
         },
         text: {
@@ -46,6 +34,28 @@ let theme = createTheme({
                     backgroundColor: 'transparent', // Button background
                     '&:hover': {
                         backgroundColor: '#3891a6', // Button hover state
+                    },
+                },
+            },
+        },
+        MuiSpeedDial: {
+            styleOverrides: {
+                fab: {
+                    backgroundColor: '#66CCCC',
+                },
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    '& fieldset': {
+                        borderColor: '#66CCCC',
+                    },
+                    '&:hover fieldset': {
+                        borderColor: '#66CCCC',
+                    },
+                    '&.Mui-disabled fieldset': {
+                        borderColor: '#66CCCC',
                     },
                 },
             },

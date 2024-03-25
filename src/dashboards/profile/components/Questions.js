@@ -1,4 +1,4 @@
-import { Box, Tab } from '@mui/material';
+import { Box, Tab, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { ProfileContext } from '../ProfileContext';
 
@@ -6,7 +6,6 @@ import {
     StyledTabs,
     QuestionsContainer,
     Question,
-    Answer,
 } from '../styledProfileComponents';
 
 const questions = {
@@ -98,7 +97,7 @@ const Questions = () => {
                         {categoryQuestions.map((question, questionIndex) => (
                             <Box key={questionIndex}>
                                 <Question variant="body1">{`${question}`}</Question>
-                                <Answer
+                                <TextField
                                     fullWidth
                                     label="Answer"
                                     variant="outlined"

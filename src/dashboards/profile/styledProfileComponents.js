@@ -48,31 +48,6 @@ export const Question = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
 
-export const Answer = styled(TextField)(({ theme }) => ({
-    // The marginBottom property adds space below the TextField
-    marginBottom: theme.spacing(2),
-    // The '& .MuiOutlinedInput-root' selector targets the root of the OutlinedInput component
-    '& .MuiOutlinedInput-root': {
-        // The '& fieldset' selector targets the fieldset element within the OutlinedInput component
-        '& fieldset': {
-            // The borderColor property changes the color of the border
-            borderColor: theme.palette.secondary.light,
-        },
-        // The '&:hover fieldset' selector targets the fieldset element when the mouse pointer is over the OutlinedInput component
-        '&:hover fieldset': {
-            borderColor: theme.palette.secondary.light,
-        },
-        // The '&.Mui-disabled fieldset' selector targets the fieldset element when the OutlinedInput component is disabled
-        '&.Mui-disabled fieldset': {
-            borderColor: theme.palette.secondary.dark,
-        },
-    },
-    // The '& label.Mui-focused' selector targets the label element when the TextField component is focused
-    '& label.Mui-focused': {
-        color: theme.palette.secondary.light,
-    },
-}));
-
 export const UserContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
