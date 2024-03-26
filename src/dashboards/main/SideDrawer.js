@@ -11,6 +11,7 @@ import {
 import HomeIcon from '@mui/icons-material/Home';
 import AgentsIcon from '@mui/icons-material/People';
 import ProfileIcon from '@mui/icons-material/AccountCircle';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Link, useLocation } from 'react-router-dom';
@@ -73,6 +74,24 @@ const SideDrawer = ({
                     <ProfileIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Profile</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+
+    const projectsButton = (
+        <ConditionalTooltip title="Projects" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/projects"
+                currentPath={location.pathname}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <AccountTreeIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Projects</Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -249,6 +268,7 @@ const SideDrawer = ({
                 )}
 
                 {profileButton}
+                {projectsButton}
             </Box>
         </Box>
     );

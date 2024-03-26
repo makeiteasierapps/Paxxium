@@ -1,4 +1,5 @@
 import os
+import fitz
 from flask import jsonify
 import requests
 from bs4 import BeautifulSoup
@@ -102,7 +103,7 @@ def cors_preflight_response():
     }
     return ("", 204, headers)
 
-def handle_request(request):
+def handle_scrape(request):
     headers = {"Access-Control-Allow-Origin": "*"}
     id_token = request.headers.get('Authorization')
     if not id_token:
@@ -126,7 +127,48 @@ def handle_request(request):
     print(response)
     return jsonify({'response': response}), 200, headers
 
+def handle_extract(request):
+    headers = {"Access-Control-Allow-Origin": "*"}
+    id_token = request.headers.get('Authorization')
+    if not id_token:
+        return jsonify({'message': 'Missing token'}), 403, headers
+    
+    decoded_token = firebase_service.verify_id_token(id_token)
+    uid = decoded_token['uid']
+    if not decoded_token:
+        return jsonify({'message': 'Invalid token'}), 403, headers
+    
+    # Check if the post request has the file part
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part'}), 400, headers
+    
+    file = request.files['file']
+    
+    # Check if the file is a PDF
+    if not file.filename.endswith('.pdf'):
+        return jsonify({'message': 'File is not a PDF'}), 400, headers
+    
+    try:
+        # Load the PDF file
+        doc = fitz.open(stream=file.read(), filetype="pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        print(text)
+        return jsonify({'message': 'Extracted', 'text': text}), 200, headers
+    except Exception as e:
+        print(f"Error extracting text from PDF: {e}")
+        return jsonify({'message': 'Failed to extract text'}), 500, headers
+    
+
+
 def project(request):
     if request.method == "OPTIONS":
         return cors_preflight_response()
-    return handle_request(request)
+    
+    if request.path in ('/scrape', '/projects/scrape'):
+        return handle_scrape(request)
+
+    if request.path in ('/extract', '/projects/extract'):
+        return handle_extract(request)
