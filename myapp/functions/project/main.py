@@ -1,8 +1,5 @@
 import os
-import pprint
-import json
 from flask import jsonify
-import traceback
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -12,9 +9,13 @@ load_dotenv()
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
+    from .BossAgent import BossAgent
+    from .user_services import UserService
     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 else:
     from firebase_service import FirebaseService
+    from BossAgent import BossAgent
+    from user_services import UserService
     cred = credentials.ApplicationDefault()
 
 try:
@@ -27,6 +28,7 @@ except ValueError:
 
 db = firestore.client()
 firebase_service = FirebaseService()
+user_service = UserService(db)
 
 
 class ContentScraper:
@@ -89,7 +91,6 @@ class ContentScraper:
                     current_section['content'].append(full_text)
                     all_content_str += full_text + " "  # Continue current section content
                     
-        print(all_content_str)
         return all_content_str
 
 def cors_preflight_response():
@@ -108,17 +109,22 @@ def handle_request(request):
         return jsonify({'message': 'Missing token'}), 403, headers
     
     decoded_token = firebase_service.verify_id_token(id_token)
+    uid = decoded_token['uid']
     if not decoded_token:
         return jsonify({'message': 'Invalid token'}), 403, headers
 
     data = request.get_json()
+    query = data.get('query')
     url = data.get('url')
     if not url:
         return jsonify({'message': 'URL is required'}), 400, headers
 
     soup = ContentScraper.scrape_site(url)
     content = ContentScraper.extract_content(soup)
-    return jsonify({'content': content}), 200, headers
+    agent_scrape = BossAgent(uid, user_service, model='GPT-4')
+    response = agent_scrape.pass_to_agent_scrape(query=query, content=content)
+    print(response)
+    return jsonify({'response': response}), 200, headers
 
 def project(request):
     if request.method == "OPTIONS":

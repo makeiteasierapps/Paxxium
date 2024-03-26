@@ -6,8 +6,8 @@ import MySnackbar from '../../SnackBar';
 import Chat from './chat/Chat';
 import ChatSettings from './chat/components/ChatSettings';
 import { ChatContext } from './chat/ChatContext';
-import { Box, TextField, InputAdornment } from '@mui/material';
-import { StyledIconButton } from './agentStyledComponents';
+import { Box, TextField } from '@mui/material';
+import { SettingsSubmitButton } from './agentStyledComponents';
 import SendIcon from '@mui/icons-material/Send';
 
 import { CustomGridLoader } from '../main/customLoaders';
@@ -15,44 +15,50 @@ import { CustomGridLoader } from '../main/customLoaders';
 const WebScrapeTextField = () => {
     const { idToken } = useContext(AuthContext);
     const [url, setUrl] = useState('');
-    const handleScrapeReuqest = async (url) => {
+    const [query, setQuery] = useState(''); // Added another state for the new input field
+    const handleScrapeRequest = async () => {
+        // Modified to not take url as parameter
         const response = await fetch('http://localhost:50006/project/scrape', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: idToken,
             },
-            body: JSON.stringify({ url }),
+            body: JSON.stringify({ url, query }), // Now sending both url and data
         });
 
         if (!response.ok) throw new Error('Failed to scrape url');
 
         setUrl('');
+        setQuery(''); // Resetting the new input field as well
 
         // Handle response
     };
 
     return (
-        <TextField
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <StyledIconButton
-                            disabled={!url}
-                            disableRipple
-                            aria-label="scrape url"
-                            onClick={() => {
-                                handleScrapeReuqest(url);
-                            }}
-                        >
-                            <SendIcon />
-                        </StyledIconButton>
-                    </InputAdornment>
-                ),
-            }}
-        />
+        <>
+            <TextField
+                label="URL"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                fullWidth
+                margin="normal"
+            />
+            <TextField
+                label="Query"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                fullWidth
+                margin="normal"
+            />
+            <SettingsSubmitButton
+                disabled={!url || !query}
+                onClick={handleScrapeRequest}
+                endIcon={<SendIcon />}
+            >
+                Submit
+            </SettingsSubmitButton>
+        </>
     );
 };
 
