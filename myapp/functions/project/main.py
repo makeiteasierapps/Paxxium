@@ -5,7 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
+from pinecone import Pinecone, ServerlessSpec
 
+pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 load_dotenv()
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
@@ -176,6 +178,17 @@ def create_new_project(request):
     name = data.get('name')
     description = data.get('description')
     print(f"Creating new project: {name}, {description}")
+    pinecone.create_index(
+        name=name,
+        dimension=8,
+        metric="euclidean",
+        spec=ServerlessSpec(
+            cloud='aws', 
+            region='us-west-2'
+        )
+    )
+    index_details = pinecone.describe_index(name)
+    print(index_details)
     return jsonify({'message': 'Project created'}), 200, headers
 
 def project(request):
