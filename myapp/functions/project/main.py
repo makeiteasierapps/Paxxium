@@ -161,7 +161,22 @@ def handle_extract(request):
         print(f"Error extracting text from PDF: {e}")
         return jsonify({'message': 'Failed to extract text'}), 500, headers
     
+def create_new_project(request):
+    headers = {"Access-Control-Allow-Origin": "*"}
+    id_token = request.headers.get('Authorization')
+    if not id_token:
+        return jsonify({'message': 'Missing token'}), 403, headers
+    
+    decoded_token = firebase_service.verify_id_token(id_token)
+    uid = decoded_token['uid']
 
+    if not decoded_token:
+        return jsonify({'message': 'Invalid token'}), 403, headers
+    data = request.get_json()
+    name = data.get('name')
+    description = data.get('description')
+    print(f"Creating new project: {name}, {description}")
+    return jsonify({'message': 'Project created'}), 200, headers
 
 def project(request):
     if request.method == "OPTIONS":
@@ -172,3 +187,6 @@ def project(request):
 
     if request.path in ('/extract', '/projects/extract'):
         return handle_extract(request)
+    
+    if request.path in ('/create', '/projects/create'):
+        return create_new_project(request)

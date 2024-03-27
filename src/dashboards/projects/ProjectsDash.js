@@ -5,9 +5,9 @@ import {
     StyledIconButton,
 } from '../agents/agentStyledComponents';
 import SendIcon from '@mui/icons-material/Send';
-
 import { AuthContext } from '../../auth/AuthContext';
 import ProjectSpeedDial from './ProjectSpeedDial';
+import NewProject from './NewProject';
 
 const WebScrapeTextField = () => {
     const { idToken } = useContext(AuthContext);
@@ -62,6 +62,7 @@ const WebScrapeTextField = () => {
 const ProjectsDash = () => {
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [isExtractFileOpen, setIsExtractFileOpen] = useState(false);
+    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
 
@@ -94,7 +95,7 @@ const ProjectsDash = () => {
     };
 
     const handleExtractFileClick = () => {
-        fileInputRef.current.click(); 
+        fileInputRef.current.click();
     };
 
     return (
@@ -103,8 +104,10 @@ const ProjectsDash = () => {
                 display: 'flex',
                 alignItems: 'center',
                 flexDirection: 'column',
+                width: '90vw',
                 height: '100vh',
             }}
+            gap={6}
         >
             {isWebScrapeOpen && <WebScrapeTextField />}
             {isExtractFileOpen && (
@@ -120,11 +123,14 @@ const ProjectsDash = () => {
                     />
                 </>
             )}
+            {isNewProjectOpen && <NewProject />}
             <ProjectSpeedDial
                 setIsWebScrapeOpen={setIsWebScrapeOpen}
                 isWebScrapeOpen={isWebScrapeOpen}
                 setIsExtractFileOpen={setIsExtractFileOpen}
                 isExtractFileOpen={isExtractFileOpen}
+                setIsNewProjectOpen={setIsNewProjectOpen}
+                isNewProjectOpen={isNewProjectOpen}
             />
         </Box>
     );

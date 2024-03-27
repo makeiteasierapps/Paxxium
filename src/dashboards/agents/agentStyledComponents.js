@@ -33,6 +33,8 @@ export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     width: '33%',
     height: '40px',
     backgroundColor: 'transparent',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
