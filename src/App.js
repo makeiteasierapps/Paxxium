@@ -23,6 +23,7 @@ import { ChatProvider } from './dashboards/agents/chat/ChatContext';
 import { NewsProvider } from './dashboards/home/news/NewsContext';
 import { ProfileProvider } from './dashboards/profile/ProfileContext';
 import { SnackbarProvider } from './SnackbarContext';
+import { ProjectProvider } from './dashboards/projects/ProjectContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
 
@@ -162,7 +163,9 @@ const App = () => {
                             <ImageProvider>
                                 <ChatProvider>
                                     <ProfileProvider>
-                                        <AuthenticatedApp />
+                                        <ProjectProvider>
+                                            <AuthenticatedApp />
+                                        </ProjectProvider>
                                     </ProfileProvider>
                                 </ChatProvider>
                             </ImageProvider>

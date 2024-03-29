@@ -4,7 +4,7 @@ import { SettingsMenuButton } from '../agents/agentStyledComponents';
 import { styled } from '@mui/system';
 import { AuthContext } from '../../auth/AuthContext';
 
-const MainContainer = styled(Box)(({ theme }) => ({
+export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

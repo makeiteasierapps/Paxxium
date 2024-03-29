@@ -220,9 +220,7 @@ export const ProfileProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!idToken) {
-            return;
-        }
+        if (!idToken) return;
         loadProfile();
         getAnswers();
     }, [loadProfile, getAnswers, idToken]);

@@ -1,4 +1,12 @@
 import os
+import pprint
+from datetime import datetime
+from canopy.knowledge_base.chunker.token_chunker import TokenChunker
+from canopy.tokenizer import Tokenizer
+from canopy.models.data_models import Document
+from canopy.knowledge_base import KnowledgeBase
+from canopy.knowledge_base.record_encoder import OpenAIRecordEncoder
+from canopy.models.data_models import Query
 import fitz
 from flask import jsonify
 import requests
@@ -7,8 +15,10 @@ from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
 from pinecone import Pinecone, ServerlessSpec
 
-pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
+
 load_dotenv()
+Tokenizer.initialize()
+pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
@@ -96,6 +106,22 @@ class ContentScraper:
                     
         return all_content_str
 
+def handle_fetch_projects(request):
+    headers = {"Access-Control-Allow-Origin": "*"}
+    id_token = request.headers.get('Authorization')
+    if not id_token:
+        return jsonify({'message': 'Missing token'}), 403, headers
+    
+    decoded_token = firebase_service.verify_id_token(id_token)
+    uid = decoded_token['uid']
+    if not decoded_token:
+        return jsonify({'message': 'Invalid token'}), 403, headers
+
+    projects_ref = db.collection('users').document(uid).collection('projects')
+    projects = projects_ref.get()
+    project_list = [project.to_dict() for project in projects]
+    return jsonify({'projects': project_list}), 200, headers
+
 def cors_preflight_response():
     headers = {
         "Access-Control-Allow-Origin": "*",
@@ -140,11 +166,15 @@ def handle_extract(request):
     if not decoded_token:
         return jsonify({'message': 'Invalid token'}), 403, headers
     
-    # Check if the post request has the file part
-    if 'file' not in request.files:
+    file = request.files.get('file')
+    if not file:
         return jsonify({'message': 'No file part'}), 400, headers
-    
-    file = request.files['file']
+
+    project_name = request.form.get('projectName')
+    print(project_name)
+    if not project_name:
+        return jsonify({'message': 'Project name is required'}), 400, headers
+
     
     # Check if the file is a PDF
     if not file.filename.endswith('.pdf'):
@@ -158,6 +188,11 @@ def handle_extract(request):
             text += page.get_text()
         doc.close()
         print(text)
+        encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
+        kb = KnowledgeBase(index_name=project_name, record_encoder=encoder)
+        kb.connect()
+        docs = [Document(id='doc1', text=text, metadata={'title': ''})]
+        kb.upsert(docs)
         return jsonify({'message': 'Extracted', 'text': text}), 200, headers
     except Exception as e:
         print(f"Error extracting text from PDF: {e}")
@@ -178,22 +213,28 @@ def create_new_project(request):
     name = data.get('name')
     description = data.get('description')
     print(f"Creating new project: {name}, {description}")
-    pinecone.create_index(
-        name=name,
-        dimension=8,
-        metric="euclidean",
-        spec=ServerlessSpec(
-            cloud='aws', 
-            region='us-west-2'
-        )
-    )
-    index_details = pinecone.describe_index(name)
-    print(index_details)
-    return jsonify({'message': 'Project created'}), 200, headers
+    
+
+    encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
+    kb = KnowledgeBase(index_name=name, record_encoder=encoder)
+    kb.create_canopy_index()
+    index_name = kb.index_name
+    # Create a new document in firebase firestore
+    project_details = {
+            'name': index_name,
+            'description': description,
+            'created_at': datetime.utcnow()
+        }
+    new_project_ref = db.collection('users').document(uid).collection('projects').add(project_details)
+    new_project_id = new_project_ref[1].id
+    return jsonify({'message': 'Project created', 'project_id': new_project_id}), 200, headers
 
 def project(request):
     if request.method == "OPTIONS":
         return cors_preflight_response()
+    
+    if request.path in ('/', '/projects'):
+        return handle_fetch_projects(request)
     
     if request.path in ('/scrape', '/projects/scrape'):
         return handle_scrape(request)
