@@ -4,30 +4,28 @@ import { TextField, Box } from '@mui/material';
 import { AuthContext } from '../../auth/AuthContext';
 import { SettingsSubmitButton } from '../agents/agentStyledComponents';
 
-const WebScrapeForm = ({ projectName }) => {
+const WebScrapeForm = ({ projectName, projectId }) => {
     const { idToken } = useContext(AuthContext);
     const [url, setUrl] = useState('');
-    const [query, setQuery] = useState('');
     const handleScrapeRequest = async () => {
-        const response = await fetch('http://localhost:50006/project/scrape', {
+        const response = await fetch('http://localhost:50006/projects/scrape', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: idToken,
             },
-            body: JSON.stringify({ url, query }),
+            body: JSON.stringify({ url, projectName, projectId }),
         });
 
         if (!response.ok) throw new Error('Failed to scrape url');
 
         setUrl('');
-        setQuery('');
 
         // Handle response
     };
 
     return (
-        <Box onClick={(e) => e.stopPropagation()}>
+        <Box onClick={(e) => e.stopPropagation()} display="flex" flexDirection="column" width="60%">
             <TextField
                 label="URL"
                 value={url}
@@ -35,16 +33,9 @@ const WebScrapeForm = ({ projectName }) => {
                 fullWidth
                 margin="normal"
             />
-            <TextField
-                label="Query"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                fullWidth
-                margin="normal"
-            />
             <SettingsSubmitButton
-                disabled={!url || !query}
-                onClick={() => handleScrapeRequest(projectName)}
+                disabled={!url}
+                onClick={handleScrapeRequest}
                 endIcon={<SendIcon />}
             >
                 Submit

@@ -32,28 +32,15 @@ const Project = ({ project }) => {
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const actions = [
-        {
-            icon: <WebAsset />,
-            name: 'Scrape Web',
-            setState: setIsWebScrapeOpen,
-            state: isWebScrapeOpen,
-        },
-        {
-            icon: <FileCopy />,
-            name: 'Extract Document',
-            setState: setIsExtractFileOpen,
-            state: isExtractFileOpen,
-        },
-    ];
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
-
+        
         const formData = new FormData();
         formData.append('file', file);
         formData.append('projectName', project.name);
+        formData.append('projectId', project.id);
 
         try {
             const response = await fetch(
@@ -91,19 +78,35 @@ const Project = ({ project }) => {
         >
             <Typography variant="h3">{project.name}</Typography>
             <Typography variant="body1">{project.description}</Typography>
-            {actions.map((action, index) => (
+            <Box
+                display="flex"
+                flexDirection="row"
+                gap={2}
+                justifyContent="center"
+                width="100%"
+            >
                 <StyledIconButton
-                    key={index}
                     onClick={(e) => {
                         e.stopPropagation();
-                        action.setState(!action.state);
+                        setIsWebScrapeOpen(!isWebScrapeOpen);
                     }}
-                    aria-label={action.name}
+                    aria-label="Scrape Web"
                 >
-                    {action.icon}
+                    <WebAsset />
                 </StyledIconButton>
-            ))}
-            {isWebScrapeOpen ? <WebScrapeForm projectName={project.name} /> : null}
+                <StyledIconButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExtractFileOpen(!isExtractFileOpen);
+                    }}
+                    aria-label="Extract Document"
+                >
+                    <FileCopy />
+                </StyledIconButton>
+            </Box>
+            {isWebScrapeOpen ? (
+                <WebScrapeForm projectName={project.name} projectId={project.id} />
+            ) : null}
             {isExtractFileOpen ? (
                 <Box onClick={(e) => e.stopPropagation()}>
                     <StyledIconButton onClick={handleExtractFileClick}>

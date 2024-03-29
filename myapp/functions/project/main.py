@@ -1,5 +1,6 @@
 import os
 import pprint
+import tiktoken
 from datetime import datetime
 from canopy.knowledge_base.chunker.token_chunker import TokenChunker
 from canopy.tokenizer import Tokenizer
@@ -42,7 +43,6 @@ except ValueError:
 db = firestore.client()
 firebase_service = FirebaseService()
 user_service = UserService(db)
-
 
 class ContentScraper:
     @staticmethod
@@ -102,8 +102,7 @@ class ContentScraper:
                         current_section = {'title': 'General', 'content': []}
                         content_list.append(current_section)
                     current_section['content'].append(full_text)
-                    all_content_str += full_text + " "  # Continue current section content
-                    
+                    all_content_str += full_text + " "  # Continue current section content   
         return all_content_str
 
 def handle_fetch_projects(request):
@@ -119,7 +118,7 @@ def handle_fetch_projects(request):
 
     projects_ref = db.collection('users').document(uid).collection('projects')
     projects = projects_ref.get()
-    project_list = [project.to_dict() for project in projects]
+    project_list = [{'id': project.id, **project.to_dict()} for project in projects]
     return jsonify({'projects': project_list}), 200, headers
 
 def cors_preflight_response():
@@ -143,30 +142,34 @@ def handle_scrape(request):
         return jsonify({'message': 'Invalid token'}), 403, headers
 
     data = request.get_json()
-    query = data.get('query')
     url = data.get('url')
     project_name = data.get('projectName')
+    project_id = data.get('projectId')
     if not url:
         return jsonify({'message': 'URL is required'}), 400, headers
 
     soup = ContentScraper.scrape_site(url)
     content = ContentScraper.extract_content(soup)
-    agent_scrape = BossAgent(uid, user_service, model='GPT-4')
-    
-    # Use this to extract particular data. I think this will be better if moved to a
-    # different part of the flow. I am thinking that the entire content should be scraped and stored.
-    # Then later if the user wants to granularly extract data, they can do so.
-    # I need to decicde if I iunclude the html structure or continue extracting the data like I am.
-    response = agent_scrape.pass_to_agent_scrape(query=query, content=content)
 
+    encoding = tiktoken.get_encoding("cl100k_base")
+    tokens_per_message = 3
+    num_tokens = 0
+    num_tokens += tokens_per_message
+    num_tokens += len(encoding.encode(content))
+
+    # Storing the entire text in firestore along with the token count. For certain token counts it might be better
+    # to feed the raw text. Either way storing the raw text allows for flexibility in the future.
+    url_collection_ref = db.collection('users').document(uid).collection('projects').document(project_id).collection('urls')
+    url_collection_ref.add({'url': url, 'content': content, 'created_at': datetime.utcnow(), 'token_count': num_tokens})
+    
     # add to pinecone
     encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
     kb = KnowledgeBase(index_name=project_name, record_encoder=encoder)
     kb.connect()
-    docs = [Document(id='doc1', text=response, metadata={'title': ''})]
+    docs = [Document(id='doc1', text=content, metadata={'url': url})]
     kb.upsert(docs)
-    print(response)
-    return jsonify({'response': response}), 200, headers
+    
+    return jsonify({'message': 'Scraped and added to project'}), 200, headers
 
 def handle_extract(request):
     headers = {"Access-Control-Allow-Origin": "*"}
@@ -184,7 +187,8 @@ def handle_extract(request):
         return jsonify({'message': 'No file part'}), 400, headers
 
     project_name = request.form.get('projectName')
-    print(project_name)
+    project_id = request.form.get('projectId')
+
     if not project_name:
         return jsonify({'message': 'Project name is required'}), 400, headers
 
@@ -200,11 +204,19 @@ def handle_extract(request):
         for page in doc:
             text += page.get_text()
         doc.close()
-        print(text)
+        file_name = file.filename
+
+        encoding = tiktoken.get_encoding("cl100k_base")
+        tokens_per_message = 3
+        num_tokens = 0
+        num_tokens += tokens_per_message
+        num_tokens += len(encoding.encode(text))
+        doc_collection_ref = db.collection('users').document(uid).collection('projects').document(project_id).collection('docs')
+        doc_collection_ref.add({'content': text, 'name': file_name, 'token_count': num_tokens, 'created_at': datetime.utcnow()})
         encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
         kb = KnowledgeBase(index_name=project_name, record_encoder=encoder)
         kb.connect()
-        docs = [Document(id='doc1', text=text, metadata={'title': ''})]
+        docs = [Document(id='doc1', text=text, metadata={'title': file_name})]
         kb.upsert(docs)
         return jsonify({'message': 'Extracted', 'text': text}), 200, headers
     except Exception as e:
