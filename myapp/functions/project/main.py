@@ -145,13 +145,26 @@ def handle_scrape(request):
     data = request.get_json()
     query = data.get('query')
     url = data.get('url')
+    project_name = data.get('projectName')
     if not url:
         return jsonify({'message': 'URL is required'}), 400, headers
 
     soup = ContentScraper.scrape_site(url)
     content = ContentScraper.extract_content(soup)
     agent_scrape = BossAgent(uid, user_service, model='GPT-4')
+    
+    # Use this to extract particular data. I think this will be better if moved to a
+    # different part of the flow. I am thinking that the entire content should be scraped and stored.
+    # Then later if the user wants to granularly extract data, they can do so.
+    # I need to decicde if I iunclude the html structure or continue extracting the data like I am.
     response = agent_scrape.pass_to_agent_scrape(query=query, content=content)
+
+    # add to pinecone
+    encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
+    kb = KnowledgeBase(index_name=project_name, record_encoder=encoder)
+    kb.connect()
+    docs = [Document(id='doc1', text=response, metadata={'title': ''})]
+    kb.upsert(docs)
     print(response)
     return jsonify({'response': response}), 200, headers
 

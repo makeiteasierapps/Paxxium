@@ -3,25 +3,25 @@ import SendIcon from '@mui/icons-material/Send';
 import { TextField, Box } from '@mui/material';
 import { AuthContext } from '../../auth/AuthContext';
 import { SettingsSubmitButton } from '../agents/agentStyledComponents';
-const WebScrapeForm = () => {
+
+const WebScrapeForm = ({ projectName }) => {
     const { idToken } = useContext(AuthContext);
     const [url, setUrl] = useState('');
     const [query, setQuery] = useState('');
     const handleScrapeRequest = async () => {
-        // Modified to not take url as parameter
         const response = await fetch('http://localhost:50006/project/scrape', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: idToken,
             },
-            body: JSON.stringify({ url, query }), // Now sending both url and data
+            body: JSON.stringify({ url, query }),
         });
 
         if (!response.ok) throw new Error('Failed to scrape url');
 
         setUrl('');
-        setQuery(''); // Resetting the new input field as well
+        setQuery('');
 
         // Handle response
     };
@@ -44,7 +44,7 @@ const WebScrapeForm = () => {
             />
             <SettingsSubmitButton
                 disabled={!url || !query}
-                onClick={handleScrapeRequest}
+                onClick={() => handleScrapeRequest(projectName)}
                 endIcon={<SendIcon />}
             >
                 Submit

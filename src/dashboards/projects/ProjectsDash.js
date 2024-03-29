@@ -1,7 +1,5 @@
 import { useContext } from 'react';
 import { Box } from '@mui/material';
-
-import { AuthContext } from '../../auth/AuthContext';
 import { ProjectContext } from './ProjectContext';
 import ProjectSpeedDial from './ProjectSpeedDial';
 import Project from './Project';

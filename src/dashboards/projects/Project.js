@@ -5,7 +5,7 @@ import { AuthContext } from '../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import { StyledIconButton } from '../agents/agentStyledComponents';
 import { Box, Typography } from '@mui/material';
-import { WebAsset, FileCopy, PlaylistAdd } from '@mui/icons-material/';
+import { WebAsset, FileCopy } from '@mui/icons-material/';
 
 const MainContainer = styled(Box)(({ theme, fullscreen }) => ({
     display: 'flex',
@@ -31,7 +31,7 @@ const Project = ({ project }) => {
     } = useContext(ProjectContext);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
-    const [isFullscreen, setIsFullscreen] = useState(false); // State to manage full-screen mode
+    const [isFullscreen, setIsFullscreen] = useState(false);
     const actions = [
         {
             icon: <WebAsset />,
@@ -80,48 +80,67 @@ const Project = ({ project }) => {
         fileInputRef.current.click();
     };
 
+    const renderFullscreenLayout = () => (
+        <Box
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            alignItems="center"
+            padding={2}
+            sx={{ width: '100%', height: '100%' }}
+        >
+            <Typography variant="h3">{project.name}</Typography>
+            <Typography variant="body1">{project.description}</Typography>
+            {actions.map((action, index) => (
+                <StyledIconButton
+                    key={index}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        action.setState(!action.state);
+                    }}
+                    aria-label={action.name}
+                >
+                    {action.icon}
+                </StyledIconButton>
+            ))}
+            {isWebScrapeOpen ? <WebScrapeForm projectName={project.name} /> : null}
+            {isExtractFileOpen ? (
+                <Box onClick={(e) => e.stopPropagation()}>
+                    <StyledIconButton onClick={handleExtractFileClick}>
+                        Extract File
+                    </StyledIconButton>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileSelect}
+                        style={{ display: 'none' }}
+                    />
+                </Box>
+            ) : null}
+        </Box>
+    );
+
+    const renderNonFullscreenLayout = () => (
+        <Box
+            display="flex"
+            flexDirection="column"
+            gap={2}
+            alignItems="center"
+            padding={2}
+        >
+            <Typography variant="h3">{project.name}</Typography>
+            <Typography variant="body1">{project.description}</Typography>
+        </Box>
+    );
+
     return (
         <MainContainer
             fullscreen={isFullscreen}
             onClick={() => setIsFullscreen(!isFullscreen)}
         >
-            <Box
-                display="flex"
-                flexDirection="column"
-                gap={2}
-                alignItems="center"
-                padding={2}
-            >
-                <Typography variant="h3">{project.name}</Typography>
-                <Typography variant="body1">{project.description}</Typography>
-                {isFullscreen &&
-                    actions.map((action, index) => (
-                        <StyledIconButton
-                            key={index}
-                            onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering the fullscreen toggle
-                                action.setState(!action.state);
-                            }}
-                            aria-label={action.name}
-                        >
-                            {action.icon}
-                        </StyledIconButton>
-                    ))}
-                {isWebScrapeOpen && isFullscreen ? <WebScrapeForm /> : null}
-                {isExtractFileOpen && isFullscreen ? (
-                    <Box onClick={(e) => e.stopPropagation()}>
-                        <StyledIconButton onClick={handleExtractFileClick}>
-                            Extract File
-                        </StyledIconButton>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileSelect}
-                            style={{ display: 'none' }}
-                        />
-                    </Box>
-                ) : null}
-            </Box>
+            {isFullscreen
+                ? renderFullscreenLayout()
+                : renderNonFullscreenLayout()}
         </MainContainer>
     );
 };

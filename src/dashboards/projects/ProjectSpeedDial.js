@@ -15,7 +15,15 @@ export default function ProjectSpeedDial({
     ];
 
     return (
-        <Box sx={{ height: 320, flexGrow: 1 }}>
+        <Box
+            sx={{
+                position: 'fixed',
+                bottom: 0,
+                left: 50,
+                m: 1, // Adds a little margin around the box for visual spacing
+                zIndex: 1000,
+            }}
+        >
             <SpeedDial
                 ariaLabel="Agent Speed Dial"
                 icon={<SpeedDialIcon />}
