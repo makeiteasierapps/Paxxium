@@ -116,7 +116,7 @@ class BossAgent:
                 ''',
             },
         ]
-        token_limit = 500
+        token_limit = 2000
         token_count = 0
         for message in chat_history:
             if token_count > token_limit:

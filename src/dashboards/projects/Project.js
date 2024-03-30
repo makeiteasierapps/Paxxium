@@ -120,7 +120,7 @@ const Project = ({ project }) => {
             {isChatOpen ? (
                 <ProjectChat
                     chatName={project.name}
-                    chatId={`project-${project.chatId}`}
+                    chatId={`project-${project.id}`}
                     chatConstants={''}
                     systemPrompt={''}
                     agentModel={'GPT-4'}

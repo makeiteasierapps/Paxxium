@@ -39,7 +39,6 @@ export const ProjectProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            console.log(data);
             setProjects(data.projects);
         } catch (error) {
             showSnackbar('Error fetching projects', 'error');

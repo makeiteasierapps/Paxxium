@@ -217,6 +217,7 @@ export const ChatProvider = ({ children }) => {
             });
         }
 
+        console.log(chatSettings)
         // Optimistic update
         const userMessage = {
             content: input,
@@ -236,6 +237,7 @@ export const ChatProvider = ({ children }) => {
             chatHistory,
             image_url: imageUrl,
         };
+
         try {
             const response = await fetch(`${messagesUrl}/messages/post`, {
                 method: 'POST',

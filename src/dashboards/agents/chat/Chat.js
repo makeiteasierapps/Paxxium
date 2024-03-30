@@ -43,6 +43,16 @@ const Chat = ({
         node.scroll(0, node.scrollHeight);
     }, [messages]);
 
+    const chatSettings = {
+        chatName,
+        chatId: adjustedChatId,
+        agentModel,
+        systemPrompt,
+        chatConstants,
+        useProfileData,
+        isProjectChat,
+    };
+
     return (
         <ChatContainerStyled>
             <ChatBar
@@ -83,14 +93,7 @@ const Chat = ({
                         }
                     })}
                 </MessageArea>
-                <MessageInput
-                    isProjectChat={isProjectChat}
-                    chatId={adjustedChatId}
-                    agentModel={agentModel}
-                    systemPrompt={systemPrompt}
-                    chatConstants={chatConstants}
-                    useProfileData={useProfileData}
-                />
+                <MessageInput chatSettings={chatSettings} />
             </MessagesContainer>
             <AnimatePresence>
                 {isSettingsOpen ? (

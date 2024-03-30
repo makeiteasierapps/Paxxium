@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 
 
 load_dotenv()

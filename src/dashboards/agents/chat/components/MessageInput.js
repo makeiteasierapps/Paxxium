@@ -74,14 +74,7 @@ const ImageOverlay = styled(Box)(({ theme }) => ({
     },
 }));
 
-const MessageInput = ({
-    chatId,
-    agentModel,
-    systemPrompt,
-    chatConstants,
-    useProfileData,
-    isProjectChat,
-}) => {
+const MessageInput = ({ chatSettings }) => {
     const { sendMessage } = useContext(ChatContext);
     const [input, setInput] = useState('');
     const [image, setImage] = useState(null);
@@ -97,14 +90,6 @@ const MessageInput = ({
             return () => URL.revokeObjectURL(url);
         }
     }, [image]);
-
-    const chatSettings = {
-        chatId,
-        agentModel,
-        systemPrompt,
-        chatConstants,
-        useProfileData,
-    };
 
     const handleFileInput = (event) => {
         const file = event.target.files[0];
@@ -179,11 +164,7 @@ const MessageInput = ({
                             input.trim() !== ''
                         ) {
                             event.preventDefault();
-                            sendMessage(
-                                input,
-                                chatSettings,
-                                image,
-                            );
+                            sendMessage(input, chatSettings, image);
                             setInput('');
                             removeImage();
                         }
@@ -221,7 +202,7 @@ const MessageInput = ({
                                             sendMessage(
                                                 input,
                                                 chatSettings,
-                                                image,
+                                                image
                                             );
                                             setInput('');
                                             removeImage();

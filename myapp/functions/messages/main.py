@@ -1,10 +1,16 @@
 import json
 import os
+from canopy.context_engine import ContextEngine
+from canopy.knowledge_base import KnowledgeBase
+from canopy.models.data_models import Query
+from canopy.tokenizer import Tokenizer
+
 from dotenv import load_dotenv
 from firebase_admin import firestore, credentials, initialize_app
 from flask import Response
 
 load_dotenv()
+Tokenizer.initialize()
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
@@ -30,6 +36,31 @@ db = firestore.client()
 firebase_service = FirebaseService()
 message_service = MessageService(db)
 user_service = UserService(db)
+
+def query_pinecone_index(query, index_name):
+    kb = KnowledgeBase(index_name=index_name)
+    kb.connect()
+    context_engine = ContextEngine(kb)
+    result = context_engine.query([Query(text=query)], max_context_tokens=500)
+    return json.loads(result.to_text())
+
+def prepare_response_for_llm(pinecone_query_result):
+    text = []
+    sources = []
+    
+    for item in pinecone_query_result:
+        for snippet in item['snippets']:
+            text.append(snippet['text'])
+            sources.append(snippet['source'])
+
+    combined_text = ' '.join(text)
+    project_query_instructions = f'''
+    \nAnswer the users question based off of the knowledge base provided below, provide 
+    a detailed response that is relevant to the users question.\n
+    KNOWLEDGE BASE: {combined_text}
+    '''
+    return project_query_instructions
+
 
 
 def process_message(uid, chat_id, user_message, chat_settings, chat_history, image_url=None):
@@ -102,7 +133,18 @@ def messages(request):
         user_message = data.get('userMessage')
         chat_history = data.get('chatHistory')
         chat_settings = data.get('chatSettings')
+        print(chat_settings)
         chat_id = chat_settings['chatId']
+        index_name = chat_settings['chatName']
+        system_prompt = chat_settings['systemPrompt']
+        is_project_chat = chat_settings['isProjectChat']
+
+        if is_project_chat:
+            pinecone_query_result = query_pinecone_index(user_message['content'], index_name)
+            instructions_to_add = prepare_response_for_llm(pinecone_query_result)
+            system_prompt += instructions_to_add
+            chat_settings['systemPrompt'] = system_prompt
+
         image_url = None
     
         if data.get('image_url') is not None:
