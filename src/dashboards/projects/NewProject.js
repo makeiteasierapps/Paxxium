@@ -21,27 +21,61 @@ const NewProject = () => {
 
     const handleCreateProject = async (name, description) => {
         const formData = JSON.stringify({ name, description });
-        const response = await fetch('http://localhost:50006/projects/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: idToken,
-            },
-            body: formData,
-        });
+        const create_project_response = await fetch(
+            'http://localhost:50006/projects/create',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: idToken,
+                },
+                body: formData,
+            }
+        );
 
-        if (!response.ok) {
+        if (!create_project_response.ok) {
             throw new Error('Failed to create project');
         }
-        const data = await response.json();
+        const data = await create_project_response.json();
         console.log(data);
+
+        const creat_chat_response = await fetch(
+            'http://localhost:50001/chat/create',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: idToken,
+                },
+                body: JSON.stringify({
+                    chatName: data.project_name,
+                    agentModel: 'Project',
+                    systemPrompt: '',
+                    chatConstants: '',
+                    useProfileData: false,
+                    projectId: data.project_id,
+                }),
+            }
+        );
+
+        if (!creat_chat_response.ok) {
+            throw new Error('Failed to create project chat');
+        }
         setName('');
         setDescription('');
+
+        // add the new project to state
     };
 
     return (
         <MainContainer gap={2}>
-            <Box display="flex" flexDirection="column" gap={2} alignItems="center" padding={2}>
+            <Box
+                display="flex"
+                flexDirection="column"
+                gap={2}
+                alignItems="center"
+                padding={2}
+            >
                 <Typography variant="h3">Create a New Project</Typography>
                 <TextField
                     label="Project Name"

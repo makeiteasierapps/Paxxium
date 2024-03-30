@@ -80,6 +80,7 @@ const MessageInput = ({
     systemPrompt,
     chatConstants,
     useProfileData,
+    isProjectChat,
 }) => {
     const { sendMessage } = useContext(ChatContext);
     const [input, setInput] = useState('');
@@ -178,7 +179,11 @@ const MessageInput = ({
                             input.trim() !== ''
                         ) {
                             event.preventDefault();
-                            sendMessage(input, chatId, chatSettings, image);
+                            sendMessage(
+                                input,
+                                chatSettings,
+                                image,
+                            );
                             setInput('');
                             removeImage();
                         }
@@ -215,9 +220,8 @@ const MessageInput = ({
                                         onClick={() => {
                                             sendMessage(
                                                 input,
-                                                chatId,
                                                 chatSettings,
-                                                image
+                                                image,
                                             );
                                             setInput('');
                                             removeImage();

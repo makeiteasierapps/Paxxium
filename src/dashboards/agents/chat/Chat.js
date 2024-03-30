@@ -21,16 +21,21 @@ const Chat = ({
     agentModel,
     useProfileData,
 }) => {
-
     const nodeRef = useRef(null);
     const { messages, loadMessages } = useContext(ChatContext);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const isProjectChat = chatId.startsWith('project-');
+
+    // If chatId contains 'project-', remove it for further use
+    const adjustedChatId = isProjectChat
+        ? chatId.replace('project-', '')
+        : chatId;
 
     // Fetch messages from the database
     useEffect(() => {
-        loadMessages(chatId);
-    }, [chatId, loadMessages]);
+        loadMessages(adjustedChatId);
+    }, [adjustedChatId, loadMessages]);
 
     // scrolls chat window to the bottom
     useEffect(() => {
@@ -42,13 +47,13 @@ const Chat = ({
         <ChatContainerStyled>
             <ChatBar
                 chatName={chatName}
-                chatId={chatId}
+                chatId={adjustedChatId}
                 isSettingsOpen={isSettingsOpen}
                 setIsSettingsOpen={setIsSettingsOpen}
             />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
-                    {messages[chatId]?.map((message, index) => {
+                    {messages[adjustedChatId]?.map((message, index) => {
                         let formattedMessage = message;
                         if (message.type === 'database') {
                             if (message.message_from === 'agent') {
@@ -57,7 +62,7 @@ const Chat = ({
                                     <AgentMessage
                                         key={`agent${index}`}
                                         message={formattedMessage}
-                                        id={chatId}
+                                        id={adjustedChatId}
                                     />
                                 );
                             } else {
@@ -79,7 +84,8 @@ const Chat = ({
                     })}
                 </MessageArea>
                 <MessageInput
-                    chatId={chatId}
+                    isProjectChat={isProjectChat}
+                    chatId={adjustedChatId}
                     agentModel={agentModel}
                     systemPrompt={systemPrompt}
                     chatConstants={chatConstants}
@@ -89,7 +95,7 @@ const Chat = ({
             <AnimatePresence>
                 {isSettingsOpen ? (
                     <ChatSettings
-                        chatId={chatId}
+                        chatId={adjustedChatId}
                         chatConstants={chatConstants}
                         systemPrompt={systemPrompt}
                         chatName={chatName}

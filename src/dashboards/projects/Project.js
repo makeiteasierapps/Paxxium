@@ -3,9 +3,10 @@ import { styled } from '@mui/system';
 import { ProjectContext } from './ProjectContext';
 import { AuthContext } from '../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
+import ProjectChat from '../agents/chat/Chat';
 import { StyledIconButton } from '../agents/agentStyledComponents';
 import { Box, Typography } from '@mui/material';
-import { WebAsset, FileCopy } from '@mui/icons-material/';
+import { WebAsset, FileCopy, Chat } from '@mui/icons-material/';
 
 const MainContainer = styled(Box)(({ theme, fullscreen }) => ({
     display: 'flex',
@@ -23,12 +24,8 @@ const MainContainer = styled(Box)(({ theme, fullscreen }) => ({
 }));
 
 const Project = ({ project }) => {
-    const {
-        isWebScrapeOpen,
-        setIsWebScrapeOpen,
-        isExtractFileOpen,
-        setIsExtractFileOpen,
-    } = useContext(ProjectContext);
+    const { isWebScrapeOpen, setIsWebScrapeOpen, isChatOpen, setIsChatOpen } =
+        useContext(ProjectContext);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -36,7 +33,7 @@ const Project = ({ project }) => {
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
-        
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('projectName', project.name);
@@ -75,6 +72,7 @@ const Project = ({ project }) => {
             alignItems="center"
             padding={2}
             sx={{ width: '100%', height: '100%' }}
+            onClick={(e) => e.stopPropagation()}
         >
             <Typography variant="h3">{project.name}</Typography>
             <Typography variant="body1">{project.description}</Typography>
@@ -86,39 +84,48 @@ const Project = ({ project }) => {
                 width="100%"
             >
                 <StyledIconButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsWebScrapeOpen(!isWebScrapeOpen);
-                    }}
+                    onClick={() => setIsWebScrapeOpen(!isWebScrapeOpen)}
                     aria-label="Scrape Web"
                 >
                     <WebAsset />
                 </StyledIconButton>
                 <StyledIconButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsExtractFileOpen(!isExtractFileOpen);
-                    }}
+                    onClick={handleExtractFileClick}
                     aria-label="Extract Document"
                 >
                     <FileCopy />
-                </StyledIconButton>
-            </Box>
-            {isWebScrapeOpen ? (
-                <WebScrapeForm projectName={project.name} projectId={project.id} />
-            ) : null}
-            {isExtractFileOpen ? (
-                <Box onClick={(e) => e.stopPropagation()}>
-                    <StyledIconButton onClick={handleExtractFileClick}>
-                        Extract File
-                    </StyledIconButton>
                     <input
                         type="file"
                         ref={fileInputRef}
                         onChange={handleFileSelect}
                         style={{ display: 'none' }}
                     />
-                </Box>
+                </StyledIconButton>
+                <StyledIconButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsChatOpen(!isChatOpen);
+                    }}
+                    aria-label="Chat"
+                >
+                    <Chat />
+                </StyledIconButton>
+            </Box>
+            {isWebScrapeOpen ? (
+                <WebScrapeForm
+                    projectName={project.name}
+                    projectId={project.id}
+                />
+            ) : null}
+            {isChatOpen ? (
+                <ProjectChat
+                    chatName={project.name}
+                    chatId={`project-${project.chatId}`}
+                    chatConstants={''}
+                    systemPrompt={''}
+                    agentModel={'GPT-4'}
+                    useProfileData={''}
+                />
             ) : null}
         </Box>
     );

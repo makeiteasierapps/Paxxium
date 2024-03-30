@@ -5,7 +5,7 @@ class ChatService:
     def __init__(self, db):
         self.db = db
 
-    def create_chat_in_db(self, user_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data):
+    def create_chat_in_db(self, user_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data, project_id=None):
         """
         Creates a new chat in the database
         """
@@ -18,9 +18,15 @@ class ChatService:
             'is_open': True,
             'created_at': datetime.utcnow()
         }
+        if project_id:
+            # Use the provided project_id to create a chat that is associated with a project
+            self.db.collection('users').document(user_id).collection('conversations').document(project_id).set(new_chat)
+            return project_id
+        
+        # Let Firestore generate the chat_id
         new_chat_ref = self.db.collection('users').document(user_id).collection('conversations').add(new_chat)
         new_chat_id = new_chat_ref[1].id
-        return  new_chat_id
+        return new_chat_id
 
     def get_all_chats(self, user_id):
         """

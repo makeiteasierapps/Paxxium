@@ -13,7 +13,7 @@ export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
-    const [isExtractFileOpen, setIsExtractFileOpen] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
@@ -57,11 +57,11 @@ export const ProjectProvider = ({ children }) => {
                 projects,
                 fetchProjects,
                 isWebScrapeOpen,
-                isExtractFileOpen,
                 isNewProjectOpen,
                 setIsWebScrapeOpen,
-                setIsExtractFileOpen,
                 setIsNewProjectOpen,
+                isChatOpen,
+                setIsChatOpen,
             }}
         >
             {children}

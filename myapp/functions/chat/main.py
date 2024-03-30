@@ -61,6 +61,19 @@ def chat(request):
         system_prompt = data['systemPrompt']
         chat_constants = data['chatConstants']
         use_profile_data = data['useProfileData']
+        project_id = data.get('projectId')
+        if project_id:
+            chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data, project_id)
+            chat_data = {
+                'chatId': chat_id,
+                'chat_name': chat_name,
+                'agent_model': agent_model,
+                'system_prompt': system_prompt,
+                'chat_constants': chat_constants,
+                'use_profile_data': use_profile_data, 
+                'is_open': True
+            }
+            return (chat_data, 200, headers)
         chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)
         chat_data = {
             'chatId': chat_id,

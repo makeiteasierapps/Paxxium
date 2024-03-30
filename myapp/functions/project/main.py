@@ -252,7 +252,7 @@ def create_new_project(request):
         }
     new_project_ref = db.collection('users').document(uid).collection('projects').add(project_details)
     new_project_id = new_project_ref[1].id
-    return jsonify({'message': 'Project created', 'project_id': new_project_id}), 200, headers
+    return jsonify({'message': 'Project created', 'project_id': new_project_id, 'project_name': index_name}), 200, headers
 
 def project(request):
     if request.method == "OPTIONS":
