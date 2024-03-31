@@ -1,5 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../../auth/AuthContext';
+import { memo, useContext } from 'react';
 import { SnackbarContext } from '../../SnackbarContext';
 import MySnackbar from '../../SnackBar';
 import Chat from './chat/Chat';
@@ -10,17 +9,8 @@ import { Box } from '@mui/material';
 import { CustomGridLoader } from '../main/customLoaders';
 
 const AgentDash = () => {
-    const { getChats, agentArray } = useContext(ChatContext);
+    const { agentArray, loading } = useContext(ChatContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
-    const { idToken } = useContext(AuthContext);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!idToken) return;
-        getChats().then(() => {
-            setLoading(false);
-        });
-    }, [idToken, getChats]);
 
     return (
         <Box

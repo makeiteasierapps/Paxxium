@@ -1,20 +1,19 @@
 import { useContext, useState } from 'react'; // Import useState
-import { Box, TextField, Typography } from '@mui/material';
+import {
+    Box,
+    TextField,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+} from '@mui/material';
 import { SettingsMenuButton } from '../agents/agentStyledComponents';
 import { styled } from '@mui/system';
 import { AuthContext } from '../../auth/AuthContext';
 
-export const MainContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '70vw',
-    height: 'auto',
-    flexDirection: 'column',
-    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-}));
-
-const NewProject = () => {
+const NewProject = ({ isOpen, onClose }) => {
     const { idToken } = useContext(AuthContext);
     const [name, setName] = useState(''); // State for project name
     const [description, setDescription] = useState(''); // State for project description
@@ -49,7 +48,7 @@ const NewProject = () => {
                 },
                 body: JSON.stringify({
                     chatName: data.project_name,
-                    agentModel: 'Project',
+                    agentModel: 'GPT-4',
                     systemPrompt: '',
                     chatConstants: '',
                     useProfileData: false,
@@ -67,37 +66,56 @@ const NewProject = () => {
         // add the new project to state
     };
 
+    console.log(isOpen);
     return (
-        <MainContainer gap={2}>
-            <Box
-                display="flex"
-                flexDirection="column"
-                gap={2}
-                alignItems="center"
-                padding={2}
-            >
-                <Typography variant="h3">Create a New Project</Typography>
+        <Dialog
+            gap={2}
+            open={isOpen}
+            onClose={onClose}
+            aria-labelledby="form-dialog-title"
+        >
+            <DialogTitle id="form-dialog-title">
+                Create a New Project
+            </DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    To create a new project, please enter the project name and
+                    description here.
+                </DialogContentText>
                 <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
                     label="Project Name"
+                    type="text"
+                    fullWidth
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    fullWidth
                 />
                 <TextField
+                    margin="dense"
+                    id="description"
                     label="Project Description"
+                    type="text"
+                    fullWidth
                     multiline
                     rows={4}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    fullWidth
                 />
-                <SettingsMenuButton
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} color="primary">
+                    Cancel
+                </Button>
+                <Button
                     onClick={() => handleCreateProject(name, description)}
+                    color="primary"
                 >
                     Create Project
-                </SettingsMenuButton>
-            </Box>
-        </MainContainer>
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

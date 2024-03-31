@@ -1,34 +1,30 @@
 import { useState, useContext, useRef } from 'react';
 import { styled } from '@mui/system';
 import { ProjectContext } from './ProjectContext';
+import { ChatContext } from '../agents/chat/ChatContext';
 import { AuthContext } from '../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../agents/chat/Chat';
 import { StyledIconButton } from '../agents/agentStyledComponents';
 import { Box, Typography } from '@mui/material';
-import { WebAsset, FileCopy, Chat } from '@mui/icons-material/';
+import { WebAsset, FileCopy, Chat, Close } from '@mui/icons-material/';
 
-const MainContainer = styled(Box)(({ theme, fullscreen }) => ({
+const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: fullscreen ? '100vw' : '30vw',
-    height: fullscreen ? '100vh' : '30vw',
+    width: '100%',
+    height: '100%',
     flexDirection: 'column',
-    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-    cursor: 'pointer',
-    position: fullscreen ? 'absolute' : 'relative', // Ensure full screen covers the dashboard
-    top: 0,
-    left: 0,
-    zIndex: fullscreen ? 1000 : 1, // Ensure it's above other content in full screen
 }));
 
-const Project = ({ project }) => {
+const Project = ({ project, onClose }) => {
     const { isWebScrapeOpen, setIsWebScrapeOpen, isChatOpen, setIsChatOpen } =
         useContext(ProjectContext);
+    const { getAgentById } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    const agent = getAgentById(project.id);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
@@ -64,93 +60,87 @@ const Project = ({ project }) => {
         fileInputRef.current.click();
     };
 
-    const renderFullscreenLayout = () => (
-        <Box
-            display="flex"
-            flexDirection="column"
-            gap={2}
-            alignItems="center"
-            padding={2}
-            sx={{ width: '100%', height: '100%' }}
-            onClick={(e) => e.stopPropagation()}
-        >
-            <Typography variant="h3">{project.name}</Typography>
-            <Typography variant="body1">{project.description}</Typography>
+    return (
+        <MainContainer>
             <Box
                 display="flex"
-                flexDirection="row"
+                flexDirection="column"
                 gap={2}
-                justifyContent="center"
-                width="100%"
+                alignItems="center"
+                padding={2}
+                sx={{ width: '100%', height: '100%' }}
+                onClick={(e) => e.stopPropagation()}
             >
-                <StyledIconButton
-                    onClick={() => setIsWebScrapeOpen(!isWebScrapeOpen)}
-                    aria-label="Scrape Web"
-                >
-                    <WebAsset />
-                </StyledIconButton>
-                <StyledIconButton
-                    onClick={handleExtractFileClick}
-                    aria-label="Extract Document"
-                >
-                    <FileCopy />
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileSelect}
-                        style={{ display: 'none' }}
-                    />
-                </StyledIconButton>
-                <StyledIconButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsChatOpen(!isChatOpen);
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 10,
+                        left: 60,
+                        zIndex: 2000,
                     }}
-                    aria-label="Chat"
                 >
-                    <Chat />
-                </StyledIconButton>
+                    <StyledIconButton
+                        aria-label="Close fullscreen"
+                        sx={{ color: 'white' }}
+                        onClick={onClose}
+                    >
+                        <Close />
+                    </StyledIconButton>
+                </Box>
+                <Typography variant="h3">{project.name}</Typography>
+                <Typography variant="body1">{project.description}</Typography>
+                <Box
+                    display="flex"
+                    flexDirection="row"
+                    gap={2}
+                    justifyContent="center"
+                    width="100%"
+                >
+                    <StyledIconButton
+                        onClick={() => setIsWebScrapeOpen(!isWebScrapeOpen)}
+                        aria-label="Scrape Web"
+                    >
+                        <WebAsset />
+                    </StyledIconButton>
+                    <StyledIconButton
+                        onClick={handleExtractFileClick}
+                        aria-label="Extract Document"
+                    >
+                        <FileCopy />
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelect}
+                            style={{ display: 'none' }}
+                        />
+                    </StyledIconButton>
+                    <StyledIconButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsChatOpen(!isChatOpen);
+                        }}
+                        aria-label="Chat"
+                    >
+                        <Chat />
+                    </StyledIconButton>
+                </Box>
+                {isWebScrapeOpen ? (
+                    <WebScrapeForm
+                        projectName={project.name}
+                        projectId={project.id}
+                    />
+                ) : null}
+                {isChatOpen ? (
+                    <ProjectChat
+                        chatName={agent.chat_name}
+                        chatId={`project-${agent.chatId}`}
+                        chatConstants={agent.chat_constants}
+                        systemPrompt={agent.system_prompt}
+                        agentModel={agent.agent_model}
+                        useProfileData={agent.use_profile_data}
+                    />
+                ) : null}
             </Box>
-            {isWebScrapeOpen ? (
-                <WebScrapeForm
-                    projectName={project.name}
-                    projectId={project.id}
-                />
-            ) : null}
-            {isChatOpen ? (
-                <ProjectChat
-                    chatName={project.name}
-                    chatId={`project-${project.id}`}
-                    chatConstants={''}
-                    systemPrompt={''}
-                    agentModel={'GPT-4'}
-                    useProfileData={''}
-                />
-            ) : null}
-        </Box>
-    );
-
-    const renderNonFullscreenLayout = () => (
-        <Box
-            display="flex"
-            flexDirection="column"
-            gap={2}
-            alignItems="center"
-            padding={2}
-        >
-            <Typography variant="h3">{project.name}</Typography>
-            <Typography variant="body1">{project.description}</Typography>
-        </Box>
-    );
-
-    return (
-        <MainContainer
-            fullscreen={isFullscreen}
-            onClick={() => setIsFullscreen(!isFullscreen)}
-        >
-            {isFullscreen
-                ? renderFullscreenLayout()
-                : renderNonFullscreenLayout()}
         </MainContainer>
     );
 };

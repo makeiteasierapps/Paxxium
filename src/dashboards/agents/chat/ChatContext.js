@@ -4,6 +4,7 @@ import {
     useContext,
     useRef,
     useCallback,
+    useEffect,
 } from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
 import { processToken } from '../utils/processToken';
@@ -19,6 +20,7 @@ export const ChatProvider = ({ children }) => {
     const [messages, setMessages] = useState({});
     const [insideCodeBlock, setInsideCodeBlock] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
     const ignoreNextTokenRef = useRef(false);
     const languageRef = useRef(null);
 
@@ -42,6 +44,11 @@ export const ChatProvider = ({ children }) => {
             localStorage.setItem('messages', JSON.stringify(updatedMessages));
             return updatedMessages;
         });
+    };
+
+    const getAgentById = (id) => {
+        console.log(agentArray);
+        return agentArray.find((agent) => agent.chatId === id);
     };
 
     // Used to get the messages for a specific chat
@@ -172,11 +179,7 @@ export const ChatProvider = ({ children }) => {
         [messagesUrl, idToken, setMessages, showSnackbar]
     );
 
-    const sendMessage = async (
-        input,
-        chatSettings,
-        image = null,
-    ) => {
+    const sendMessage = async (input, chatSettings, image = null) => {
         let imageUrl = null;
         // maybe refactor this to a separate function
         if (image) {
@@ -217,7 +220,7 @@ export const ChatProvider = ({ children }) => {
             });
         }
 
-        console.log(chatSettings)
+        console.log(chatSettings);
         // Optimistic update
         const userMessage = {
             content: input,
@@ -482,6 +485,13 @@ export const ChatProvider = ({ children }) => {
         });
     };
 
+    useEffect(() => {
+        if (!idToken) return;
+        getChats().then(() => {
+            setLoading(false);
+        });
+    }, [idToken, getChats]);
+
     return (
         <ChatContext.Provider
             value={{
@@ -499,6 +509,7 @@ export const ChatProvider = ({ children }) => {
                 loadChat,
                 isSettingsOpen,
                 setIsSettingsOpen,
+                getAgentById,
             }}
         >
             {children}
