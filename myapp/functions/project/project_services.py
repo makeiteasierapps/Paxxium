@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import hashlib
 from canopy.tokenizer import Tokenizer
 from datetime import datetime
 from canopy.models.data_models import Document
@@ -27,24 +28,38 @@ class ProjectServices:
         return project_list
 
     def scrape_url(self, uid, url, project_name, project_id):
-
         content_scraper = ContentScraper(url)
         content = content_scraper.extract_content()
-
+        print(content)
         num_tokens = tokenizer.token_count(content)
 
-        # Storing the entire text in firestore along with the token count. For certain token counts it might be better
-        # to feed the raw text. Either way storing the raw text allows for flexibility in the future.
+        # Storing the entire text in firestore along with the token count.
         url_collection_ref = self.db.collection('users').document(uid).collection('projects').document(project_id).collection('urls')
         url_collection_ref.add({'url': url, 'content': content, 'created_at': datetime.utcnow(), 'token_count': num_tokens})
         
-        # add to pinecone
+        # Normalize and hash the URL to use as a document ID
+        normalized_url = self.normalize_url(url)
+        url_hash = hashlib.sha256(normalized_url.encode()).hexdigest()
+
+        # Add to pinecone with the hashed URL as the document ID
         encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
         kb = KnowledgeBase(index_name=project_name, record_encoder=encoder)
         kb.connect()
-        docs = [Document(id='doc1', text=content, metadata={'url': url})]
+        docs = [Document(id=url_hash, text=content, metadata={'url': url})]
         kb.upsert(docs)
-        
+
+    def normalize_url(self, url):
+        # Example normalization process
+        url = url.lower()
+        if url.startswith("http://"):
+            url = url[7:]
+        elif url.startswith("https://"):
+            url = url[8:]
+        url = url.split('#')[0]  # Remove fragment
+        url = url.split('?')[0]  # Remove query
+        if url.endswith('/'):
+            url = url[:-1]
+        return url
 
     def extract_pdf(self, uid, file, project_name, project_id):
         text = ContentScraper.extract_text_from_pdf(file)
@@ -63,7 +78,6 @@ class ProjectServices:
         docs = [Document(id='doc1', text=text, metadata={'title': file_name})]
         kb.upsert(docs)
         return text
-            
 
     def create_new_project(self, uid, name, description):
         encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
