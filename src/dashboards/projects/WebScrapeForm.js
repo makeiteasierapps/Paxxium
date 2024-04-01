@@ -6,27 +6,36 @@ import { SettingsSubmitButton } from '../agents/agentStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
     const { idToken } = useContext(AuthContext);
-    const [url, setUrl] = useState('');
+    const [urls, setUrls] = useState('');
     const handleScrapeRequest = async () => {
-        let formattedUrl = url;
-        if (
-            !formattedUrl.startsWith('http://') &&
-            !formattedUrl.startsWith('https://')
-        ) {
-            formattedUrl = 'http://' + formattedUrl; // Default to http if no protocol is specified
-        }
+        // Inside the handleScrapeRequest function
+        const urlsArray = urls
+            .split(',')
+            .map((url) => url.trim())
+            .filter((url) => url); // Split by comma, trim spaces, and filter out empty strings
+        const formattedUrls = urlsArray.map((url) => {
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                return 'https://' + url; // Default to http if no protocol is specified
+            }
+            return url;
+        });
+        console.log(formattedUrls);
         const response = await fetch('http://localhost:50006/projects/scrape', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: idToken,
             },
-            body: JSON.stringify({ url: formattedUrl, projectName, projectId }),
+            body: JSON.stringify({
+                urls: formattedUrls,
+                projectName,
+                projectId,
+            }),
         });
 
         if (!response.ok) throw new Error('Failed to scrape url');
 
-        setUrl('');
+        setUrls('');
 
         // Handle response
         // Update the state to include the new data
@@ -41,14 +50,14 @@ const WebScrapeForm = ({ projectName, projectId }) => {
             width="60%"
         >
             <TextField
-                label="URL"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                label="URLs, comma separated"
+                value={urls}
+                onChange={(e) => setUrls(e.target.value)}
                 fullWidth
                 margin="normal"
             />
             <SettingsSubmitButton
-                disabled={!url}
+                disabled={!urls}
                 onClick={handleScrapeRequest}
                 endIcon={<SendIcon />}
             >
