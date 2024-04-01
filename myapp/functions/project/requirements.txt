@@ -6,4 +6,4 @@ openai==1.13.3
 crcmod==1.7
 newspaper3k==0.2.8
 requests==2.31.0
-tiktoken==0.6.0
+selenium

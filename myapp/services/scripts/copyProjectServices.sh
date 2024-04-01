@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Define the source file
-SOURCE_FILE="news_service.py"
+SOURCE_FILE="../project_services.py"
 
 # Define the target directories
 TARGET_DIRS=(
 
-    "../functions/news"
+    "../../functions/project"
 )
 
 # Loop through each target directory and copy the source file to it

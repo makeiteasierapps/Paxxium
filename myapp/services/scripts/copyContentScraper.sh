@@ -1,15 +1,12 @@
 #!/bin/bash
 
 # Define the source file
-SOURCE_FILE="user_services.py"
+SOURCE_FILE="../ContentScraper.py"
 
 # Define the target directories
 TARGET_DIRS=(
-    "../functions/images"
-    "../functions/messages"
-    "../functions/news"
-    "../functions/profile"
-    "../functions/signup"
+
+    "../../functions/project"
 )
 
 # Loop through each target directory and copy the source file to it
