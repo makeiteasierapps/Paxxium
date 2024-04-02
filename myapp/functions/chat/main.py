@@ -1,7 +1,9 @@
 import os
+import certifi
+from pymongo import MongoClient
 import logging
 from dotenv import load_dotenv
-from firebase_admin import firestore, credentials, initialize_app
+from firebase_admin import credentials, initialize_app
 
 load_dotenv()
 cred = None
@@ -21,7 +23,13 @@ try:
 except ValueError:
     pass
 
-db = firestore.client()
+# MongoDB URI
+mongo_uri = os.getenv('MONGO_URI')
+# Create a new MongoClient and connect to the server
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+
+db = client['paxxium']
+
 firebase_service = FirebaseService()
 chat_service = ChatService(db)
 logging.basicConfig(level=logging.INFO)
@@ -52,6 +60,7 @@ def chat(request):
 
     if request.path in ('/', '/chat'):
         chat_data_list = chat_service.get_all_chats(uid)
+        print(chat_data_list)
         return (chat_data_list, 200, headers)
     
     if request.path in ('/create', '/chat/create'):

@@ -1,15 +1,16 @@
 from datetime import datetime
-from google.cloud import firestore
+from bson import ObjectId
 
 class ChatService:
     def __init__(self, db):
         self.db = db
 
-    def create_chat_in_db(self, user_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data, project_id=None):
+    def create_chat_in_db(self, uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data, project_id=None):
         """
         Creates a new chat in the database
         """
         new_chat = {
+            'uid': uid,
             'chat_name': chat_name,
             'agent_model': agent_model,
             'system_prompt': system_prompt,
@@ -20,53 +21,62 @@ class ChatService:
         }
         if project_id:
             # Use the provided project_id to create a chat that is associated with a project
-            self.db.collection('users').document(user_id).collection('conversations').document(project_id).set(new_chat)
-            return project_id
+            new_chat['project_id'] = project_id
+            result = self.db['chats'].insert_one(new_chat)
+            return str(result.inserted_id)
         
-        # Let Firestore generate the chat_id
-        new_chat_ref = self.db.collection('users').document(user_id).collection('conversations').add(new_chat)
-        new_chat_id = new_chat_ref[1].id
-        return new_chat_id
+        # Let MongoDB generate the chat_id
+        result = self.db['chats'].insert_one(new_chat)
+        return str(result.inserted_id)
 
-    def get_all_chats(self, user_id):
+    def get_all_chats(self, uid):
         """
-        Returns a list of conversation ids for a given user
+        Returns a list of dictionaries with chat ids for a given user, including all fields from the document
         """
-        conversations = self.db.collection('users').document(user_id).collection('conversations').order_by('created_at', direction=firestore.Query.DESCENDING).stream()
-        return [{**conv.to_dict(), 'chatId': conv.id} for conv in conversations]
+
+        # Query the conversations collection for conversations belonging to the user
+        conversations_cursor = self.db['chats'].find({'uid': uid}).sort('created_at', -1)
+        
+        # Create a list of dictionaries with all fields, renaming '_id' to 'chatId'
+        chats = []
+        for conv in conversations_cursor:
+            chat = {k: v for k, v in conv.items() if k != '_id'}
+            chat['chatId'] = str(conv['_id'])  # Convert ObjectId to string and rename the key
+            chats.append(chat)
+        
+        return chats
     
-    def get_single_chat(self, user_id, chat_id):
+    def get_single_chat(self, uid, chat_id):
         """
         Returns a dictionary of chat data for a given user and chat id
         """
-        chat = self.db.collection('users').document(user_id).collection('conversations').document(chat_id).get()
-        return chat.to_dict()
+        chat = self.db['chats'].find_one({'_id': ObjectId(chat_id), 'uid': uid})
+        return chat if chat else None
     
     def update_visibility(self, uid, chat_id, is_open):
         """
         Updates the visibility of a chat in the database
         """
-        chat_ref = self.db.collection('users').document(uid).collection('conversations').document(chat_id)
-        chat_ref.update({'is_open': is_open})
+        self.db['chats'].update_one({'_id': ObjectId(chat_id), 'uid': uid}, {'$set': {'is_open': is_open}})
 
-    def delete_conversation(self, user_id, conversation_id):
+    def delete_conversation(self, uid, chat_id):
         """
         Deletes a conversation from the database
         """
-        conversation = self.db.collection('users').document(user_id).collection('conversations').document(conversation_id)
-        conversation.delete()
-        return conversation
+        self.db['chats'].delete_one({'_id': ObjectId(chat_id), 'uid': uid})
 
-    def update_settings(self, user_id, chat_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data):
+    def update_settings(self, uid, chat_id, chat_name, agent_model, system_prompt, chat_constants, use_profile_data):
         """
         Updates a chat in the database
         """
-        chat_ref = self.db.collection('users').document(user_id).collection('conversations').document(chat_id)
-        chat_ref.update({
-            'chat_name': chat_name,
-            'agent_model': agent_model,
-            'system_prompt': system_prompt,
-            'chat_constants': chat_constants,
-            'use_profile_data': use_profile_data
-        })
-        return chat_ref
+        update_result = self.db['chats'].update_one(
+            {'_id': ObjectId(chat_id), 'uid': uid},
+            {'$set': {
+                'chat_name': chat_name,
+                'agent_model': agent_model,
+                'system_prompt': system_prompt,
+                'chat_constants': chat_constants,
+                'use_profile_data': use_profile_data
+            }}
+        )
+        return update_result

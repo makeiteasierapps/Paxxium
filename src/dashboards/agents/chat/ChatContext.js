@@ -490,7 +490,7 @@ export const ChatProvider = ({ children }) => {
         getChats().then(() => {
             setLoading(false);
         });
-    }, [idToken, getChats]);
+    }, [idToken]);
 
     return (
         <ChatContext.Provider
