@@ -22,8 +22,9 @@ const Chat = ({
     useProfileData,
 }) => {
     const nodeRef = useRef(null);
-    const { messages, loadMessages } = useContext(ChatContext);
+    const { messages } = useContext(ChatContext);
 
+    console.log(messages);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const isProjectChat = chatId.startsWith('project-');
 
@@ -31,11 +32,6 @@ const Chat = ({
     const adjustedChatId = isProjectChat
         ? chatId.replace('project-', '')
         : chatId;
-
-    // Fetch messages from the database
-    useEffect(() => {
-        loadMessages(adjustedChatId);
-    }, [adjustedChatId, loadMessages]);
 
     // scrolls chat window to the bottom
     useEffect(() => {

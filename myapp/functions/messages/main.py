@@ -1,12 +1,14 @@
 import json
 import os
+from pymongo import MongoClient
+import certifi
 from canopy.context_engine import ContextEngine
 from canopy.knowledge_base import KnowledgeBase
 from canopy.models.data_models import Query
 from canopy.tokenizer import Tokenizer
 
 from dotenv import load_dotenv
-from firebase_admin import firestore, credentials, initialize_app
+from firebase_admin import credentials, initialize_app
 from flask import Response
 
 load_dotenv()
@@ -32,7 +34,12 @@ try:
     })
 except ValueError:
     pass
-db = firestore.client()
+# MongoDB URI
+mongo_uri = os.getenv('MONGO_URI')
+# Create a new MongoClient and connect to the server
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+db = client['paxxium']
+
 firebase_service = FirebaseService()
 message_service = MessageService(db)
 user_service = UserService(db)
@@ -74,7 +81,7 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
     image_url = user_message['image_url']
 
     # Create a new message in the database
-    message_service.create_message(chat_id, uid, message_from, message_content, image_url)
+    message_service.create_message(chat_id, message_from, message_content, image_url)
 
     # Pass message to Agent
     message_obj = {
@@ -96,7 +103,7 @@ def process_message(uid, chat_id, user_message, chat_settings, chat_history, ima
             response_chunk['chat_id'] = chat_id
             yield json.dumps(response_chunk) + '\n'
     
-    message_service.create_message(chat_id, uid, 'agent', complete_message)
+    message_service.create_message(chat_id, 'agent', complete_message)
 
 def messages(request):
     response = {}
@@ -120,20 +127,12 @@ def messages(request):
         return (response, 403, headers)
 
     uid = decoded_token['uid']
-
-    if request.path in ('/', '/messages'):
-        data = request.json
-        chat_id = data.get('chatId')
-        chat_data = message_service.get_all_messages(uid, chat_id)
-    
-        return (chat_data, 200, headers)
     
     if request.path in ('/post', '/messages/post'):
         data = request.json
         user_message = data.get('userMessage')
         chat_history = data.get('chatHistory')
         chat_settings = data.get('chatSettings')
-        print(chat_settings)
         chat_id = chat_settings['chatId']
         index_name = chat_settings['chatName']
         system_prompt = chat_settings['systemPrompt']
@@ -157,7 +156,7 @@ def messages(request):
     if request.path in ('/clear', '/messages/clear'):
         data = request.json
         chat_id = data.get('chatId')
-        message_service.delete_all_messages(uid, chat_id)
+        message_service.delete_all_messages(chat_id)
         return ('Memory Cleared', 200, headers)
     
     if request.path in ('/utils', '/messages/utils'):

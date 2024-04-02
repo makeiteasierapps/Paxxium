@@ -71,7 +71,6 @@ def profile(request):
             
             return ({'response': 'Profile questions/answers updated successfully'}, 200, headers)
         profile_data = user_service.load_profile_answers(uid)
-        print(profile_data)
         return (profile_data, 200, headers)
     
     if request.path in ('/user', '/profile/user'):

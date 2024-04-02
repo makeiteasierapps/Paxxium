@@ -61,8 +61,19 @@ export const ChatProvider = ({ children }) => {
         try {
             const cachedChats = localStorage.getItem('agentArray');
             if (cachedChats) {
-                setAgentArray(JSON.parse(cachedChats));
-                return JSON.parse(cachedChats);
+                const parsedChats = JSON.parse(cachedChats);
+                setAgentArray(parsedChats);
+
+                // New: Update messages state based on cached chats
+                const cachedMessages = parsedChats.reduce((acc, chat) => {
+                    if (chat.messages) {
+                        acc[chat.chatId] = chat.messages;
+                    }
+                    return acc;
+                }, {});
+                setMessages(cachedMessages);
+
+                return parsedChats;
             }
             const response = await fetch(`${chatUrl}/chat`, {
                 method: 'GET',
@@ -76,13 +87,24 @@ export const ChatProvider = ({ children }) => {
 
             const data = await response.json();
             setAgentArray(data);
+            console.log(data);
+
+            // Assuming each chat object in the data array now includes a messages array
+            const messagesFromData = data.reduce((acc, chat) => {
+                if (chat.messages) {
+                    acc[chat.chatId] = chat.messages;
+                }
+                return acc;
+            }, {});
+            setMessages(messagesFromData); // Update messages state with the loaded data
+
             localStorage.setItem('agentArray', JSON.stringify(data));
             return data;
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
-    }, [chatUrl, idToken, setAgentArray, showSnackbar]);
+    }, [chatUrl, idToken, setAgentArray, setMessages, showSnackbar]);
 
     const loadChat = async (chatId) => {
         // This is done so that the chat visibility persists even after the page is refreshed
@@ -126,58 +148,6 @@ export const ChatProvider = ({ children }) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
-
-    // Fetch messages from the database
-    const loadMessages = useCallback(
-        async (chatId) => {
-            const cachedMessages = JSON.parse(localStorage.getItem('messages'));
-            if (cachedMessages) {
-                setMessages((prevMessageParts) => ({
-                    ...prevMessageParts,
-                    [chatId]: cachedMessages[chatId],
-                }));
-
-                return;
-            }
-            try {
-                const messageResponse = await fetch(`${messagesUrl}/messages`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: idToken,
-                    },
-                    body: JSON.stringify({ chatId }),
-                });
-
-                if (!messageResponse.ok) {
-                    throw new Error('Failed to load messages');
-                }
-
-                const messageData = await messageResponse.json();
-                if (messageData && messageData.messages.length > 0) {
-                    setMessages((prevMessageParts) => {
-                        const updatedMessages = {
-                            ...prevMessageParts,
-                            [chatId]: messageData.messages,
-                        };
-                        // Correctly update local storage with the updated messages state
-                        localStorage.setItem(
-                            'messages',
-                            JSON.stringify(updatedMessages)
-                        );
-                        return updatedMessages;
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                showSnackbar(
-                    `Network or fetch error: ${error.message}`,
-                    'error'
-                );
-            }
-        },
-        [messagesUrl, idToken, setMessages, showSnackbar]
-    );
 
     const sendMessage = async (input, chatSettings, image = null) => {
         let imageUrl = null;
@@ -360,16 +330,29 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to clear messages');
 
-            setMessages((prevMessageParts) => {
-                const updatedMessages = {
-                    ...prevMessageParts,
-                    [chatId]: [],
-                };
-                // Update local storage with the cleared messages for the chat
+            // Update the agentArray state
+            setAgentArray((prevAgentArray) => {
+                const updatedAgentArray = prevAgentArray.map((agent) => {
+                    if (agent.chatId === chatId) {
+                        // Clear messages for the matching chat
+                        return { ...agent, messages: [] };
+                    }
+                    return agent;
+                });
+
+                // Update local storage with the updated agent array
                 localStorage.setItem(
-                    'messages',
-                    JSON.stringify(updatedMessages)
+                    'agentArray',
+                    JSON.stringify(updatedAgentArray)
                 );
+
+                return updatedAgentArray;
+            });
+
+            // Update the messages state for the UI to reflect the cleared messages
+            setMessages((prevMessages) => {
+                const updatedMessages = { ...prevMessages, [chatId]: [] };
+                // No need to update 'messages' in local storage since it's part of 'agentArray'
                 return updatedMessages;
             });
         } catch (error) {
@@ -498,7 +481,6 @@ export const ChatProvider = ({ children }) => {
                 agentArray,
                 setAgentArray,
                 messages,
-                loadMessages,
                 sendMessage,
                 closeChat,
                 clearChat,
