@@ -1,4 +1,5 @@
 import os
+import certifi
 from firebase_admin import firestore, credentials, initialize_app
 from dotenv import load_dotenv
 

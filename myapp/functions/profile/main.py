@@ -1,7 +1,9 @@
 import os
 import json
+import certifi
+from pymongo import MongoClient
 from dotenv import load_dotenv
-from firebase_admin import firestore, credentials, initialize_app
+from firebase_admin import credentials, initialize_app
 
 load_dotenv()
 cred = None
@@ -24,11 +26,15 @@ try:
 except ValueError:
     pass
 
-db = firestore.client()
 firebase_service = FirebaseService()
 
-user_service = UserService(db)
+# MongoDB URI
+uri = "mongodb+srv://makeiteasierapps:truetoself@paxxium.sacwujd.mongodb.net/?retryWrites=true&w=majority&appName=Paxxium"
+# Create a new MongoClient and connect to the server
+client = MongoClient(uri, tlsCAFile=certifi.where())
 
+db = client['paxxium']
+user_service = UserService(db)
 
 def profile(request):
     response = {}

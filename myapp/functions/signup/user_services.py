@@ -3,8 +3,6 @@ import uuid
 import base64
 from dotenv import load_dotenv
 from google.cloud import kms
-from google.cloud import firestore
-
     
 from firebase_admin import storage
 
@@ -75,14 +73,18 @@ class UserService:
         return decrypted_key
 
     def get_profile(self, uid):
-        user_doc = self.db.collection('users').document(uid).get(['first_name', 'last_name', 'username', 'avatar_url', 'analysis'])
+        user_doc = self.db['users'].find_one({'_id': uid}, {'first_name': 1, 'last_name': 1, 'username': 1, 'avatar_url': 1, 'analysis': 1})
         
-        return user_doc.to_dict()
+        if user_doc:
+            user_doc.pop('_id')
+        
+        print(user_doc)
+        return user_doc
     
     def get_user_analysis(self, uid):
-        user_doc = self.db.collection('users').document(uid).get(['analysis'])
+        user_doc = self.db['users'].find_one({'_id': uid}, {'analysis': 1})
         
-        return user_doc.to_dict()
+        return user_doc
 
     @staticmethod
     def extract_data_for_prompt(answers):
@@ -108,47 +110,67 @@ class UserService:
         
     def update_profile_answers(self, uid, data):
         """
-        Update the question/answer map in the user's profile
+        Update the question/answer map in the user's profile for MongoDB.
+        Assumes 'profile' is a separate collection with 'uid' as a reference.
         """
-        doc_ref = self.db.collection('users').document(uid)
-        profile_ref = doc_ref.collection('profile').document('questions')
-        profile_ref.set(data)
+
+        # Find the profile document by user ID reference
+        profile_doc = self.db['profile'].find_one({'uid': uid})
+
+        if profile_doc:
+            # If the document exists, update it
+            self.db['profile'].update_one({'uid': uid}, {'$set': {'questions': data}})
+        else:
+            # If no document exists for this user, create one
+            self.db['profile'].insert_one({'uid': uid, 'questions': data})
 
         return {'message': 'User question/answers updated'}, 200
     
     def load_profile_answers(self, uid):
         """
-        Fetches the question/anwers map from the user's profile
+        Fetches the question/answers map from the user's profile in MongoDB.
+        Assumes 'profile' is a separate collection with 'uid' as a reference.
         """
+
+        # Find the profile document by user ID reference
+        profile_doc = self.db['profile'].find_one({'uid': uid}, {'questions': 1})
+
+        if profile_doc and 'questions' in profile_doc:
+            return profile_doc['questions']
         
-        doc_ref = self.db.collection('users').document(uid)
-        profile_ref = doc_ref.collection('profile').document('questions')
-        profile = profile_ref.get()
-        
-        return profile.to_dict()
+        return {}
     
     def update_user_profile(self, uid, updates):
-
-        user_ref = self.db.collection('users').document(uid)
-        doc = user_ref.get()
-
+        users_collection = self.db['users']  # Access the 'users' collection
+       
         if 'serp_key' in updates:
-            # Encrypt the value and update the request data
+            print("Encrypting serp_key")
             updates['serp_key'] = self.encrypt(updates['serp_key'])
 
         if 'open_key' in updates:
-            # Encrypt the value and update the request data
+            print("Encrypting open_key")
             updates['open_key'] = self.encrypt(updates['open_key'])
 
         if 'news_topics' in updates:
+            print("Formatting news_topics")
             news_topics_list = [topic.lower().strip() for topic in updates['news_topics']]
-            updates['news_topics'] = firestore.ArrayUnion(news_topics_list)
-        
-        if doc.exists:
-            user_ref.update(updates)
-        else:
-            user_ref.set(updates)
+            updates['news_topics'] = {"$addToSet": {"news_topics": {"$each": news_topics_list}}}
 
+        user_doc = users_collection.find_one({"_id": uid})
+
+        if user_doc:
+            # Update existing user
+            if 'news_topics' in updates:
+                # Special handling for news_topics to use $addToSet for array elements
+                news_topics_update = updates.pop('news_topics')
+                users_collection.update_one({"_id": uid}, {"$set": updates, **news_topics_update})
+            else:
+                users_collection.update_one({"_id": uid}, {"$set": updates})
+        else:
+            # Create new user
+            updates['_id'] = uid  # Ensure the document has the UID as its _id
+            users_collection.insert_one(updates)
+  
     def upload_generated_image_to_firebase_storage(self, image, uid):
         bucket = storage.bucket()
         unique_filename = str(uuid.uuid4())
@@ -186,8 +208,12 @@ class UserService:
         blob.upload_from_string(file_data, content_type='image/jpeg')
         blob.make_public()
 
-        user_ref = self.db.collection('users').document(uid)
-        user_ref.update({'avatar_url': blob.public_url})
+        # Update or insert the document with the given UID
+        self.db['users'].update_one(
+            {'_id': uid},  # Query matches the document with the given UID
+            {'$set': {'avatar_url': blob.public_url}},  # Update operation
+            upsert=True  # Create a new document if one doesn't exist
+        )
 
         return blob.public_url
     
