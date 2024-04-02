@@ -149,6 +149,7 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
+            console.log(data);
             setAnswers(data.answers);
 
             // Cache the fetched answers in local storage

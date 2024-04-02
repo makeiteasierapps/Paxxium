@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from google.cloud import kms
 from google.cloud import firestore
 
-    
 from firebase_admin import storage
 
 class UserService:
