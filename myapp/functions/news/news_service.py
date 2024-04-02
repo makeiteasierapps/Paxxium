@@ -41,7 +41,6 @@ class NewsService:
 
         return article_urls
 
-
     # Summarize articles
     def summarize_articles(self, article_urls):
         summarized_articles = []
@@ -106,76 +105,53 @@ class NewsService:
         return summarized_articles
 
     def upload_news_data(self, uid, news_data_list):
-        news_ref = self.db.collection('users').document(uid).collection('news_articles')
-        
         for news_data in news_data_list:
             url = news_data['url']
             
-            # Check if the URL already exists in the collection
-            query = news_ref.where('url', '==', url).limit(1).get()
-            
-            if len(query) == 0:
-                news_ref.add(news_data)
+            news_data_with_uid = news_data.copy()
+            news_data_with_uid['uid'] = uid
+
+            existing_article = self.db['newsArticles'].find_one({'url': url, 'uid': uid})
+
+            if existing_article is None:
+                self.db['newsArticles'].insert_one(news_data_with_uid)
+                print(f"Added URL '{url}'.")
             else:
                 print(f"URL '{url}' already exists, skipping...")
 
-
     def get_all_news_articles(self, uid):
-        news_ref = self.db.collection('users').document(uid).collection('news_articles')
-        
-        # Get all news articles
-        news_articles = news_ref.get()
-        
-        # Extract the article data
-        all_news = []
-        for article in news_articles:
-            article_data = article.to_dict()
-            all_news.append(article_data)
-        
+        articles_cursor = self.db['newsArticles'].find({'uid': uid})
+        all_news = list(articles_cursor)
+
         return all_news
 
     def get_user_news_topics(self,uid):
-        user_ref = self.db.collection('users').document(uid)
-        user = user_ref.get()
-        if user.exists:
-            return user.to_dict().get('news_topics', [])
-
+        user_document = self.db['users'].find_one({'_id': uid})
+        if user_document:
+            return user_document.get('news_topics', [])
         return []
 
     def mark_is_read(self, uid, doc_id):
-        articles_ref = self.db.collection('users').document(uid).collection('news_articles')
-
         try:
-            # Query for the document with the matching 'id' field
-            articles = articles_ref.where('id', '==', doc_id).get()
+            # Query for the document with the matching 'id' and 'uid' fields
+            result = self.db['newsArticles'].update_one(
+                {'id': doc_id, 'uid': uid},  # Query to find the document
+                {'$set': {'is_read': True}}  # Update operation
+            )
 
-            if not articles:
+            if result.matched_count == 0:
                 return "No matching document found"
-
-            # There should only be one matching document, so get the first one
-            article_ref = articles[0].reference
-
-            # Update or create the 'is_read' field
-            article_ref.set({'is_read': True}, merge=True)
+            
             return "Update successful"
         except Exception as e:
             return f"Update failed: {str(e)}"
 
     def delete_news_article(self, uid, doc_id):
-        articles_ref = self.db.collection('users').document(uid).collection('news_articles')
-        
         try:
-            # Query for the document with the matching 'id' field
-            articles = articles_ref.where('id', '==', doc_id).get()
+            result = self.db['newsArticles'].delete_one({'id': doc_id, 'uid': uid})
 
-            if not articles:
+            if result.deleted_count == 0:
                 return "No matching document found"
-
-            # There should only be one matching document, so get the first one
-            article_ref = articles[0].reference
-
-            # Delete the document
-            article_ref.delete()
             return "Deletion successful"
         except Exception as e:
             return f"Deletion failed: {str(e)}"

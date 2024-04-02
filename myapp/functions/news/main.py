@@ -1,7 +1,9 @@
 import os
 import random
+import certifi
+from pymongo import MongoClient
 from dotenv import load_dotenv
-from firebase_admin import firestore, credentials, initialize_app
+from firebase_admin import credentials, initialize_app
 
 load_dotenv()
 cred = None
@@ -22,7 +24,12 @@ try:
 except ValueError:
     pass
 
-db = firestore.client()
+# MongoDB URI
+mongo_uri = os.getenv('MONGO_URI')
+# Create a new MongoClient and connect to the server
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+
+db = client['paxxium']
 firebase_service = FirebaseService()
 
 
@@ -52,6 +59,9 @@ def news(request):
 
     if request.path in ('/', '/news'):
         news_data = news_service.get_all_news_articles(uid)
+        # Convert ObjectId to string
+        for article in news_data:
+            article['_id'] = str(article['_id'])
         return (news_data, 200, headers)
 
     if request.path in ('/query', '/news/query'):

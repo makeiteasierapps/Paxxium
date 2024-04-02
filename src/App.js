@@ -1,7 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { Box } from '@mui/material';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useContext, useEffect, useState } from 'react';
 import {
     Navigate,
@@ -31,20 +30,20 @@ const drawerWidth = 50;
 const expandedDrawerWidth = 150;
 
 const AuthenticatedApp = () => {
-    const db = getFirestore();
-    const {
-        idToken,
-        uid,
-        user,
-        setUid,
-        setUsername,
-        isAuthorized,
-        setIsAuthorized,
-    } = useContext(AuthContext);
+    const { idToken, uid, user, setUid, isAuthorized, setIsAuthorized } =
+        useContext(AuthContext);
 
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isDrawerExpanded, setDrawerExpanded] = useState(false);
-    const isAuth = localStorage.getItem('isAuthorized') === 'true';
+    const [initialCheckDone, setInitialCheckDone] = useState(false);
+
+    // Check local storage for persisted authorization state on component mount
+    useEffect(() => {
+        const persistedIsAuthorized =
+            localStorage.getItem('isAuthorized') === 'true';
+        setIsAuthorized(persistedIsAuthorized);
+        setInitialCheckDone(true); 
+    }, [setIsAuthorized]);
 
     const handleDrawerExpand = () => {
         setDrawerExpanded(!isDrawerExpanded);
@@ -54,7 +53,7 @@ const AuthenticatedApp = () => {
         process.env.NODE_ENV === 'development'
             ? 'http://localhost:50000'
             : process.env.REACT_APP_BACKEND_URL_PROD;
-    // Fetches auth status from the db then loads the user into state.
+
     useEffect(() => {
         if (isAuthorized) return;
         const fetchData = async () => {
@@ -78,11 +77,6 @@ const AuthenticatedApp = () => {
                         setIsAuthorized(true);
                         localStorage.setItem('isAuthorized', 'true');
                         setUid(user.uid);
-                        const userDoc = await getDoc(doc(db, 'users', uid));
-                        if (!userDoc.exists()) {
-                            throw new Error('No user found in Firestore');
-                        }
-                        setUsername(userDoc.data().username);
                     }
                 } catch (error) {
                     console.error('Failed to fetch:', error);
@@ -91,11 +85,15 @@ const AuthenticatedApp = () => {
         };
 
         fetchData();
-    }, [db, idToken, setUid, setUsername, user, uid, setIsAuthorized]);
+    }, [idToken, setUid, user, uid, setIsAuthorized, isAuthorized, backendUrl]);
+
+    if (!initialCheckDone) {
+        return null;
+    }
 
     return (
         <>
-            {isAuth && (
+            {isAuthorized && (
                 <>
                     <SideDrawer
                         mobileOpen={mobileOpen}
@@ -141,7 +139,7 @@ const AuthenticatedApp = () => {
                     </Box>
                 </>
             )}
-            {!isAuth && (
+            {!isAuthorized && (
                 <Routes>
                     <Route path="/" element={<LoginPage />} />
                     <Route path="*" element={<Navigate replace to="/" />} />

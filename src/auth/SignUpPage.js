@@ -38,7 +38,6 @@ export default function SignUp() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const auth = getAuth();
-    const { idToken } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -108,6 +107,7 @@ export default function SignUp() {
                     throw new Error('User not created');
                 }
 
+                const idToken = await user.getIdToken();
                 const response = await fetch(`${backendUrl}/signup`, {
                     method: 'POST',
                     headers: {

@@ -28,7 +28,7 @@ StyledButton.defaultProps = {
 
 export default function LoginPage() {
     const auth = getAuth();
-    const { setUser } = useContext(AuthContext);
+    const { setUser, setIsAuthorized } = useContext(AuthContext);
     const { showSnackbar, hideSnackbar, snackbarInfo } =
         useContext(SnackbarContext);
 
@@ -48,6 +48,8 @@ export default function LoginPage() {
             );
             const user = userCredential.user;
             setUser(user);
+            setIsAuthorized(true);
+            localStorage.setItem('isAuthorized', 'true');
             setIsLoading(false);
         } catch (error) {
             let errorMessage = 'Login failed with token';

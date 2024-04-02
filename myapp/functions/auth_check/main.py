@@ -1,6 +1,7 @@
 import os
 import certifi
-from firebase_admin import firestore, credentials, initialize_app
+from pymongo import MongoClient
+from firebase_admin import credentials, initialize_app
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,7 +16,14 @@ else:
 initialize_app(cred, {
     'projectId': 'paxxiumv1',
 })
-db = firestore.client()
+
+# MongoDB URI
+mongo_uri = os.getenv('MONGO_URI')
+# Create a new MongoClient and connect to the server
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+
+db = client['paxxium']
+
 firebase_service = FirebaseService()
 
 os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
@@ -48,9 +56,9 @@ def auth_check(request):
 
     uid = decoded_token['uid']
     
-    user_doc = db.collection('users').document(uid).get()
+    user_doc = db['users'].find_one({'_id': uid})
         
-    auth_status = user_doc.to_dict().get('authorized', False)
+    auth_status = user_doc.get('auth_status', False)
     response['auth_status'] = auth_status
 
     return (response, 200, headers)

@@ -9,10 +9,10 @@ class UserService:
     def __init__(self, db):
         self.db = db
 
-    def get_keys(self, user_id):
-        user_doc = self.db.collection('users').document(user_id).get()
-        
-        return user_doc.to_dict()['open_key'], user_doc.to_dict()['serp_key']
+    def get_keys(self, uid):
+        user_doc = self.db['users'].find_one({'_id': uid}, {'open_key': 1, 'serp_key': 1})
+        print(user_doc)
+        return user_doc['open_key'], user_doc['serp_key']
 
     @staticmethod
     def crc32c(data: bytes) -> int:
@@ -72,6 +72,7 @@ class UserService:
         return decrypted_key
 
     def get_profile(self, uid):
+        print("Fetching user profile")
         user_doc = self.db['users'].find_one({'_id': uid}, {'first_name': 1, 'last_name': 1, 'username': 1, 'avatar_url': 1, 'analysis': 1})
         
         if user_doc:

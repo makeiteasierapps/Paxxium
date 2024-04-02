@@ -133,8 +133,8 @@ export const NewsProvider = ({ children }) => {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    const errorData = await response.json(); 
-                    showSnackbar(errorData.message, 'warning'); 
+                    const errorData = await response.json();
+                    showSnackbar(errorData.message, 'warning');
                 } else {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -165,7 +165,7 @@ export const NewsProvider = ({ children }) => {
     useEffect(() => {
         if (!idToken) return;
         loadNewsData();
-    }, [idToken, loadNewsData]);
+    }, [idToken]);
 
     return (
         <NewsContext.Provider

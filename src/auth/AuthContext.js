@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
     const [idToken, setIdToken] = useState(null);
     const [uid, setUid] = useState(null);
     const [user, setUser] = useState(null);
-    const [username, setUsername] = useState(null);
     const [isAuthorized, setIsAuthorized] = useState(false);
 
     useEffect(() => {
@@ -49,8 +48,6 @@ export const AuthProvider = ({ children }) => {
                 setUid,
                 setUser,
                 user,
-                username,
-                setUsername,
                 isAuthorized,
                 setIsAuthorized,
             }}

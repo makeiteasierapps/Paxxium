@@ -29,9 +29,9 @@ except ValueError:
 firebase_service = FirebaseService()
 
 # MongoDB URI
-uri = "mongodb+srv://makeiteasierapps:truetoself@paxxium.sacwujd.mongodb.net/?retryWrites=true&w=majority&appName=Paxxium"
+mongo_uri = os.getenv('MONGO_URI')
 # Create a new MongoClient and connect to the server
-client = MongoClient(uri, tlsCAFile=certifi.where())
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
 
 db = client['paxxium']
 user_service = UserService(db)
@@ -71,6 +71,7 @@ def profile(request):
             
             return ({'response': 'Profile questions/answers updated successfully'}, 200, headers)
         profile_data = user_service.load_profile_answers(uid)
+        print(profile_data)
         return (profile_data, 200, headers)
     
     if request.path in ('/user', '/profile/user'):
