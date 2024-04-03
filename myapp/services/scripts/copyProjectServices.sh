@@ -6,7 +6,7 @@ SOURCE_FILE="../project_services.py"
 # Define the target directories
 TARGET_DIRS=(
 
-    "../../functions/project"
+    "../../functions/projects"
 )
 
 # Loop through each target directory and copy the source file to it

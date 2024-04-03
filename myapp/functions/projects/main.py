@@ -1,8 +1,10 @@
 import os
+from pymongo import MongoClient
+import certifi
 from dotenv import load_dotenv
 import pprint
 from flask import jsonify
-from firebase_admin import firestore, credentials, initialize_app
+from firebase_admin import credentials, initialize_app
 
 headers = {"Access-Control-Allow-Origin": "*"}
 load_dotenv()
@@ -27,7 +29,12 @@ try:
 except ValueError:
     pass
 
-db = firestore.client()
+# MongoDB URI
+mongo_uri = os.getenv('MONGO_URI')
+# Create a new MongoClient and connect to the server
+client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
+
+db = client['paxxium']
 firebase_service = FirebaseService()
 user_service = UserService(db)
 project_services = ProjectServices(db)
@@ -118,8 +125,8 @@ def create_new_project(request):
     name = data.get('name')
     description = data.get('description')
     print(f"Creating new project: {name}, {description}")
-    new_project_id, index_name = project_services.create_new_project(uid, name, description)
-    return jsonify({'message': 'Project created', 'project_id': new_project_id, 'project_name': index_name}), 200, headers
+    new_project_id = project_services.create_new_project(uid, name, description)
+    return jsonify({'message': 'Project created', 'project_id': new_project_id, 'project_name': name}), 200, headers
 
 def projects(request):
     if request.method == "OPTIONS":

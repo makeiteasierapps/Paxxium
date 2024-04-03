@@ -48,7 +48,7 @@ export const ProjectProvider = ({ children }) => {
     useEffect(() => {
         if (!idToken) return;
         fetchProjects();
-    }, [idToken, fetchProjects]);
+    }, [idToken]);
 
     return (
         <ProjectContext.Provider
