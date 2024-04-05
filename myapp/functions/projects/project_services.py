@@ -1,13 +1,15 @@
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 import hashlib
 from canopy.tokenizer import Tokenizer
 from datetime import datetime
 from canopy.models.data_models import Document
 from canopy.knowledge_base import KnowledgeBase
+from canopy.knowledge_base.models import KBEncodedDocChunk
 from canopy.knowledge_base.record_encoder import OpenAIRecordEncoder
 from canopy.knowledge_base.chunker.recursive_character import RecursiveCharacterChunker
-from canopy.models.data_models import Document
+
 from pinecone import Pinecone
 if os.getenv('LOCAL_DEV') == 'True':
     from .ContentScraper import ContentScraper
@@ -41,7 +43,25 @@ class ProjectServices:
         return chunks
     
     def embed_chunks(self, chunks):
-        pass
+        client = OpenAI()
+        encoded_chunks = []
+        for chunk in chunks:
+            # Assuming `chunk` is an instance of `KBDocChunk`
+            response = client.embeddings.create(input=chunk.text, model='text-embedding-3-small')
+            embeddings = response.data[0].embedding
+            # Wrap the KBDocChunk in a KBEncodedDocChunk with embeddings
+            encoded_chunk = KBEncodedDocChunk(
+                id=chunk.id,
+                text=chunk.text,
+                document_id=chunk.document_id,  # Ensure this is set in your KBDocChunk
+                values=embeddings,  # The embeddings you obtained
+                metadata=chunk.metadata if hasattr(chunk, 'metadata') else {},  # Optional metadata
+                source=chunk.source if hasattr(chunk, 'source') else None  # Optional source
+            )
+            # Optionally, convert to a DB record or use as is
+            record = encoded_chunk.to_db_record()
+            encoded_chunks.append(record)
+        return encoded_chunks
 
     def scrape_url(self, uid, url, project_name, project_id):
         content_scraper = ContentScraper(url)
@@ -49,7 +69,8 @@ class ProjectServices:
         num_tokens = tokenizer.token_count(content)
         print(num_tokens)
         chunks = self.chunkify(content)
-        print(chunks)
+        embeddings = self.embed_chunks(chunks)
+        print(embeddings)
         print(len(chunks))
 
         # Storing the entire text in firestore along with the token count.
@@ -109,6 +130,8 @@ class ProjectServices:
                 'uid': uid,
                 'description': description,
                 'objective': '',
+                'documents': [],
+                'urls': [],
                 'created_at': datetime.utcnow()
             }
         
