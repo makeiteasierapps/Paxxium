@@ -11,7 +11,6 @@ class UserService:
 
     def get_keys(self, uid):
         user_doc = self.db['users'].find_one({'_id': uid}, {'open_key': 1, 'serp_key': 1})
-        print(user_doc)
         return user_doc['open_key'], user_doc['serp_key']
 
     @staticmethod
@@ -72,13 +71,11 @@ class UserService:
         return decrypted_key
 
     def get_profile(self, uid):
-        print("Fetching user profile")
         user_doc = self.db['users'].find_one({'_id': uid}, {'first_name': 1, 'last_name': 1, 'username': 1, 'avatar_url': 1, 'analysis': 1})
         
         if user_doc:
             user_doc.pop('_id')
         
-        print(user_doc)
         return user_doc
     
     def get_user_analysis(self, uid):
@@ -144,15 +141,12 @@ class UserService:
         users_collection = self.db['users']  # Access the 'users' collection
        
         if 'serp_key' in updates:
-            print("Encrypting serp_key")
             updates['serp_key'] = self.encrypt(updates['serp_key'])
 
         if 'open_key' in updates:
-            print("Encrypting open_key")
             updates['open_key'] = self.encrypt(updates['open_key'])
 
         if 'news_topics' in updates:
-            print("Formatting news_topics")
             news_topics_list = [topic.lower().strip() for topic in updates['news_topics']]
             updates['news_topics'] = {"$addToSet": {"news_topics": {"$each": news_topics_list}}}
 

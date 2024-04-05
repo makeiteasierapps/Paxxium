@@ -60,7 +60,6 @@ def chat(request):
 
     if request.path in ('/', '/chat'):
         chat_data_list = chat_service.get_all_chats(uid)
-        print(chat_data_list)
         return (chat_data_list, 200, headers)
     
     if request.path in ('/create', '/chat/create'):

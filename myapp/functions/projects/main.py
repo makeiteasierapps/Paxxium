@@ -77,14 +77,12 @@ def handle_scrape(request):
 
     data = request.get_json()
     urls = data.get('urls')
-    print(f"Scraping URLs: {urls}")
-    project_name = data.get('projectName')
     project_id = data.get('projectId')
     if not urls or not isinstance(urls, list) or not all(urls):
         return jsonify({'message': 'URLs are required and must be a non-empty list'}), 400, headers
 
     for url in urls:
-        project_services.scrape_url(uid, url, project_name, project_id)
+        project_services.scrape_url(uid, url, project_id)
         
     return jsonify({'message': 'Scraped and added to project'}), 200, headers
 
