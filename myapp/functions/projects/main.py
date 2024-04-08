@@ -12,12 +12,10 @@ load_dotenv()
 cred = None
 if os.getenv('LOCAL_DEV') == 'True':
     from .firebase_service import FirebaseService
-    from .user_services import UserService
     from .project_services import ProjectServices
     cred = credentials.Certificate(os.getenv('FIREBASE_ADMIN_SDK'))
 else:
     from firebase_service import FirebaseService
-    from user_services import UserService
     from project_services import ProjectServices
     cred = credentials.ApplicationDefault()
 
@@ -36,7 +34,6 @@ client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
 
 db = client['paxxium']
 firebase_service = FirebaseService()
-user_service = UserService(db)
 project_services = ProjectServices(db)
 
 def cors_preflight_response():
@@ -82,7 +79,7 @@ def handle_scrape(request):
         return jsonify({'message': 'URLs are required and must be a non-empty list'}), 400, headers
 
     for url in urls:
-        project_services.scrape_url(uid, url, project_id)
+        project_services.scrape_url(url, project_id)
         
     return jsonify({'message': 'Scraped and added to project'}), 200, headers
 
@@ -122,7 +119,7 @@ def create_new_project(request):
     data = request.get_json()
     name = data.get('name')
     description = data.get('description')
-    print(f"Creating new project: {name}, {description}")
+    
     new_project_id = project_services.create_new_project(uid, name, description)
     return jsonify({'message': 'Project created', 'project_id': new_project_id, 'project_name': name}), 200, headers
 

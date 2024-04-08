@@ -46,9 +46,8 @@ export const ChatProvider = ({ children }) => {
         });
     };
 
-    const getAgentById = (id) => {
-        console.log(agentArray);
-        return agentArray.find((agent) => agent.chatId === id);
+    const getChatByProjectId = (id) => {
+        return agentArray.find((agent) => agent.project_id === id);
     };
 
     // Used to get the messages for a specific chat
@@ -190,7 +189,6 @@ export const ChatProvider = ({ children }) => {
             });
         }
 
-        console.log(chatSettings);
         // Optimistic update
         const userMessage = {
             content: input,
@@ -491,7 +489,7 @@ export const ChatProvider = ({ children }) => {
                 loadChat,
                 isSettingsOpen,
                 setIsSettingsOpen,
-                getAgentById,
+                getAgentById: getChatByProjectId,
             }}
         >
             {children}

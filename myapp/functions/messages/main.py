@@ -1,10 +1,8 @@
 import json
 import os
 from pymongo import MongoClient
+from openai import OpenAI
 import certifi
-from canopy.context_engine import ContextEngine
-from canopy.knowledge_base import KnowledgeBase
-from canopy.models.data_models import Query
 from canopy.tokenizer import Tokenizer
 
 from dotenv import load_dotenv
@@ -44,21 +42,47 @@ firebase_service = FirebaseService()
 message_service = MessageService(db)
 user_service = UserService(db)
 
-def query_pinecone_index(query, index_name):
-    kb = KnowledgeBase(index_name=index_name)
-    kb.connect()
-    context_engine = ContextEngine(kb)
-    result = context_engine.query([Query(text=query)], max_context_tokens=500)
-    return json.loads(result.to_text())
+def query_project_index(query, project_id):
+    open_client = OpenAI()
+    response = open_client.embeddings.create(input=query, model='text-embedding-3-small')
+    embeddings = response.data[0].embedding
+    pipeline = [
+        {
+            '$vectorSearch': {
+                'index': 'vector_index',
+                'path': 'values',
+                'queryVector': embeddings,
+                'numCandidates': 100,
+                'limit': 10,
+                'filter': {
+                    'project_id': project_id
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 0,
+                'text': 1,
+                'source': 1,
+                'score': {
+                    '$meta': 'vectorSearchScore'
+                }
+            }
+        }
+    ]
 
-def prepare_response_for_llm(pinecone_query_result):
+    results = db["chunks"].aggregate(pipeline)
+    return results
+        
+
+def prepare_response_for_llm(query_results):
     text = []
     sources = []
     
-    for item in pinecone_query_result:
-        for snippet in item['snippets']:
-            text.append(snippet['text'])
-            sources.append(snippet['source'])
+    for item in query_results:
+        if item['score'] > 0.5:
+            print(item)
+            text.append(item['text'])
+            sources.append(item['source'])
 
     combined_text = ' '.join(text)
     project_query_instructions = f'''
@@ -133,14 +157,13 @@ def messages(request):
         user_message = data.get('userMessage')
         chat_history = data.get('chatHistory')
         chat_settings = data.get('chatSettings')
-        chat_id = chat_settings['chatId']
-        index_name = chat_settings['chatName']
-        system_prompt = chat_settings['systemPrompt']
-        is_project_chat = chat_settings['isProjectChat']
+        project_id = chat_settings.get('projectId')  
+        chat_id = chat_settings.get('chatId')  
+        system_prompt = chat_settings.get('systemPrompt')  
 
-        if is_project_chat:
-            pinecone_query_result = query_pinecone_index(user_message['content'], index_name)
-            instructions_to_add = prepare_response_for_llm(pinecone_query_result)
+        if project_id is not None:
+            query_results = query_project_index(user_message['content'], project_id)
+            instructions_to_add = prepare_response_for_llm(query_results)
             system_prompt += instructions_to_add
             chat_settings['systemPrompt'] = system_prompt
 

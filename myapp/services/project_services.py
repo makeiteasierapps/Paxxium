@@ -1,16 +1,13 @@
 import os
+import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
-import uuid
 from canopy.tokenizer import Tokenizer
-from datetime import datetime
 from canopy.models.data_models import Document
-from canopy.knowledge_base import KnowledgeBase
 from canopy.knowledge_base.models import KBEncodedDocChunk
-from canopy.knowledge_base.record_encoder import OpenAIRecordEncoder
 from canopy.knowledge_base.chunker.recursive_character import RecursiveCharacterChunker
 
-from pinecone import Pinecone
 if os.getenv('LOCAL_DEV') == 'True':
     from .ContentScraper import ContentScraper
 else:
@@ -19,7 +16,6 @@ else:
 load_dotenv()
 Tokenizer.initialize()
 tokenizer = Tokenizer()
-pinecone = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 
 class ProjectServices:
     def __init__(self, db):
@@ -64,15 +60,11 @@ class ProjectServices:
         return encoded_chunks
 
     def scrape_url(self, url, project_id):
-        print(project_id)
         content_scraper = ContentScraper(url)
         content = content_scraper.extract_content()
 
         chunks = self.chunkify(content, url)
-        print(chunks)
         embeddings = self.embed_chunks(chunks)
-
-        print(embeddings)
 
         # Normalize and hash the URL to use as a document ID
         normalized_url = self.normalize_url(url)
@@ -87,7 +79,7 @@ class ProjectServices:
             'url': normalized_url
         }
         inserted_doc = self.db['project_docs'].insert_one(project_doc)
-        doc_id = inserted_doc.inserted_id
+        doc_id = str(inserted_doc.inserted_id)
 
         # Now, insert each chunk with the doc_id included
         chunk_ids = []
@@ -100,7 +92,8 @@ class ProjectServices:
                 **chunk,
                 'text': metadata_text,
                 'source': metadata_source,
-                'doc_id': doc_id
+                'doc_id': doc_id,
+                'project_id': project_id
             }
             # Remove the original 'metadata'/ id fields
             chunk_to_insert.pop('metadata', None)
@@ -170,11 +163,6 @@ class ProjectServices:
         self.db['project_docs'].update_one({'_id': doc_id}, {'$set': {'chunks': chunk_ids}})
 
     def create_new_project(self, uid, name, description):
-        # encoder = OpenAIRecordEncoder(model_name="text-embedding-3-small")
-        # kb = KnowledgeBase(index_name=name, record_encoder=encoder)
-        # kb.create_canopy_index()
-        # index_name = kb.index_name
-        # Create a new document in firebase firestore
         project_details = {
                 'name': name,
                 'uid': uid,
@@ -187,5 +175,5 @@ class ProjectServices:
         
         new_project = self.db['projects'].insert_one(project_details)
         # Retrieve the ID of the newly inserted document
-        new_project_id = new_project.inserted_id
+        new_project_id = str(new_project.inserted_id)
         return new_project_id

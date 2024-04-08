@@ -31,15 +31,7 @@ const AgentDash = () => {
                         agentArray
                             .filter((agent) => agent.is_open)
                             .map((agent) => (
-                                <Chat
-                                    key={agent.chatId}
-                                    chatId={agent.chatId}
-                                    chatConstants={agent.chat_constants}
-                                    systemPrompt={agent.system_prompt}
-                                    chatName={agent.chat_name}
-                                    agentModel={agent.agent_model}
-                                    useProfileData={agent.use_profile_data}
-                                />
+                                <Chat key={agent.chatId} agent={agent} />
                             ))
                     ) : (
                         <ChatSettings />

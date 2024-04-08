@@ -1,6 +1,5 @@
-import { useContext, useState } from 'react'; // Import useState
+import { useContext, useState } from 'react'; 
 import {
-    Box,
     TextField,
     Button,
     Dialog,
@@ -9,14 +8,12 @@ import {
     DialogContentText,
     DialogTitle,
 } from '@mui/material';
-import { SettingsMenuButton } from '../agents/agentStyledComponents';
-import { styled } from '@mui/system';
 import { AuthContext } from '../../auth/AuthContext';
 
 const NewProject = ({ isOpen, onClose }) => {
     const { idToken } = useContext(AuthContext);
-    const [name, setName] = useState(''); // State for project name
-    const [description, setDescription] = useState(''); // State for project description
+    const [name, setName] = useState(''); 
+    const [description, setDescription] = useState(''); 
 
     const handleCreateProject = async (name, description) => {
         const formData = JSON.stringify({ name, description });

@@ -35,7 +35,7 @@ class ChatService:
         """
 
         # Query the conversations collection for conversations belonging to the user
-        conversations_cursor = self.db['chats'].find({'uid': uid}).sort('created_at', -1)
+        chats_cursor = self.db['chats'].find({'uid': uid}).sort('created_at', -1)
         
         # Function to recursively convert ObjectId to string
         def convert_objectid(obj):
@@ -50,7 +50,7 @@ class ChatService:
 
         # Create a list of dictionaries with all fields, converting ObjectId to string
         chats = []
-        for conv in conversations_cursor:
+        for conv in chats_cursor:
             chat = convert_objectid(conv)
             chat['chatId'] = chat.pop('_id')  # Rename '_id' to 'chatId'
             chats.append(chat)

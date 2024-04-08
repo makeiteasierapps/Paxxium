@@ -1,4 +1,4 @@
-import { useState, useContext, useRef } from 'react';
+import { useContext, useRef } from 'react';
 import { styled } from '@mui/system';
 import { ProjectContext } from './ProjectContext';
 import { ChatContext } from '../agents/chat/ChatContext';
@@ -25,7 +25,6 @@ const Project = ({ project, onClose }) => {
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
     const agent = getAgentById(project.id);
-
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -130,16 +129,7 @@ const Project = ({ project, onClose }) => {
                         projectId={project.id}
                     />
                 ) : null}
-                {isChatOpen ? (
-                    <ProjectChat
-                        chatName={agent.chat_name}
-                        chatId={`project-${agent.chatId}`}
-                        chatConstants={agent.chat_constants}
-                        systemPrompt={agent.system_prompt}
-                        agentModel={agent.agent_model}
-                        useProfileData={agent.use_profile_data}
-                    />
-                ) : null}
+                {isChatOpen ? <ProjectChat agent={agent} /> : null}
             </Box>
         </MainContainer>
     );

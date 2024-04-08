@@ -19,7 +19,6 @@ const WebScrapeForm = ({ projectName, projectId }) => {
             }
             return url;
         });
-        console.log(formattedUrls);
         const response = await fetch('http://localhost:50006/projects/scrape', {
             method: 'POST',
             headers: {
