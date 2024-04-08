@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'; 
+import { useContext, useState } from 'react';
 import {
     TextField,
     Button,
@@ -9,11 +9,13 @@ import {
     DialogTitle,
 } from '@mui/material';
 import { AuthContext } from '../../auth/AuthContext';
+import { ProjectContext } from './ProjectContext';
 
 const NewProject = ({ isOpen, onClose }) => {
     const { idToken } = useContext(AuthContext);
-    const [name, setName] = useState(''); 
-    const [description, setDescription] = useState(''); 
+    const { addProject } = useContext(ProjectContext);
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
 
     const handleCreateProject = async (name, description) => {
         const formData = JSON.stringify({ name, description });
@@ -33,7 +35,7 @@ const NewProject = ({ isOpen, onClose }) => {
             throw new Error('Failed to create project');
         }
         const data = await create_project_response.json();
-        console.log(data);
+        const newProject = data.new_project;
 
         const creat_chat_response = await fetch(
             'http://localhost:50001/chat/create',
@@ -44,12 +46,12 @@ const NewProject = ({ isOpen, onClose }) => {
                     Authorization: idToken,
                 },
                 body: JSON.stringify({
-                    chatName: data.project_name,
+                    chatName: newProject.name,
                     agentModel: 'GPT-4',
                     systemPrompt: '',
                     chatConstants: '',
                     useProfileData: false,
-                    projectId: data.project_id,
+                    projectId: newProject._id,
                 }),
             }
         );
@@ -59,11 +61,9 @@ const NewProject = ({ isOpen, onClose }) => {
         }
         setName('');
         setDescription('');
-
-        // add the new project to state
+        addProject(data.new_project);
     };
 
-    console.log(isOpen);
     return (
         <Dialog
             gap={2}

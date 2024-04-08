@@ -172,8 +172,7 @@ class ProjectServices:
                 'urls': [],
                 'created_at': datetime.utcnow()
             }
-        
         new_project = self.db['projects'].insert_one(project_details)
         # Retrieve the ID of the newly inserted document
-        new_project_id = str(new_project.inserted_id)
-        return new_project_id
+        project_details['_id'] = str(new_project.inserted_id)
+        return project_details

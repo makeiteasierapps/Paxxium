@@ -120,8 +120,8 @@ def create_new_project(request):
     name = data.get('name')
     description = data.get('description')
     
-    new_project_id = project_services.create_new_project(uid, name, description)
-    return jsonify({'message': 'Project created', 'project_id': new_project_id, 'project_name': name}), 200, headers
+    new_project_details = project_services.create_new_project(uid, name, description)
+    return jsonify({'new_project': new_project_details}), 200, headers
 
 def projects(request):
     if request.method == "OPTIONS":

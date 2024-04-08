@@ -126,7 +126,7 @@ const Project = ({ project, onClose }) => {
                 {isWebScrapeOpen ? (
                     <WebScrapeForm
                         projectName={project.name}
-                        projectId={project.id}
+                        projectId={project._id}
                     />
                 ) : null}
                 {isChatOpen ? <ProjectChat agent={agent} /> : null}

@@ -73,7 +73,6 @@ def query_project_index(query, project_id):
     results = db["chunks"].aggregate(pipeline)
     return results
         
-
 def prepare_response_for_llm(query_results):
     text = []
     sources = []
@@ -91,8 +90,6 @@ def prepare_response_for_llm(query_results):
     KNOWLEDGE BASE: {combined_text}
     '''
     return project_query_instructions
-
-
 
 def process_message(uid, chat_id, user_message, chat_settings, chat_history, image_url=None):
     model = chat_settings['agentModel']

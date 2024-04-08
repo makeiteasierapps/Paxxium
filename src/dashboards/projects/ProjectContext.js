@@ -25,6 +25,12 @@ export const ProjectProvider = ({ children }) => {
             ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
+    const addProject = (project) => {
+        setProjects((prevProjects) => {
+            return [...prevProjects, project];
+        });
+    };
+
     const fetchProjects = useCallback(async () => {
         try {
             const response = await fetch(`${backendUrl}/projects`, {
@@ -61,6 +67,7 @@ export const ProjectProvider = ({ children }) => {
                 setIsNewProjectOpen,
                 isChatOpen,
                 setIsChatOpen,
+                addProject,
             }}
         >
             {children}
