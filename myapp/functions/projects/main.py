@@ -40,7 +40,7 @@ def cors_preflight_response():
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE, PUT, PATCH",
-        "Access-Control-Allow-Headers": "Authorization, Content-Type",
+        "Access-Control-Allow-Headers": "Authorization, Content-Type, Project-ID",
         "Access-Control-Max-Age": "3600",
     }
     return ("", 204, cors_headers)
@@ -66,6 +66,30 @@ def handle_fetch_projects(request):
         return generate_token_error_response(request)
     project_list = project_services.get_projects(uid)
     return jsonify({'projects': project_list}), 200, headers
+
+def handle_fetch_documents(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    project_id = request.headers.get('Project-ID')
+    if not project_id:
+        return jsonify({'message': 'Project ID is required'}), 400, headers
+    
+    documents = project_services.get_docs_by_projectId(project_id)
+    return jsonify({'documents': documents}), 200, headers  
+
+def handle_delete_document(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    data = request.get_json()
+    print(request.data)
+    doc_id = data.get('docId')
+    if not doc_id:
+        return jsonify({'message': 'Doc ID is required'}), 400, headers
+    
+    project_services.delete_doc_by_id(doc_id)
+    return jsonify({'message': 'Document deleted'}), 200, headers
 
 def handle_scrape(request):
     uid = verify_request_token(request)
@@ -138,3 +162,9 @@ def projects(request):
     
     if request.path in ('/create', '/projects/create'):
         return create_new_project(request)
+    
+    if request.path in ('/documents', '/projects/documents'):
+        return handle_fetch_documents(request)
+    
+    if request.path in ('/documents/delete', '/projects/documents/delete'):
+        return handle_delete_document(request)

@@ -12,7 +12,7 @@ import {
 // AgentDash.js
 export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
-    fontFamily: 'Titillium Web, sans-serif',
+    fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
     fontWeight: 'bold',
     fontSize: '1rem',
     '&:hover': {
@@ -27,7 +27,7 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
-    fontFamily: 'Titillium Web, sans-serif',
+    fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
     fontWeight: 'bold',
     fontSize: '1rem',
     width: '33%',

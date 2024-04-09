@@ -1,5 +1,6 @@
 import os
 import uuid
+from bson import ObjectId
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -30,6 +31,25 @@ class ProjectServices:
         for project in project_list:
             project.pop('_id', None)
         return project_list
+    
+    def get_docs_by_projectId(self, project_id):
+        # Search collection 'project_docs' for documents with the matching 'project_id'
+        docs_cursor = self.db['project_docs'].find({'project_id': project_id})
+        # Convert the cursor to a list of dictionaries, adding an 'id' field from the '_id' field
+        docs_list = [{'id': str(doc['_id']), **doc} for doc in docs_cursor]
+        # Convert the 'chunks' list of ObjectIds to strings
+        for doc in docs_list:
+            if 'chunks' in doc:
+                doc['chunks'] = [str(chunk_id) for chunk_id in doc['chunks']]
+            # Remove the MongoDB '_id' from the dictionary to avoid serialization issues
+            doc.pop('_id', None)
+        return docs_list
+    
+    def delete_doc_by_id(self, doc_id):
+        # Delete the document with the matching 'doc_id' from the 'project_docs' collection
+        self.db['project_docs'].delete_one({'_id': ObjectId(doc_id)})
+        # Delete all chunks with the matching 'doc_id' from the 'chunks' collection
+        self.db['chunks'].delete_many({'doc_id': doc_id})
 
     def chunkify(self, doc, url):
         # Generate a unique ID for the document using its content
@@ -76,10 +96,10 @@ class ProjectServices:
             'value': content,
             'project_id': project_id,
             'token_count': tokenizer.token_count(content),
-            'url': normalized_url
+            'source': normalized_url
         }
         inserted_doc = self.db['project_docs'].insert_one(project_doc)
-        doc_id = str(inserted_doc.inserted_id)
+        doc_id = inserted_doc.inserted_id
 
         # Now, insert each chunk with the doc_id included
         chunk_ids = []
@@ -92,7 +112,7 @@ class ProjectServices:
                 **chunk,
                 'text': metadata_text,
                 'source': metadata_source,
-                'doc_id': doc_id,
+                'doc_id': str(doc_id),
                 'project_id': project_id
             }
             # Remove the original 'metadata'/ id fields
@@ -135,7 +155,7 @@ class ProjectServices:
             'value': text,
             'project_id': project_id,
             'token_count': num_tokens,
-            'file_name': file_name
+            'source': file_name
         }
         inserted_doc = self.db['project_docs'].insert_one(project_doc)
         doc_id = inserted_doc.inserted_id

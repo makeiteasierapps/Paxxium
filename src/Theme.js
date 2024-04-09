@@ -61,6 +61,17 @@ let theme = createTheme({
             },
         },
     },
+    typography: {
+        fontFamilies: {
+            primary: 'Titillium Web',
+            title: 'Alegreya Sans SC',
+        },
+        applyFontFamily: function (fontKey) {
+            return {
+                fontFamily: this.fontFamilies[fontKey] || this.fontFamily,
+            };
+        },
+    },
 });
 
 theme = responsiveFontSizes(theme);
