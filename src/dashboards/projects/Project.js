@@ -30,6 +30,7 @@ const MainContainer = styled(Box)(({ theme }) => ({
 
 const DocumentCard = ({ document }) => {
     const { deleteDocument } = useContext(ProjectContext);
+    console.log(document);
     const handleDelete = () => {
         deleteDocument(document.project_id, document.id);
     };
@@ -83,8 +84,6 @@ const Project = ({ project, onClose }) => {
     const fileInputRef = useRef(null);
     const agent = getAgentById(project.id);
     const theme = useTheme();
-
-    console.log(project);
 
     useEffect(() => {
         fetchDocuments(project.id);
@@ -218,7 +217,7 @@ const Project = ({ project, onClose }) => {
                             md={4}
                             lg={3}
                             xl={3}
-                            key={document._id}
+                            key={document.id}
                         >
                             <DocumentCard document={document} />
                         </Grid>

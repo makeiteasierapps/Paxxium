@@ -67,6 +67,17 @@ def handle_fetch_projects(request):
     project_list = project_services.get_projects(uid)
     return jsonify({'projects': project_list}), 200, headers
 
+def handle_delete_project(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    data = request.get_json()
+    project_id = data.get('projectId')
+    if not project_id:
+        return jsonify({'message': 'Project ID is required'}), 400, headers
+    project_services.delete_project_by_id(project_id)
+    return jsonify({'message': 'Project deleted'}), 200, headers
+
 def handle_fetch_documents(request):
     uid = verify_request_token(request)
     if uid is None:
@@ -97,15 +108,17 @@ def handle_scrape(request):
         return generate_token_error_response(request)
 
     data = request.get_json()
+    print(data)
     urls = data.get('urls')
     project_id = data.get('projectId')
     if not urls or not isinstance(urls, list) or not all(urls):
         return jsonify({'message': 'URLs are required and must be a non-empty list'}), 400, headers
 
+    docs = []
     for url in urls:
-        project_services.scrape_url(url, project_id)
-        
-    return jsonify({'message': 'Scraped and added to project'}), 200, headers
+        new_doc = project_services.scrape_url(url, project_id)
+        docs.append(new_doc)
+    return jsonify({'docs': docs}), 200, headers
 
 def handle_extract(request):
     uid = verify_request_token(request)
@@ -168,3 +181,6 @@ def projects(request):
     
     if request.path in ('/documents/delete', '/projects/documents/delete'):
         return handle_delete_document(request)
+    
+    if request.path in ('/delete', '/projects/delete'):
+        return handle_delete_project(request)

@@ -45,6 +45,14 @@ class ProjectServices:
             doc.pop('_id', None)
         return docs_list
     
+    def delete_project_by_id(self, project_id):
+        # Delete the project with the matching 'project_id' from the 'projects' collection
+        self.db['projects'].delete_one({'_id': ObjectId(project_id)})
+        # Delete all documents with the matching 'project_id' from the 'project_docs' collection
+        self.db['project_docs'].delete_many({'project_id': project_id})
+        # Delete all chunks with the matching 'project_id' from the 'chunks' collection
+        self.db['chunks'].delete_many({'project_id': project_id})
+
     def delete_doc_by_id(self, doc_id):
         # Delete the document with the matching 'doc_id' from the 'project_docs' collection
         self.db['project_docs'].delete_one({'_id': ObjectId(doc_id)})
@@ -80,6 +88,7 @@ class ProjectServices:
         return encoded_chunks
 
     def scrape_url(self, url, project_id):
+        print(project_id)
         content_scraper = ContentScraper(url)
         content = content_scraper.extract_content()
 
@@ -123,7 +132,18 @@ class ProjectServices:
 
         # Finally, update the project_doc with the list of chunk_ids
         self.db['project_docs'].update_one({'_id': doc_id}, {'$set': {'chunks': chunk_ids}})
+        
+        updated_doc = self.db['project_docs'].find_one({'_id': doc_id})
 
+        if '_id' in updated_doc:
+            updated_doc['id'] = str(updated_doc['_id'])
+            updated_doc.pop('_id', None)
+        
+        if 'chunks' in updated_doc:
+                updated_doc['chunks'] = [str(chunk_id) for chunk_id in updated_doc['chunks']]
+
+        return updated_doc
+        
     def normalize_url(self, url):
         # Example normalization process
         url = url.lower()

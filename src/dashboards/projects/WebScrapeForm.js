@@ -2,10 +2,12 @@ import { useState, useContext } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { TextField, Box } from '@mui/material';
 import { AuthContext } from '../../auth/AuthContext';
+import { ProjectContext } from './ProjectContext';
 import { SettingsSubmitButton } from '../agents/agentStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
     const { idToken } = useContext(AuthContext);
+    const { addDoc } = useContext(ProjectContext);
     const [urls, setUrls] = useState('');
     const handleScrapeRequest = async () => {
         // Inside the handleScrapeRequest function
@@ -34,6 +36,12 @@ const WebScrapeForm = ({ projectName, projectId }) => {
 
         if (!response.ok) throw new Error('Failed to scrape url');
 
+        
+        const data = await response.json();
+        const docs = data.docs
+        docs.forEach(doc => {
+            addDoc(projectId, doc)
+        });
         setUrls('');
 
         // Handle response

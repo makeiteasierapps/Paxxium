@@ -75,7 +75,6 @@ class ContentScraper:
             if full_text:
                 current_section, all_content_str = self.update_content_structure(tag, full_text, current_section, all_content_str)
         
-        print(all_content_str)
         return all_content_str
 
     def find_main_content_area(self):

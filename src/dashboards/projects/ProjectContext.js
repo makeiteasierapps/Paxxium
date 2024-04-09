@@ -32,6 +32,29 @@ export const ProjectProvider = ({ children }) => {
         });
     };
 
+    const deleteProject = async (projectId) => {
+        try {
+            const response = await fetch(`${backendUrl}/projects/delete`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: idToken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ projectId }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete project');
+            }
+
+            setProjects((prevProjects) => {
+                return prevProjects.filter((project) => project.id !== projectId);
+            });
+        } catch (error) {
+            showSnackbar('Error deleting project', 'error');
+        }
+    };
+
     const fetchDocuments = useCallback(
         async (projectId) => {
             try {
@@ -51,6 +74,7 @@ export const ProjectProvider = ({ children }) => {
                 }
 
                 const data = await response.json();
+                console.log(data);
                 setDocumentArray((prevDocuments) => ({
                     ...prevDocuments,
                     [projectId]: data.documents,
@@ -61,6 +85,15 @@ export const ProjectProvider = ({ children }) => {
         },
         [backendUrl, idToken, showSnackbar]
     );
+
+    const addDoc = (projectId, doc) => {
+        setDocumentArray((prevDocs) => {
+            return {
+                ...prevDocs,
+                [projectId]: [...prevDocs[projectId], doc],
+            };
+        });
+    };
 
     const deleteDocument = async (projectId, docId) => {
         try {
@@ -124,6 +157,7 @@ export const ProjectProvider = ({ children }) => {
             value={{
                 projects,
                 fetchProjects,
+                deleteProject,
                 isWebScrapeOpen,
                 isNewProjectOpen,
                 setIsWebScrapeOpen,
@@ -134,6 +168,7 @@ export const ProjectProvider = ({ children }) => {
                 documentArray,
                 fetchDocuments,
                 deleteDocument,
+                addDoc,
             }}
         >
             {children}

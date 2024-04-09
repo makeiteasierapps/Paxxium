@@ -1,13 +1,26 @@
 import { useContext, useState } from 'react';
-import { Box, Grid, Typography, Card, CardContent } from '@mui/material'; // Import Grid from MUI
+import {
+    Box,
+    Grid,
+    Typography,
+    Card,
+    CardContent,
+    CardActions,
+} from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import { ProjectContext } from './ProjectContext';
 import ProjectSpeedDial from './ProjectSpeedDial';
+import { StyledIconButton } from '../agents/agentStyledComponents';
 import Project from './Project';
 import NewProject from './NewProject';
 import { useTheme } from '@mui/material/styles';
 
 const ProjectCard = ({ project, onSelect }) => {
     const theme = useTheme();
+    const { deleteProject } = useContext(ProjectContext);
+    const handleDeleteProject = () => {
+        deleteProject(project.id);
+    };
     return (
         <Card
             sx={{
@@ -52,6 +65,16 @@ const ProjectCard = ({ project, onSelect }) => {
                     </Typography>
                 </Box>
             </CardContent>
+            <CardActions>
+                <StyledIconButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProject();
+                    }}
+                >
+                    <Delete />
+                </StyledIconButton>
+            </CardActions>
         </Card>
     );
 };
