@@ -204,12 +204,11 @@ class ProjectServices:
         # Finally, update the project_doc with the list of chunk_ids
         self.db['project_docs'].update_one({'_id': doc_id}, {'$set': {'chunks': chunk_ids}})
 
-    def create_new_project(self, uid, name, description):
+    def create_new_project(self, uid, name, objective):
         project_details = {
                 'name': name,
                 'uid': uid,
-                'description': description,
-                'objective': '',
+                'objective': objective,
                 'documents': [],
                 'urls': [],
                 'created_at': datetime.utcnow()

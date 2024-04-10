@@ -26,7 +26,6 @@ const Chat = ({
 }) => {
     const nodeRef = useRef(null);
     const { messages } = useContext(ChatContext);
-    console.log()
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // scrolls chat window to the bottom

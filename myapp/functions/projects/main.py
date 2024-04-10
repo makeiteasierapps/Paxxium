@@ -141,7 +141,7 @@ def handle_extract(request):
         return jsonify({'message': 'File is not a PDF'}), 400, headers
     
     try:
-        text = project_services.extract_pdf(uid, file, project_name, project_id)
+        text = project_services.extract_pdf(file, project_id)
         
         return jsonify({'message': 'Extracted', 'text': text}), 200, headers
     
@@ -155,9 +155,9 @@ def create_new_project(request):
         return generate_token_error_response(request)
     data = request.get_json()
     name = data.get('name')
-    description = data.get('description')
+    objective = data.get('objective')
     
-    new_project_details = project_services.create_new_project(uid, name, description)
+    new_project_details = project_services.create_new_project(uid, name, objective)
     return jsonify({'new_project': new_project_details}), 200, headers
 
 def projects(request):

@@ -7,6 +7,7 @@ import {
 } from 'react';
 
 import { AuthContext } from '../../auth/AuthContext';
+import { ChatContext } from '../agents/chat/ChatContext';
 import { SnackbarContext } from '../../SnackbarContext';
 
 export const ProjectContext = createContext();
@@ -14,12 +15,12 @@ export const ProjectContext = createContext();
 export const ProjectProvider = ({ children }) => {
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const [documentArray, setDocumentArray] = useState({});
     const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
-
-    const [projects, setProjects] = useState([]);
+    const { setAgentArray } = useContext(ChatContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -48,7 +49,9 @@ export const ProjectProvider = ({ children }) => {
             }
 
             setProjects((prevProjects) => {
-                return prevProjects.filter((project) => project.id !== projectId);
+                return prevProjects.filter(
+                    (project) => project.id !== projectId
+                );
             });
         } catch (error) {
             showSnackbar('Error deleting project', 'error');
@@ -74,7 +77,6 @@ export const ProjectProvider = ({ children }) => {
                 }
 
                 const data = await response.json();
-                console.log(data);
                 setDocumentArray((prevDocuments) => ({
                     ...prevDocuments,
                     [projectId]: data.documents,
@@ -127,6 +129,61 @@ export const ProjectProvider = ({ children }) => {
         }
     };
 
+    const createProject = async (name, objective) => {
+        const formData = JSON.stringify({ name, objective });
+        const create_project_response = await fetch(
+            'http://localhost:50006/projects/create',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: idToken,
+                },
+                body: formData,
+            }
+        );
+
+        if (!create_project_response.ok) {
+            throw new Error('Failed to create project');
+        }
+        const data = await create_project_response.json();
+        const newProject = data.new_project;
+
+        // I am not sure why I am making a separate call to the server.
+        // I should be able to create the chat on the server when I create the project.
+        // I will fix this later.
+        const creat_chat_response = await fetch(
+            'http://localhost:50001/chat/create',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: idToken,
+                },
+                body: JSON.stringify({
+                    chatName: newProject.name,
+                    agentModel: 'GPT-4',
+                    systemPrompt: '',
+                    chatConstants: '',
+                    useProfileData: false,
+                    projectId: newProject.id,
+                }),
+            }
+        );
+
+        if (!creat_chat_response.ok) {
+            throw new Error('Failed to create project chat');
+        }
+        const newChatData = await creat_chat_response.json();
+        console.log('newChatData', newChatData);
+        setAgentArray((prevAgents) => {
+            const updatedAgentArray = [newChatData, ...prevAgents];
+            return updatedAgentArray;
+        });
+        addProject(newProject);
+        setIsNewProjectOpen(false);
+    };
+
     const fetchProjects = useCallback(async () => {
         try {
             const response = await fetch(`${backendUrl}/projects`, {
@@ -147,6 +204,29 @@ export const ProjectProvider = ({ children }) => {
         }
     }, [backendUrl, idToken, showSnackbar]);
 
+    const scrapeUrls = async (projectId, projectName, formattedUrls) => {
+        const response = await fetch('http://localhost:50006/projects/scrape', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: idToken,
+            },
+            body: JSON.stringify({
+                urls: formattedUrls,
+                projectName,
+                projectId,
+            }),
+        });
+
+        if (!response.ok) throw new Error('Failed to scrape url');
+
+        const data = await response.json();
+        const docs = data.docs;
+        docs.forEach((doc) => {
+            addDoc(projectId, doc);
+        });
+    };
+
     useEffect(() => {
         if (!idToken) return;
         fetchProjects();
@@ -164,11 +244,11 @@ export const ProjectProvider = ({ children }) => {
                 setIsNewProjectOpen,
                 isChatOpen,
                 setIsChatOpen,
-                addProject,
+                createProject,
                 documentArray,
                 fetchDocuments,
                 deleteDocument,
-                addDoc,
+                scrapeUrls,
             }}
         >
             {children}

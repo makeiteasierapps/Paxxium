@@ -79,6 +79,7 @@ def chat(request):
                 'system_prompt': system_prompt,
                 'chat_constants': chat_constants,
                 'use_profile_data': use_profile_data, 
+                'project_id': project_id,
                 'is_open': True
             }
             return (chat_data, 200, headers)

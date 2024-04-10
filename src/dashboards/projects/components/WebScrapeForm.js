@@ -1,16 +1,14 @@
 import { useState, useContext } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { TextField, Box } from '@mui/material';
-import { AuthContext } from '../../auth/AuthContext';
-import { ProjectContext } from './ProjectContext';
-import { SettingsSubmitButton } from '../agents/agentStyledComponents';
+import { ProjectContext } from '../ProjectContext';
+import { SettingsSubmitButton } from '../../agents/agentStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
-    const { idToken } = useContext(AuthContext);
-    const { addDoc } = useContext(ProjectContext);
+    const { scrapeUrls } = useContext(ProjectContext);
     const [urls, setUrls] = useState('');
+
     const handleScrapeRequest = async () => {
-        // Inside the handleScrapeRequest function
         const urlsArray = urls
             .split(',')
             .map((url) => url.trim())
@@ -21,32 +19,8 @@ const WebScrapeForm = ({ projectName, projectId }) => {
             }
             return url;
         });
-        const response = await fetch('http://localhost:50006/projects/scrape', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: idToken,
-            },
-            body: JSON.stringify({
-                urls: formattedUrls,
-                projectName,
-                projectId,
-            }),
-        });
-
-        if (!response.ok) throw new Error('Failed to scrape url');
-
-        
-        const data = await response.json();
-        const docs = data.docs
-        docs.forEach(doc => {
-            addDoc(projectId, doc)
-        });
+        scrapeUrls(projectId, projectName, formattedUrls);
         setUrls('');
-
-        // Handle response
-        // Update the state to include the new data
-        // Update local storage
     };
 
     return (

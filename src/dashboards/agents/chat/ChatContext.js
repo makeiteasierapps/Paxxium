@@ -47,6 +47,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     const getChatByProjectId = (id) => {
+        console.log(agentArray, id);
         return agentArray.find((agent) => agent.project_id === id);
     };
 
@@ -489,7 +490,7 @@ export const ChatProvider = ({ children }) => {
                 loadChat,
                 isSettingsOpen,
                 setIsSettingsOpen,
-                getAgentById: getChatByProjectId,
+                getChatByProjectId,
             }}
         >
             {children}

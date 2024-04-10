@@ -1,21 +1,14 @@
 import { useContext, useRef, useEffect } from 'react';
 import { styled } from '@mui/system';
-import { ProjectContext } from './ProjectContext';
-import { ChatContext } from '../agents/chat/ChatContext';
-import { AuthContext } from '../../auth/AuthContext';
+import { ProjectContext } from '../ProjectContext';
+import { ChatContext } from '../../agents/chat/ChatContext';
+import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
-import ProjectChat from '../agents/chat/Chat';
-import { StyledIconButton } from '../agents/agentStyledComponents';
-import {
-    Box,
-    Typography,
-    Grid,
-    Card,
-    CardContent,
-    CardHeader,
-    CardActions,
-} from '@mui/material';
-import { WebAsset, FileCopy, Chat, Close, Delete } from '@mui/icons-material/';
+import ProjectChat from '../../agents/chat/Chat';
+import DocumentCard from './DocumentCard';
+import { StyledIconButton } from '../../agents/agentStyledComponents';
+import { Box, Typography, Grid } from '@mui/material';
+import { WebAsset, FileCopy, Chat, Close } from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
 
 const MainContainer = styled(Box)(({ theme }) => ({
@@ -28,48 +21,6 @@ const MainContainer = styled(Box)(({ theme }) => ({
     fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
 }));
 
-const DocumentCard = ({ document }) => {
-    const { deleteDocument } = useContext(ProjectContext);
-    console.log(document);
-    const handleDelete = () => {
-        deleteDocument(document.project_id, document.id);
-    };
-    return (
-        <Card
-            sx={{
-                width: '100%',
-                height: '500px',
-                backgroundColor: '#111111',
-            }}
-            elevation={6}
-        >
-            <CardHeader title="Document Source" subheader={document.source} />
-            <CardContent>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 1,
-                        padding: 2,
-                        height: '300px',
-                        overflow: 'auto',
-                        backgroundColor: 'background.paper',
-                        borderRadius: 2,
-                        boxShadow: 1,
-                    }}
-                >
-                    <Typography variant="body1">{document.value}</Typography>
-                </Box>
-            </CardContent>
-            <CardActions>
-                <StyledIconButton onClick={handleDelete}>
-                    <Delete />
-                </StyledIconButton>
-            </CardActions>
-        </Card>
-    );
-};
-
 const Project = ({ project, onClose }) => {
     const {
         isWebScrapeOpen,
@@ -79,15 +30,19 @@ const Project = ({ project, onClose }) => {
         documentArray,
         fetchDocuments,
     } = useContext(ProjectContext);
-    const { getAgentById } = useContext(ChatContext);
+
+    const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
-    const agent = getAgentById(project.id);
+    console.log('project', project);
+    const agent = getChatByProjectId(project.id);
+    console.log('agent', agent);
     const theme = useTheme();
 
     useEffect(() => {
         fetchDocuments(project.id);
     }, []);
+
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -111,7 +66,6 @@ const Project = ({ project, onClose }) => {
 
             if (!response.ok) throw new Error('Failed to upload file');
 
-            // Handle successful response
             console.log('File uploaded successfully');
         } catch (error) {
             console.error('Error uploading file:', error);
