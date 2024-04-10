@@ -11,9 +11,10 @@ import {
 import { AuthContext } from '../../auth/AuthContext';
 import { ProjectContext } from './ProjectContext';
 
-const NewProject = ({ isOpen, onClose }) => {
+const NewProject = () => {
     const { idToken } = useContext(AuthContext);
-    const { addProject } = useContext(ProjectContext);
+    const { addProject, isNewProjectOpen, setIsNewProjectOpen } =
+        useContext(ProjectContext);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
 
@@ -37,6 +38,9 @@ const NewProject = ({ isOpen, onClose }) => {
         const data = await create_project_response.json();
         const newProject = data.new_project;
 
+        // I am not sure why I am making a separate call to the server.
+        // I should be able to create the chat on the server when I create the project.
+        // I will fix this later.
         const creat_chat_response = await fetch(
             'http://localhost:50001/chat/create',
             {
@@ -51,7 +55,7 @@ const NewProject = ({ isOpen, onClose }) => {
                     systemPrompt: '',
                     chatConstants: '',
                     useProfileData: false,
-                    projectId: newProject._id,
+                    projectId: newProject.id,
                 }),
             }
         );
@@ -59,16 +63,18 @@ const NewProject = ({ isOpen, onClose }) => {
         if (!creat_chat_response.ok) {
             throw new Error('Failed to create project chat');
         }
+
+        setIsNewProjectOpen(false);
         setName('');
         setDescription('');
-        addProject(data.new_project);
+        addProject(newProject);
     };
 
     return (
         <Dialog
             gap={2}
-            open={isOpen}
-            onClose={onClose}
+            open={isNewProjectOpen}
+            onClose={() => setIsNewProjectOpen(false)}
             aria-labelledby="form-dialog-title"
         >
             <DialogTitle id="form-dialog-title">
@@ -102,7 +108,10 @@ const NewProject = ({ isOpen, onClose }) => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} color="primary">
+                <Button
+                    onClick={() => setIsNewProjectOpen(false)}
+                    color="primary"
+                >
                     Cancel
                 </Button>
                 <Button

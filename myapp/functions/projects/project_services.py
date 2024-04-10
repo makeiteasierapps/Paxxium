@@ -52,7 +52,9 @@ class ProjectServices:
         self.db['project_docs'].delete_many({'project_id': project_id})
         # Delete all chunks with the matching 'project_id' from the 'chunks' collection
         self.db['chunks'].delete_many({'project_id': project_id})
-
+        # Delete Chat associated with the project
+        self.db['chats'].delete_one({'project_id': project_id})
+        
     def delete_doc_by_id(self, doc_id):
         # Delete the document with the matching 'doc_id' from the 'project_docs' collection
         self.db['project_docs'].delete_one({'_id': ObjectId(doc_id)})
@@ -213,6 +215,8 @@ class ProjectServices:
                 'created_at': datetime.utcnow()
             }
         new_project = self.db['projects'].insert_one(project_details)
-        # Retrieve the ID of the newly inserted document
-        project_details['_id'] = str(new_project.inserted_id)
+        # Convert the '_id' to 'id' and remove '_id' from the dictionary
+        project_id = str(new_project.inserted_id)
+        project_details['id'] = project_id
+        del project_details['_id']
         return project_details

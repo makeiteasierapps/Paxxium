@@ -4,7 +4,7 @@ import { ProjectContext } from './ProjectContext';
 import { PlaylistAdd } from '@mui/icons-material/';
 
 export default function ProjectSpeedDial() {
-    const { isNewProjectOpen, setIsNewProjectOpen } = useContext(ProjectContext);
+    const { setIsNewProjectOpen } = useContext(ProjectContext);
     return (
         <Box
             sx={{
@@ -24,7 +24,7 @@ export default function ProjectSpeedDial() {
                     key={'Web Scrape'}
                     icon={<PlaylistAdd />}
                     tooltipTitle={'New Project'}
-                    onClick={() => setIsNewProjectOpen(!isNewProjectOpen)}
+                    onClick={() => setIsNewProjectOpen(true)}
                 />
             </SpeedDial>
         </Box>

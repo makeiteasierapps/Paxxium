@@ -80,13 +80,8 @@ const ProjectCard = ({ project, onSelect }) => {
 };
 
 const ProjectsDash = () => {
-    const { projects, isNewProjectOpen, setIsNewProjectOpen } =
-        useContext(ProjectContext);
+    const { projects, isNewProjectOpen } = useContext(ProjectContext);
     const [selectedProject, setSelectedProject] = useState(null);
-
-    const handleCloseNewProject = () => {
-        setIsNewProjectOpen(false);
-    };
 
     const theme = useTheme();
 
@@ -137,13 +132,8 @@ const ProjectsDash = () => {
                     ))}
             </Grid>
 
-            {isNewProjectOpen && (
-                <NewProject
-                    isOpen={isNewProjectOpen}
-                    onClose={handleCloseNewProject}
-                />
-            )}
-            <ProjectSpeedDial isNewProjectOpen={isNewProjectOpen} />
+            {isNewProjectOpen && <NewProject />}
+            <ProjectSpeedDial />
         </Box>
     );
 };
