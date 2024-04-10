@@ -21,6 +21,8 @@ const MainContainer = styled(Box)(({ theme }) => ({
     fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
 }));
 
+// Need to look at how I am managing the state of ProjectChat
+// I think I should move the state to be local so that each project manages its own chat
 const Project = ({ project, onClose }) => {
     const {
         isWebScrapeOpen,
@@ -34,9 +36,7 @@ const Project = ({ project, onClose }) => {
     const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
     const fileInputRef = useRef(null);
-    console.log('project', project);
     const agent = getChatByProjectId(project.id);
-    console.log('agent', agent);
     const theme = useTheme();
 
     useEffect(() => {
