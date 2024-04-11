@@ -27,9 +27,7 @@ try:
 except ValueError:
     pass
 
-# MongoDB URI
 mongo_uri = os.getenv('MONGO_URI')
-# Create a new MongoClient and connect to the server
 client = MongoClient(mongo_uri, tlsCAFile=certifi.where())
 
 db = client['paxxium']
@@ -157,8 +155,8 @@ def create_new_project(request):
     name = data.get('name')
     objective = data.get('objective')
     
-    new_project_details = project_services.create_new_project(uid, name, objective)
-    return jsonify({'new_project': new_project_details}), 200, headers
+    new_project_details, new_chat_details = project_services.create_new_project(uid, name, objective)
+    return jsonify({'new_project': new_project_details, 'new_chat': new_chat_details}), 200, headers
 
 def projects(request):
     if request.method == "OPTIONS":

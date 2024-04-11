@@ -218,4 +218,22 @@ class ProjectServices:
         project_id = str(new_project.inserted_id)
         project_details['id'] = project_id
         del project_details['_id']
-        return project_details
+
+        new_chat = {
+            'uid': uid,
+            'chat_name': name,
+            'agent_model': 'GPT-4',
+            'system_prompt': '',
+            'chat_constants': '',
+            'use_profile_data': False,
+            'is_open': False,
+            'project_id': project_id, 
+            'created_at': datetime.utcnow()
+        }
+
+        # Let MongoDB generate the chat_id
+        result = self.db['chats'].insert_one(new_chat)
+        new_chat['chatId'] = str(result.inserted_id)
+        del new_chat['_id']
+
+        return project_details, new_chat

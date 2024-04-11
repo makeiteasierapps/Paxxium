@@ -130,57 +130,35 @@ export const ProjectProvider = ({ children }) => {
 
     const createProject = async (name, objective) => {
         const formData = JSON.stringify({ name, objective });
-        const create_project_response = await fetch(
-            'http://localhost:50006/projects/create',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: formData,
+        try {
+            const create_project_response = await fetch(
+                'http://localhost:50006/projects/create',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: formData,
+                }
+            );
+
+            if (!create_project_response.ok) {
+                throw new Error('Failed to create project');
             }
-        );
+            const data = await create_project_response.json();
+            const newProject = data.new_project;
+            const newChatData = data.new_chat;
 
-        if (!create_project_response.ok) {
-            throw new Error('Failed to create project');
+            setAgentArray((prevAgents) => {
+                const updatedAgentArray = [newChatData, ...prevAgents];
+                return updatedAgentArray;
+            });
+            addProject(newProject);
+            setIsNewProjectOpen(false);
+        } catch (error) {
+            showSnackbar('Error creating project', 'error');
         }
-        const data = await create_project_response.json();
-        const newProject = data.new_project;
-
-        // I am not sure why I am making a separate call to the server.
-        // I should be able to create the chat on the server when I create the project.
-        // I will fix this later.
-        const creat_chat_response = await fetch(
-            'http://localhost:50001/chat/create',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify({
-                    chatName: newProject.name,
-                    agentModel: 'GPT-4',
-                    systemPrompt: '',
-                    chatConstants: '',
-                    useProfileData: false,
-                    projectId: newProject.id,
-                }),
-            }
-        );
-
-        if (!creat_chat_response.ok) {
-            throw new Error('Failed to create project chat');
-        }
-        const newChatData = await creat_chat_response.json();
-        console.log('newChatData', newChatData);
-        setAgentArray((prevAgents) => {
-            const updatedAgentArray = [newChatData, ...prevAgents];
-            return updatedAgentArray;
-        });
-        addProject(newProject);
-        setIsNewProjectOpen(false);
     };
 
     const fetchProjects = useCallback(async () => {
