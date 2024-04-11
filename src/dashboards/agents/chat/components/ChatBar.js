@@ -6,7 +6,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import { ChatContext } from '../ChatContext';
-import {ProjectContext} from '../../../projects/ProjectContext';
 
 import {
     Bar,
@@ -15,9 +14,14 @@ import {
     CloseIconButton,
 } from '../../agentStyledComponents';
 
-const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
+const ChatBar = ({
+    chatName,
+    chatId,
+    isSettingsOpen,
+    setIsSettingsOpen,
+    setIsChatOpen,
+}) => {
     const { closeChat, clearChat, deleteChat } = useContext(ChatContext);
-    const { setIsChatOpen } = useContext(ProjectContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
 
     const handleDeleteClick = () => {
@@ -38,7 +42,9 @@ const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
                     disableRipple
                     aria-label="close"
                     onClick={() => {
-                        setIsChatOpen(false);
+                        if (setIsChatOpen) {
+                            setIsChatOpen(false);
+                        }
                         closeChat(chatId);
                     }}
                 >

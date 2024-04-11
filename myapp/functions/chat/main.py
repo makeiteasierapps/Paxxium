@@ -80,7 +80,7 @@ def chat(request):
                 'chat_constants': chat_constants,
                 'use_profile_data': use_profile_data, 
                 'project_id': project_id,
-                'is_open': True
+                'is_open': False
             }
             return (chat_data, 200, headers)
         chat_id = chat_service.create_chat_in_db(uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data)

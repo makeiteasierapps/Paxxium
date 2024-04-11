@@ -1,4 +1,4 @@
-import { useContext, useRef, useEffect } from 'react';
+import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
 import { ProjectContext } from '../ProjectContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
@@ -27,14 +27,13 @@ const Project = ({ project, onClose }) => {
     const {
         isWebScrapeOpen,
         setIsWebScrapeOpen,
-        isChatOpen,
-        setIsChatOpen,
         documentArray,
         fetchDocuments,
     } = useContext(ProjectContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const fileInputRef = useRef(null);
     const agent = getChatByProjectId(project.id);
     const theme = useTheme();
@@ -161,7 +160,9 @@ const Project = ({ project, onClose }) => {
                         projectId={project.id}
                     />
                 ) : null}
-                {isChatOpen ? <ProjectChat agent={agent} /> : null}
+                {isChatOpen ? (
+                    <ProjectChat agent={agent} setIsChatOpen={setIsChatOpen} />
+                ) : null}
                 <Grid container spacing={2} justifyContent="center">
                     {documentArray[project.id]?.map((document) => (
                         <Grid

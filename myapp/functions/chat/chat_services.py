@@ -22,6 +22,7 @@ class ChatService:
         if project_id:
             # Use the provided project_id to create a chat that is associated with a project
             new_chat['project_id'] = project_id
+            new_chat['is_open'] = False
             result = self.db['chats'].insert_one(new_chat)
             return str(result.inserted_id)
         

@@ -23,6 +23,7 @@ const Chat = ({
         use_profile_data: useProfileData,
         project_id: projectId,
     },
+    setIsChatOpen = null,
 }) => {
     const nodeRef = useRef(null);
     const { messages } = useContext(ChatContext);
@@ -51,6 +52,7 @@ const Chat = ({
                 chatId={chatId}
                 isSettingsOpen={isSettingsOpen}
                 setIsSettingsOpen={setIsSettingsOpen}
+                setIsChatOpen={setIsChatOpen}
             />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>

@@ -14,7 +14,6 @@ export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
-    const [isChatOpen, setIsChatOpen] = useState(false);
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const [documentArray, setDocumentArray] = useState({});
@@ -242,8 +241,6 @@ export const ProjectProvider = ({ children }) => {
                 isNewProjectOpen,
                 setIsWebScrapeOpen,
                 setIsNewProjectOpen,
-                isChatOpen,
-                setIsChatOpen,
                 createProject,
                 documentArray,
                 fetchDocuments,
