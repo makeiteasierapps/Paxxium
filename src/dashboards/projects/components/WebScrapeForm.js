@@ -1,12 +1,13 @@
 import { useState, useContext } from 'react';
 import SendIcon from '@mui/icons-material/Send';
-import { TextField, Box } from '@mui/material';
+import { TextField, Box, Switch, FormControlLabel } from '@mui/material';
 import { ProjectContext } from '../ProjectContext';
 import { SettingsSubmitButton } from '../../agents/agentStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
     const { scrapeUrls } = useContext(ProjectContext);
     const [urls, setUrls] = useState('');
+    const [crawlEntireSite, setCrawlEntireSite] = useState(false);
 
     const handleScrapeRequest = async () => {
         const urlsArray = urls
@@ -19,7 +20,7 @@ const WebScrapeForm = ({ projectName, projectId }) => {
             }
             return url;
         });
-        scrapeUrls(projectId, projectName, formattedUrls);
+        scrapeUrls(projectId, projectName, formattedUrls, crawlEntireSite);
         setUrls('');
     };
 
@@ -36,6 +37,16 @@ const WebScrapeForm = ({ projectName, projectId }) => {
                 onChange={(e) => setUrls(e.target.value)}
                 fullWidth
                 margin="normal"
+            />
+            <FormControlLabel
+                control={
+                    <Switch
+                        checked={crawlEntireSite}
+                        onChange={(e) => setCrawlEntireSite(e.target.checked)}
+                        name="crawlEntireSite"
+                    />
+                }
+                label="Crawl Entire Site"
             />
             <SettingsSubmitButton
                 disabled={!urls}

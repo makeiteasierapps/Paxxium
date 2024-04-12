@@ -181,7 +181,12 @@ export const ProjectProvider = ({ children }) => {
         }
     }, [backendUrl, idToken, showSnackbar]);
 
-    const scrapeUrls = async (projectId, projectName, formattedUrls) => {
+    const scrapeUrls = async (
+        projectId,
+        projectName,
+        formattedUrls,
+        crawlEntireSite
+    ) => {
         const response = await fetch('http://localhost:50006/projects/scrape', {
             method: 'POST',
             headers: {
@@ -192,6 +197,7 @@ export const ProjectProvider = ({ children }) => {
                 urls: formattedUrls,
                 projectName,
                 projectId,
+                crawlEntireSite,
             }),
         });
 

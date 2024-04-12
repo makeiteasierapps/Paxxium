@@ -78,7 +78,7 @@ def prepare_response_for_llm(query_results):
     sources = []
     
     for item in query_results:
-        if item['score'] > 0.5:
+        if item['score'] > 0.4:
             print(item)
             text.append(item['text'])
             sources.append(item['source'])

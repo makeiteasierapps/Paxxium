@@ -1,5 +1,6 @@
 import requests
 import re
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 import fitz
 from selenium import webdriver
@@ -8,6 +9,7 @@ class ContentScraper:
     def __init__(self, url):
         self.soup = self.initiate_soup(url)
         self.url = url
+        self.visited_links = set()
 
     def initiate_soup(self, url):
         initial_content = self.get_initial_content(url)
@@ -77,6 +79,35 @@ class ContentScraper:
         
         return all_content_str
 
+    def extract_links(self):
+        """Extracts and returns a set of internal links from the given BeautifulSoup object, excluding
+        external links, email links, telephone links, and anchor links."""
+        
+        links = set()
+        for link in self.soup.find_all('a', href=True):
+            href = link['href'].strip()
+
+            # Skip empty links
+            if href == "":
+                continue
+
+            # Exclude links that start with 'mailto:', 'tel:', or contain '#'
+            if href.startswith('mailto:') or href.startswith('tel:') or '#' in href:
+                continue
+
+            # Complete relative links (if any)
+            href = urljoin(self.url, href)
+
+            # Extract base URL to compare and identify external links
+            link_base = urlparse(href).netloc
+            site_base = urlparse(self.url).netloc
+
+            # Check if the extracted link is an internal link
+            if link_base == site_base and href not in self.visited_links:
+                links.add(href)
+
+        return links
+    
     def find_main_content_area(self):
         main_content_selectors = ['main', 'article', 'div#content', 'div.content']
         for selector in main_content_selectors:

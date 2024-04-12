@@ -106,7 +106,14 @@ def handle_scrape(request):
         return generate_token_error_response(request)
 
     data = request.get_json()
-    print(data)
+    crawl_entire_site = data.get('crawlEntireSite')
+    if crawl_entire_site:
+        urls = data.get('urls')
+        project_id = data.get('projectId')
+        if not urls:
+            return jsonify({'message': 'URL is required'}), 400, headers
+        new_docs = project_services.crawl_site(urls[0], project_id)
+        return jsonify({'docs': new_docs}), 200, headers
     urls = data.get('urls')
     project_id = data.get('projectId')
     if not urls or not isinstance(urls, list) or not all(urls):

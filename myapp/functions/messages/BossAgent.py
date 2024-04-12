@@ -13,9 +13,9 @@ class BossAgent:
         self.user_analysis = ""
         
         if model == 'GPT-4':
-            self.model = 'gpt-4-0125-preview'
+            self.model = 'gpt-4-turbo'
         else:
-            self.model = 'gpt-3.5-turbo-0125'
+            self.model = 'gpt-3.5-turbo'
 
         if use_profile_data:
             self.user_analysis = user_service.get_user_analysis(uid)

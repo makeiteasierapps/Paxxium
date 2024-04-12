@@ -1,5 +1,6 @@
 import os
 import uuid
+import time
 from bson import ObjectId
 from datetime import datetime
 from dotenv import load_dotenv
@@ -89,8 +90,16 @@ class ProjectServices:
             encoded_chunks.append(record)
         return encoded_chunks
 
+    def crawl_site(self, url, project_id):
+        content_scraper = ContentScraper(url)
+        links = content_scraper.extract_links()
+        site_docs = []
+        for link in links:
+            time.sleep(1)
+            site_docs.append(self.scrape_url(link, project_id))
+        return site_docs
+    
     def scrape_url(self, url, project_id):
-        print(project_id)
         content_scraper = ContentScraper(url)
         content = content_scraper.extract_content()
 

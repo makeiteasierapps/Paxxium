@@ -5,7 +5,7 @@ class ChatService:
     def __init__(self, db):
         self.db = db
 
-    def create_chat_in_db(self, uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data, project_id=None):
+    def create_chat_in_db(self, uid, chat_name, agent_model, system_prompt, chat_constants, use_profile_data):
         """
         Creates a new chat in the database
         """
