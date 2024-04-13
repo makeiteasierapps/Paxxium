@@ -90,13 +90,23 @@ class ProjectServices:
             encoded_chunks.append(record)
         return encoded_chunks
 
-    def crawl_site(self, url, project_id):
+    def crawl_site(self, url, project_id, visited=None):
+        if visited is None:
+            visited = set()
+
         content_scraper = ContentScraper(url)
         links = content_scraper.extract_links()
         site_docs = []
+
         for link in links:
-            time.sleep(1)
-            site_docs.append(self.scrape_url(link, project_id))
+            # Check if the link has already been visited to avoid infinite recursion
+            if link not in visited:
+                visited.add(link)
+                time.sleep(2)  # Be polite to the server
+                site_docs.append(self.scrape_url(link, project_id))
+                # Recursively crawl the internal links found on this page
+                site_docs.extend(self.crawl_site(link, project_id, visited))
+
         return site_docs
     
     def scrape_url(self, url, project_id):
