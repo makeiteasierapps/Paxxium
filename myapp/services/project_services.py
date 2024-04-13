@@ -90,6 +90,26 @@ class ProjectServices:
             encoded_chunks.append(record)
         return encoded_chunks
 
+    def summarize_content(self, content):
+        client = OpenAI()
+        response = client.chat.completions.create(
+            model='gpt-3.5-turbo',
+            messages=[
+                {
+                    'role': 'system', 
+                    'content': 'You are a helpful assistant that summarizes the content of a document.'
+                },
+                {
+                    'role': 'user',
+                    'content': f'''
+                    Please provide a detailed summary of the following document:
+                    {content}
+                    '''
+                }
+            ]
+        )
+        return response.choices[0].message.content
+    
     def crawl_site(self, url, project_id, visited=None):
         if visited is None:
             visited = set()
@@ -102,19 +122,28 @@ class ProjectServices:
             # Check if the link has already been visited to avoid infinite recursion
             if link not in visited:
                 visited.add(link)
-                time.sleep(2)  # Be polite to the server
-                site_docs.append(self.scrape_url(link, project_id))
+                time.sleep(1)  # Be polite to the server
+                scraped_doc = self.scrape_url(link, project_id)
+                if scraped_doc:
+                    site_docs.append(scraped_doc)
                 # Recursively crawl the internal links found on this page
                 site_docs.extend(self.crawl_site(link, project_id, visited))
 
         return site_docs
     
     def scrape_url(self, url, project_id):
-        content_scraper = ContentScraper(url)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
+        content_scraper = ContentScraper(url, headers)
         content = content_scraper.extract_content()
-
+        
+        if len(content) < 100:
+            return None  # Skip further processing for this URL
+        
         chunks = self.chunkify(content, url)
         embeddings = self.embed_chunks(chunks)
+        content_summary = self.summarize_content(content)
 
         # Normalize and hash the URL to use as a document ID
         normalized_url = self.normalize_url(url)
@@ -126,7 +155,8 @@ class ProjectServices:
             'value': content,
             'project_id': project_id,
             'token_count': tokenizer.token_count(content),
-            'source': normalized_url
+            'source': normalized_url,
+            'summary': content_summary
         }
         inserted_doc = self.db['project_docs'].insert_one(project_doc)
         doc_id = inserted_doc.inserted_id
