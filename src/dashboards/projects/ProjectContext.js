@@ -13,7 +13,6 @@ import { SnackbarContext } from '../../SnackbarContext';
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
-    const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const [documentArray, setDocumentArray] = useState({});
@@ -221,9 +220,7 @@ export const ProjectProvider = ({ children }) => {
                 projects,
                 fetchProjects,
                 deleteProject,
-                isWebScrapeOpen,
                 isNewProjectOpen,
-                setIsWebScrapeOpen,
                 setIsNewProjectOpen,
                 createProject,
                 documentArray,

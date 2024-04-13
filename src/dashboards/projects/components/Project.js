@@ -8,7 +8,7 @@ import ProjectChat from '../../agents/chat/Chat';
 import DocumentCard from './DocumentCard';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
-import { WebAsset, FileCopy, Chat, Close } from '@mui/icons-material/';
+import { WebAsset, FileCopy, Chat, Close, Source } from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
 
 const MainContainer = styled(Box)(({ theme }) => ({
@@ -24,16 +24,13 @@ const MainContainer = styled(Box)(({ theme }) => ({
 // Need to look at how I am managing the state of ProjectChat
 // I think I should move the state to be local so that each project manages its own chat
 const Project = ({ project, onClose }) => {
-    const {
-        isWebScrapeOpen,
-        setIsWebScrapeOpen,
-        documentArray,
-        fetchDocuments,
-    } = useContext(ProjectContext);
+    const { documentArray, fetchDocuments } = useContext(ProjectContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
+    const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const fileInputRef = useRef(null);
     const agent = getChatByProjectId(project.id);
     const theme = useTheme();
@@ -127,7 +124,11 @@ const Project = ({ project, onClose }) => {
                     width="100%"
                 >
                     <StyledIconButton
-                        onClick={() => setIsWebScrapeOpen(!isWebScrapeOpen)}
+                        onClick={() => {
+                            setIsWebScrapeOpen(!isWebScrapeOpen);
+                            setIsDocumentOpen(false);
+                            setIsChatOpen(false);
+                        }}
                         aria-label="Scrape Web"
                     >
                         <WebAsset />
@@ -145,13 +146,24 @@ const Project = ({ project, onClose }) => {
                         />
                     </StyledIconButton>
                     <StyledIconButton
-                        onClick={(e) => {
-                            e.stopPropagation();
+                        onClick={() => {
                             setIsChatOpen(!isChatOpen);
+                            setIsDocumentOpen(false);
+                            setIsWebScrapeOpen(false);
                         }}
                         aria-label="Chat"
                     >
                         <Chat />
+                    </StyledIconButton>
+                    <StyledIconButton
+                        onClick={() => {
+                            setIsDocumentOpen(!isDocumentOpen);
+                            setIsChatOpen(false);
+                            setIsWebScrapeOpen(false);
+                        }}
+                        aria-label="Documents"
+                    >
+                        <Source />
                     </StyledIconButton>
                 </Box>
                 {isWebScrapeOpen ? (
@@ -163,21 +175,23 @@ const Project = ({ project, onClose }) => {
                 {isChatOpen ? (
                     <ProjectChat agent={agent} setIsChatOpen={setIsChatOpen} />
                 ) : null}
-                <Grid container spacing={2} justifyContent="center">
-                    {documentArray[project.id]?.map((document) => (
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={4}
-                            lg={3}
-                            xl={3}
-                            key={document.id}
-                        >
-                            <DocumentCard document={document} />
-                        </Grid>
-                    ))}
-                </Grid>
+                {isDocumentOpen && (
+                    <Grid container spacing={2} justifyContent="center">
+                        {documentArray[project.id]?.map((document) => (
+                            <Grid
+                                item
+                                xs={12}
+                                sm={6}
+                                md={4}
+                                lg={3}
+                                xl={3}
+                                key={document.id}
+                            >
+                                <DocumentCard document={document} />
+                            </Grid>
+                        ))}
+                    </Grid>
+                )}
             </Box>
         </MainContainer>
     );
