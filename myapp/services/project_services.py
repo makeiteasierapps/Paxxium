@@ -1,6 +1,7 @@
 import os
 import uuid
 import time
+import requests
 from bson import ObjectId
 from datetime import datetime
 from google.cloud import storage
@@ -10,7 +11,7 @@ from canopy.tokenizer import Tokenizer
 from canopy.models.data_models import Document
 from canopy.knowledge_base.models import KBEncodedDocChunk
 from canopy.knowledge_base.chunker.recursive_character import RecursiveCharacterChunker
-from ragatouille import RAGPretrainedModel
+
 
 
 if os.getenv('LOCAL_DEV') == 'True':
@@ -288,32 +289,25 @@ class ProjectServices:
         new_chat['chatId'] = str(result.inserted_id)
         del new_chat['_id']
 
-        index_root = '/tmp/my_index'
-        bucket_name = 'colbert-index-collection'
-        RAG = RAGPretrainedModel.from_pretrained(pretrained_model_name_or_path="colbert-ir/colbertv2.0", index_root=index_root)
-
-        RAG.index(
-            collection=['sample collection', 'sample collection', 'sample collection','sample collection', 'sample collection'],
-            index_name=name,
-            split_documents=False,
-        )
-
-        self.save_index_to_gcs(index_root, bucket_name)
+        response = requests.post('https://104.198.215.246:5000/create_index', json={'projectId': project_id, 'name': 'test_index'})
+        data = response.json()
+        print(data)
         return project_details, new_chat
 
-    def upload_directory_to_gcs(self, bucket_name, source_directory):
+    def upload_directory_to_gcs(self, source_directory, destination_prefix):
         """Uploads a directory to GCS, preserving the structure."""
         storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
+        bucket = storage_client.bucket(os.getenv('RAG_STORAGE_BUCKET'))
         for root, _, files in os.walk(source_directory):
             for file in files:
                 local_path = os.path.join(root, file)
                 relative_path = os.path.relpath(local_path, source_directory)
-                blob = bucket.blob(relative_path)
+                gcs_path = os.path.join(destination_prefix, relative_path)
+                blob = bucket.blob(gcs_path)
                 blob.upload_from_filename(local_path)
 
-    def save_index_to_gcs(self, index_root, bucket_name):
+    def save_index_to_gcs(self, index_root, gcs_prefix):
         """Saves the RAG index from a local directory to GCS."""
-        # Assuming index_root is set to a directory within /tmp
-        self.upload_directory_to_gcs(bucket_name, index_root)
+       
+        self.upload_directory_to_gcs(index_root, gcs_prefix)
 
