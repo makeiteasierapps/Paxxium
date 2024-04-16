@@ -110,19 +110,22 @@ def handle_scrape(request):
     if crawl_entire_site:
         urls = data.get('urls')
         project_id = data.get('projectId')
+        name = data.get('projectName')
         if not urls:
             return jsonify({'message': 'URL is required'}), 400, headers
-        new_docs = project_services.crawl_site(urls[0], project_id)
+        new_docs = project_services.crawl_site(urls[0], project_id, name)
         return jsonify({'docs': new_docs}), 200, headers
     urls = data.get('urls')
     project_id = data.get('projectId')
+    name = data.get('projectName')
     if not urls or not isinstance(urls, list) or not all(urls):
         return jsonify({'message': 'URLs are required and must be a non-empty list'}), 400, headers
 
     docs = []
     for url in urls:
-        new_doc = project_services.scrape_url(url, project_id)
+        new_doc = project_services.scrape_url(url, project_id, name)
         docs.append(new_doc)
+
     return jsonify({'docs': docs}), 200, headers
 
 def handle_extract(request):

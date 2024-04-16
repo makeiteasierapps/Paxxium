@@ -114,49 +114,51 @@ class ProjectServices:
         )
         return response.choices[0].message.content
     
-    def crawl_site(self, url, project_id, visited=None):
+    def crawl_site(self, url, project_id, name, visited=None):
         if visited is None:
             visited = set()
 
         content_scraper = ContentScraper(url)
         links = content_scraper.extract_links()
         site_docs = []
+        all_contents = []  # List to hold all contents for batch update
 
         for link in links:
-            # Check if the link has already been visited to avoid infinite recursion
             if link not in visited:
                 visited.add(link)
                 time.sleep(1)  # Be polite to the server
-                scraped_doc = self.scrape_url(link, project_id)
+                scraped_doc, content = self.scrape_url(link, project_id)
                 if scraped_doc:
                     site_docs.append(scraped_doc)
-                # Recursively crawl the internal links found on this page
-                site_docs.extend(self.crawl_site(link, project_id, visited))
+                    if content:  # Ensure content is not None
+                        all_contents.append(content)  # Add content to the list for batch update
+                site_docs.extend(self.crawl_site(link, project_id, name, visited))
+
+        # Batch update the Colbert index with all contents after crawling is done
+        if all_contents:
+            response = requests.post('http://34.132.147.230:5000/update_index', json={'projectId': project_id, 'name': name, 'documents': all_contents})
+            print(response.json())
 
         return site_docs
-    
+
     def scrape_url(self, url, project_id):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-        }
-        content_scraper = ContentScraper(url, headers)
+        content_scraper = ContentScraper(url)
         content = content_scraper.extract_content()
-        
+
         if len(content) < 100:
-            return None  # Skip further processing for this URL
-        
+            return None, None  # Return None for both scraped_doc and content
+
+        # Proceed with processing without updating the Colbert index here
         chunks = self.chunkify(content, url)
         embeddings = self.embed_chunks(chunks)
         content_summary = self.summarize_content(content)
 
-        # Normalize and hash the URL to use as a document ID
         normalized_url = self.normalize_url(url)
 
-        # First, insert the project_doc without the chunks to get the doc_id
         project_doc = {
             'type': 'url',
-            'chunks': [],  # Temporarily leave this empty
-            'value': content,
+            'chunks': [],
+            'content': content,
             'project_id': project_id,
             'token_count': tokenizer.token_count(content),
             'source': normalized_url,
@@ -165,13 +167,10 @@ class ProjectServices:
         inserted_doc = self.db['project_docs'].insert_one(project_doc)
         doc_id = inserted_doc.inserted_id
 
-        # Now, insert each chunk with the doc_id included
         chunk_ids = []
         for chunk in embeddings:
-            # Unpack the metadata to extract 'text' and 'source' directly
             metadata_text = chunk['metadata']['text']
             metadata_source = chunk['metadata']['source']
-            # Prepare the chunk without the 'metadata' field but with 'text' and 'source' directly
             chunk_to_insert = {
                 **chunk,
                 'text': metadata_text,
@@ -179,25 +178,21 @@ class ProjectServices:
                 'doc_id': str(doc_id),
                 'project_id': project_id
             }
-            # Remove the original 'metadata'/ id fields
             chunk_to_insert.pop('metadata', None)
             chunk_to_insert.pop('id', None)
             inserted_chunk = self.db['chunks'].insert_one(chunk_to_insert)
             chunk_ids.append(inserted_chunk.inserted_id)
 
-        # Finally, update the project_doc with the list of chunk_ids
         self.db['project_docs'].update_one({'_id': doc_id}, {'$set': {'chunks': chunk_ids}})
-        
-        updated_doc = self.db['project_docs'].find_one({'_id': doc_id})
 
+        updated_doc = self.db['project_docs'].find_one({'_id': doc_id})
         if '_id' in updated_doc:
             updated_doc['id'] = str(updated_doc['_id'])
             updated_doc.pop('_id', None)
-        
         if 'chunks' in updated_doc:
-                updated_doc['chunks'] = [str(chunk_id) for chunk_id in updated_doc['chunks']]
+            updated_doc['chunks'] = [str(chunk_id) for chunk_id in updated_doc['chunks']]
 
-        return updated_doc
+        return updated_doc, content 
         
     def normalize_url(self, url):
         # Example normalization process
@@ -289,25 +284,6 @@ class ProjectServices:
         new_chat['chatId'] = str(result.inserted_id)
         del new_chat['_id']
 
-        response = requests.post('https://104.198.215.246:5000/create_index', json={'projectId': project_id, 'name': 'test_index'})
-        data = response.json()
-        print(data)
         return project_details, new_chat
 
-    def upload_directory_to_gcs(self, source_directory, destination_prefix):
-        """Uploads a directory to GCS, preserving the structure."""
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(os.getenv('RAG_STORAGE_BUCKET'))
-        for root, _, files in os.walk(source_directory):
-            for file in files:
-                local_path = os.path.join(root, file)
-                relative_path = os.path.relpath(local_path, source_directory)
-                gcs_path = os.path.join(destination_prefix, relative_path)
-                blob = bucket.blob(gcs_path)
-                blob.upload_from_filename(local_path)
-
-    def save_index_to_gcs(self, index_root, gcs_prefix):
-        """Saves the RAG index from a local directory to GCS."""
-       
-        self.upload_directory_to_gcs(index_root, gcs_prefix)
 

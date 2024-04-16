@@ -42,7 +42,7 @@ const DocumentCard = ({ document }) => {
                         boxShadow: 1,
                     }}
                 >
-                    <Typography variant="body1">{document.value}</Typography>
+                    <Typography variant="body1">{document.content}</Typography>
                 </Box>
             </CardContent>
             <CardActions>
