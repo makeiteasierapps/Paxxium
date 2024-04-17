@@ -43,62 +43,50 @@ firebase_service = FirebaseService()
 message_service = MessageService(db)
 user_service = UserService(db)
 
-def query_project_index(query, project_id, name):
-    # open_client = OpenAI()
-    # response = open_client.embeddings.create(input=query, model='text-embedding-3-small')
-    # embeddings = response.data[0].embedding
-    # pipeline = [
-    #     {
-    #         '$vectorSearch': {
-    #             'index': 'vector_index',
-    #             'path': 'values',
-    #             'queryVector': embeddings,
-    #             'numCandidates': 100,
-    #             'limit': 10,
-    #             'filter': {
-    #                 'project_id': project_id
-    #             }
-    #         }
-    #     }, {
-    #         '$project': {
-    #             '_id': 0,
-    #             'text': 1,
-    #             'source': 1,
-    #             'score': {
-    #                 '$meta': 'vectorSearchScore'
-    #             }
-    #         }
-    #     }
-    # ]
+def query_project_index(query, project_id):
+    open_client = OpenAI()
+    response = open_client.embeddings.create(input=query, model='text-embedding-3-small')
+    embeddings = response.data[0].embedding
+    pipeline = [
+        {
+            '$vectorSearch': {
+                'index': 'vector_index',
+                'path': 'values',
+                'queryVector': embeddings,
+                'numCandidates': 100,
+                'limit': 10,
+                'filter': {
+                    'project_id': project_id
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 0,
+                'text': 1,
+                'source': 1,
+                'score': {
+                    '$meta': 'vectorSearchScore'
+                }
+            }
+        }
+    ]
 
-    # results = db["chunks"].aggregate(pipeline)
-
-    response = requests.post('http://34.132.147.230:5000/query_index', json={'projectId': project_id, 'name': name, 'query': query})
-    data = response.json()
-    results = data.get('results')
+    results = db["chunks"].aggregate(pipeline)
+    
+    # This queries the colbert index on an e2 instance
+    # response = requests.post('http://34.132.147.230:5000/query_index', json={'projectId': project_id, 'name': name, 'query': query})
+    # data = response.json()
+    # results = data.get('results')
     return results
         
 def prepare_response_for_llm(query_results):
     text = []
     
-    for item in query_results:
-            if item['score'] > 20:
-                print(item)
-                text.append(item['text'])
-
-    combined_text = ' '.join(text)
-    project_query_instructions = f'''
-    \nAnswer the users question based off of the knowledge base provided below, provide 
-    a detailed response that is relevant to the users question.\n
-    KNOWLEDGE BASE: {combined_text}
-    '''
-
-    # text = []
-
+    # Prep for colbert index
     # for item in query_results:
-    #     if item['score'] > 0.4:
-    #         print(item)
-    #         text.append(item['content'])
+    #         if item['score'] > 20:
+    #             print(item)
+    #             text.append(item['text'])
 
     # combined_text = ' '.join(text)
     # project_query_instructions = f'''
@@ -106,6 +94,20 @@ def prepare_response_for_llm(query_results):
     # a detailed response that is relevant to the users question.\n
     # KNOWLEDGE BASE: {combined_text}
     # '''
+
+    text = []
+
+    for item in query_results:
+        if item['score'] > 0.4:
+            print(item)
+            text.append(item['content'])
+
+    combined_text = ' '.join(text)
+    project_query_instructions = f'''
+    \nAnswer the users question based off of the knowledge base provided below, provide 
+    a detailed response that is relevant to the users question.\n
+    KNOWLEDGE BASE: {combined_text}
+    '''
     return project_query_instructions
 
 def process_message(uid, chat_id, user_message, chat_settings, chat_history, image_url=None):

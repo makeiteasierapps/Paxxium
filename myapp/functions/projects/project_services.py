@@ -4,15 +4,12 @@ import time
 import requests
 from bson import ObjectId
 from datetime import datetime
-from google.cloud import storage
 from dotenv import load_dotenv
 from openai import OpenAI
 from canopy.tokenizer import Tokenizer
 from canopy.models.data_models import Document
 from canopy.knowledge_base.models import KBEncodedDocChunk
 from canopy.knowledge_base.chunker.recursive_character import RecursiveCharacterChunker
-
-
 
 if os.getenv('LOCAL_DEV') == 'True':
     from .ContentScraper import ContentScraper
@@ -121,23 +118,23 @@ class ProjectServices:
         content_scraper = ContentScraper(url)
         links = content_scraper.extract_links()
         site_docs = []
-        all_contents = []  # List to hold all contents for batch update
+        all_contents = [] # Only used for testing Colbert
 
         for link in links:
             if link not in visited:
                 visited.add(link)
-                time.sleep(1)  # Be polite to the server
+                time.sleep(1)
                 scraped_doc, content = self.scrape_url(link, project_id)
                 if scraped_doc:
                     site_docs.append(scraped_doc)
-                    if content:  # Ensure content is not None
+                    if content:
                         all_contents.append(content)  # Add content to the list for batch update
                 site_docs.extend(self.crawl_site(link, project_id, name, visited))
 
         # Batch update the Colbert index with all contents after crawling is done
-        if all_contents:
-            response = requests.post('http://34.132.147.230:5000/update_index', json={'projectId': project_id, 'name': name, 'documents': all_contents})
-            print(response.json())
+        # if all_contents:
+        #     response = requests.post('http://34.132.147.230:5000/update_index', json={'projectId': project_id, 'name': name, 'documents': all_contents})
+        #     print(response.json())
 
         return site_docs
 
@@ -146,9 +143,8 @@ class ProjectServices:
         content = content_scraper.extract_content()
 
         if len(content) < 100:
-            return None, None  # Return None for both scraped_doc and content
+            return None, None 
 
-        # Proceed with processing without updating the Colbert index here
         chunks = self.chunkify(content, url)
         embeddings = self.embed_chunks(chunks)
         content_summary = self.summarize_content(content)
