@@ -54,7 +54,7 @@ def query_project_index(query, project_id):
                 'path': 'values',
                 'queryVector': embeddings,
                 'numCandidates': 100,
-                'limit': 10,
+                'limit': 3,
                 'filter': {
                     'project_id': project_id
                 }
@@ -100,7 +100,7 @@ def prepare_response_for_llm(query_results):
     for item in query_results:
         if item['score'] > 0.4:
             print(item)
-            text.append(item['content'])
+            text.append(item['text'])
 
     combined_text = ' '.join(text)
     project_query_instructions = f'''
@@ -180,7 +180,7 @@ def messages(request):
         system_prompt = chat_settings.get('systemPrompt')  
 
         if project_id is not None:
-            query_results = query_project_index(user_message['content'], project_id, project_name)
+            query_results = query_project_index(user_message['content'], project_id)
             instructions_to_add = prepare_response_for_llm(query_results)
             system_prompt += instructions_to_add
             chat_settings['systemPrompt'] = system_prompt

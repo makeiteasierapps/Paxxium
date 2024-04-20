@@ -113,7 +113,7 @@ def handle_scrape(request):
         name = data.get('projectName')
         if not urls:
             return jsonify({'message': 'URL is required'}), 400, headers
-        new_docs = project_services.crawl_site(urls[0], project_id, name)
+        new_docs = project_services.crawl_site(urls[0], project_id)
         return jsonify({'docs': new_docs}), 200, headers
     urls = data.get('urls')
     project_id = data.get('projectId')
@@ -123,7 +123,7 @@ def handle_scrape(request):
 
     docs = []
     for url in urls:
-        new_doc = project_services.scrape_url(url, project_id, name)
+        new_doc = project_services.scrape_url(url, project_id)
         docs.append(new_doc)
 
     return jsonify({'docs': docs}), 200, headers

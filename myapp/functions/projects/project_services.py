@@ -92,6 +92,10 @@ class ProjectServices:
         return encoded_chunks
 
     def summarize_content(self, content):
+        token_count = tokenizer.token_count(content)
+        if token_count > 10000:
+            # Summarize each chunk individually
+            return "Content is too long to summarize."
         client = OpenAI()
         response = client.chat.completions.create(
             model='gpt-3.5-turbo',

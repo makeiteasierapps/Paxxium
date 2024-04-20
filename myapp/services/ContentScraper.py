@@ -67,7 +67,7 @@ class ContentScraper:
         encountered_content = set()  # Track encountered content to avoid duplicates
 
         # Process content-specific tags
-        for tag in main_content.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'textarea']):
+        for tag in main_content.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'textarea', 'pre']):
             if self.should_skip_tag(tag):
                 continue
 
