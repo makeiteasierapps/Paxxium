@@ -228,16 +228,22 @@ const ChatSettings = ({
                         }}
                     >
                         <MenuItem
-                            value={'GPT-3.5'}
+                            value={'gpt-3.5'}
                             onClick={handleClose('model')}
                         >
-                            GPT 3.5
+                            GPT-3.5
                         </MenuItem>
                         <MenuItem
-                            value={'GPT-4'}
+                            value={'gpt-4o'}
                             onClick={handleClose('model')}
                         >
-                            GPT 4
+                            GPT-4o
+                        </MenuItem>
+                        <MenuItem
+                            value={'gpt-4-turbo'}
+                            onClick={handleClose('model')}
+                        >
+                            GPT-4-turbo
                         </MenuItem>
                     </Menu>
                 </Grid>

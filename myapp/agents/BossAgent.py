@@ -11,11 +11,7 @@ class BossAgent:
         self.system_prompt = system_prompt
         self.chat_constants = chat_constants
         self.user_analysis = ""
-        
-        if model == 'GPT-4':
-            self.model = 'gpt-4-turbo'
-        else:
-            self.model = 'gpt-3.5-turbo'
+        self.model = model
 
         if use_profile_data:
             self.user_analysis = user_service.get_user_analysis(uid)
