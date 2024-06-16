@@ -6,9 +6,17 @@ import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../agents/chat/Chat';
 import DocumentCard from './DocumentCard';
+import TextFieldComponent from './TextField';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
-import { WebAsset, FileCopy, Chat, Close, Source } from '@mui/icons-material/';
+import {
+    WebAsset,
+    FileCopy,
+    Chat,
+    Close,
+    Source,
+    TextFields,
+} from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
 
 const MainContainer = styled(Box)(({ theme }) => ({
@@ -31,6 +39,7 @@ const Project = ({ project, onClose }) => {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+    const [isTextFieldsOpen, setIsTextFieldsOpen] = useState(false);
     const fileInputRef = useRef(null);
     const agent = getChatByProjectId(project.id);
     const theme = useTheme();
@@ -114,7 +123,7 @@ const Project = ({ project, onClose }) => {
                     }
                     variant="body"
                 >
-                    {project.description}
+                    {project.objective}
                 </Typography>
                 <Box
                     display="flex"
@@ -125,9 +134,21 @@ const Project = ({ project, onClose }) => {
                 >
                     <StyledIconButton
                         onClick={() => {
+                            setIsTextFieldsOpen(!isTextFieldsOpen);
+                            setIsWebScrapeOpen(false);
+                            setIsDocumentOpen(false);
+                            setIsChatOpen(false);
+                        }}
+                        aria-label="Scrape Web"
+                    >
+                        <TextFields />
+                    </StyledIconButton>
+                    <StyledIconButton
+                        onClick={() => {
                             setIsWebScrapeOpen(!isWebScrapeOpen);
                             setIsDocumentOpen(false);
                             setIsChatOpen(false);
+                            setIsTextFieldsOpen(false);
                         }}
                         aria-label="Scrape Web"
                     >
@@ -150,6 +171,7 @@ const Project = ({ project, onClose }) => {
                             setIsChatOpen(!isChatOpen);
                             setIsDocumentOpen(false);
                             setIsWebScrapeOpen(false);
+                            setIsTextFieldsOpen(false);
                         }}
                         aria-label="Chat"
                     >
@@ -160,6 +182,7 @@ const Project = ({ project, onClose }) => {
                             setIsDocumentOpen(!isDocumentOpen);
                             setIsChatOpen(false);
                             setIsWebScrapeOpen(false);
+                            setIsTextFieldsOpen(false);
                         }}
                         aria-label="Documents"
                     >
@@ -175,7 +198,7 @@ const Project = ({ project, onClose }) => {
                 {isChatOpen ? (
                     <ProjectChat agent={agent} setIsChatOpen={setIsChatOpen} />
                 ) : null}
-                {isDocumentOpen && (
+                {isDocumentOpen ? (
                     <Grid container spacing={2} justifyContent="center">
                         {documentArray[project.id]?.map((document) => (
                             <Grid
@@ -191,7 +214,8 @@ const Project = ({ project, onClose }) => {
                             </Grid>
                         ))}
                     </Grid>
-                )}
+                ) : null}
+                {isTextFieldsOpen ? <TextFieldComponent project={project} /> : null}
             </Box>
         </MainContainer>
     );
