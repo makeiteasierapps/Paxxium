@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Button, Slider, TextField } from '@mui/material';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Box } from '@mui/material';
+import TextInputUtilityBar from './TextInputUtilityBar';
 import { styled } from '@mui/system';
 import { getEncoding } from 'js-tiktoken';
 
@@ -12,108 +13,6 @@ const MainBox = styled(Box)({
     height: '70vh',
     border: '1px solid #e0e0e0',
 });
-
-const MainUtilityBox = styled(Box)({
-    display: 'flex',
-    justifyContent: 'space-between',
-    width: '100%',
-    padding: '10px',
-});
-
-const StyledTextField = styled(TextField)({
-    width: '40%',
-});
-
-const TextInputUtilityBar = ({
-    TokenCount,
-    handleSave,
-    selectedChunk,
-    setSelectedChunk,
-    chunks,
-    setChunks,
-    usedColors,
-    setUsedColors,
-    start,
-    setStart,
-    end,
-    setEnd,
-    applyHighlights,
-    text,
-}) => {
-    const handleColorChange = (event, newValue) => {
-        if (selectedChunk) {
-            const newColor = `#${newValue.toString(16).padStart(6, '0')}`;
-            const updatedChunks = chunks.map((chunk) =>
-                chunk.id === selectedChunk.id
-                    ? { ...chunk, color: newColor }
-                    : chunk
-            );
-            setChunks(updatedChunks);
-            setUsedColors([...usedColors, newColor]);
-            setSelectedChunk({ ...selectedChunk, color: newColor });
-            applyHighlights();
-        }
-    };
-
-    const handleRangeSliderChange = (event, newValue) => {
-        const [newStart, newEnd] = newValue;
-        if (selectedChunk) {
-            const updatedChunks = chunks.map((chunk) =>
-                chunk.id === selectedChunk.id
-                    ? {
-                          ...chunk,
-                          start: newStart,
-                          end: newEnd,
-                          text: text.substring(newStart, newEnd),
-                      }
-                    : chunk
-            );
-            setChunks(updatedChunks);
-            setStart(newStart);
-            setEnd(newEnd);
-            applyHighlights();
-        }
-    };
-
-    return (
-        <MainUtilityBox>
-            <Typography>Token Count: {TokenCount}</Typography>
-
-            {selectedChunk && (
-                <>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Typography>Adjust Highlight Color:</Typography>
-                        <Slider
-                            value={parseInt(selectedChunk.color.slice(1), 16)}
-                            onChange={handleColorChange}
-                            min={0}
-                            max={0xffffff}
-                            step={1}
-                        />
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <Typography>Adjust Highlight Range:</Typography>
-                        <Slider
-                            value={[start, end]}
-                            onChange={handleRangeSliderChange}
-                            min={0}
-                            max={text.length}
-                        />
-                    </Box>
-                </>
-            )}
-            <Button variant="outlined" color="primary" onClick={handleSave}>
-                Save
-            </Button>
-        </MainUtilityBox>
-    );
-};
 
 const getRandomColor = (usedColors) => {
     const letters = '0123456789ABCDEF';
@@ -129,6 +28,65 @@ const getRandomColor = (usedColors) => {
         color === '#000000'
     );
     return color;
+};
+
+const saveSelection = (containerEl) => {
+    const selection = window.getSelection();
+    if (selection.rangeCount === 0) return null;
+    const range = selection.getRangeAt(0);
+    const preSelectionRange = range.cloneRange();
+    preSelectionRange.selectNodeContents(containerEl);
+    preSelectionRange.setEnd(range.startContainer, range.startOffset);
+    const start = preSelectionRange.toString().length;
+
+    return {
+        start: start,
+        end: start + range.toString().length,
+    };
+};
+
+const restoreSelection = (containerEl, savedSel) => {
+    if (!savedSel) return;
+    const charIndex = { start: 0, end: 0 };
+    const range = document.createRange();
+    range.setStart(containerEl, 0);
+    range.collapse(true);
+    const nodeStack = [containerEl];
+    let node,
+        foundStart = false,
+        stop = false;
+
+    while (!stop && (node = nodeStack.pop())) {
+        if (node.nodeType === 3) {
+            const nextCharIndex = charIndex.start + node.length;
+            if (
+                !foundStart &&
+                savedSel.start >= charIndex.start &&
+                savedSel.start <= nextCharIndex
+            ) {
+                range.setStart(node, savedSel.start - charIndex.start);
+                foundStart = true;
+            }
+            if (
+                foundStart &&
+                savedSel.end >= charIndex.start &&
+                savedSel.end <= nextCharIndex
+            ) {
+                range.setEnd(node, savedSel.end - charIndex.start);
+                stop = true;
+            }
+            charIndex.start = nextCharIndex;
+        } else {
+            let i = node.childNodes.length;
+            while (i--) {
+                nodeStack.push(node.childNodes[i]);
+            }
+        }
+    }
+
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
 };
 
 const TextFieldComponent = ({ project }) => {
@@ -170,6 +128,15 @@ const TextFieldComponent = ({ project }) => {
             preSelectionRange.setEnd(range.startContainer, range.startOffset);
             const startOffset = preSelectionRange.toString().length;
             const endOffset = startOffset + selectedText.length;
+
+            const isOverlapping = chunks.some(
+                (chunk) => startOffset < chunk.end && endOffset > chunk.start
+            );
+
+            if (isOverlapping) {
+                return;
+            }
+
             const color = getRandomColor(usedColors);
             setUsedColors([...usedColors, color]);
             setChunks([
@@ -186,12 +153,16 @@ const TextFieldComponent = ({ project }) => {
         }
     };
 
-    const applyHighlights = () => {
+    const applyHighlights = useCallback(() => {
         const contentEditable = contentEditableRef.current;
         if (!contentEditable) return;
 
+        const savedSelection = saveSelection(contentEditable);
+
         let lastIndex = 0;
         const elements = [];
+
+        chunks.sort((a, b) => a.start - b.start); // Ensure chunks are sorted by start position
 
         chunks.forEach((chunk) => {
             const startIndex = chunk.start;
@@ -224,7 +195,9 @@ const TextFieldComponent = ({ project }) => {
                 );
             }
         });
-    };
+
+        restoreSelection(contentEditable, savedSelection);
+    }, [chunks, text]);
 
     const handleChunkClick = (chunk) => {
         setSelectedChunk((prevSelectedChunk) => {
@@ -242,7 +215,7 @@ const TextFieldComponent = ({ project }) => {
 
     useEffect(() => {
         applyHighlights();
-    }, [chunks]);
+    }, [applyHighlights, chunks]);
 
     return (
         <MainBox>
@@ -279,5 +252,4 @@ const TextFieldComponent = ({ project }) => {
         </MainBox>
     );
 };
-
 export default TextFieldComponent;
