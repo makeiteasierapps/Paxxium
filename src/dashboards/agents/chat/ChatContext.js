@@ -41,7 +41,27 @@ export const ChatProvider = ({ children }) => {
                 ...prevMessageParts,
                 [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
             };
-            localStorage.setItem('messages', JSON.stringify(updatedMessages));
+
+            // Update agentArray with the new message
+            setAgentArray((prevAgentArray) => {
+                const updatedAgentArray = prevAgentArray.map((agent) => {
+                    if (agent.chatId === chatId) {
+                        return {
+                            ...agent,
+                            messages: updatedMessages[chatId],
+                        };
+                    }
+                    return agent;
+                });
+
+                // Update local storage with the updated agent array
+                localStorage.setItem(
+                    'agentArray',
+                    JSON.stringify(updatedAgentArray)
+                );
+                return updatedAgentArray;
+            });
+
             return updatedMessages;
         });
     };
@@ -59,12 +79,14 @@ export const ChatProvider = ({ children }) => {
     const getChats = useCallback(async () => {
         try {
             const cachedChats = localStorage.getItem('agentArray');
+            console.log(cachedChats);
             if (cachedChats) {
                 const parsedChats = JSON.parse(cachedChats);
                 setAgentArray(parsedChats);
 
                 // New: Update messages state based on cached chats
                 const cachedMessages = parsedChats.reduce((acc, chat) => {
+                    console.log('chat', chat);
                     if (chat.messages) {
                         acc[chat.chatId] = chat.messages;
                     }
@@ -74,6 +96,7 @@ export const ChatProvider = ({ children }) => {
 
                 return parsedChats;
             }
+
             const response = await fetch(`${chatUrl}/chat`, {
                 method: 'GET',
                 headers: {
@@ -86,7 +109,6 @@ export const ChatProvider = ({ children }) => {
 
             const data = await response.json();
             setAgentArray(data);
-            console.log(data);
 
             // Assuming each chat object in the data array now includes a messages array
             const messagesFromData = data.reduce((acc, chat) => {
@@ -269,10 +291,26 @@ export const ChatProvider = ({ children }) => {
                     [chatSettings.chatId]: updatedMessages,
                 };
 
-                localStorage.setItem(
-                    'messages',
-                    JSON.stringify(newMessagesState)
-                );
+                // Update agentArray with the new message
+                setAgentArray((prevAgentArray) => {
+                    const updatedAgentArray = prevAgentArray.map((agent) => {
+                        if (agent.chatId === chatSettings.chatId) {
+                            return {
+                                ...agent,
+                                messages: updatedMessages,
+                            };
+                        }
+                        return agent;
+                    });
+
+                    // Update local storage with the updated agent array
+                    localStorage.setItem(
+                        'agentArray',
+                        JSON.stringify(updatedAgentArray)
+                    );
+                    return updatedAgentArray;
+                });
+
                 return newMessagesState;
             });
         } catch (error) {
