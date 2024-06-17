@@ -79,14 +79,12 @@ export const ChatProvider = ({ children }) => {
     const getChats = useCallback(async () => {
         try {
             const cachedChats = localStorage.getItem('agentArray');
-            console.log(cachedChats);
             if (cachedChats) {
                 const parsedChats = JSON.parse(cachedChats);
                 setAgentArray(parsedChats);
 
                 // New: Update messages state based on cached chats
                 const cachedMessages = parsedChats.reduce((acc, chat) => {
-                    console.log('chat', chat);
                     if (chat.messages) {
                         acc[chat.chatId] = chat.messages;
                     }
