@@ -2,9 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Box } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { styled } from '@mui/system';
-import { getEncoding } from 'js-tiktoken';
-
-const encoding = getEncoding('cl100k_base');
 
 const MainBox = styled(Box)({
     display: 'flex',
@@ -95,8 +92,6 @@ const TextFieldComponent = ({ project }) => {
     const [usedColors, setUsedColors] = useState([]);
     const [selectedChunk, setSelectedChunk] = useState(null);
     const [editingChunk, setEditingChunk] = useState(false);
-    const [start, setStart] = useState(0);
-    const [end, setEnd] = useState(0);
     const contentEditableRef = useRef(null);
 
     useEffect(() => {
@@ -162,7 +157,7 @@ const TextFieldComponent = ({ project }) => {
         let lastIndex = 0;
         const elements = [];
 
-        chunks.sort((a, b) => a.start - b.start); // Ensure chunks are sorted by start position
+        chunks.sort((a, b) => a.start - b.start);
 
         chunks.forEach((chunk) => {
             const startIndex = chunk.start;
@@ -200,6 +195,7 @@ const TextFieldComponent = ({ project }) => {
     }, [chunks, text]);
 
     const handleChunkClick = (chunk) => {
+        console.log(chunk);
         setSelectedChunk((prevSelectedChunk) => {
             if (prevSelectedChunk?.id === chunk.id) {
                 setEditingChunk(false);
@@ -207,9 +203,7 @@ const TextFieldComponent = ({ project }) => {
             }
 
             setEditingChunk(true);
-            setStart(chunk.start);
-            setEnd(chunk.end);
-            return chunk;
+            return { ...chunk };
         });
     };
 
@@ -220,7 +214,6 @@ const TextFieldComponent = ({ project }) => {
     return (
         <MainBox>
             <TextInputUtilityBar
-                TokenCount={encoding.encode(text).length}
                 handleSave={handleSave}
                 selectedChunk={selectedChunk}
                 setSelectedChunk={setSelectedChunk}
@@ -228,10 +221,6 @@ const TextFieldComponent = ({ project }) => {
                 setChunks={setChunks}
                 usedColors={usedColors}
                 setUsedColors={setUsedColors}
-                start={start}
-                setStart={setStart}
-                end={end}
-                setEnd={setEnd}
                 applyHighlights={applyHighlights}
                 text={text}
             />

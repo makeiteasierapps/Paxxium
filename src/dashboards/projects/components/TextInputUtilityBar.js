@@ -1,5 +1,8 @@
 import { Box, Typography, Button, Slider } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { getEncoding } from 'js-tiktoken';
+
+const encoding = getEncoding('cl100k_base');
 
 const MainUtilityBox = styled(Box)({
     display: 'flex',
@@ -8,9 +11,7 @@ const MainUtilityBox = styled(Box)({
     padding: '10px',
 });
 
-
 const TextInputUtilityBar = ({
-    TokenCount,
     handleSave,
     selectedChunk,
     setSelectedChunk,
@@ -18,10 +19,6 @@ const TextInputUtilityBar = ({
     setChunks,
     usedColors,
     setUsedColors,
-    start,
-    setStart,
-    end,
-    setEnd,
     applyHighlights,
     text,
 }) => {
@@ -54,18 +51,24 @@ const TextInputUtilityBar = ({
                     : chunk
             );
             setChunks(updatedChunks);
-            setStart(newStart);
-            setEnd(newEnd);
+            setSelectedChunk({
+                ...selectedChunk,
+                start: newStart,
+                end: newEnd,
+                text: text.substring(newStart, newEnd),
+            });
             applyHighlights();
         }
     };
 
     return (
         <MainUtilityBox>
-            <Typography>Token Count: {TokenCount}</Typography>
-
             {selectedChunk && (
                 <>
+                    <Typography>
+                        Token Count:
+                        {encoding.encode(selectedChunk?.text || '').length}
+                    </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography>Adjust Highlight Color:</Typography>
                         <Slider
@@ -85,7 +88,7 @@ const TextInputUtilityBar = ({
                     >
                         <Typography>Adjust Highlight Range:</Typography>
                         <Slider
-                            value={[start, end]}
+                            value={[selectedChunk.start, selectedChunk.end]}
                             onChange={handleRangeSliderChange}
                             min={0}
                             max={text.length}
