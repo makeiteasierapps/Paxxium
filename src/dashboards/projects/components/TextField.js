@@ -96,12 +96,18 @@ const TextFieldComponent = ({ project }) => {
 
     useEffect(() => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        setText(savedData[project.id] || '');
+        if (savedData[project.id]) {
+            setText(savedData[project.id].text || '');
+            setChunks(savedData[project.id].chunks || []);
+        }
     }, [project.id]);
 
     const handleSave = () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        savedData[project.id] = text;
+        savedData[project.id] = {
+            text: text,
+            chunks: chunks,
+        };
         localStorage.setItem('textDocs', JSON.stringify(savedData));
     };
 
@@ -195,7 +201,6 @@ const TextFieldComponent = ({ project }) => {
     }, [chunks, text]);
 
     const handleChunkClick = (chunk) => {
-        console.log(chunk);
         setSelectedChunk((prevSelectedChunk) => {
             if (prevSelectedChunk?.id === chunk.id) {
                 setEditingChunk(false);
