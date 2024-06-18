@@ -126,8 +126,41 @@ const TextFieldComponent = ({ project }) => {
         localStorage.setItem('textDocs', JSON.stringify(savedData));
     };
 
+    const updateChunks = (newText, cursorPosition, diff) => {
+        return chunks.map((chunk) => {
+            if (cursorPosition <= chunk.start) {
+                return {
+                    ...chunk,
+                    start: chunk.start + diff,
+                    end: chunk.end + diff,
+                };
+            } else if (
+                cursorPosition > chunk.start &&
+                cursorPosition <= chunk.end
+            ) {
+                return { ...chunk, end: chunk.end + diff };
+            }
+            return chunk;
+        });
+    };
     const handleInput = (e) => {
-        setDocumentText(e.target.innerText);
+        const newText = e.target.innerText;
+        const diff = newText.length - documentText.length;
+
+        if (diff !== 0) {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const preSelectionRange = range.cloneRange();
+            preSelectionRange.selectNodeContents(contentEditableRef.current);
+            preSelectionRange.setEnd(range.startContainer, range.startOffset);
+            const cursorPosition = preSelectionRange.toString().length;
+
+            const updatedChunks = updateChunks(newText, cursorPosition, diff);
+            setChunks(updatedChunks);
+        }
+
+        setDocumentText(newText);
+        applyHighlights();
     };
 
     const handleMouseUp = () => {
@@ -165,6 +198,17 @@ const TextFieldComponent = ({ project }) => {
                     end: endOffset,
                 },
             ]);
+            applyHighlights();
+        } else {
+            const newText = contentEditableRef.current.innerText;
+            const diff = newText.length - documentText.length;
+            const cursorPosition = window
+                .getSelection()
+                .getRangeAt(0).startOffset;
+
+            const updatedChunks = updateChunks(newText, cursorPosition, diff);
+            setChunks(updatedChunks);
+            setDocumentText(newText);
             applyHighlights();
         }
     };
