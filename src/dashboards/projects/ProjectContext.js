@@ -209,10 +209,37 @@ export const ProjectProvider = ({ children }) => {
         });
     };
 
+    const saveTextDoc = async (projectId, text, chunks, docId) => {
+        try {
+            const response = await fetch(
+                'http://localhost:50006/projects/save_text_doc',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: JSON.stringify({ projectId, text, chunks, docId }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to save text doc');
+            }
+
+            const data = await response.json();
+            console.log(data);
+            return data.docId;
+        } catch (error) {
+            console.error(error);
+            showSnackbar('Error saving text doc', 'error');
+        }
+    };
+
     useEffect(() => {
         if (!idToken) return;
         fetchProjects();
-    }, [idToken]);
+    }, [fetchProjects, idToken]);
 
     return (
         <ProjectContext.Provider
@@ -227,6 +254,7 @@ export const ProjectProvider = ({ children }) => {
                 fetchDocuments,
                 deleteDocument,
                 scrapeUrls,
+                saveTextDoc,
             }}
         >
             {children}

@@ -286,4 +286,19 @@ class ProjectServices:
 
         return project_details, new_chat
 
-
+    def save_text_doc(self, project_id, text, chunks=None, doc_id=None):
+        new_doc = {
+            'project_id': project_id,
+            'text': text,
+            'chunks': chunks
+        }
+        if doc_id:
+            result = self.db['project_docs'].update_one({'_id': ObjectId(doc_id)}, {'$set': new_doc})
+            if result.matched_count > 0:
+                return doc_id
+            else:
+                return 'not_found'
+        else:
+            result = self.db['project_docs'].insert_one(new_doc)
+            new_doc_id = str(result.inserted_id)
+            return new_doc_id

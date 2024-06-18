@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { Box } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
+import { ProjectContext } from '../ProjectContext';
 import { styled } from '@mui/system';
 
 const MainBox = styled(Box)({
@@ -87,32 +88,46 @@ const restoreSelection = (containerEl, savedSel) => {
 };
 
 const TextFieldComponent = ({ project }) => {
-    const [text, setText] = useState('');
+    const [documentText, setDocumentText] = useState('');
     const [chunks, setChunks] = useState([]);
     const [usedColors, setUsedColors] = useState([]);
     const [selectedChunk, setSelectedChunk] = useState(null);
     const [editingChunk, setEditingChunk] = useState(false);
     const contentEditableRef = useRef(null);
 
+    const { saveTextDoc } = useContext(ProjectContext);
+
     useEffect(() => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
         if (savedData[project.id]) {
-            setText(savedData[project.id].text || '');
+            setDocumentText(savedData[project.id].text || '');
             setChunks(savedData[project.id].chunks || []);
         }
     }, [project.id]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
+        const existingDoc = savedData[project.id];
+        console.log(existingDoc);
+        const existingDocId = existingDoc ? existingDoc.docId : null;
+
+        const docId = await saveTextDoc(
+            project.id,
+            documentText,
+            chunks,
+            existingDocId
+        );
+
         savedData[project.id] = {
-            text: text,
+            text: documentText,
             chunks: chunks,
+            docId: docId,
         };
         localStorage.setItem('textDocs', JSON.stringify(savedData));
     };
 
     const handleInput = (e) => {
-        setText(e.target.innerText);
+        setDocumentText(e.target.innerText);
     };
 
     const handleMouseUp = () => {
@@ -170,17 +185,19 @@ const TextFieldComponent = ({ project }) => {
             const endIndex = chunk.end;
             if (startIndex !== -1) {
                 if (startIndex > lastIndex) {
-                    elements.push(text.substring(lastIndex, startIndex));
+                    elements.push(
+                        documentText.substring(lastIndex, startIndex)
+                    );
                 }
                 elements.push(
-                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}">${text.substring(startIndex, endIndex)}</span>`
+                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}">${documentText.substring(startIndex, endIndex)}</span>`
                 );
                 lastIndex = endIndex;
             }
         });
 
-        if (lastIndex < text.length) {
-            elements.push(text.substring(lastIndex));
+        if (lastIndex < documentText.length) {
+            elements.push(documentText.substring(lastIndex));
         }
 
         contentEditable.innerHTML = elements.join('');
@@ -198,7 +215,7 @@ const TextFieldComponent = ({ project }) => {
         });
 
         restoreSelection(contentEditable, savedSelection);
-    }, [chunks, text]);
+    }, [chunks, documentText]);
 
     const handleChunkClick = (chunk) => {
         setSelectedChunk((prevSelectedChunk) => {
@@ -227,7 +244,7 @@ const TextFieldComponent = ({ project }) => {
                 usedColors={usedColors}
                 setUsedColors={setUsedColors}
                 applyHighlights={applyHighlights}
-                text={text}
+                text={documentText}
             />
             <div
                 ref={contentEditableRef}

@@ -2,7 +2,6 @@ import os
 from pymongo import MongoClient
 import certifi
 from dotenv import load_dotenv
-import pprint
 from flask import jsonify
 from firebase_admin import credentials, initialize_app
 
@@ -168,6 +167,25 @@ def create_new_project(request):
     new_project_details, new_chat_details = project_services.create_new_project(uid, name, objective)
     return jsonify({'new_project': new_project_details, 'new_chat': new_chat_details}), 200, headers
 
+def handle_save_text_doc(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    
+    data = request.get_json()
+    project_id = data.get('projectId')
+    text = data.get('text')
+    chunks = data.get('chunks')
+    doc_id = data.get('docId')
+
+    result = project_services.save_text_doc(project_id, text, chunks, doc_id)
+    
+    if result == 'not_found':
+        return jsonify({'message': 'Document not found'}), 404, headers
+    else:
+        return jsonify({'message': 'Text doc saved', 'docId': result}), 200, headers
+
+
 def projects(request):
     if request.method == "OPTIONS":
         return cors_preflight_response()
@@ -192,3 +210,6 @@ def projects(request):
     
     if request.path in ('/delete', '/projects/delete'):
         return handle_delete_project(request)
+    
+    if request.path in ('/save_text_doc', '/projects/save_text_doc'):
+        return handle_save_text_doc(request)
