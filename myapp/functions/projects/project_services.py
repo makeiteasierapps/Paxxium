@@ -63,11 +63,16 @@ class ProjectServices:
         # Delete all chunks with the matching 'doc_id' from the 'chunks' collection
         self.db['chunks'].delete_many({'doc_id': doc_id})
 
-    def chunkify(self, doc, url):
-        # Generate a unique ID for the document using its content
-        doc_id = str(uuid.uuid4())
-        chunker = RecursiveCharacterChunker(chunk_size=450)
-        chunks = chunker.chunk_single_document(Document(id=doc_id, text=doc, source=url))
+    def chunkify(self, source, doc=None, chunks=None):
+        if chunks is None:
+            # Generate a unique ID for the document using its content
+            doc_id = str(uuid.uuid4())
+            chunker = RecursiveCharacterChunker(chunk_size=450)
+            chunks = chunker.chunk_single_document(Document(id=doc_id, text=doc, source=source))
+        else:
+            # If chunks are provided, convert each chunk into a Document
+            doc_id = str(uuid.uuid4())
+            chunks = [Document(id=str(uuid.uuid4()), text=chunk, source=source) for chunk in chunks]
         return chunks
     
     def embed_chunks(self, chunks):
@@ -150,7 +155,7 @@ class ProjectServices:
             return None, None 
 
         chunks = self.chunkify(content, url)
-        embeddings = self.embed_chunks(chunks)
+        chunks_with_embeddings = self.embed_chunks(chunks)
         content_summary = self.summarize_content(content)
 
         normalized_url = self.normalize_url(url)
@@ -168,7 +173,7 @@ class ProjectServices:
         doc_id = inserted_doc.inserted_id
 
         chunk_ids = []
-        for chunk in embeddings:
+        for chunk in chunks_with_embeddings:
             metadata_text = chunk['metadata']['text']
             metadata_source = chunk['metadata']['source']
             chunk_to_insert = {
@@ -286,11 +291,12 @@ class ProjectServices:
 
         return project_details, new_chat
 
-    def save_text_doc(self, project_id, text, chunks=None, doc_id=None):
+    def save_text_doc(self, project_id, category, text, highlights=None, doc_id=None):
         new_doc = {
             'project_id': project_id,
-            'text': text,
-            'chunks': chunks
+            'content': text,
+            'category': category,
+            'highlights': highlights
         }
         if doc_id:
             result = self.db['project_docs'].update_one({'_id': ObjectId(doc_id)}, {'$set': new_doc})
@@ -302,3 +308,40 @@ class ProjectServices:
             result = self.db['project_docs'].insert_one(new_doc)
             new_doc_id = str(result.inserted_id)
             return new_doc_id
+
+    def get_text_doc(self, project_id):
+        doc = self.db['project_docs'].find_one({'project_id': project_id})
+        if doc:
+            doc['id'] = str(doc['_id'])
+            doc.pop('_id', None)
+            return doc
+        
+    def embed_text_doc(self, doc_id, project_id, doc, highlights):
+        chunks = self.chunkify(chunks=highlights, source='user')
+        chunks_with_embeddings = self.embed_chunks(chunks)
+        content_summary = self.summarize_content(doc)
+        
+        chunk_ids = []
+        for chunk in chunks_with_embeddings:
+            metadata_text = chunk['metadata']['text']
+            metadata_source = chunk['metadata']['source']
+            chunk_to_insert = {
+                **chunk,
+                'text': metadata_text,
+                'source': metadata_source,
+                'doc_id': str(doc_id),
+                'project_id': project_id
+            }
+            chunk_to_insert.pop('metadata', None)
+            chunk_to_insert.pop('id', None)
+            inserted_chunk = self.db['chunks'].insert_one(chunk_to_insert)
+            chunk_ids.append(inserted_chunk.inserted_id)
+
+        updated_doc = self.db['project_docs'].find_one({'_id': doc_id})
+        if '_id' in updated_doc:
+            updated_doc['id'] = str(updated_doc['_id'])
+            updated_doc.pop('_id', None)
+        if 'chunks' in updated_doc:
+            updated_doc['chunks'] = [str(chunk_id) for chunk_id in updated_doc['chunks']]
+
+        return chunks_with_embeddings

@@ -209,7 +209,13 @@ export const ProjectProvider = ({ children }) => {
         });
     };
 
-    const saveTextDoc = async (projectId, text, chunks, docId) => {
+    const saveTextDoc = async (
+        projectId,
+        category,
+        text,
+        highlights,
+        docId
+    ) => {
         try {
             const response = await fetch(
                 'http://localhost:50006/projects/save_text_doc',
@@ -219,7 +225,13 @@ export const ProjectProvider = ({ children }) => {
                         'Content-Type': 'application/json',
                         Authorization: idToken,
                     },
-                    body: JSON.stringify({ projectId, text, chunks, docId }),
+                    body: JSON.stringify({
+                        projectId,
+                        category,
+                        text,
+                        highlights,
+                        docId,
+                    }),
                 }
             );
 
@@ -234,6 +246,46 @@ export const ProjectProvider = ({ children }) => {
             console.error(error);
             showSnackbar('Error saving text doc', 'error');
         }
+    };
+
+    const getTextDoc = async (projectId) => {
+        try {
+            const response = await fetch(
+                `${backendUrl}/projects/text_doc?projectId=${projectId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: idToken,
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to get text doc');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(error);
+            showSnackbar('Error getting text doc', 'error');
+        }
+    };
+
+    const embedTextDoc = async (docId, projectId, doc, highlights) => {
+        const response = await fetch(`${backendUrl}/projects/embed`, {
+            method: 'POST',
+            headers: {
+                Authorization: idToken,
+            },
+            body: JSON.stringify({
+                doc: doc,
+                highlights: highlights,
+                docId: docId,
+                projectId: projectId,
+            }),
+        });
+        const data = await response.json();
     };
 
     useEffect(() => {
@@ -255,6 +307,8 @@ export const ProjectProvider = ({ children }) => {
                 deleteDocument,
                 scrapeUrls,
                 saveTextDoc,
+                embedTextDoc,
+                getTextDoc,
             }}
         >
             {children}

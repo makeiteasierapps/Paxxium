@@ -175,16 +175,38 @@ def handle_save_text_doc(request):
     data = request.get_json()
     project_id = data.get('projectId')
     text = data.get('text')
-    chunks = data.get('chunks')
+    category = data.get('category').lower()
+    highlights = data.get('highlights')
     doc_id = data.get('docId')
 
-    result = project_services.save_text_doc(project_id, text, chunks, doc_id)
+    result = project_services.save_text_doc(project_id, category, text, highlights, doc_id)
     
     if result == 'not_found':
         return jsonify({'message': 'Document not found'}), 404, headers
     else:
         return jsonify({'message': 'Text doc saved', 'docId': result}), 200, headers
 
+def handle_embed(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    
+    data = request.get_json()
+    doc = data.get('doc')
+    highlights = data.get('highlights')
+    doc_id = data.get('docId')
+    project_id = data.get('projectId')
+
+    project_services.embed_text_doc(doc_id, project_id, doc, highlights)
+
+def handle_get_text_doc(request):
+    uid = verify_request_token(request)
+    if uid is None:
+        return generate_token_error_response(request)
+    
+    project_id = request.args.get('projectId')
+    doc = project_services.get_text_doc(project_id)
+    return doc, 200, headers
 
 def projects(request):
     if request.method == "OPTIONS":
@@ -213,3 +235,9 @@ def projects(request):
     
     if request.path in ('/save_text_doc', '/projects/save_text_doc'):
         return handle_save_text_doc(request)
+    
+    if request.path in ('/text_doc', '/projects/text_doc'):
+        return handle_get_text_doc(request)
+    
+    if request.path in ('/embed', '/projects/embed'):
+        return handle_embed(request)

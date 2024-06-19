@@ -89,45 +89,78 @@ const restoreSelection = (containerEl, savedSel) => {
 
 const TextFieldComponent = ({ project }) => {
     const [documentText, setDocumentText] = useState('');
-    const [chunks, setChunks] = useState([]);
+    const [highlights, setHighlights] = useState([]);
     const [usedColors, setUsedColors] = useState([]);
     const [selectedChunk, setSelectedChunk] = useState(null);
+    const [category, setCategory] = useState(null);
+    const [docId, setDocId] = useState(null);
+
     const [editingChunk, setEditingChunk] = useState(false);
     const contentEditableRef = useRef(null);
 
-    const { saveTextDoc } = useContext(ProjectContext);
+    const { saveTextDoc, embedTextDoc, getTextDoc } =
+        useContext(ProjectContext);
 
     useEffect(() => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        if (savedData[project.id]) {
-            setDocumentText(savedData[project.id].text || '');
-            setChunks(savedData[project.id].chunks || []);
-        }
+        const fetchData = async () => {
+            const savedData =
+                JSON.parse(localStorage.getItem('textDocs')) || {};
+            if (savedData[project.id]) {
+                setDocumentText(savedData[project.id].content || '');
+                setHighlights(savedData[project.id].highlights || []);
+            } else {
+                const doc = await getTextDoc(project.id);
+                setDocumentText(doc.content || '');
+                setHighlights(doc.highlights || []);
+                setCategory(doc.category || '');
+
+                const newTextDocs = {
+                    [project.id]: {
+                        content: doc.content || '',
+                        highlights: doc.highlights || [],
+                        category: doc.category || '',
+                        docId: doc.docId || null,
+                    },
+                };
+                localStorage.setItem('textDocs', JSON.stringify(newTextDocs));
+            }
+        };
+
+        fetchData();
     }, [project.id]);
 
     const handleSave = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
         const existingDoc = savedData[project.id];
-        console.log(existingDoc);
         const existingDocId = existingDoc ? existingDoc.docId : null;
 
         const docId = await saveTextDoc(
             project.id,
+            category,
             documentText,
-            chunks,
+            highlights,
             existingDocId
         );
 
         savedData[project.id] = {
-            text: documentText,
-            chunks: chunks,
+            content: documentText,
+            category: category,
+            highlights: highlights,
             docId: docId,
         };
+        setDocId(docId);
         localStorage.setItem('textDocs', JSON.stringify(savedData));
     };
 
-    const updateChunks = (newText, cursorPosition, diff) => {
-        return chunks.map((chunk) => {
+    const handleEmbed = async () => {
+        if (!docId) {
+            await handleSave();
+        }
+        await embedTextDoc(docId, project.id, documentText, highlights);
+    };
+
+    const updateHighlights = (newText, cursorPosition, diff) => {
+        return highlights.map((chunk) => {
             if (cursorPosition <= chunk.start) {
                 return {
                     ...chunk,
@@ -143,6 +176,7 @@ const TextFieldComponent = ({ project }) => {
             return chunk;
         });
     };
+
     const handleInput = (e) => {
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;
@@ -155,8 +189,12 @@ const TextFieldComponent = ({ project }) => {
             preSelectionRange.setEnd(range.startContainer, range.startOffset);
             const cursorPosition = preSelectionRange.toString().length;
 
-            const updatedChunks = updateChunks(newText, cursorPosition, diff);
-            setChunks(updatedChunks);
+            const updatedChunks = updateHighlights(
+                newText,
+                cursorPosition,
+                diff
+            );
+            setHighlights(updatedChunks);
         }
 
         setDocumentText(newText);
@@ -178,7 +216,7 @@ const TextFieldComponent = ({ project }) => {
             const startOffset = preSelectionRange.toString().length;
             const endOffset = startOffset + selectedText.length;
 
-            const isOverlapping = chunks.some(
+            const isOverlapping = highlights.some(
                 (chunk) => startOffset < chunk.end && endOffset > chunk.start
             );
 
@@ -188,10 +226,10 @@ const TextFieldComponent = ({ project }) => {
 
             const color = getRandomColor(usedColors);
             setUsedColors([...usedColors, color]);
-            setChunks([
-                ...chunks,
+            setHighlights([
+                ...highlights,
                 {
-                    id: `chunk${chunks.length + 1}`,
+                    id: `chunk${highlights.length + 1}`,
                     text: selectedText,
                     color: color,
                     start: startOffset,
@@ -206,8 +244,12 @@ const TextFieldComponent = ({ project }) => {
                 .getSelection()
                 .getRangeAt(0).startOffset;
 
-            const updatedChunks = updateChunks(newText, cursorPosition, diff);
-            setChunks(updatedChunks);
+            const updatedChunks = updateHighlights(
+                newText,
+                cursorPosition,
+                diff
+            );
+            setHighlights(updatedChunks);
             setDocumentText(newText);
             applyHighlights();
         }
@@ -222,9 +264,9 @@ const TextFieldComponent = ({ project }) => {
         let lastIndex = 0;
         const elements = [];
 
-        chunks.sort((a, b) => a.start - b.start);
+        highlights.sort((a, b) => a.start - b.start);
 
-        chunks.forEach((chunk) => {
+        highlights.forEach((chunk) => {
             const startIndex = chunk.start;
             const endIndex = chunk.end;
             if (startIndex !== -1) {
@@ -247,7 +289,7 @@ const TextFieldComponent = ({ project }) => {
         contentEditable.innerHTML = elements.join('');
 
         // Add click event listeners to chunks
-        chunks.forEach((chunk) => {
+        highlights.forEach((chunk) => {
             const chunkElement = contentEditable.querySelector(
                 `[data-chunk-id="${chunk.id}"]`
             );
@@ -259,7 +301,7 @@ const TextFieldComponent = ({ project }) => {
         });
 
         restoreSelection(contentEditable, savedSelection);
-    }, [chunks, documentText]);
+    }, [highlights, documentText]);
 
     const handleChunkClick = (chunk) => {
         setSelectedChunk((prevSelectedChunk) => {
@@ -275,16 +317,19 @@ const TextFieldComponent = ({ project }) => {
 
     useEffect(() => {
         applyHighlights();
-    }, [applyHighlights, chunks]);
+    }, [applyHighlights, highlights]);
 
     return (
         <MainBox>
             <TextInputUtilityBar
                 handleSave={handleSave}
+                handleEmbed={handleEmbed}
+                category={category}
+                setCategory={setCategory}
                 selectedChunk={selectedChunk}
                 setSelectedChunk={setSelectedChunk}
-                chunks={chunks}
-                setChunks={setChunks}
+                chunks={highlights}
+                setChunks={setHighlights}
                 usedColors={usedColors}
                 setUsedColors={setUsedColors}
                 applyHighlights={applyHighlights}
