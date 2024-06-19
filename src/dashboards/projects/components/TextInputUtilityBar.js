@@ -1,5 +1,7 @@
 import { Box, Typography, Button, Slider } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { getEncoding } from 'js-tiktoken';
 
 const encoding = getEncoding('cl100k_base');
@@ -61,6 +63,14 @@ const TextInputUtilityBar = ({
         }
     };
 
+    const handleDelete = () => {
+        console.log(selectedChunk);
+        const updatedChunks = chunks.filter((chunk) => chunk.id !== selectedChunk.id);
+        setChunks(updatedChunks);
+        setSelectedChunk(null);
+        applyHighlights();
+    };
+
     return (
         <MainUtilityBox>
             {selectedChunk && (
@@ -94,6 +104,9 @@ const TextInputUtilityBar = ({
                             max={text.length}
                         />
                     </Box>
+                    <StyledIconButton onClick={handleDelete}>
+                        <Delete />
+                    </StyledIconButton>
                 </>
             )}
             <Button variant="outlined" color="primary" onClick={handleSave}>
