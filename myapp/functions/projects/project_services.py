@@ -71,8 +71,7 @@ class ProjectServices:
             chunks = chunker.chunk_single_document(Document(id=doc_id, text=doc, source=source))
         else:
             # If chunks are provided, convert each chunk into a Document
-            doc_id = str(uuid.uuid4())
-            chunks = [Document(id=str(uuid.uuid4()), text=chunk, source=source) for chunk in chunks]
+            chunks = [Document(id=chunk['id'], text=chunk['text'], source=source) for chunk in chunks]
         return chunks
     
     def embed_chunks(self, chunks):
@@ -86,7 +85,7 @@ class ProjectServices:
             encoded_chunk = KBEncodedDocChunk(
                 id=chunk.id,
                 text=chunk.text,
-                document_id=chunk.document_id,  # Ensure this is set in your KBDocChunk
+                document_id=chunk.id,  # Ensure this is set in your KBDocChunk
                 values=embeddings,  # The embeddings you obtained
                 metadata=chunk.metadata if hasattr(chunk, 'metadata') else {},  # Optional metadata
                 source=chunk.source if hasattr(chunk, 'source') else None  # Optional source
@@ -315,9 +314,13 @@ class ProjectServices:
             doc['id'] = str(doc['_id'])
             doc.pop('_id', None)
             return doc
+        else:
+            return {'message': 'No document found'}
         
-    def embed_text_doc(self, doc_id, project_id, doc, highlights):
-        chunks = self.chunkify(chunks=highlights, source='user')
+    def embed_text_doc(self, doc_id, project_id, doc, highlights, category):
+        updated_highlights = [{**highlight, 'id': doc_id} for highlight in highlights]
+        print(updated_highlights)
+        chunks = self.chunkify(chunks=updated_highlights, source='user')
         chunks_with_embeddings = self.embed_chunks(chunks)
         content_summary = self.summarize_content(doc)
         
@@ -329,7 +332,9 @@ class ProjectServices:
                 **chunk,
                 'text': metadata_text,
                 'source': metadata_source,
-                'doc_id': str(doc_id),
+                'category': category,
+                'summary': content_summary,
+                'doc_id': doc_id,
                 'project_id': project_id
             }
             chunk_to_insert.pop('metadata', None)
@@ -337,11 +342,6 @@ class ProjectServices:
             inserted_chunk = self.db['chunks'].insert_one(chunk_to_insert)
             chunk_ids.append(inserted_chunk.inserted_id)
 
-        updated_doc = self.db['project_docs'].find_one({'_id': doc_id})
-        if '_id' in updated_doc:
-            updated_doc['id'] = str(updated_doc['_id'])
-            updated_doc.pop('_id', None)
-        if 'chunks' in updated_doc:
-            updated_doc['chunks'] = [str(chunk_id) for chunk_id in updated_doc['chunks']]
+        self.db['project_docs'].update_one({'_id': ObjectId(doc_id)}, {'$set': {'chunks': chunk_ids}})
 
         return chunks_with_embeddings

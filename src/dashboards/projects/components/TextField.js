@@ -102,6 +102,7 @@ const TextFieldComponent = ({ project }) => {
         useContext(ProjectContext);
 
     useEffect(() => {
+        console.log(docId);
         const fetchData = async () => {
             const savedData =
                 JSON.parse(localStorage.getItem('textDocs')) || {};
@@ -150,13 +151,22 @@ const TextFieldComponent = ({ project }) => {
         };
         setDocId(docId);
         localStorage.setItem('textDocs', JSON.stringify(savedData));
+        return docId;
     };
 
     const handleEmbed = async () => {
-        if (!docId) {
-            await handleSave();
+        let currentDocId = docId;
+        if (!currentDocId) {
+            currentDocId = await handleSave();
         }
-        await embedTextDoc(docId, project.id, documentText, highlights);
+        console.log(currentDocId);
+        await embedTextDoc(
+            currentDocId,
+            project.id,
+            documentText,
+            highlights,
+            category
+        );
     };
 
     const updateHighlights = (newText, cursorPosition, diff) => {

@@ -186,7 +186,7 @@ export const ProjectProvider = ({ children }) => {
         formattedUrls,
         crawlEntireSite
     ) => {
-        const response = await fetch('http://localhost:50006/projects/scrape', {
+        const response = await fetch(`${backendUrl}/projects/scrape`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ export const ProjectProvider = ({ children }) => {
     ) => {
         try {
             const response = await fetch(
-                'http://localhost:50006/projects/save_text_doc',
+                `${backendUrl}/projects/save_text_doc`,
                 {
                     method: 'POST',
                     headers: {
@@ -240,7 +240,6 @@ export const ProjectProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            console.log(data);
             return data.docId;
         } catch (error) {
             console.error(error);
@@ -265,6 +264,7 @@ export const ProjectProvider = ({ children }) => {
             }
 
             const data = await response.json();
+            console.log(data);
             return data;
         } catch (error) {
             console.error(error);
@@ -272,10 +272,17 @@ export const ProjectProvider = ({ children }) => {
         }
     };
 
-    const embedTextDoc = async (docId, projectId, doc, highlights) => {
+    const embedTextDoc = async (
+        docId,
+        projectId,
+        doc,
+        highlights,
+        category
+    ) => {
         const response = await fetch(`${backendUrl}/projects/embed`, {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 Authorization: idToken,
             },
             body: JSON.stringify({
@@ -283,9 +290,11 @@ export const ProjectProvider = ({ children }) => {
                 highlights: highlights,
                 docId: docId,
                 projectId: projectId,
+                category: category,
             }),
         });
         const data = await response.json();
+        console.log(data);
     };
 
     useEffect(() => {

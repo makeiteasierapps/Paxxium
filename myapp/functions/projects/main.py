@@ -193,11 +193,13 @@ def handle_embed(request):
     
     data = request.get_json()
     doc = data.get('doc')
+    category = data.get('category').lower()
     highlights = data.get('highlights')
     doc_id = data.get('docId')
     project_id = data.get('projectId')
 
-    project_services.embed_text_doc(doc_id, project_id, doc, highlights)
+    embedded_chunks = project_services.embed_text_doc(doc_id, project_id, doc, highlights, category)
+    return jsonify({'embedded_chunks': embedded_chunks}), 200, headers
 
 def handle_get_text_doc(request):
     uid = verify_request_token(request)
