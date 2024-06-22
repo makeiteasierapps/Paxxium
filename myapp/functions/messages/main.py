@@ -77,21 +77,6 @@ def query_project_index(query, project_id):
         
 def prepare_response_for_llm(query_results):
     text = []
-    
-    # Prep for colbert index
-    # for item in query_results:
-    #         if item['score'] > 20:
-    #             print(item)
-    #             text.append(item['text'])
-
-    # combined_text = ' '.join(text)
-    # project_query_instructions = f'''
-    # \nAnswer the users question based off of the knowledge base provided below, provide 
-    # a detailed response that is relevant to the users question.\n
-    # KNOWLEDGE BASE: {combined_text}
-    # '''
-
-    text = []
 
     for item in query_results:
         if item['score'] > 0.4:
