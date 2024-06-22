@@ -73,10 +73,6 @@ def query_project_index(query, project_id):
 
     results = db["chunks"].aggregate(pipeline)
     
-    # This queries the colbert index on an e2 instance
-    # response = requests.post('http://34.132.147.230:5000/query_index', json={'projectId': project_id, 'name': name, 'query': query})
-    # data = response.json()
-    # results = data.get('results')
     return results
         
 def prepare_response_for_llm(query_results):
