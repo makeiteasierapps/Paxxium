@@ -191,7 +191,9 @@ const TextFieldComponent = ({ project }) => {
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;
 
-        if (diff !== 0) {
+        if (newText === '') {
+            setHighlights([]);
+        } else if (diff !== 0) {
             const selection = window.getSelection();
             const range = selection.getRangeAt(0);
             const preSelectionRange = range.cloneRange();
