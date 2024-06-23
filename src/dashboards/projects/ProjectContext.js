@@ -9,10 +9,12 @@ import {
 import { AuthContext } from '../../auth/AuthContext';
 import { ChatContext } from '../agents/chat/ChatContext';
 import { SnackbarContext } from '../../SnackbarContext';
+import { useDocumentData } from './hooks/useDocumentData';
 
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
+    const documentManager = useDocumentData();
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const [documentArray, setDocumentArray] = useState({});
@@ -209,93 +211,6 @@ export const ProjectProvider = ({ children }) => {
         });
     };
 
-    const saveTextDoc = async (
-        projectId,
-        category,
-        text,
-        highlights,
-        docId
-    ) => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/projects/save_text_doc`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: idToken,
-                    },
-                    body: JSON.stringify({
-                        projectId,
-                        category,
-                        text,
-                        highlights,
-                        docId,
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error('Failed to save text doc');
-            }
-
-            const data = await response.json();
-            return data.docId;
-        } catch (error) {
-            console.error(error);
-            showSnackbar('Error saving text doc', 'error');
-        }
-    };
-
-    const getTextDoc = async (projectId) => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/projects/text_doc?projectId=${projectId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        Authorization: idToken,
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error('Failed to get text doc');
-            }
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error(error);
-            showSnackbar('Error getting text doc', 'error');
-        }
-    };
-
-    const embedTextDoc = async (
-        docId,
-        projectId,
-        doc,
-        highlights,
-        category
-    ) => {
-        const response = await fetch(`${backendUrl}/projects/embed`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: idToken,
-            },
-            body: JSON.stringify({
-                doc: doc,
-                highlights: highlights,
-                docId: docId,
-                projectId: projectId,
-                category: category,
-            }),
-        });
-        const data = await response.json();
-        console.log(data);
-    };
-
     useEffect(() => {
         if (!idToken) return;
         fetchProjects();
@@ -310,13 +225,11 @@ export const ProjectProvider = ({ children }) => {
                 isNewProjectOpen,
                 setIsNewProjectOpen,
                 createProject,
-                documentArray,
+                documentArray, 
                 fetchDocuments,
                 deleteDocument,
                 scrapeUrls,
-                saveTextDoc,
-                embedTextDoc,
-                getTextDoc,
+                documentManager,
             }}
         >
             {children}

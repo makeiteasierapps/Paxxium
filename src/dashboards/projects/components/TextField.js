@@ -88,88 +88,22 @@ const restoreSelection = (containerEl, savedSel) => {
 };
 
 const TextFieldComponent = ({ project }) => {
-    const [documentText, setDocumentText] = useState('');
-    const [highlights, setHighlights] = useState([]);
+    const {
+        fetchData,
+        highlights,
+        setHighlights,
+        documentText,
+        setDocumentText,
+    } = useContext(ProjectContext);
+
     const [usedColors, setUsedColors] = useState([]);
     const [selectedChunk, setSelectedChunk] = useState(null);
-    const [category, setCategory] = useState(null);
-    const [docId, setDocId] = useState(null);
-
     const [editingChunk, setEditingChunk] = useState(false);
     const contentEditableRef = useRef(null);
 
-    const { saveTextDoc, embedTextDoc, getTextDoc } =
-        useContext(ProjectContext);
-
     useEffect(() => {
-        const fetchData = async () => {
-            const savedData =
-                JSON.parse(localStorage.getItem('textDocs')) || {};
-            console.log(savedData);
-            if (savedData[project.id]) {
-                setDocumentText(savedData[project.id].content || '');
-                setHighlights(savedData[project.id].highlights || []);
-                setDocId(savedData[project.id].docId || null);
-                setCategory(savedData[project.id].category || '');
-            } else {
-                const doc = await getTextDoc(project.id);
-                setDocId(doc.id || null);
-                setDocumentText(doc.content || '');
-                setHighlights(doc.highlights || []);
-                setCategory(doc.category || '');
-
-                const newTextDocs = {
-                    [project.id]: {
-                        content: doc.content || '',
-                        highlights: doc.highlights || [],
-                        category: doc.category || '',
-                        docId: doc.id || null,
-                    },
-                };
-                localStorage.setItem('textDocs', JSON.stringify(newTextDocs));
-            }
-        };
-
         fetchData();
-    }, [project.id]);
-
-    const handleSave = async () => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const existingDoc = savedData[project.id];
-        const existingDocId = existingDoc ? existingDoc.docId : null;
-
-        const docId = await saveTextDoc(
-            project.id,
-            category,
-            documentText,
-            highlights,
-            existingDocId
-        );
-
-        savedData[project.id] = {
-            content: documentText,
-            category: category,
-            highlights: highlights,
-            docId: docId,
-        };
-        setDocId(docId);
-        localStorage.setItem('textDocs', JSON.stringify(savedData));
-        return docId;
-    };
-
-    const handleEmbed = async () => {
-        let currentDocId = docId;
-        if (!currentDocId) {
-            currentDocId = await handleSave();
-        }
-        await embedTextDoc(
-            currentDocId,
-            project.id,
-            documentText,
-            highlights,
-            category
-        );
-    };
+    }, [fetchData]);
 
     const updateHighlights = (newText, cursorPosition, diff) => {
         return highlights.map((chunk) => {
@@ -188,8 +122,55 @@ const TextFieldComponent = ({ project }) => {
             return chunk;
         });
     };
+    const applyHighlights = useCallback(() => {
+        const contentEditable = contentEditableRef.current;
+        if (!contentEditable) return;
 
-    const handleInput = (e) => {
+        const savedSelection = saveSelection(contentEditable);
+
+        let lastIndex = 0;
+        const elements = [];
+
+        highlights.sort((a, b) => a.start - b.start);
+
+        highlights.forEach((chunk) => {
+            const startIndex = chunk.start;
+            const endIndex = chunk.end;
+            if (startIndex !== -1) {
+                if (startIndex > lastIndex) {
+                    elements.push(
+                        documentText.substring(lastIndex, startIndex)
+                    );
+                }
+                elements.push(
+                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}">${documentText.substring(startIndex, endIndex)}</span>`
+                );
+                lastIndex = endIndex;
+            }
+        });
+
+        if (lastIndex < documentText.length) {
+            elements.push(documentText.substring(lastIndex));
+        }
+
+        contentEditable.innerHTML = elements.join('');
+
+        // Add click event listeners to chunks
+        highlights.forEach((chunk) => {
+            const chunkElement = contentEditable.querySelector(
+                `[data-chunk-id="${chunk.id}"]`
+            );
+            if (chunkElement) {
+                chunkElement.addEventListener('click', () =>
+                    handleChunkClick(chunk)
+                );
+            }
+        });
+
+        restoreSelection(contentEditable, savedSelection);
+    }, [highlights, documentText]);
+
+    const handleInput = (e, project) => {
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;
 
@@ -220,7 +201,6 @@ const TextFieldComponent = ({ project }) => {
         setDocumentText(newText);
         applyHighlights();
     };
-
     const handleMouseUp = () => {
         if (editingChunk) {
             return;
@@ -274,55 +254,6 @@ const TextFieldComponent = ({ project }) => {
             applyHighlights();
         }
     };
-
-    const applyHighlights = useCallback(() => {
-        const contentEditable = contentEditableRef.current;
-        if (!contentEditable) return;
-
-        const savedSelection = saveSelection(contentEditable);
-
-        let lastIndex = 0;
-        const elements = [];
-
-        highlights.sort((a, b) => a.start - b.start);
-
-        highlights.forEach((chunk) => {
-            const startIndex = chunk.start;
-            const endIndex = chunk.end;
-            if (startIndex !== -1) {
-                if (startIndex > lastIndex) {
-                    elements.push(
-                        documentText.substring(lastIndex, startIndex)
-                    );
-                }
-                elements.push(
-                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}">${documentText.substring(startIndex, endIndex)}</span>`
-                );
-                lastIndex = endIndex;
-            }
-        });
-
-        if (lastIndex < documentText.length) {
-            elements.push(documentText.substring(lastIndex));
-        }
-
-        contentEditable.innerHTML = elements.join('');
-
-        // Add click event listeners to chunks
-        highlights.forEach((chunk) => {
-            const chunkElement = contentEditable.querySelector(
-                `[data-chunk-id="${chunk.id}"]`
-            );
-            if (chunkElement) {
-                chunkElement.addEventListener('click', () =>
-                    handleChunkClick(chunk)
-                );
-            }
-        });
-
-        restoreSelection(contentEditable, savedSelection);
-    }, [highlights, documentText]);
-
     const handleChunkClick = (chunk) => {
         setSelectedChunk((prevSelectedChunk) => {
             if (prevSelectedChunk?.id === chunk.id) {
@@ -342,18 +273,11 @@ const TextFieldComponent = ({ project }) => {
     return (
         <MainBox>
             <TextInputUtilityBar
-                handleSave={handleSave}
-                handleEmbed={handleEmbed}
-                category={category}
-                setCategory={setCategory}
                 selectedChunk={selectedChunk}
                 setSelectedChunk={setSelectedChunk}
-                chunks={highlights}
-                setChunks={setHighlights}
                 usedColors={usedColors}
                 setUsedColors={setUsedColors}
                 applyHighlights={applyHighlights}
-                text={documentText}
             />
             <div
                 ref={contentEditableRef}
@@ -372,4 +296,5 @@ const TextFieldComponent = ({ project }) => {
         </MainBox>
     );
 };
+
 export default TextFieldComponent;

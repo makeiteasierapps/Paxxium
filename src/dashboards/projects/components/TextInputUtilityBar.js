@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { Box, Typography, TextField, Button, Slider } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
@@ -7,6 +8,8 @@ import { Dropdown } from '@mui/base/Dropdown';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { Menu } from '@mui/base/Menu';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { ProjectContext } from '../ProjectContext';
+
 const encoding = getEncoding('cl100k_base');
 
 const MainUtilityBox = styled(Box)({
@@ -17,30 +20,33 @@ const MainUtilityBox = styled(Box)({
 });
 
 const TextInputUtilityBar = ({
-    handleSave,
-    handleEmbed,
-    category,
-    setCategory,
     selectedChunk,
     setSelectedChunk,
-    chunks,
-    setChunks,
     usedColors,
     setUsedColors,
     applyHighlights,
-    text,
 }) => {
+    const {
+        handleSave,
+        handleEmbed,
+        category,
+        setCategory,
+        highlights,
+        setHighlights,
+        documentText,
+    } = useContext(ProjectContext);
+
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
 
     const handleColorChange = (event, newValue) => {
         if (selectedChunk) {
             const newColor = `#${newValue.toString(16).padStart(6, '0')}`;
-            const updatedChunks = chunks.map((chunk) =>
+            const updatedChunks = highlights.map((chunk) =>
                 chunk.id === selectedChunk.id
                     ? { ...chunk, color: newColor }
                     : chunk
             );
-            setChunks(updatedChunks);
+            setHighlights(updatedChunks);
             setUsedColors([...usedColors, newColor]);
             setSelectedChunk({ ...selectedChunk, color: newColor });
             applyHighlights();
@@ -50,22 +56,22 @@ const TextInputUtilityBar = ({
     const handleRangeSliderChange = (event, newValue) => {
         const [newStart, newEnd] = newValue;
         if (selectedChunk) {
-            const updatedChunks = chunks.map((chunk) =>
+            const updatedChunks = highlights.map((chunk) =>
                 chunk.id === selectedChunk.id
                     ? {
                           ...chunk,
                           start: newStart,
                           end: newEnd,
-                          text: text.substring(newStart, newEnd),
+                          text: documentText.substring(newStart, newEnd),
                       }
                     : chunk
             );
-            setChunks(updatedChunks);
+            setHighlights(updatedChunks);
             setSelectedChunk({
                 ...selectedChunk,
                 start: newStart,
                 end: newEnd,
-                text: text.substring(newStart, newEnd),
+                text: documentText.substring(newStart, newEnd),
             });
             applyHighlights();
         }
@@ -73,10 +79,10 @@ const TextInputUtilityBar = ({
 
     const handleDelete = () => {
         console.log(selectedChunk);
-        const updatedChunks = chunks.filter(
+        const updatedChunks = highlights.filter(
             (chunk) => chunk.id !== selectedChunk.id
         );
-        setChunks(updatedChunks);
+        setHighlights(updatedChunks);
         setSelectedChunk(null);
         applyHighlights();
     };
@@ -98,7 +104,7 @@ const TextInputUtilityBar = ({
                             {encoding.encode(selectedChunk?.text || '').length}
                         </Typography>
                     </Box>
-                    
+
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography>Color:</Typography>
                         <Slider
@@ -136,7 +142,7 @@ const TextInputUtilityBar = ({
                                         selectedChunk.end,
                                     ])
                                 }
-                                inputProps={{ min: 0, max: text.length }}
+                                inputProps={{ min: 0, max: documentText.length }}
                             />
                             <TextField
                                 label="End"
@@ -148,7 +154,7 @@ const TextInputUtilityBar = ({
                                         Number(e.target.value),
                                     ])
                                 }
-                                inputProps={{ min: 0, max: text.length }}
+                                inputProps={{ min: 0, max: documentText.length }}
                             />
                         </Box>
                     </Box>
@@ -161,20 +167,20 @@ const TextInputUtilityBar = ({
                 Save
             </Button>
             <Dropdown>
-                        <MenuButton>
-                            {category ? category : 'Choose Category'}
-                        </MenuButton>
-                        <Menu slots={{ listbox: Listbox }}>
-                            {categories.map((cat) => (
-                                <MenuItem
-                                    key={cat}
-                                    onClick={createHandleMenuClick(cat)}
-                                >
-                                    {cat}
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                    </Dropdown>
+                <MenuButton>
+                    {category ? category : 'Choose Category'}
+                </MenuButton>
+                <Menu slots={{ listbox: Listbox }}>
+                    {categories.map((cat) => (
+                        <MenuItem
+                            key={cat}
+                            onClick={createHandleMenuClick(cat)}
+                        >
+                            {cat}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </Dropdown>
             <Button variant="outlined" color="primary" onClick={handleEmbed}>
                 Embed
             </Button>
