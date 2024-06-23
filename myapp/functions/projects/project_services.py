@@ -313,13 +313,17 @@ class ProjectServices:
         if doc:
             doc['id'] = str(doc['_id'])
             doc.pop('_id', None)
+            doc.pop('chunks', None)
             return doc
         else:
             return {'message': 'No document found'}
         
     def embed_text_doc(self, doc_id, project_id, doc, highlights, category):
+        # Check if the document has existing chunks and delete them
+        existing_doc = self.db['project_docs'].find_one({'_id': ObjectId(doc_id)})
+        if existing_doc and 'chunks' in existing_doc:
+            self.db['chunks'].delete_many({'_id': {'$in': existing_doc['chunks']}})
         updated_highlights = [{**highlight, 'id': doc_id} for highlight in highlights]
-        print(updated_highlights)
         chunks = self.chunkify(chunks=updated_highlights, source='user')
         chunks_with_embeddings = self.embed_chunks(chunks)
         content_summary = self.summarize_content(doc)

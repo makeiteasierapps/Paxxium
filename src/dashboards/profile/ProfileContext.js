@@ -165,7 +165,6 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
-            console.log(data);
 
             setProfileData(data);
             setAvatar(data.avatar_url);

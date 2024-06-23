@@ -102,15 +102,18 @@ const TextFieldComponent = ({ project }) => {
         useContext(ProjectContext);
 
     useEffect(() => {
-        console.log(docId);
         const fetchData = async () => {
             const savedData =
                 JSON.parse(localStorage.getItem('textDocs')) || {};
+            console.log(savedData);
             if (savedData[project.id]) {
                 setDocumentText(savedData[project.id].content || '');
                 setHighlights(savedData[project.id].highlights || []);
+                setDocId(savedData[project.id].docId || null);
+                setCategory(savedData[project.id].category || '');
             } else {
                 const doc = await getTextDoc(project.id);
+                setDocId(doc.id || null);
                 setDocumentText(doc.content || '');
                 setHighlights(doc.highlights || []);
                 setCategory(doc.category || '');
@@ -120,7 +123,7 @@ const TextFieldComponent = ({ project }) => {
                         content: doc.content || '',
                         highlights: doc.highlights || [],
                         category: doc.category || '',
-                        docId: doc.docId || null,
+                        docId: doc.id || null,
                     },
                 };
                 localStorage.setItem('textDocs', JSON.stringify(newTextDocs));
@@ -159,7 +162,6 @@ const TextFieldComponent = ({ project }) => {
         if (!currentDocId) {
             currentDocId = await handleSave();
         }
-        console.log(currentDocId);
         await embedTextDoc(
             currentDocId,
             project.id,
@@ -193,6 +195,12 @@ const TextFieldComponent = ({ project }) => {
 
         if (newText === '') {
             setHighlights([]);
+            const savedData =
+                JSON.parse(localStorage.getItem('textDocs')) || {};
+            if (savedData[project.id]) {
+                savedData[project.id].highlights = [];
+                localStorage.setItem('textDocs', JSON.stringify(savedData));
+            }
         } else if (diff !== 0) {
             const selection = window.getSelection();
             const range = selection.getRangeAt(0);
