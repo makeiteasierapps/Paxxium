@@ -54,11 +54,8 @@ export const useDocumentData = () => {
         );
     };
 
-    
-
     const fetchData = async (project) => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        console.log(savedData);
         if (savedData[project.id]) {
             setDocumentText(savedData[project.id].content || '');
             setHighlights(savedData[project.id].highlights || []);

@@ -20,6 +20,7 @@ const MainUtilityBox = styled(Box)({
 });
 
 const TextInputUtilityBar = ({
+    project,
     selectedChunk,
     setSelectedChunk,
     usedColors,
@@ -142,7 +143,10 @@ const TextInputUtilityBar = ({
                                         selectedChunk.end,
                                     ])
                                 }
-                                inputProps={{ min: 0, max: documentText.length }}
+                                inputProps={{
+                                    min: 0,
+                                    max: documentText.length,
+                                }}
                             />
                             <TextField
                                 label="End"
@@ -154,7 +158,10 @@ const TextInputUtilityBar = ({
                                         Number(e.target.value),
                                     ])
                                 }
-                                inputProps={{ min: 0, max: documentText.length }}
+                                inputProps={{
+                                    min: 0,
+                                    max: documentText.length,
+                                }}
                             />
                         </Box>
                     </Box>
@@ -163,7 +170,13 @@ const TextInputUtilityBar = ({
                     </StyledIconButton>
                 </>
             )}
-            <Button variant="outlined" color="primary" onClick={handleSave}>
+            <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => {
+                    handleSave(project);
+                }}
+            >
                 Save
             </Button>
             <Dropdown>
@@ -181,7 +194,13 @@ const TextInputUtilityBar = ({
                     ))}
                 </Menu>
             </Dropdown>
-            <Button variant="outlined" color="primary" onClick={handleEmbed}>
+            <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => {
+                    handleEmbed(project);
+                }}
+            >
                 Embed
             </Button>
         </MainUtilityBox>

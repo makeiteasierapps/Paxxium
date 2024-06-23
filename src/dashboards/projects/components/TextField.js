@@ -102,8 +102,8 @@ const TextFieldComponent = ({ project }) => {
     const contentEditableRef = useRef(null);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        fetchData(project);
+    }, [fetchData, project]);
 
     const updateHighlights = (newText, cursorPosition, diff) => {
         return highlights.map((chunk) => {
@@ -273,6 +273,7 @@ const TextFieldComponent = ({ project }) => {
     return (
         <MainBox>
             <TextInputUtilityBar
+                project={project}
                 selectedChunk={selectedChunk}
                 setSelectedChunk={setSelectedChunk}
                 usedColors={usedColors}
