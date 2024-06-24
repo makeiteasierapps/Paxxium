@@ -1,7 +1,11 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 
-export const useHighlights = (documentText, setDocumentText) => {
-    const [highlights, setHighlights] = useState([]);
+export const useHighlights = (
+    documentText,
+    setDocumentText,
+    highlights,
+    setHighlights
+) => {
     const [editingChunk, setEditingChunk] = useState(false);
     const [usedColors, setUsedColors] = useState([]);
     const [selectedChunk, setSelectedChunk] = useState(null);
@@ -104,6 +108,7 @@ export const useHighlights = (documentText, setDocumentText) => {
         const contentEditable = contentEditableRef.current;
         if (!contentEditable) return;
 
+        console.log(highlights);
         const savedSelection = saveSelection(contentEditable);
 
         let lastIndex = 0;
@@ -131,6 +136,8 @@ export const useHighlights = (documentText, setDocumentText) => {
             elements.push(documentText.substring(lastIndex));
         }
 
+        console.log(elements);
+
         contentEditable.innerHTML = elements.join('');
 
         // Add click event listeners to chunks
@@ -146,7 +153,7 @@ export const useHighlights = (documentText, setDocumentText) => {
         });
 
         restoreSelection(contentEditable, savedSelection);
-    }, [highlights, documentText]);
+    }, [documentText, highlights]);
 
     const handleInput = (e, project) => {
         const newText = e.target.innerText;
@@ -248,11 +255,12 @@ export const useHighlights = (documentText, setDocumentText) => {
 
     useEffect(() => {
         applyHighlights();
-    }, [applyHighlights]);
+    }, [applyHighlights, highlights]);
 
     return {
         highlights,
         setHighlights,
+        contentEditableRef,
         handleInput,
         handleMouseUp,
         handleChunkClick,

@@ -14,12 +14,8 @@ const MainBox = styled(Box)({
 
 const TextFieldComponent = ({ project }) => {
     const {
-        documentManager: {
-            fetchData,
-            contentEditableRef,
-            handleInput,
-            handleMouseUp,
-        },
+        documentManager: { fetchData },
+        highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
     } = useContext(ProjectContext);
 
     useEffect(() => {

@@ -18,7 +18,9 @@ export const ProjectProvider = ({ children }) => {
     const documentManager = useDocumentData();
     const highlightsManager = useHighlights(
         documentManager.documentText,
-        documentManager.setDocumentText
+        documentManager.setDocumentText,
+        documentManager.highlights,
+        documentManager.setHighlights
     );
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
