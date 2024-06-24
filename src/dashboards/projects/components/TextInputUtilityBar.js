@@ -20,70 +20,23 @@ const MainUtilityBox = styled(Box)({
 });
 
 const TextInputUtilityBar = ({ project }) => {
-    const { highlightsManager, documentManager } = useContext(ProjectContext);
     const {
-        selectedChunk,
-        setSelectedChunk,
-        usedColors,
-        setUsedColors,
-        highlights,
-        setHighlights,
-        applyHighlights,
-    } = highlightsManager;
-
-    const { handleSave, handleEmbed, category, setCategory, documentText } =
-        documentManager;
+        highlightsManager: {
+            selectedChunk,
+            handleColorChange,
+            handleRangeSliderChange,
+            handleDelete,
+        },
+        documentManager: {
+            handleSave,
+            handleEmbed,
+            category,
+            setCategory,
+            documentText,
+        },
+    } = useContext(ProjectContext);
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
-
-    const handleColorChange = (event, newValue) => {
-        if (selectedChunk) {
-            const newColor = `#${newValue.toString(16).padStart(6, '0')}`;
-            const updatedChunks = highlights.map((chunk) =>
-                chunk.id === selectedChunk.id
-                    ? { ...chunk, color: newColor }
-                    : chunk
-            );
-            setHighlights(updatedChunks);
-            setUsedColors([...usedColors, newColor]);
-            setSelectedChunk({ ...selectedChunk, color: newColor });
-            applyHighlights();
-        }
-    };
-
-    const handleRangeSliderChange = (event, newValue) => {
-        const [newStart, newEnd] = newValue;
-        if (selectedChunk) {
-            const updatedChunks = highlights.map((chunk) =>
-                chunk.id === selectedChunk.id
-                    ? {
-                          ...chunk,
-                          start: newStart,
-                          end: newEnd,
-                          text: documentText.substring(newStart, newEnd),
-                      }
-                    : chunk
-            );
-            setHighlights(updatedChunks);
-            setSelectedChunk({
-                ...selectedChunk,
-                start: newStart,
-                end: newEnd,
-                text: documentText.substring(newStart, newEnd),
-            });
-            applyHighlights();
-        }
-    };
-
-    const handleDelete = () => {
-        console.log(selectedChunk);
-        const updatedChunks = highlights.filter(
-            (chunk) => chunk.id !== selectedChunk.id
-        );
-        setHighlights(updatedChunks);
-        setSelectedChunk(null);
-        applyHighlights();
-    };
 
     const createHandleMenuClick = (menuItem) => {
         return () => {

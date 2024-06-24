@@ -11,6 +11,55 @@ export const useHighlights = (
     const [selectedChunk, setSelectedChunk] = useState(null);
     const contentEditableRef = useRef(null);
 
+    const handleColorChange = (event, newValue) => {
+        if (selectedChunk) {
+            const newColor = `#${newValue.toString(16).padStart(6, '0')}`;
+            const updatedChunks = highlights.map((chunk) =>
+                chunk.id === selectedChunk.id
+                    ? { ...chunk, color: newColor }
+                    : chunk
+            );
+            setHighlights(updatedChunks);
+            setUsedColors([...usedColors, newColor]);
+            setSelectedChunk({ ...selectedChunk, color: newColor });
+            applyHighlights();
+        }
+    };
+
+    const handleRangeSliderChange = (event, newValue) => {
+        const [newStart, newEnd] = newValue;
+        if (selectedChunk) {
+            const updatedChunks = highlights.map((chunk) =>
+                chunk.id === selectedChunk.id
+                    ? {
+                          ...chunk,
+                          start: newStart,
+                          end: newEnd,
+                          text: documentText.substring(newStart, newEnd),
+                      }
+                    : chunk
+            );
+            setHighlights(updatedChunks);
+            setSelectedChunk({
+                ...selectedChunk,
+                start: newStart,
+                end: newEnd,
+                text: documentText.substring(newStart, newEnd),
+            });
+            applyHighlights();
+        }
+    };
+
+    const handleDelete = () => {
+        const updatedChunks = highlights.filter(
+            (chunk) => chunk.id !== selectedChunk.id
+        );
+        setHighlights(updatedChunks);
+        setSelectedChunk(null);
+        setEditingChunk(false);
+        applyHighlights();
+    };
+
     const getRandomColor = (usedColors) => {
         const letters = '0123456789ABCDEF';
         let color;
@@ -104,70 +153,13 @@ export const useHighlights = (
         });
     };
 
-    const applyHighlights = useCallback(() => {
-        const contentEditable = contentEditableRef.current;
-        if (!contentEditable) return;
-
-        console.log(highlights);
-        const savedSelection = saveSelection(contentEditable);
-
-        let lastIndex = 0;
-        const elements = [];
-
-        highlights.sort((a, b) => a.start - b.start);
-
-        highlights.forEach((chunk) => {
-            const startIndex = chunk.start;
-            const endIndex = chunk.end;
-            if (startIndex !== -1) {
-                if (startIndex > lastIndex) {
-                    elements.push(
-                        documentText.substring(lastIndex, startIndex)
-                    );
-                }
-                elements.push(
-                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}">${documentText.substring(startIndex, endIndex)}</span>`
-                );
-                lastIndex = endIndex;
-            }
-        });
-
-        if (lastIndex < documentText.length) {
-            elements.push(documentText.substring(lastIndex));
-        }
-
-        console.log(elements);
-
-        contentEditable.innerHTML = elements.join('');
-
-        // Add click event listeners to chunks
-        highlights.forEach((chunk) => {
-            const chunkElement = contentEditable.querySelector(
-                `[data-chunk-id="${chunk.id}"]`
-            );
-            if (chunkElement) {
-                chunkElement.addEventListener('click', () =>
-                    handleChunkClick(chunk)
-                );
-            }
-        });
-
-        restoreSelection(contentEditable, savedSelection);
-    }, [documentText, highlights]);
-
     const handleInput = (e, project) => {
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;
 
-        if (newText === '') {
-            setHighlights([]);
-            const savedData =
-                JSON.parse(localStorage.getItem('textDocs')) || {};
-            if (savedData[project.id]) {
-                savedData[project.id].highlights = [];
-                localStorage.setItem('textDocs', JSON.stringify(savedData));
-            }
-        } else if (diff !== 0) {
+        // handles the case when new text is added to and existing highlighted doc
+        // shifts the highlights to account for the new text
+        if (diff !== 0) {
             const selection = window.getSelection();
             const range = selection.getRangeAt(0);
             const preSelectionRange = range.cloneRange();
@@ -191,9 +183,9 @@ export const useHighlights = (
         if (editingChunk) {
             return;
         }
-
         const selection = window.getSelection();
         const selectedText = selection.toString();
+        console.log(selectedText);
         if (selectedText) {
             const range = selection.getRangeAt(0);
             const preSelectionRange = range.cloneRange();
@@ -215,7 +207,7 @@ export const useHighlights = (
             setHighlights([
                 ...highlights,
                 {
-                    id: `chunk${highlights.length + 1}`,
+                    id: `chunk${Date.now()}`,
                     text: selectedText,
                     color: color,
                     start: startOffset,
@@ -240,6 +232,56 @@ export const useHighlights = (
             applyHighlights();
         }
     };
+
+    const applyHighlights = useCallback(() => {
+        const contentEditable = contentEditableRef.current;
+        if (!contentEditable) return;
+
+        const savedSelection = saveSelection(contentEditable);
+
+        let lastIndex = 0;
+        const elements = [];
+
+        highlights.sort((a, b) => a.start - b.start);
+
+        highlights.forEach((chunk) => {
+            const startIndex = chunk.start;
+            const endIndex = chunk.end;
+            if (startIndex !== -1) {
+                if (startIndex > lastIndex) {
+                    elements.push(
+                        documentText.substring(lastIndex, startIndex)
+                    );
+                }
+                elements.push(
+                    `<span style="background-color: ${chunk.color};" data-chunk-id="${chunk.id}" contenteditable="false">${documentText.substring(startIndex, endIndex)}</span>`
+                );
+                lastIndex = endIndex;
+            }
+        });
+
+        if (lastIndex < documentText.length) {
+            elements.push(documentText.substring(lastIndex));
+        }
+
+        contentEditable.innerHTML = elements.join('');
+
+        // Add click event listeners to chunks
+        highlights.forEach((chunk) => {
+            const chunkElement = contentEditable.querySelector(
+                `[data-chunk-id="${chunk.id}"]`
+            );
+            console.log(chunkElement);
+            if (chunkElement) {
+                chunkElement.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    handleChunkClick(chunk);
+                });
+            }
+        });
+
+        restoreSelection(contentEditable, savedSelection);
+    }, [documentText, highlights]);
 
     const handleChunkClick = (chunk) => {
         setSelectedChunk((prevSelectedChunk) => {
@@ -269,5 +311,8 @@ export const useHighlights = (
         selectedChunk,
         setSelectedChunk,
         applyHighlights,
+        handleColorChange,
+        handleRangeSliderChange,
+        handleDelete,
     };
 };

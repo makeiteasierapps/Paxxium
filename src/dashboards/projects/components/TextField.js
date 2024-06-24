@@ -22,6 +22,20 @@ const TextFieldComponent = ({ project }) => {
         fetchData(project);
     }, []);
 
+    useEffect(() => {
+        const contentEditable = contentEditableRef.current;
+        if (contentEditable) {
+            contentEditable.addEventListener('input', handleInput);
+            contentEditable.addEventListener('mouseup', handleMouseUp);
+
+            // Cleanup function to remove event listeners
+            return () => {
+                contentEditable.removeEventListener('input', handleInput);
+                contentEditable.removeEventListener('mouseup', handleMouseUp);
+            };
+        }
+    }, [contentEditableRef, handleInput, handleMouseUp]);
+
     return (
         <MainBox>
             <TextInputUtilityBar project={project} />
