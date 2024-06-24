@@ -19,23 +19,20 @@ const MainUtilityBox = styled(Box)({
     padding: '10px',
 });
 
-const TextInputUtilityBar = ({
-    project,
-    selectedChunk,
-    setSelectedChunk,
-    usedColors,
-    setUsedColors,
-    applyHighlights,
-}) => {
+const TextInputUtilityBar = ({ project }) => {
+    const { highlightsManager, documentManager } = useContext(ProjectContext);
     const {
-        handleSave,
-        handleEmbed,
-        category,
-        setCategory,
+        selectedChunk,
+        setSelectedChunk,
+        usedColors,
+        setUsedColors,
         highlights,
         setHighlights,
-        documentText,
-    } = useContext(ProjectContext);
+        applyHighlights,
+    } = highlightsManager;
+
+    const { handleSave, handleEmbed, category, setCategory, documentText } =
+        documentManager;
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
 

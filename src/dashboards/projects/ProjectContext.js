@@ -10,11 +10,16 @@ import { AuthContext } from '../../auth/AuthContext';
 import { ChatContext } from '../agents/chat/ChatContext';
 import { SnackbarContext } from '../../SnackbarContext';
 import { useDocumentData } from './hooks/useDocumentData';
+import { useHighlights } from './hooks/useHighlights';
 
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
     const documentManager = useDocumentData();
+    const highlightsManager = useHighlights(
+        documentManager.documentText,
+        documentManager.setDocumentText
+    );
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const [documentArray, setDocumentArray] = useState({});
@@ -225,11 +230,12 @@ export const ProjectProvider = ({ children }) => {
                 isNewProjectOpen,
                 setIsNewProjectOpen,
                 createProject,
-                documentArray, 
+                documentArray,
                 fetchDocuments,
                 deleteDocument,
                 scrapeUrls,
                 documentManager,
+                highlightsManager,
             }}
         >
             {children}

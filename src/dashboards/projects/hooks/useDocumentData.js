@@ -1,10 +1,11 @@
 import { useState, useContext } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
+import { useHighlights } from './useHighlights';
 
 export const useDocumentData = () => {
+    const { highlights, setHighlights } = useHighlights();
     const [documentText, setDocumentText] = useState('');
-    const [highlights, setHighlights] = useState([]);
     const [docId, setDocId] = useState(null);
     const [category, setCategory] = useState('');
 
@@ -169,10 +170,10 @@ export const useDocumentData = () => {
 
     return {
         documentText,
-        highlights,
-        setHighlights,
+        setDocumentText,
         docId,
         category,
+        setCategory,
         handleSave,
         handleEmbed,
         fetchData,
