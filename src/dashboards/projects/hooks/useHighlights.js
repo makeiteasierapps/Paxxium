@@ -184,10 +184,61 @@ export const useHighlights = (
             return;
         }
         const selection = window.getSelection();
+        if (selection.rangeCount === 0) {
+            return;
+        }
+        const range = selection.getRangeAt(0);
+        const container = range.startContainer;
+        const offset = range.startOffset;
+
+        if (container.nodeType === 3) {
+            // Text node
+            const parent = container.parentNode;
+            if (parent && parent.hasAttribute('data-chunk-id')) {
+                const chunkId = parent.getAttribute('data-chunk-id');
+                const chunk = highlights.find((chunk) => chunk.id === chunkId);
+
+                if (chunk) {
+                    const isAtStart = offset === 0;
+                    const isAtEnd = offset === container.length;
+
+                    if (isAtStart) {
+                        // Move cursor to just before the chunk
+                        const previousNode = parent.previousSibling;
+                        if (previousNode && previousNode.nodeType === 3) {
+                            range.setStart(previousNode, previousNode.length);
+                            range.setEnd(previousNode, previousNode.length);
+                        } else {
+                            range.setStartBefore(parent);
+                            range.setEndBefore(parent);
+                        }
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        return;
+                    } else if (isAtEnd) {
+                        // Move cursor to just after the chunk
+                        const nextNode = parent.nextSibling;
+                        if (nextNode && nextNode.nodeType === 3) {
+                            range.setStart(nextNode, 0);
+                            range.setEnd(nextNode, 0);
+                        } else {
+                            range.setStartAfter(parent);
+                            range.setEndAfter(parent);
+                        }
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        return;
+                    } else {
+                        // Prevent editing inside the chunk
+                        selection.removeAllRanges();
+                        return;
+                    }
+                }
+            }
+        }
+
         const selectedText = selection.toString();
-        console.log(selectedText);
         if (selectedText) {
-            const range = selection.getRangeAt(0);
             const preSelectionRange = range.cloneRange();
             preSelectionRange.selectNodeContents(contentEditableRef.current);
             preSelectionRange.setEnd(range.startContainer, range.startOffset);
@@ -233,6 +284,65 @@ export const useHighlights = (
         }
     };
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            const selection = window.getSelection();
+            if (selection.rangeCount === 0) return;
+            const range = selection.getRangeAt(0);
+            const container = range.startContainer;
+            const offset = range.startOffset;
+
+            if (container.nodeType === 3) {
+                // Text node
+                const parent = container.parentNode;
+                if (parent && parent.hasAttribute('data-chunk-id')) {
+                    const chunkId = parent.getAttribute('data-chunk-id');
+                    const chunk = highlights.find(
+                        (chunk) => chunk.id === chunkId
+                    );
+
+                    if (chunk) {
+                        const isAtStart = offset === 0;
+                        const isAtEnd = offset === container.length;
+
+                        if (
+                            (e.key === 'Backspace' && isAtStart) ||
+                            (e.key === 'Delete' && isAtEnd)
+                        ) {
+                            // Prevent backspace or delete from deleting the chunk
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                } else {
+                    // Check if the cursor is just outside a chunk
+                    const previousSibling = container.previousSibling;
+                    const nextSibling = container.nextSibling;
+
+                    if (
+                        (e.key === 'Backspace' &&
+                            previousSibling &&
+                            previousSibling.hasAttribute('data-chunk-id') &&
+                            offset === 0) ||
+                        (e.key === 'Delete' &&
+                            nextSibling &&
+                            nextSibling.hasAttribute('data-chunk-id') &&
+                            offset === container.length)
+                    ) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [highlights]);
+
     const applyHighlights = useCallback(() => {
         const contentEditable = contentEditableRef.current;
         if (!contentEditable) return;
@@ -271,7 +381,7 @@ export const useHighlights = (
             const chunkElement = contentEditable.querySelector(
                 `[data-chunk-id="${chunk.id}"]`
             );
-            console.log(chunkElement);
+
             if (chunkElement) {
                 chunkElement.addEventListener('mousedown', (e) => {
                     e.preventDefault();
