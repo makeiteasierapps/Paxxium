@@ -295,7 +295,8 @@ class ProjectServices:
             'project_id': project_id,
             'content': text,
             'category': category,
-            'highlights': highlights
+            'highlights': highlights,
+            'type': 'text'
         }
         if doc_id:
             result = self.db['project_docs'].update_one({'_id': ObjectId(doc_id)}, {'$set': new_doc})
@@ -308,15 +309,18 @@ class ProjectServices:
             new_doc_id = str(result.inserted_id)
             return new_doc_id
 
-    def get_text_doc(self, project_id):
-        doc = self.db['project_docs'].find_one({'project_id': project_id})
-        if doc:
+    def get_text_docs(self, project_id):
+        docs_cursor = self.db['project_docs'].find({'project_id': project_id, 'type': 'text'})
+        docs_list = []
+        for doc in docs_cursor:
             doc['id'] = str(doc['_id'])
             doc.pop('_id', None)
             doc.pop('chunks', None)
-            return doc
+            docs_list.append(doc)
+        if docs_list:
+            return docs_list
         else:
-            return {'message': 'No document found'}
+            return {'message': 'No documents found'}
         
     def embed_text_doc(self, doc_id, project_id, doc, highlights, category):
         # Check if the document has existing chunks and delete them

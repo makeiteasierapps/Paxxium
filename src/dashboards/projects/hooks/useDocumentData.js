@@ -4,6 +4,7 @@ import { AuthContext } from '../../../auth/AuthContext';
 
 export const useDocumentData = () => {
     const [documentText, setDocumentText] = useState('');
+    const [textDocArray, setTextDocArray] = useState([]);
     const [highlights, setHighlights] = useState([]);
     const [docId, setDocId] = useState(null);
     const [category, setCategory] = useState('');
@@ -16,38 +17,41 @@ export const useDocumentData = () => {
             ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
-    const handleSave = async (project) => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const existingDoc = savedData[project.id];
+    const handleSave = async (projectId) => {
+        const savedData = JSON.parse(localStorage.getItem('textDocs')) || [];
+        const existingDoc = savedData.find(
+            (doc) => doc.id === docId
+        );
         const existingDocId = existingDoc ? existingDoc.docId : null;
 
         const docId = await saveTextDoc(
-            project.id,
+            projectId,
             category,
             documentText,
             highlights,
             existingDocId
         );
 
-        savedData[project.id] = {
+        savedData.push({
             content: documentText,
             category: category,
             highlights: highlights,
-            docId: docId,
-        };
+            id: docId,
+            projectId: projectId,
+        });
         setDocId(docId);
         localStorage.setItem('textDocs', JSON.stringify(savedData));
         return docId;
     };
 
-    const handleEmbed = async (project) => {
+    const handleEmbed = async (projectId) => {
         let currentDocId = docId;
         if (!currentDocId) {
             currentDocId = await handleSave();
         }
         await embedTextDoc(
             currentDocId,
-            project.id,
+            projectId,
             documentText,
             highlights,
             category
@@ -55,32 +59,24 @@ export const useDocumentData = () => {
     };
 
     const fetchData = async (project) => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        if (savedData[project.id]) {
-            setDocumentText(savedData[project.id].content || '');
-            setHighlights(savedData[project.id].highlights || []);
-            setDocId(savedData[project.id].docId || null);
-            setCategory(savedData[project.id].category || '');
+        const savedData = JSON.parse(localStorage.getItem('textDocs')) || [];
+        if (savedData.length > 0) {
+            setTextDocArray(savedData);
         } else {
-            const doc = await getTextDoc(project.id);
-            setDocId(doc.id || null);
-            setDocumentText(doc.content || '');
-            setHighlights(doc.highlights || []);
-            setCategory(doc.category || '');
-
-            const newTextDocs = {
-                [project.id]: {
-                    content: doc.content || '',
-                    highlights: doc.highlights || [],
-                    category: doc.category || '',
-                    docId: doc.id || null,
-                },
-            };
-            localStorage.setItem('textDocs', JSON.stringify(newTextDocs));
+            const docs = await getTextDocs(project.id);
+            setTextDocArray(docs);
+            localStorage.setItem('textDocs', JSON.stringify(docs));
         }
     };
 
-    const getTextDoc = async (projectId) => {
+    const setDocumentDetails = (doc) => {
+        setDocId(doc.id || null);
+        setDocumentText(doc.content || '');
+        setHighlights(doc.highlights || []);
+        setCategory(doc.category || '');
+    };
+
+    const getTextDocs = async (projectId) => {
         try {
             const response = await fetch(
                 `${backendUrl}/projects/text_doc?projectId=${projectId}`,
@@ -97,6 +93,7 @@ export const useDocumentData = () => {
             }
 
             const data = await response.json();
+            console.log(data);
             return data;
         } catch (error) {
             console.error(error);
@@ -168,8 +165,10 @@ export const useDocumentData = () => {
     };
 
     return {
+        textDocArray,
         documentText,
         setDocumentText,
+        setDocumentDetails,
         highlights,
         setHighlights,
         docId,

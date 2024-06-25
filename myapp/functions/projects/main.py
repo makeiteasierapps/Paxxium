@@ -207,8 +207,8 @@ def handle_get_text_doc(request):
         return generate_token_error_response(request)
     
     project_id = request.args.get('projectId')
-    doc = project_services.get_text_doc(project_id)
-    return doc, 200, headers
+    doc_list = project_services.get_text_docs(project_id)
+    return doc_list, 200, headers
 
 def projects(request):
     if request.method == "OPTIONS":

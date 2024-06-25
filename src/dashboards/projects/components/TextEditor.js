@@ -12,14 +12,14 @@ const MainBox = styled(Box)({
     border: '1px solid #e0e0e0',
 });
 
-const TextFieldComponent = ({ project }) => {
+const TextEditor = ({ document }) => {
     const {
-        documentManager: { fetchData },
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
+        documentManager: { setDocumentDetails },
     } = useContext(ProjectContext);
 
     useEffect(() => {
-        fetchData(project);
+        setDocumentDetails(document);
     }, []);
 
     useEffect(() => {
@@ -38,7 +38,7 @@ const TextFieldComponent = ({ project }) => {
 
     return (
         <MainBox>
-            <TextInputUtilityBar project={project} />
+            <TextInputUtilityBar document={document} />
             <div
                 ref={contentEditableRef}
                 contentEditable
@@ -57,4 +57,4 @@ const TextFieldComponent = ({ project }) => {
     );
 };
 
-export default TextFieldComponent;
+export default TextEditor;

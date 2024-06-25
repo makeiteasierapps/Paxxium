@@ -19,7 +19,7 @@ const MainUtilityBox = styled(Box)({
     padding: '10px',
 });
 
-const TextInputUtilityBar = ({ project }) => {
+const TextInputUtilityBar = ({ document }) => {
     const {
         highlightsManager: {
             selectedChunk,
@@ -120,15 +120,7 @@ const TextInputUtilityBar = ({ project }) => {
                     </StyledIconButton>
                 </>
             )}
-            <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => {
-                    handleSave(project);
-                }}
-            >
-                Save
-            </Button>
+
             <Dropdown>
                 <MenuButton>
                     {category ? category : 'Choose Category'}
@@ -148,7 +140,16 @@ const TextInputUtilityBar = ({ project }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    handleEmbed(project);
+                    handleSave(document.project_id);
+                }}
+            >
+                Save
+            </Button>
+            <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => {
+                    handleEmbed(document.project_id);
                 }}
             >
                 Embed

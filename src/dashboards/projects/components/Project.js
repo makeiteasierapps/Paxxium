@@ -6,7 +6,7 @@ import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../agents/chat/Chat';
 import DocumentCard from './DocumentCard';
-import TextFieldComponent from './TextField';
+import TextDocumentMenu from './TextDocumentMenu';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
 import {
@@ -215,7 +215,7 @@ const Project = ({ project, onClose }) => {
                         ))}
                     </Grid>
                 ) : null}
-                {isTextFieldsOpen ? <TextFieldComponent project={project} /> : null}
+                {isTextFieldsOpen ? <TextDocumentMenu project={project} /> : null}
             </Box>
         </MainContainer>
     );
