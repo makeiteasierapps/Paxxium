@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
 
-export const useDocumentData = () => {
+export const useDocumentData = (selectedProject) => {
     const [documentText, setDocumentText] = useState('');
     const [textDocArray, setTextDocArray] = useState([]);
     const [highlights, setHighlights] = useState([]);
@@ -12,24 +12,18 @@ export const useDocumentData = () => {
     const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
+    const projectId = selectedProject ? selectedProject.id : null;
+
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
-    const handleSave = async (projectId) => {
+    const handleSave = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
         const projectDocs = savedData[projectId] || [];
-        const existingDoc = projectDocs.find((doc) => doc.id === docId);
-        const existingDocId = existingDoc ? existingDoc.docId : null;
 
-        const docId = await saveTextDoc(
-            projectId,
-            category,
-            documentText,
-            highlights,
-            existingDocId
-        );
+        await saveTextDoc(projectId, category, documentText, highlights, docId);
 
         const newDoc = {
             content: documentText,
@@ -43,14 +37,14 @@ export const useDocumentData = () => {
             (doc) => doc.id !== docId
         );
         updatedProjectDocs.push(newDoc);
+        setTextDocArray(updatedProjectDocs);
 
         savedData[projectId] = updatedProjectDocs;
-        setDocId(docId);
         localStorage.setItem('textDocs', JSON.stringify(savedData));
         return docId;
     };
 
-    const handleEmbed = async (projectId) => {
+    const handleEmbed = async () => {
         let currentDocId = docId;
         if (!currentDocId) {
             currentDocId = await handleSave();
@@ -162,6 +156,7 @@ export const useDocumentData = () => {
         highlights = null,
         docId = null
     ) => {
+        console.log(docId);
         try {
             const response = await fetch(
                 `${backendUrl}/projects/save_text_doc`,

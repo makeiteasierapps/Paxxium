@@ -179,8 +179,9 @@ def handle_save_text_doc(request):
     category = category.lower() if category else None
     highlights = data.get('highlights')
     doc_id = data.get('docId')
+    print(doc_id)
 
-    result = project_services.save_text_doc(project_id, category, text, highlights, doc_id)
+    result = project_services.save_text_doc(project_id, text, highlights, doc_id, category)
     
     if result == 'not_found':
         return jsonify({'message': 'Document not found'}), 404, headers

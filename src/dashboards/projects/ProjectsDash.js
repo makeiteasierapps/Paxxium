@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { ProjectContext } from './ProjectContext';
 import ProjectSpeedDial from './components/ProjectSpeedDial';
@@ -8,8 +8,8 @@ import NewProject from './components/NewProject';
 import { useTheme } from '@mui/material/styles';
 
 const ProjectsDash = () => {
-    const { projects, isNewProjectOpen } = useContext(ProjectContext);
-    const [selectedProject, setSelectedProject] = useState(null);
+    const { projects, isNewProjectOpen, selectedProject, setSelectedProject } =
+        useContext(ProjectContext);
 
     const theme = useTheme();
 

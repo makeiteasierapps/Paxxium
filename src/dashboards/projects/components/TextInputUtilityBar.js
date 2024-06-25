@@ -19,7 +19,7 @@ const MainUtilityBox = styled(Box)({
     padding: '10px',
 });
 
-const TextInputUtilityBar = ({ document }) => {
+const TextInputUtilityBar = () => {
     const {
         highlightsManager: {
             selectedChunk,
@@ -140,7 +140,7 @@ const TextInputUtilityBar = ({ document }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    handleSave(document.project_id);
+                    handleSave();
                 }}
             >
                 Save
@@ -149,7 +149,7 @@ const TextInputUtilityBar = ({ document }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    handleEmbed(document.project_id);
+                    handleEmbed();
                 }}
             >
                 Embed

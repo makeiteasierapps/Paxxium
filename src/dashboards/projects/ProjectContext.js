@@ -15,19 +15,21 @@ import { useHighlights } from './hooks/useHighlights';
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
-    const documentManager = useDocumentData();
+    const [projects, setProjects] = useState([]);
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+    const [documentArray, setDocumentArray] = useState({});
+    const { idToken } = useContext(AuthContext);
+    const { showSnackbar } = useContext(SnackbarContext);
+    const { setAgentArray } = useContext(ChatContext);
+
+    const documentManager = useDocumentData(selectedProject);
     const highlightsManager = useHighlights(
         documentManager.documentText,
         documentManager.setDocumentText,
         documentManager.highlights,
         documentManager.setHighlights
     );
-    const [projects, setProjects] = useState([]);
-    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
-    const [documentArray, setDocumentArray] = useState({});
-    const { idToken } = useContext(AuthContext);
-    const { showSnackbar } = useContext(SnackbarContext);
-    const { setAgentArray } = useContext(ChatContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -227,6 +229,8 @@ export const ProjectProvider = ({ children }) => {
         <ProjectContext.Provider
             value={{
                 projects,
+                selectedProject,
+                setSelectedProject,
                 fetchProjects,
                 deleteProject,
                 isNewProjectOpen,

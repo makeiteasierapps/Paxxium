@@ -47,7 +47,12 @@ const TextDocumentMenu = ({ projectId }) => {
                     </ListItem>
                 ))}
             </List>
-            {isEditorOpen && <TextEditor document={selectedDocument} />}
+            {isEditorOpen && (
+                <TextEditor
+                    key={selectedDocument.id}
+                    document={selectedDocument}
+                />
+            )}
         </Box>
     );
 };

@@ -12,6 +12,16 @@ const MainBox = styled(Box)({
     border: '1px solid #e0e0e0',
 });
 
+const StyledTextEditor = styled(Box)({
+    whiteSpace: 'pre-wrap',
+    padding: '10px 20px',
+    border: '1px solid #e0e0e0',
+    height: '100%',
+    width: '85vw',
+    overflowY: 'auto',
+    marginTop: '10px',
+});
+
 const TextEditor = ({ document }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
@@ -19,6 +29,7 @@ const TextEditor = ({ document }) => {
     } = useContext(ProjectContext);
 
     useEffect(() => {
+        console.log(document);
         setDocumentDetails(document);
     }, []);
 
@@ -39,19 +50,11 @@ const TextEditor = ({ document }) => {
     return (
         <MainBox>
             <TextInputUtilityBar document={document} />
-            <div
+            <StyledTextEditor
                 ref={contentEditableRef}
                 contentEditable
                 onInput={handleInput}
                 onMouseUp={handleMouseUp}
-                style={{
-                    whiteSpace: 'pre-wrap',
-                    padding: '10px 20px',
-                    border: '1px solid #e0e0e0',
-                    height: '100%',
-                    overflowY: 'auto',
-                    marginTop: '10px',
-                }}
             />
         </MainBox>
     );
