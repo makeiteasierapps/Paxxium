@@ -1,7 +1,7 @@
 import { useEffect, useContext } from 'react';
 import { Box } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
-import { ProjectContext } from '../ProjectContext';
+import { ProjectContext } from '../../ProjectContext';
 import { styled } from '@mui/system';
 
 const MainBox = styled(Box)({
@@ -29,7 +29,6 @@ const TextEditor = ({ document }) => {
     } = useContext(ProjectContext);
 
     useEffect(() => {
-        console.log(document);
         setDocumentDetails(document);
     }, []);
 

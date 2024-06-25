@@ -320,7 +320,7 @@ class ProjectServices:
         if docs_list:
             return docs_list
         else:
-            return {'message': 'No documents found'}
+            return []
         
     def embed_text_doc(self, doc_id, project_id, doc, highlights, category):
         # Check if the document has existing chunks and delete them

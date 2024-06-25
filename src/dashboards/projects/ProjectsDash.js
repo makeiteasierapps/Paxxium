@@ -14,12 +14,7 @@ const ProjectsDash = () => {
     const theme = useTheme();
 
     if (selectedProject) {
-        return (
-            <Project
-                project={selectedProject}
-                onClose={() => setSelectedProject(null)}
-            />
-        );
+        return <Project onClose={() => setSelectedProject(null)} />;
     }
 
     return (

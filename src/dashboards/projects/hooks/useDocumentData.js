@@ -58,7 +58,7 @@ export const useDocumentData = (selectedProject) => {
         );
     };
 
-    const addNewDoc = async (projectId) => {
+    const addNewDoc = async () => {
         const docId = await saveTextDoc(projectId);
         const newTextDoc = {
             content: '',
@@ -79,7 +79,7 @@ export const useDocumentData = (selectedProject) => {
         setDocumentDetails(newTextDoc);
     };
 
-    const fetchData = async (projectId) => {
+    const fetchData = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
         const projectDocs = savedData[projectId] || [];
 
@@ -100,7 +100,7 @@ export const useDocumentData = (selectedProject) => {
         setCategory(doc.category || '');
     };
 
-    const getTextDocs = async (projectId) => {
+    const getTextDocs = async () => {
         try {
             const response = await fetch(
                 `${backendUrl}/projects/text_doc?projectId=${projectId}`,

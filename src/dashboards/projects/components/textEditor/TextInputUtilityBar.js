@@ -2,13 +2,13 @@ import { useContext } from 'react';
 import { Box, Typography, TextField, Button, Slider } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { StyledIconButton } from '../../agents/agentStyledComponents';
+import { StyledIconButton } from '../../../agents/agentStyledComponents';
 import { getEncoding } from 'js-tiktoken';
 import { Dropdown } from '@mui/base/Dropdown';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { Menu } from '@mui/base/Menu';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { ProjectContext } from '../ProjectContext';
+import { ProjectContext } from '../../ProjectContext';
 
 const encoding = getEncoding('cl100k_base');
 

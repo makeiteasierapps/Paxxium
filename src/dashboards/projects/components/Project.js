@@ -6,7 +6,7 @@ import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../agents/chat/Chat';
 import DocumentCard from './DocumentCard';
-import TextDocumentMenu from './TextDocumentMenu';
+import TextDocumentMenu from './textEditor/TextDocumentMenu';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
 import {
@@ -31,8 +31,9 @@ const MainContainer = styled(Box)(({ theme }) => ({
 
 // Need to look at how I am managing the state of ProjectChat
 // I think I should move the state to be local so that each project manages its own chat
-const Project = ({ project, onClose }) => {
-    const { documentArray, fetchDocuments } = useContext(ProjectContext);
+const Project = ({ onClose }) => {
+    const { documentArray, fetchDocuments, selectedProject } =
+        useContext(ProjectContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
@@ -41,11 +42,11 @@ const Project = ({ project, onClose }) => {
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isTextFieldsOpen, setIsTextFieldsOpen] = useState(false);
     const fileInputRef = useRef(null);
-    const agent = getChatByProjectId(project.id);
+    const agent = getChatByProjectId(selectedProject.id);
     const theme = useTheme();
 
     useEffect(() => {
-        fetchDocuments(project.id);
+        fetchDocuments(selectedProject.id);
     }, []);
 
     const handleFileSelect = async (event) => {
@@ -54,8 +55,8 @@ const Project = ({ project, onClose }) => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('projectName', project.name);
-        formData.append('projectId', project.id);
+        formData.append('projectName', selectedProject.name);
+        formData.append('projectId', selectedProject.id);
 
         try {
             const response = await fetch(
@@ -115,7 +116,7 @@ const Project = ({ project, onClose }) => {
                     variant="h2"
                     fontWeight={'medium'}
                 >
-                    {project.name}
+                    {selectedProject.name}
                 </Typography>
                 <Typography
                     fontFamily={
@@ -123,7 +124,7 @@ const Project = ({ project, onClose }) => {
                     }
                     variant="body"
                 >
-                    {project.objective}
+                    {selectedProject.objective}
                 </Typography>
                 <Box
                     display="flex"
@@ -191,8 +192,8 @@ const Project = ({ project, onClose }) => {
                 </Box>
                 {isWebScrapeOpen ? (
                     <WebScrapeForm
-                        projectName={project.name}
-                        projectId={project.id}
+                        projectName={selectedProject.name}
+                        projectId={selectedProject.id}
                     />
                 ) : null}
                 {isChatOpen ? (
@@ -200,7 +201,7 @@ const Project = ({ project, onClose }) => {
                 ) : null}
                 {isDocumentOpen ? (
                     <Grid container spacing={2} justifyContent="center">
-                        {documentArray[project.id]?.map((document) => (
+                        {documentArray[selectedProject.id]?.map((document) => (
                             <Grid
                                 item
                                 xs={12}
@@ -215,9 +216,7 @@ const Project = ({ project, onClose }) => {
                         ))}
                     </Grid>
                 ) : null}
-                {isTextFieldsOpen ? (
-                    <TextDocumentMenu projectId={project.id} />
-                ) : null}
+                {isTextFieldsOpen ? <TextDocumentMenu /> : null}
             </Box>
         </MainContainer>
     );

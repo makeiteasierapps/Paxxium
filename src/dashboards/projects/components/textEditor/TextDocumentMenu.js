@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { ProjectContext } from '../ProjectContext';
+import { ProjectContext } from '../../ProjectContext';
 import TextEditor from './TextEditor';
 import {
     Button,
@@ -10,20 +10,21 @@ import {
     ListItemText,
 } from '@mui/material';
 
-const TextDocumentMenu = ({ projectId }) => {
+const TextDocumentMenu = () => {
     const {
         documentManager: { textDocArray, fetchData, addNewDoc },
     } = useContext(ProjectContext);
 
+    console.log(textDocArray);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
 
     useEffect(() => {
-        fetchData(projectId);
+        fetchData();
     }, []);
 
     const handleNewDocument = () => {
-        addNewDoc(projectId);
+        addNewDoc();
     };
 
     const handleDocumentClick = (document) => {
