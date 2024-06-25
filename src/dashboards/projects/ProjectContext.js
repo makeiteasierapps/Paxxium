@@ -1,196 +1,45 @@
-import {
-    useState,
-    createContext,
-    useContext,
-    useEffect,
-    useCallback,
-} from 'react';
+import { useState, createContext, useContext, useEffect } from 'react';
 
 import { AuthContext } from '../../auth/AuthContext';
-import { ChatContext } from '../agents/chat/ChatContext';
-import { SnackbarContext } from '../../SnackbarContext';
 import { useDocumentData } from './hooks/useDocumentData';
 import { useHighlights } from './hooks/useHighlights';
+import { useProjectManager } from './hooks/useProjectManager';
+import { useEmbeddedDocs } from './hooks/useEmbeddedDocs';
 
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
-    const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
-    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
-    const [documentArray, setDocumentArray] = useState({});
-    const { idToken } = useContext(AuthContext);
-    const { showSnackbar } = useContext(SnackbarContext);
-    const { setAgentArray } = useContext(ChatContext);
+    const [documentText, setDocumentText] = useState('');
+    const [highlights, setHighlights] = useState([]);
 
-    const documentManager = useDocumentData(selectedProject);
-    const highlightsManager = useHighlights(
-        documentManager.documentText,
-        documentManager.setDocumentText,
-        documentManager.highlights,
-        documentManager.setHighlights
-    );
+    const { idToken } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? 'http://localhost:50006'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
-    const addProject = (project) => {
-        setProjects((prevProjects) => {
-            return [...prevProjects, project];
-        });
-    };
-
-    const deleteProject = async (projectId) => {
-        try {
-            const response = await fetch(`${backendUrl}/projects/delete`, {
-                method: 'DELETE',
-                headers: {
-                    Authorization: idToken,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ projectId }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete project');
-            }
-
-            setProjects((prevProjects) => {
-                return prevProjects.filter(
-                    (project) => project.id !== projectId
-                );
-            });
-        } catch (error) {
-            showSnackbar('Error deleting project', 'error');
-        }
-    };
-
-    const fetchDocuments = useCallback(
-        async (projectId) => {
-            try {
-                const response = await fetch(
-                    `${backendUrl}/projects/documents`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            Authorization: idToken,
-                            'Project-ID': projectId,
-                        },
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch documents');
-                }
-
-                const data = await response.json();
-                setDocumentArray((prevDocuments) => ({
-                    ...prevDocuments,
-                    [projectId]: data.documents,
-                }));
-            } catch (error) {
-                showSnackbar('Error fetching documents', 'error');
-            }
-        },
-        [backendUrl, idToken, showSnackbar]
+    const documentManager = useDocumentData(
+        selectedProject,
+        documentText,
+        setDocumentText,
+        highlights,
+        setHighlights,
+        backendUrl
     );
 
-    const addDoc = (projectId, doc) => {
-        setDocumentArray((prevDocs) => {
-            return {
-                ...prevDocs,
-                [projectId]: [...prevDocs[projectId], doc],
-            };
-        });
-    };
+    const highlightsManager = useHighlights(
+        documentText,
+        setDocumentText,
+        highlights,
+        setHighlights
+    );
 
-    const deleteDocument = async (projectId, docId) => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/projects/documents/delete`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: idToken,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ docId }),
-                }
-            );
+    const projectManager = useProjectManager(backendUrl);
 
-            if (!response.ok) {
-                throw new Error('Failed to delete document');
-            }
-
-            setDocumentArray((prevDocs) => {
-                const updatedProjectDocs = prevDocs[projectId].filter(
-                    (doc) => doc.id !== docId
-                );
-                return {
-                    ...prevDocs,
-                    [projectId]: updatedProjectDocs,
-                };
-            });
-        } catch (error) {
-            showSnackbar('Error deleting document', 'error');
-        }
-    };
-
-    const createProject = async (name, objective) => {
-        const formData = JSON.stringify({ name, objective });
-        try {
-            const create_project_response = await fetch(
-                'http://localhost:50006/projects/create',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: idToken,
-                    },
-                    body: formData,
-                }
-            );
-
-            if (!create_project_response.ok) {
-                throw new Error('Failed to create project');
-            }
-            const data = await create_project_response.json();
-            const newProject = data.new_project;
-            const newChatData = data.new_chat;
-
-            setAgentArray((prevAgents) => {
-                const updatedAgentArray = [newChatData, ...prevAgents];
-                return updatedAgentArray;
-            });
-            addProject(newProject);
-            setIsNewProjectOpen(false);
-        } catch (error) {
-            showSnackbar('Error creating project', 'error');
-        }
-    };
-
-    const fetchProjects = useCallback(async () => {
-        try {
-            const response = await fetch(`${backendUrl}/projects`, {
-                method: 'GET',
-                headers: {
-                    Authorization: idToken,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch projects');
-            }
-
-            const data = await response.json();
-            setProjects(data.projects);
-        } catch (error) {
-            showSnackbar('Error fetching projects', 'error');
-        }
-    }, [backendUrl, idToken, showSnackbar]);
-
+    const embeddedDocsManager = useEmbeddedDocs(backendUrl);
+    
     const scrapeUrls = async (
         projectId,
         projectName,
@@ -216,32 +65,25 @@ export const ProjectProvider = ({ children }) => {
         const data = await response.json();
         const docs = data.docs;
         docs.forEach((doc) => {
-            addDoc(projectId, doc);
+            embeddedDocsManager.addEmbeddedDoc(projectId, doc);
         });
     };
 
     useEffect(() => {
         if (!idToken) return;
-        fetchProjects();
-    }, [fetchProjects, idToken]);
+        projectManager.fetchProjects();
+    }, [idToken]);
 
     return (
         <ProjectContext.Provider
             value={{
-                projects,
                 selectedProject,
                 setSelectedProject,
-                fetchProjects,
-                deleteProject,
-                isNewProjectOpen,
-                setIsNewProjectOpen,
-                createProject,
-                documentArray,
-                fetchDocuments,
-                deleteDocument,
                 scrapeUrls,
                 documentManager,
                 highlightsManager,
+                projectManager,
+                embeddedDocsManager,
             }}
         >
             {children}

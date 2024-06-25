@@ -15,7 +15,6 @@ const TextDocumentMenu = () => {
         documentManager: { textDocArray, fetchData, addNewDoc },
     } = useContext(ProjectContext);
 
-    console.log(textDocArray);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
 

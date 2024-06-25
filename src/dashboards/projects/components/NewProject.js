@@ -10,8 +10,13 @@ import {
 import { ProjectContext } from '../ProjectContext';
 
 const NewProject = () => {
-    const { createProject, isNewProjectOpen, setIsNewProjectOpen } =
-        useContext(ProjectContext);
+    const {
+        projectManager: {
+            createProject,
+            isNewProjectOpen,
+            setIsNewProjectOpen,
+        },
+    } = useContext(ProjectContext);
     const [name, setName] = useState('');
     const [objective, setObjective] = useState('');
 

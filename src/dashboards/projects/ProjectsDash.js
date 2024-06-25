@@ -8,8 +8,11 @@ import NewProject from './components/NewProject';
 import { useTheme } from '@mui/material/styles';
 
 const ProjectsDash = () => {
-    const { projects, isNewProjectOpen, selectedProject, setSelectedProject } =
-        useContext(ProjectContext);
+    const {
+        projectManager: { projects, isNewProjectOpen },
+        selectedProject,
+        setSelectedProject,
+    } = useContext(ProjectContext);
 
     const theme = useTheme();
 

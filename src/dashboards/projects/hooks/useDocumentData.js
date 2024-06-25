@@ -2,10 +2,15 @@ import { useState, useContext } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
 
-export const useDocumentData = (selectedProject) => {
-    const [documentText, setDocumentText] = useState('');
+export const useDocumentData = (
+    selectedProject,
+    documentText,
+    setDocumentText,
+    highlights,
+    setHighlights,
+    backendUrl
+) => {
     const [textDocArray, setTextDocArray] = useState([]);
-    const [highlights, setHighlights] = useState([]);
     const [docId, setDocId] = useState(null);
     const [category, setCategory] = useState('');
 
@@ -13,11 +18,6 @@ export const useDocumentData = (selectedProject) => {
     const { showSnackbar } = useContext(SnackbarContext);
 
     const projectId = selectedProject ? selectedProject.id : null;
-
-    const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50006'
-            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const handleSave = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
@@ -190,12 +190,8 @@ export const useDocumentData = (selectedProject) => {
 
     return {
         textDocArray,
-        documentText,
-        setDocumentText,
         addNewDoc,
         setDocumentDetails,
-        highlights,
-        setHighlights,
         docId,
         category,
         setCategory,

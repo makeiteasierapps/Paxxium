@@ -11,13 +11,15 @@ import { Delete } from '@mui/icons-material/';
 import { ProjectContext } from '../ProjectContext';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 
-const DocumentCard = ({ document }) => {
-    const { deleteDocument } = useContext(ProjectContext);
-    
+const EmbeddedDocCard = ({ document }) => {
+    const {
+        embeddedDocsManager: { deleteEmbeddedDoc },
+    } = useContext(ProjectContext);
+
     const handleDelete = () => {
-        deleteDocument(document.project_id, document.id);
+        deleteEmbeddedDoc(document.project_id, document.id);
     };
-    
+
     return (
         <Card
             sx={{
@@ -54,4 +56,4 @@ const DocumentCard = ({ document }) => {
     );
 };
 
-export default DocumentCard;
+export default EmbeddedDocCard;

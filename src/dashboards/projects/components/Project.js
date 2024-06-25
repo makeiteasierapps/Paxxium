@@ -5,7 +5,7 @@ import { ChatContext } from '../../agents/chat/ChatContext';
 import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../agents/chat/Chat';
-import DocumentCard from './DocumentCard';
+import EmbeddedDocCard from './EmbeddedDocCard';
 import TextDocumentMenu from './textEditor/TextDocumentMenu';
 import { StyledIconButton } from '../../agents/agentStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
@@ -32,8 +32,10 @@ const MainContainer = styled(Box)(({ theme }) => ({
 // Need to look at how I am managing the state of ProjectChat
 // I think I should move the state to be local so that each project manages its own chat
 const Project = ({ onClose }) => {
-    const { documentArray, fetchDocuments, selectedProject } =
-        useContext(ProjectContext);
+    const {
+        selectedProject,
+        embeddedDocsManager: { embeddedDocs, fetchEmbeddedDocs },
+    } = useContext(ProjectContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const { idToken } = useContext(AuthContext);
@@ -46,7 +48,7 @@ const Project = ({ onClose }) => {
     const theme = useTheme();
 
     useEffect(() => {
-        fetchDocuments(selectedProject.id);
+        fetchEmbeddedDocs(selectedProject.id);
     }, []);
 
     const handleFileSelect = async (event) => {
@@ -201,7 +203,7 @@ const Project = ({ onClose }) => {
                 ) : null}
                 {isDocumentOpen ? (
                     <Grid container spacing={2} justifyContent="center">
-                        {documentArray[selectedProject.id]?.map((document) => (
+                        {embeddedDocs[selectedProject.id]?.map((document) => (
                             <Grid
                                 item
                                 xs={12}
@@ -211,7 +213,7 @@ const Project = ({ onClose }) => {
                                 xl={3}
                                 key={document.id}
                             >
-                                <DocumentCard document={document} />
+                                <EmbeddedDocCard document={document} />
                             </Grid>
                         ))}
                     </Grid>

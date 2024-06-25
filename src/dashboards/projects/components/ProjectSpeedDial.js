@@ -4,7 +4,7 @@ import { ProjectContext } from '../ProjectContext';
 import { PlaylistAdd } from '@mui/icons-material/';
 
 export default function ProjectSpeedDial() {
-    const { setIsNewProjectOpen } = useContext(ProjectContext);
+    const { projectManager: { setIsNewProjectOpen } } = useContext(ProjectContext);
     return (
         <Box
             sx={{

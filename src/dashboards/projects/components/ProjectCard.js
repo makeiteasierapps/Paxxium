@@ -7,7 +7,9 @@ import { ProjectContext } from '../ProjectContext';
 
 const ProjectCard = ({ project, onSelect }) => {
     const theme = useTheme();
-    const { deleteProject } = useContext(ProjectContext);
+    const {
+        projectManager: { deleteProject },
+    } = useContext(ProjectContext);
     const handleDeleteProject = () => {
         deleteProject(project.id);
     };
