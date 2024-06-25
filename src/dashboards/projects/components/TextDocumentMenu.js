@@ -10,20 +10,20 @@ import {
     ListItemText,
 } from '@mui/material';
 
-const TextDocumentMenu = ({ project }) => {
+const TextDocumentMenu = ({ projectId }) => {
     const {
-        documentManager: { textDocArray, fetchData },
+        documentManager: { textDocArray, fetchData, addNewDoc },
     } = useContext(ProjectContext);
 
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
 
     useEffect(() => {
-        fetchData(project);
+        fetchData(projectId);
     }, []);
 
     const handleNewDocument = () => {
-        console.log('New Document button clicked');
+        addNewDoc(projectId);
     };
 
     const handleDocumentClick = (document) => {

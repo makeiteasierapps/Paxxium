@@ -290,7 +290,7 @@ class ProjectServices:
 
         return project_details, new_chat
 
-    def save_text_doc(self, project_id, category, text, highlights=None, doc_id=None):
+    def save_text_doc(self, project_id, text, highlights=None, doc_id=None, category=None):
         new_doc = {
             'project_id': project_id,
             'content': text,

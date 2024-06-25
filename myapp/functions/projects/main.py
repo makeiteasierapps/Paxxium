@@ -175,7 +175,8 @@ def handle_save_text_doc(request):
     data = request.get_json()
     project_id = data.get('projectId')
     text = data.get('text')
-    category = data.get('category').lower()
+    category = data.get('category')
+    category = category.lower() if category else None
     highlights = data.get('highlights')
     doc_id = data.get('docId')
 

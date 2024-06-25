@@ -215,7 +215,9 @@ const Project = ({ project, onClose }) => {
                         ))}
                     </Grid>
                 ) : null}
-                {isTextFieldsOpen ? <TextDocumentMenu project={project} /> : null}
+                {isTextFieldsOpen ? (
+                    <TextDocumentMenu projectId={project.id} />
+                ) : null}
             </Box>
         </MainContainer>
     );

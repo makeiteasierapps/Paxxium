@@ -18,10 +18,9 @@ export const useDocumentData = () => {
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const handleSave = async (projectId) => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || [];
-        const existingDoc = savedData.find(
-            (doc) => doc.id === docId
-        );
+        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
+        const projectDocs = savedData[projectId] || [];
+        const existingDoc = projectDocs.find((doc) => doc.id === docId);
         const existingDocId = existingDoc ? existingDoc.docId : null;
 
         const docId = await saveTextDoc(
@@ -32,13 +31,20 @@ export const useDocumentData = () => {
             existingDocId
         );
 
-        savedData.push({
+        const newDoc = {
             content: documentText,
             category: category,
             highlights: highlights,
             id: docId,
             projectId: projectId,
-        });
+        };
+
+        const updatedProjectDocs = projectDocs.filter(
+            (doc) => doc.id !== docId
+        );
+        updatedProjectDocs.push(newDoc);
+
+        savedData[projectId] = updatedProjectDocs;
         setDocId(docId);
         localStorage.setItem('textDocs', JSON.stringify(savedData));
         return docId;
@@ -58,14 +64,38 @@ export const useDocumentData = () => {
         );
     };
 
-    const fetchData = async (project) => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || [];
-        if (savedData.length > 0) {
-            setTextDocArray(savedData);
+    const addNewDoc = async (projectId) => {
+        const docId = await saveTextDoc(projectId);
+        const newTextDoc = {
+            content: '',
+            category: '',
+            highlights: [],
+            id: docId,
+            projectId: projectId,
+        };
+
+        setTextDocArray([...textDocArray, newTextDoc]);
+
+        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
+        const projectDocs = savedData[projectId] || [];
+        projectDocs.push(newTextDoc);
+        savedData[projectId] = projectDocs;
+
+        localStorage.setItem('textDocs', JSON.stringify(savedData));
+        setDocumentDetails(newTextDoc);
+    };
+
+    const fetchData = async (projectId) => {
+        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
+        const projectDocs = savedData[projectId] || [];
+
+        if (projectDocs.length > 0) {
+            setTextDocArray(projectDocs);
         } else {
-            const docs = await getTextDocs(project.id);
+            const docs = await getTextDocs(projectId);
+            savedData[projectId] = docs;
             setTextDocArray(docs);
-            localStorage.setItem('textDocs', JSON.stringify(docs));
+            localStorage.setItem('textDocs', JSON.stringify(savedData));
         }
     };
 
@@ -93,7 +123,6 @@ export const useDocumentData = () => {
             }
 
             const data = await response.json();
-            console.log(data);
             return data;
         } catch (error) {
             console.error(error);
@@ -128,10 +157,10 @@ export const useDocumentData = () => {
 
     const saveTextDoc = async (
         projectId,
-        category,
-        text,
-        highlights,
-        docId
+        category = null,
+        text = null,
+        highlights = null,
+        docId = null
     ) => {
         try {
             const response = await fetch(
@@ -168,6 +197,7 @@ export const useDocumentData = () => {
         textDocArray,
         documentText,
         setDocumentText,
+        addNewDoc,
         setDocumentDetails,
         highlights,
         setHighlights,
