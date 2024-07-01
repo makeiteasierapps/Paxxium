@@ -21,23 +21,19 @@ const MainUtilityBox = styled(Box)({
 
 const TextInputUtilityBar = () => {
     const {
+        documentText,
         highlightsManager: {
             selectedChunk,
             handleColorChange,
             handleRangeSliderChange,
             handleDelete,
         },
-        documentManager: {
-            handleSave,
-            handleEmbed,
-            category,
-            setCategory,
-            documentText,
-        },
+        documentManager: { handleSave, handleEmbed, category, setCategory },
     } = useContext(ProjectContext);
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
 
+    console.log(documentText);
     const createHandleMenuClick = (menuItem) => {
         return () => {
             console.log(`Clicked on ${menuItem}`);

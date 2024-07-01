@@ -3,8 +3,6 @@ import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
 
-import React from 'react';
-
 export const useProjectManager = (backendUrl) => {
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);

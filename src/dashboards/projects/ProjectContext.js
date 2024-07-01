@@ -39,7 +39,7 @@ export const ProjectProvider = ({ children }) => {
     const projectManager = useProjectManager(backendUrl);
 
     const embeddedDocsManager = useEmbeddedDocs(backendUrl);
-    
+
     const scrapeUrls = async (
         projectId,
         projectName,
@@ -79,6 +79,7 @@ export const ProjectProvider = ({ children }) => {
             value={{
                 selectedProject,
                 setSelectedProject,
+                documentText,
                 scrapeUrls,
                 documentManager,
                 highlightsManager,

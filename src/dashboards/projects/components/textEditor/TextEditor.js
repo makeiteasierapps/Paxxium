@@ -29,6 +29,7 @@ const TextEditor = ({ document }) => {
     } = useContext(ProjectContext);
 
     useEffect(() => {
+        console.log('document', document);
         setDocumentDetails(document);
     }, []);
 

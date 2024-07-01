@@ -154,16 +154,18 @@ export const useHighlights = (
     };
 
     const handleInput = (e, project) => {
+        const contentEditable = contentEditableRef.current;
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;
 
-        // handles the case when new text is added to and existing highlighted doc
-        // shifts the highlights to account for the new text
+        // Save the current scroll position
+        const scrollTop = contentEditable.scrollTop;
+
         if (diff !== 0) {
             const selection = window.getSelection();
             const range = selection.getRangeAt(0);
             const preSelectionRange = range.cloneRange();
-            preSelectionRange.selectNodeContents(contentEditableRef.current);
+            preSelectionRange.selectNodeContents(contentEditable);
             preSelectionRange.setEnd(range.startContainer, range.startOffset);
             const cursorPosition = preSelectionRange.toString().length;
 
@@ -176,23 +178,25 @@ export const useHighlights = (
         }
 
         setDocumentText(newText);
+
+        // Apply highlights and restore selection
         applyHighlights();
+
+        // Restore the scroll position
+        contentEditable.scrollTop = scrollTop;
     };
 
     const handleMouseUp = () => {
-        if (editingChunk) {
-            return;
-        }
+        if (editingChunk) return;
+
         const selection = window.getSelection();
-        if (selection.rangeCount === 0) {
-            return;
-        }
+        if (selection.rangeCount === 0) return;
+
         const range = selection.getRangeAt(0);
         const container = range.startContainer;
         const offset = range.startOffset;
 
         if (container.nodeType === 3) {
-            // Text node
             const parent = container.parentNode;
             if (parent && parent.hasAttribute('data-chunk-id')) {
                 const chunkId = parent.getAttribute('data-chunk-id');
@@ -203,36 +207,13 @@ export const useHighlights = (
                     const isAtEnd = offset === container.length;
 
                     if (isAtStart) {
-                        // Move cursor to just before the chunk
-                        const previousNode = parent.previousSibling;
-                        if (previousNode && previousNode.nodeType === 3) {
-                            range.setStart(previousNode, previousNode.length);
-                            range.setEnd(previousNode, previousNode.length);
-                        } else {
-                            range.setStartBefore(parent);
-                            range.setEndBefore(parent);
-                        }
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                        return;
+                        moveCursorBeforeChunk(range, parent);
                     } else if (isAtEnd) {
-                        // Move cursor to just after the chunk
-                        const nextNode = parent.nextSibling;
-                        if (nextNode && nextNode.nodeType === 3) {
-                            range.setStart(nextNode, 0);
-                            range.setEnd(nextNode, 0);
-                        } else {
-                            range.setStartAfter(parent);
-                            range.setEndAfter(parent);
-                        }
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                        return;
+                        moveCursorAfterChunk(range, parent);
                     } else {
-                        // Prevent editing inside the chunk
-                        selection.removeAllRanges();
-                        return;
+                        preventEditing(selection);
                     }
+                    return;
                 }
             }
         }
@@ -249,9 +230,7 @@ export const useHighlights = (
                 (chunk) => startOffset < chunk.end && endOffset > chunk.start
             );
 
-            if (isOverlapping) {
-                return;
-            }
+            if (isOverlapping) return;
 
             const color = getRandomColor(usedColors);
             setUsedColors([...usedColors, color]);
@@ -284,6 +263,40 @@ export const useHighlights = (
         }
     };
 
+    const moveCursorBeforeChunk = (range, parent) => {
+        const previousNode = parent.previousSibling;
+        if (previousNode && previousNode.nodeType === 3) {
+            range.setStart(previousNode, previousNode.length);
+            range.setEnd(previousNode, previousNode.length);
+        } else {
+            range.setStartBefore(parent);
+            range.setEndBefore(parent);
+        }
+        updateSelection(range);
+    };
+
+    const moveCursorAfterChunk = (range, parent) => {
+        const nextNode = parent.nextSibling;
+        if (nextNode && nextNode.nodeType === 3) {
+            range.setStart(nextNode, 0);
+            range.setEnd(nextNode, 0);
+        } else {
+            range.setStartAfter(parent);
+            range.setEndAfter(parent);
+        }
+        updateSelection(range);
+    };
+
+    const preventEditing = (selection) => {
+        selection.removeAllRanges();
+    };
+
+    const updateSelection = (range) => {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    };
+
     useEffect(() => {
         const handleKeyDown = (e) => {
             const selection = window.getSelection();
@@ -292,46 +305,43 @@ export const useHighlights = (
             const container = range.startContainer;
             const offset = range.startOffset;
 
-            if (container.nodeType === 3) {
-                // Text node
-                const parent = container.parentNode;
-                if (parent && parent.hasAttribute('data-chunk-id')) {
-                    const chunkId = parent.getAttribute('data-chunk-id');
-                    const chunk = highlights.find(
-                        (chunk) => chunk.id === chunkId
-                    );
+            if (container.nodeType !== 3) return;
+            // Text node
+            const parent = container.parentNode;
+            if (parent && parent.hasAttribute('data-chunk-id')) {
+                const chunkId = parent.getAttribute('data-chunk-id');
+                const chunk = highlights.find((chunk) => chunk.id === chunkId);
 
-                    if (chunk) {
-                        const isAtStart = offset === 0;
-                        const isAtEnd = offset === container.length;
-
-                        if (
-                            (e.key === 'Backspace' && isAtStart) ||
-                            (e.key === 'Delete' && isAtEnd)
-                        ) {
-                            // Prevent backspace or delete from deleting the chunk
-                            e.preventDefault();
-                            return;
-                        }
-                    }
-                } else {
-                    // Check if the cursor is just outside a chunk
-                    const previousSibling = container.previousSibling;
-                    const nextSibling = container.nextSibling;
+                if (chunk) {
+                    const isAtStart = offset === 0;
+                    const isAtEnd = offset === container.length;
 
                     if (
-                        (e.key === 'Backspace' &&
-                            previousSibling &&
-                            previousSibling.hasAttribute('data-chunk-id') &&
-                            offset === 0) ||
-                        (e.key === 'Delete' &&
-                            nextSibling &&
-                            nextSibling.hasAttribute('data-chunk-id') &&
-                            offset === container.length)
+                        (e.key === 'Backspace' && isAtStart) ||
+                        (e.key === 'Delete' && isAtEnd)
                     ) {
+                        // Prevent backspace or delete from deleting the chunk
                         e.preventDefault();
                         return;
                     }
+                }
+            } else {
+                // Check if the cursor is just outside a chunk
+                const previousSibling = container.previousSibling;
+                const nextSibling = container.nextSibling;
+
+                if (
+                    (e.key === 'Backspace' &&
+                        previousSibling &&
+                        previousSibling.hasAttribute('data-chunk-id') &&
+                        offset === 0) ||
+                    (e.key === 'Delete' &&
+                        nextSibling &&
+                        nextSibling.hasAttribute('data-chunk-id') &&
+                        offset === container.length)
+                ) {
+                    e.preventDefault();
+                    return;
                 }
             }
         };
@@ -347,6 +357,7 @@ export const useHighlights = (
         const contentEditable = contentEditableRef.current;
         if (!contentEditable) return;
 
+        const scrollTop = contentEditable.scrollTop;
         const savedSelection = saveSelection(contentEditable);
 
         let lastIndex = 0;
@@ -391,6 +402,7 @@ export const useHighlights = (
         });
 
         restoreSelection(contentEditable, savedSelection);
+        contentEditable.scrollTop = scrollTop;
     }, [documentText, highlights]);
 
     const handleChunkClick = (chunk) => {
