@@ -28,12 +28,12 @@ const NewsCard = ({ news, index }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_NEWS_URL
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const markArticleRead = async () => {
         try {
-            const response = await fetch(`${backendUrl}/news/news_articles`, {
+            const response = await fetch(`${backendUrl}/news`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const NewsCard = ({ news, index }) => {
 
     const handleArticleDelete = async () => {
         try {
-            const response = await fetch(`${backendUrl}/news/news_articles`, {
+            const response = await fetch(`${backendUrl}/news`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

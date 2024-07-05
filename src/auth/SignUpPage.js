@@ -41,7 +41,7 @@ export default function SignUp() {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50005'
+            ? 'http://localhost:50004'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const StyledButton = styled(Button)(({ theme }) => ({

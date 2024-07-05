@@ -17,7 +17,7 @@ export const ImageProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:3033'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     useEffect(() => {

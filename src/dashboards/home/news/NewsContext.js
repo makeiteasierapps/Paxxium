@@ -21,7 +21,7 @@ export const NewsProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50002'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const updateNewsData = (updateFunc) =>
@@ -81,7 +81,7 @@ export const NewsProvider = ({ children }) => {
         async (queryParam = query) => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`${backendUrl}/news/query`, {
+                const response = await fetch(`${backendUrl}/news`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
