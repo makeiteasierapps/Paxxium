@@ -48,8 +48,6 @@ export default function LoginPage() {
             );
             const user = userCredential.user;
             setUser(user);
-            setIsAuthorized(true);
-            localStorage.setItem('isAuthorized', 'true');
             setIsLoading(false);
         } catch (error) {
             let errorMessage = 'Login failed with token';

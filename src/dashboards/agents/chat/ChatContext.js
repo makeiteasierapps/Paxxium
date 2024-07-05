@@ -26,12 +26,12 @@ export const ChatProvider = ({ children }) => {
 
     const messagesUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50003'
+            ? 'http://localhost:50002'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const chatUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50001'
+            ? 'http://localhost:50000'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     // Used to add a new user message to the messages state

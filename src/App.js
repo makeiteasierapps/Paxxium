@@ -42,7 +42,7 @@ const AuthenticatedApp = () => {
         const persistedIsAuthorized =
             localStorage.getItem('isAuthorized') === 'true';
         setIsAuthorized(persistedIsAuthorized);
-        setInitialCheckDone(true); 
+        setInitialCheckDone(true);
     }, [setIsAuthorized]);
 
     const handleDrawerExpand = () => {
@@ -51,27 +51,30 @@ const AuthenticatedApp = () => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50000'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     useEffect(() => {
+        console.log(isAuthorized);
         if (isAuthorized) return;
         const fetchData = async () => {
             if (idToken && user) {
                 try {
-                    const response = await fetch(`${backendUrl}/auth_check`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: idToken,
-                        },
-                        body: JSON.stringify({
-                            uid: uid,
-                        }),
-                    });
+                    const response = await fetch(
+                        `${backendUrl}/auth_check`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: idToken,
+                            },
+                            body: JSON.stringify({
+                                uid: uid,
+                            }),
+                        }
+                    );
 
                     const responseData = await response.json();
-
                     // Checks if admin has grtanted access to the app
                     if (responseData.auth_status) {
                         setIsAuthorized(true);
@@ -85,7 +88,7 @@ const AuthenticatedApp = () => {
         };
 
         fetchData();
-    }, [idToken, setUid, user, uid, setIsAuthorized, isAuthorized, backendUrl]);
+    }, [idToken, setUid, user, uid, setIsAuthorized, isAuthorized]);
 
     if (!initialCheckDone) {
         return null;
