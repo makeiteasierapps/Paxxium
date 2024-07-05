@@ -17,7 +17,7 @@ export const ImageProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50001'
+            ? 'http://localhost:3033'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     useEffect(() => {
@@ -64,7 +64,7 @@ export const ImageProvider = ({ children }) => {
     const saveImage = async (image) => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${backendUrl}/images/upload`, {
+            const response = await fetch(`${backendUrl}/images/save`, {
                 method: 'POST',
                 headers: {
                     Authorization: idToken,
@@ -99,7 +99,7 @@ export const ImageProvider = ({ children }) => {
 
     const deleteImage = async (path) => {
         try {
-            const response = await fetch(`${backendUrl}/images/delete`, {
+            const response = await fetch(`${backendUrl}/images`, {
                 method: 'POST',
                 headers: {
                     Authorization: idToken,
@@ -128,7 +128,7 @@ export const ImageProvider = ({ children }) => {
     const generateDalleImage = async (imageRequest) => {
         setImageRequest(imageRequest);
         try {
-            const response = await fetch(`${backendUrl}/images/generate`, {
+            const response = await fetch(`${backendUrl}/images`, {
                 method: 'POST',
                 headers: {
                     Authorization: idToken,

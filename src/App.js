@@ -55,7 +55,6 @@ const AuthenticatedApp = () => {
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     useEffect(() => {
-        console.log(isAuthorized);
         if (isAuthorized) return;
         const fetchData = async () => {
             if (idToken && user) {

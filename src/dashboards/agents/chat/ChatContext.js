@@ -26,7 +26,7 @@ export const ChatProvider = ({ children }) => {
 
     const messagesUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50002'
+            ? 'http://localhost:50001'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const chatUrl =
