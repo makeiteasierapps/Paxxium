@@ -17,7 +17,7 @@ export const ProjectProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50002'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const documentManager = useDocumentData(
