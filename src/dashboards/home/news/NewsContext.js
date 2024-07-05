@@ -123,7 +123,7 @@ export const NewsProvider = ({ children }) => {
     const aiNewsFetch = useCallback(async () => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${backendUrl}/news/ai-fetch-news`, {
+            const response = await fetch(`${backendUrl}/ai-fetch-news`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

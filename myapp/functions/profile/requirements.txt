@@ -1,9 +1,0 @@
-firebase-admin==6.4.0
-google-cloud-kms==2.21.2
-python-dotenv==1.0.1
-openai==1.13.3
-crcmod==1.7
-newspaper3k==0.2.8
-requests==2.31.0
-pymongo==4.6.3
-tiktoken==0.6.0
