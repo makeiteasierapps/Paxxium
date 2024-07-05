@@ -1,7 +1,6 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import styled from '@mui/system/styled';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
@@ -25,7 +24,6 @@ export default function SignUp() {
         email: true,
         password: true,
         openAiApiKey: true,
-        serpApiKey: true,
     });
     const [serverError, setServerError] = useState('');
     const [formValues, setFormValues] = useState({
@@ -33,7 +31,6 @@ export default function SignUp() {
         email: '',
         password: '',
         openAiApiKey: '',
-        serpApiKey: '',
     });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
@@ -41,7 +38,7 @@ export default function SignUp() {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50004'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const StyledButton = styled(Button)(({ theme }) => ({
@@ -71,8 +68,6 @@ export default function SignUp() {
             /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password),
         // Must not be empty
         openAiApiKey: (key) => key && key.trim().length > 0,
-        // Must not be empty
-        serpApiKey: (key) => key && key.trim().length > 0,
     };
 
     const errorMessages = {
@@ -118,7 +113,6 @@ export default function SignUp() {
                         uid: uid,
                         username: formValues.username,
                         openAiApiKey: formValues.openAiApiKey,
-                        serpApiKey: formValues.serpApiKey,
                         authorized: false,
                     }),
                 });
@@ -213,25 +207,6 @@ export default function SignUp() {
                             onChange={handleInputChange}
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <StyledTextField
-                            required
-                            fullWidth
-                            id="serpApiKey"
-                            label="SerpAPI Key"
-                            name="serpApiKey"
-                            value={formValues.serpApiKey}
-                            error={!formValid.serpApiKey}
-                            helperText={
-                                !formValid.serpApiKey
-                                    ? errorMessages.serpApiKey
-                                    : ''
-                            }
-                            type="password"
-                            onChange={handleInputChange}
-                        />
-                    </Grid>
-
                     <Grid item xs={12}>
                         <StyledTextField
                             required
