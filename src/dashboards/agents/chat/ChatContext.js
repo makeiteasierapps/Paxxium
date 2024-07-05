@@ -26,12 +26,12 @@ export const ChatProvider = ({ children }) => {
 
     const messagesUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50001'
+            ? 'http://localhost:50000'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const chatUrl =
         process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50000'
+            ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
     // Used to add a new user message to the messages state
@@ -98,7 +98,7 @@ export const ChatProvider = ({ children }) => {
             const response = await fetch(`${chatUrl}/chat`, {
                 method: 'GET',
                 headers: {
-                    Authorization: idToken,
+                    userId: uid,
                 },
             });
 
@@ -123,7 +123,7 @@ export const ChatProvider = ({ children }) => {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
-    }, [chatUrl, idToken, setAgentArray, setMessages, showSnackbar]);
+    }, [chatUrl, showSnackbar, uid]);
 
     const loadChat = async (chatId) => {
         // This is done so that the chat visibility persists even after the page is refreshed
@@ -353,7 +353,7 @@ export const ChatProvider = ({ children }) => {
 
     const clearChat = async (chatId) => {
         try {
-            const response = await fetch(`${messagesUrl}/messages/clear`, {
+            const response = await fetch(`${messagesUrl}/messages`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: idToken,
@@ -397,7 +397,7 @@ export const ChatProvider = ({ children }) => {
 
     const deleteChat = async (chatId) => {
         try {
-            const response = await fetch(`${chatUrl}/chat/delete`, {
+            const response = await fetch(`${chatUrl}/chat`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -434,13 +434,13 @@ export const ChatProvider = ({ children }) => {
         chatName
     ) => {
         try {
-            const response = await fetch(`${chatUrl}/chat/create`, {
+            const response = await fetch(`${chatUrl}/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify({
+                    userId: uid,
                     agentModel,
                     systemPrompt,
                     chatConstants,
