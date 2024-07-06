@@ -8,7 +8,7 @@ export const useProjectManager = (backendUrl) => {
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
     const { idToken } = useContext(AuthContext);
-    const { setAgentArray } = useContext(ChatContext);
+    const { setChatArray } = useContext(ChatContext);
 
     const addProject = (project) => {
         setProjects((prevProjects) => {
@@ -63,9 +63,9 @@ export const useProjectManager = (backendUrl) => {
             const newProject = data.new_project;
             const newChatData = data.new_chat;
 
-            setAgentArray((prevAgents) => {
-                const updatedAgentArray = [newChatData, ...prevAgents];
-                return updatedAgentArray;
+            setChatArray((prevChats) => {
+                const updatedChatArray = [newChatData, ...prevChats];
+                return updatedChatArray;
             });
             addProject(newProject);
             setIsNewProjectOpen(false);

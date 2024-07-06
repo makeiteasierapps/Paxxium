@@ -7,8 +7,9 @@ import {
     useEffect,
 } from 'react';
 import { AuthContext } from '../../../auth/AuthContext';
-import { processToken } from '../utils/processToken';
+import { processIncomingStream } from '../utils/processIncomingStream';
 import { resizeImage } from '../utils/resizeImage';
+import { io } from 'socket.io-client';
 
 import { SnackbarContext } from '../../../SnackbarContext';
 
@@ -16,23 +17,44 @@ export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
     const { showSnackbar } = useContext(SnackbarContext);
     const { idToken, uid } = useContext(AuthContext);
-    const [agentArray, setAgentArray] = useState([]);
+    const [chatArray, setChatArray] = useState([]);
     const [messages, setMessages] = useState({});
-    const [insideCodeBlock, setInsideCodeBlock] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const ignoreNextTokenRef = useRef(false);
-    const languageRef = useRef(null);
+    const socket = useRef(null);
 
     const messagesUrl =
         process.env.NODE_ENV === 'development'
             ? 'http://localhost:50000'
             : process.env.REACT_APP_BACKEND_URL_PROD;
 
-    const chatUrl =
+    const backendUrl =
         process.env.NODE_ENV === 'development'
             ? process.env.REACT_APP_BACKEND_URL
             : process.env.REACT_APP_BACKEND_URL_PROD;
+
+    useEffect(() => {
+        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const newSocket = io(`${protocol}://${backendUrl}`);
+
+        socket.current = newSocket;
+
+        newSocket.on('connect', () => {
+            console.log('Connected to WebSocket server');
+        });
+
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from WebSocket server');
+        });
+
+        newSocket.on('connect_error', (error) => {
+            console.log('Connect error', error);
+        });
+
+        return () => {
+            newSocket.disconnect();
+        };
+    }, []);
 
     // Used to add a new user message to the messages state
     const addMessage = (chatId, newMessage) => {
@@ -42,9 +64,9 @@ export const ChatProvider = ({ children }) => {
                 [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
             };
 
-            // Update agentArray with the new message
-            setAgentArray((prevAgentArray) => {
-                const updatedAgentArray = prevAgentArray.map((agent) => {
+            // Update chatArray with the new message
+            setChatArray((preyChatArray) => {
+                const updatedChatArray = preyChatArray.map((agent) => {
                     if (agent.chatId === chatId) {
                         return {
                             ...agent,
@@ -56,10 +78,10 @@ export const ChatProvider = ({ children }) => {
 
                 // Update local storage with the updated agent array
                 localStorage.setItem(
-                    'agentArray',
-                    JSON.stringify(updatedAgentArray)
+                    'chatArray',
+                    JSON.stringify(updatedChatArray)
                 );
-                return updatedAgentArray;
+                return updatedChatArray;
             });
 
             return updatedMessages;
@@ -67,7 +89,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     const getChatByProjectId = (id) => {
-        return agentArray.find((agent) => agent.project_id === id);
+        return chatArray.find((agent) => agent.project_id === id);
     };
 
     // Used to get the messages for a specific chat
@@ -78,10 +100,10 @@ export const ChatProvider = ({ children }) => {
 
     const getChats = useCallback(async () => {
         try {
-            const cachedChats = localStorage.getItem('agentArray');
+            const cachedChats = localStorage.getItem('chatArray');
             if (cachedChats) {
                 const parsedChats = JSON.parse(cachedChats);
-                setAgentArray(parsedChats);
+                setChatArray(parsedChats);
 
                 // New: Update messages state based on cached chats
                 const cachedMessages = parsedChats.reduce((acc, chat) => {
@@ -95,7 +117,7 @@ export const ChatProvider = ({ children }) => {
                 return parsedChats;
             }
 
-            const response = await fetch(`${chatUrl}/chat`, {
+            const response = await fetch(`${backendUrl}/chat`, {
                 method: 'GET',
                 headers: {
                     userId: uid,
@@ -106,7 +128,7 @@ export const ChatProvider = ({ children }) => {
                 throw new Error('Failed to load user conversations');
 
             const data = await response.json();
-            setAgentArray(data);
+            setChatArray(data);
 
             // Assuming each chat object in the data array now includes a messages array
             const messagesFromData = data.reduce((acc, chat) => {
@@ -117,30 +139,33 @@ export const ChatProvider = ({ children }) => {
             }, {});
             setMessages(messagesFromData); // Update messages state with the loaded data
 
-            localStorage.setItem('agentArray', JSON.stringify(data));
+            localStorage.setItem('chatArray', JSON.stringify(data));
             return data;
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
-    }, [chatUrl, showSnackbar, uid]);
+    }, [backendUrl, showSnackbar, uid]);
 
     const loadChat = async (chatId) => {
         // This is done so that the chat visibility persists even after the page is refreshed
         try {
-            const response = await fetch(`${chatUrl}/chat/update_visibility`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify({ chatId, is_open: true }),
-            });
+            const response = await fetch(
+                `${backendUrl}/chat/update_visibility`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: JSON.stringify({ chatId, is_open: true }),
+                }
+            );
 
             if (!response.ok) throw new Error('Failed to update chat');
 
             // Update the local state only after the database has been updated successfully
-            setAgentArray((prevAgents) => {
+            setChatArray((prevAgents) => {
                 let updatedAgentIndex = -1;
                 const updatedAgents = prevAgents.reduce((acc, agent, index) => {
                     if (agent.chatId === chatId) {
@@ -154,7 +179,7 @@ export const ChatProvider = ({ children }) => {
                 // Cache the updated agents array in local storage
                 if (updatedAgentIndex !== -1) {
                     localStorage.setItem(
-                        'agentArray',
+                        'chatArray',
                         JSON.stringify(updatedAgents)
                     );
                 }
@@ -168,45 +193,61 @@ export const ChatProvider = ({ children }) => {
         }
     };
 
+    const resizeAndConvertImageToBase64 = (image, width, height) => {
+        return new Promise((resolve, reject) => {
+            resizeImage(image, width, height, (resizedImageBlob) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(resizedImageBlob);
+            });
+        });
+    };
+
+    const uploadImageAndGetUrl = async (imageBlob) => {
+        const formData = new FormData();
+        formData.append('image', imageBlob, 'image.png');
+
+        try {
+            const response = await fetch(`${messagesUrl}/messages/utils`, {
+                method: 'POST',
+                headers: {
+                    userId: uid,
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to upload image');
+            }
+
+            const data = await response.json();
+            return data.fileUrl; // Return the image URL
+        } catch (error) {
+            throw new Error(`Image upload error: ${error.message}`);
+        }
+    };
+
     const sendMessage = async (input, chatSettings, image = null) => {
         let imageUrl = null;
-        // maybe refactor this to a separate function
         if (image) {
-            imageUrl = await new Promise((resolve, reject) => {
-                resizeImage(image, 400, 400, async function (resizedImageBlob) {
-                    const formData = new FormData();
-
-                    formData.append('image', resizedImageBlob, 'image.png');
-                    try {
-                        const response = await fetch(
-                            `${messagesUrl}/messages/utils`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    Authorization: idToken,
-                                },
-                                body: formData,
-                            }
-                        );
-
-                        if (!response.ok) {
-                            throw new Error('Failed to upload image');
-                        }
-
-                        const data = await response.json();
-                        resolve(data.fileUrl); // Resolve the Promise with the imageUrl
-                    } catch (error) {
-                        reject(error); // Reject the promise with the error
-                    }
-                });
-            }).catch((error) => {
+            try {
+                const resizedImageBlob = await resizeAndConvertImageToBase64(
+                    image,
+                    400,
+                    400
+                );
+                imageUrl = await uploadImageAndGetUrl(resizedImageBlob);
+            } catch (error) {
                 console.error(error);
                 showSnackbar(
-                    `Network or fetch error: ${error.message}`,
+                    `Image processing or upload error: ${error.message}`,
                     'error'
                 );
-                return null;
-            });
+                return;
+            }
         }
 
         // Optimistic update
@@ -222,115 +263,95 @@ export const ChatProvider = ({ children }) => {
 
         const chatHistory = await getMessages(chatSettings.chatId);
 
-        const dataPacket = {
-            chatSettings,
-            userMessage,
-            chatHistory,
-            image_url: imageUrl,
-        };
-
-        try {
-            const response = await fetch(`${messagesUrl}/messages/post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify(dataPacket),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to send message');
-            }
-
-            const reader = response.body.getReader();
-            let completeMessage = '';
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    break;
-                }
-                const decodedValue = new TextDecoder('utf-8').decode(value);
-                // Split the decoded value by newline and filter out any empty lines
-                const jsonChunks = decodedValue
-                    .split('\n')
-                    .filter((line) => line.trim() !== '');
-
-                const messages = jsonChunks.map((chunk) => {
-                    const messageObj = JSON.parse(chunk);
-                    processToken(
-                        messageObj,
-                        setInsideCodeBlock,
-                        insideCodeBlock,
-                        setMessages,
-                        chatSettings.chatId,
-                        ignoreNextTokenRef,
-                        languageRef
-                    );
-                    return messageObj.content;
-                });
-                completeMessage += messages.join('');
-            }
-            // While streaming an array of objects is being built for the stream.
-            // This sets that array to a message object in the state
-            setMessages((prevMessages) => {
-                const updatedMessages = prevMessages[chatSettings.chatId].slice(
-                    0,
-                    -1
-                );
-                updatedMessages.push({
-                    content: completeMessage,
-                    message_from: 'agent',
-                    type: 'database',
-                });
-
-                const newMessagesState = {
-                    ...prevMessages,
-                    [chatSettings.chatId]: updatedMessages,
-                };
-
-                // Update agentArray with the new message
-                setAgentArray((prevAgentArray) => {
-                    const updatedAgentArray = prevAgentArray.map((agent) => {
-                        if (agent.chatId === chatSettings.chatId) {
-                            return {
-                                ...agent,
-                                messages: updatedMessages,
-                            };
-                        }
-                        return agent;
-                    });
-
-                    // Update local storage with the updated agent array
-                    localStorage.setItem(
-                        'agentArray',
-                        JSON.stringify(updatedAgentArray)
-                    );
-                    return updatedAgentArray;
-                });
-
-                return newMessagesState;
-            });
-        } catch (error) {
-            console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-        }
+        socket.current.emit('chat_request', {
+            userId: uid,
+            chatId: chatSettings.chatId,
+            dbName: 'paxxium',
+            imageUrl: imageUrl,
+            chatSettings: chatSettings,
+            chatHistory: chatHistory,
+            userMessage: userMessage,
+            saveToDb: true,
+            createVectorPipeline: false,
+        });
     };
+
+    const handleStreamingResponse = useCallback(async (data) => {
+        const selectedChatId = data.room;
+        if (data.type === 'end_of_stream') {
+            console.log('end of stream');
+        } else {
+            let newMessageParts;
+            setMessages((prevMessages) => {
+                newMessageParts = processIncomingStream(
+                    prevMessages,
+                    selectedChatId,
+                    data
+                );
+
+                localStorage.setItem(
+                    'messages',
+                    JSON.stringify(newMessageParts)
+                );
+                return newMessageParts;
+            });
+
+            // Update chatArray state to reflect the new messages
+            setChatArray((prevChatArray) => {
+                const updatedChatArray = prevChatArray.map((chat) => {
+                    if (chat.chatId === selectedChatId) {
+                        return {
+                            ...chat,
+                            messages: newMessageParts[selectedChatId],
+                        };
+                    }
+                    return chat;
+                });
+
+                // Save updated chatArray to local storage
+                (async () => {
+                    try {
+                        localStorage.setItem(
+                            'chatArray',
+                            JSON.stringify(updatedChatArray)
+                        );
+                    } catch (error) {
+                        console.error('Failed to save chat array:', error);
+                    }
+                })();
+
+                return updatedChatArray;
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!socket.current) return;
+
+        socket.current.on('chat_response', handleStreamingResponse);
+
+        return () => {
+            socket.current.off('chat_response', handleStreamingResponse);
+        };
+    }, [handleStreamingResponse, socket]);
 
     const closeChat = async (chatId) => {
         try {
-            const response = await fetch(`${chatUrl}/chat/update_visibility`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: idToken,
-                },
-                body: JSON.stringify({ chatId, is_open: false }),
-            });
+            const response = await fetch(
+                `${backendUrl}/chat/update_visibility`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: idToken,
+                    },
+                    body: JSON.stringify({ chatId, is_open: false }),
+                }
+            );
 
             if (!response.ok) throw new Error('Failed to update chat');
 
-            setAgentArray((prevChatArray) => {
+            setChatArray((prevChatArray) => {
                 const updatedChatArray = prevChatArray.map((chatObj) =>
                     chatObj.chatId === chatId
                         ? { ...chatObj, is_open: false }
@@ -339,7 +360,7 @@ export const ChatProvider = ({ children }) => {
 
                 // Store the updated array in local storage
                 localStorage.setItem(
-                    'agentArray',
+                    'chatArray',
                     JSON.stringify(updatedChatArray)
                 );
 
@@ -364,9 +385,9 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to clear messages');
 
-            // Update the agentArray state
-            setAgentArray((prevAgentArray) => {
-                const updatedAgentArray = prevAgentArray.map((agent) => {
+            // Update the chatArray state
+            setChatArray((prevChatArray) => {
+                const updatedChatArray = prevChatArray.map((agent) => {
                     if (agent.chatId === chatId) {
                         // Clear messages for the matching chat
                         return { ...agent, messages: [] };
@@ -376,17 +397,17 @@ export const ChatProvider = ({ children }) => {
 
                 // Update local storage with the updated agent array
                 localStorage.setItem(
-                    'agentArray',
-                    JSON.stringify(updatedAgentArray)
+                    'chatArray',
+                    JSON.stringify(updatedChatArray)
                 );
 
-                return updatedAgentArray;
+                return updatedChatArray;
             });
 
             // Update the messages state for the UI to reflect the cleared messages
             setMessages((prevMessages) => {
                 const updatedMessages = { ...prevMessages, [chatId]: [] };
-                // No need to update 'messages' in local storage since it's part of 'agentArray'
+                // No need to update 'messages' in local storage since it's part of 'chatArray'
                 return updatedMessages;
             });
         } catch (error) {
@@ -397,7 +418,7 @@ export const ChatProvider = ({ children }) => {
 
     const deleteChat = async (chatId) => {
         try {
-            const response = await fetch(`${chatUrl}/chat`, {
+            const response = await fetch(`${backendUrl}/chat`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -408,13 +429,13 @@ export const ChatProvider = ({ children }) => {
 
             if (!response.ok) throw new Error('Failed to delete conversation');
 
-            setAgentArray((prevChatArray) => {
+            setChatArray((prevChatArray) => {
                 const updatedChatArray = prevChatArray.filter(
                     (chatObj) => chatObj.chatId !== chatId
                 );
 
                 localStorage.setItem(
-                    'agentArray',
+                    'chatArray',
                     JSON.stringify(updatedChatArray)
                 );
 
@@ -434,7 +455,7 @@ export const ChatProvider = ({ children }) => {
         chatName
     ) => {
         try {
-            const response = await fetch(`${chatUrl}/chat`, {
+            const response = await fetch(`${backendUrl}/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -452,14 +473,14 @@ export const ChatProvider = ({ children }) => {
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
-            // Update the agentArray directly here
-            setAgentArray((prevAgents) => {
-                const updatedAgentArray = [data, ...prevAgents];
+            // Update the chatArray directly here
+            setChatArray((prevAgents) => {
+                const updatedChatArray = [data, ...prevAgents];
                 localStorage.setItem(
-                    'agentArray',
-                    JSON.stringify(updatedAgentArray)
+                    'chatArray',
+                    JSON.stringify(updatedChatArray)
                 );
-                return updatedAgentArray;
+                return updatedChatArray;
             });
         } catch (error) {
             console.error(error);
@@ -470,7 +491,7 @@ export const ChatProvider = ({ children }) => {
     const updateSettings = async (newAgentSettings) => {
         // Update the settings in the database
         try {
-            const response = await fetch(`${chatUrl}/chat/update_settings`, {
+            const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -488,17 +509,14 @@ export const ChatProvider = ({ children }) => {
         }
 
         // Update the local settings state
-        setAgentArray((prevAgentArray) => {
-            const updatedAgentArray = prevAgentArray.map((agent) =>
+        setChatArray((prevChatArray) => {
+            const updatedChatArray = prevChatArray.map((agent) =>
                 agent.chatId === newAgentSettings.chatId
                     ? { ...agent, ...newAgentSettings }
                     : agent
             );
-            localStorage.setItem(
-                'agentArray',
-                JSON.stringify(updatedAgentArray)
-            );
-            return updatedAgentArray;
+            localStorage.setItem('chatArray', JSON.stringify(updatedChatArray));
+            return updatedChatArray;
         });
     };
 
@@ -512,8 +530,8 @@ export const ChatProvider = ({ children }) => {
     return (
         <ChatContext.Provider
             value={{
-                agentArray,
-                setAgentArray,
+                chatArray,
+                setChatArray,
                 messages,
                 sendMessage,
                 closeChat,
@@ -526,6 +544,7 @@ export const ChatProvider = ({ children }) => {
                 isSettingsOpen,
                 setIsSettingsOpen,
                 getChatByProjectId,
+                socket,
             }}
         >
             {children}

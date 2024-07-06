@@ -9,7 +9,7 @@ import { Box } from '@mui/material';
 import { CustomGridLoader } from '../main/customLoaders';
 
 const AgentDash = () => {
-    const { agentArray, loading } = useContext(ChatContext);
+    const { chatArray, loading } = useContext(ChatContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
     return (
@@ -27,8 +27,8 @@ const AgentDash = () => {
                 </Box>
             ) : (
                 <>
-                    {agentArray.filter((agent) => agent.is_open).length > 0 ? (
-                        agentArray
+                    {chatArray.filter((agent) => agent.is_open).length > 0 ? (
+                        chatArray
                             .filter((agent) => agent.is_open)
                             .map((agent) => (
                                 <Chat key={agent.chatId} agent={agent} />

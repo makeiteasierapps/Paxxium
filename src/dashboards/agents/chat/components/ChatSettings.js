@@ -42,7 +42,7 @@ const ChatSettings = ({
     agentModel: initialAgentModel = '',
     useProfileData: initialUseProfileData = false,
 }) => {
-    const { createChat, updateSettings, agentArray, loadChat } =
+    const { createChat, updateSettings, chatArray, loadChat } =
         useContext(ChatContext);
 
     const [agentModel, setAgentModel] = useState(initialAgentModel);
@@ -171,7 +171,7 @@ const ChatSettings = ({
                             horizontal: 'left',
                         }}
                     >
-                        {agentArray.map((agent) => {
+                        {chatArray.map((agent) => {
                             return (
                                 <MenuItem
                                     key={agent.chatId}
@@ -255,7 +255,6 @@ const ChatSettings = ({
                     justifyContent="center"
                     alignItems="center"
                     display="flex"
-                    
                 >
                     <SettingsMenuButton
                         error={errors.selectModel ? true : false}
@@ -351,7 +350,11 @@ const ChatSettings = ({
                             />
                         }
                         label={
-                            <Typography color="secondary" fontWeight="bold" fontFamily={'Titillium Web, sans-serif'}>
+                            <Typography
+                                color="secondary"
+                                fontWeight="bold"
+                                fontFamily={'Titillium Web, sans-serif'}
+                            >
                                 AI Insight
                             </Typography>
                         }
