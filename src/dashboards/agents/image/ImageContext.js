@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useEffect } from 'react';
+import { useState, createContext, useContext, useEffect, useCallback } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
 
@@ -14,12 +14,38 @@ export const ImageProvider = ({ children }) => {
     const [userPrompt, setUserPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
-    const { uid, backendUrlProd } = useContext(AuthContext);
+    const { uid } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${backendUrlProd}`;
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+
+    const fetchImages = useCallback(async () => {
+        try {
+            const response = await fetch(`${backendUrl}/images`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const imageArray = await response.json();
+            setImageList(imageArray);
+
+            localStorage.setItem('imageList', JSON.stringify(imageArray));
+        } catch (error) {
+            console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [backendUrl, uid, showSnackbar]);
 
     useEffect(() => {
         const cachedImageUrls = localStorage.getItem('imageList');
@@ -30,36 +56,9 @@ export const ImageProvider = ({ children }) => {
         if (!uid) {
             return;
         }
-        const fetchImages = async () => {
-            try {
-                const response = await fetch(`${backendUrl}/images`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        uid: uid,
-                    },
-                });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const imageArray = await response.json();
-                setImageList(imageArray);
-
-                localStorage.setItem('imageList', JSON.stringify(imageArray));
-            } catch (error) {
-                console.error(error);
-                showSnackbar(
-                    `Network or fetch error: ${error.message}`,
-                    'error'
-                );
-            } finally {
-                setIsLoading(false);
-            }
-        };
         fetchImages();
-    }, [backendUrl, uid, showSnackbar]);
+    }, [fetchImages, uid]);
 
     const saveImage = async (image) => {
         try {
