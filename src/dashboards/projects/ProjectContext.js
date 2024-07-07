@@ -1,4 +1,4 @@
-import { useState, createContext, useEffect } from 'react';
+import { useState, createContext } from 'react';
 import { useDocumentData } from './hooks/useDocumentData';
 import { useHighlights } from './hooks/useHighlights';
 import { useProjectManager } from './hooks/useProjectManager';
@@ -63,10 +63,6 @@ export const ProjectProvider = ({ children }) => {
             embeddedDocsManager.addEmbeddedDoc(projectId, doc);
         });
     };
-
-    useEffect(() => {
-        projectManager.fetchProjects();
-    }, [projectManager]);
 
     return (
         <ProjectContext.Provider

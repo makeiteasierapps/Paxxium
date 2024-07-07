@@ -1,4 +1,4 @@
-import { useState, useContext, useCallback } from 'react';
+import { useState, useContext, useCallback, useEffect } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
 import { AuthContext } from '../../../auth/AuthContext';
@@ -92,6 +92,13 @@ export const useProjectManager = (backendUrl) => {
             showSnackbar('Error fetching projects', 'error');
         }
     }, [backendUrl, showSnackbar, uid]);
+
+    useEffect(() => {
+        if (!uid) {
+            return;
+        }
+        fetchProjects();
+    }, [fetchProjects, uid]);
 
     return {
         projects,

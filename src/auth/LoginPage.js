@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
 import styled from '@mui/system/styled';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import { AuthContext } from './AuthContext';
+import { AuthContext, auth } from './AuthContext';
 import { SnackbarContext } from '../SnackbarContext';
 import paxxiumTextLogo from '../assets/images/paxxium-logo-text-only.png';
 import { StyledTextField } from '../auth/authStyledComponents';
@@ -27,8 +27,7 @@ StyledButton.defaultProps = {
 };
 
 export default function LoginPage() {
-    const auth = getAuth();
-    const { setUser } = useContext(AuthContext);
+    const { setUser, setUid } = useContext(AuthContext);
     const { showSnackbar, hideSnackbar, snackbarInfo } =
         useContext(SnackbarContext);
 
@@ -48,6 +47,7 @@ export default function LoginPage() {
             );
             const user = userCredential.user;
             setUser(user);
+            setUid(user.uid);
             setIsLoading(false);
         } catch (error) {
             let errorMessage = 'Login failed with token';
