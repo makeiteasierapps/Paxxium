@@ -17,8 +17,8 @@ export const ImageProvider = ({ children }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_BACKEND_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
         if (!idToken) {

@@ -1,7 +1,6 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { ChatContext } from './ChatContext';
-import { formatBlockMessage } from '../utils/messageFormatter';
 import AgentMessage from './components/AgentMessage';
 import ChatSettings from './components/ChatSettings';
 import ChatBar from './components/ChatBar';
@@ -28,14 +27,13 @@ const Chat = ({
     const nodeRef = useRef(null);
     const { messages, socket } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    console.log(messages[chatId]);
 
     useEffect(() => {
         if (socket.current) {
-            console.log('joining room');
             socket.current.emit('join_room', { chatId: chatId });
         }
     }, [socket, chatId]);
-
 
     // scrolls chat window to the bottom
     useEffect(() => {
@@ -65,33 +63,20 @@ const Chat = ({
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
                     {messages[chatId]?.map((message, index) => {
-                        let formattedMessage = message;
-                        if (message.type === 'database') {
-                            if (message.message_from === 'agent') {
-                                formattedMessage = formatBlockMessage(message);
-                                return (
-                                    <AgentMessage
-                                        key={`agent${index}`}
-                                        message={formattedMessage}
-                                        id={chatId}
-                                    />
-                                );
-                            } else {
-                                return (
-                                    <UserMessage
-                                        key={`user${index}`}
-                                        message={message}
-                                    />
-                                );
-                            }
-                        } else {
+                        if (message.message_from === 'user') {
                             return (
-                                <AgentMessage
-                                    key={`stream${index}`}
+                                <UserMessage
+                                    key={`user${index}`}
                                     message={message}
                                 />
                             );
                         }
+                        return (
+                            <AgentMessage
+                                key={`stream${index}`}
+                                message={message}
+                            />
+                        );
                     })}
                 </MessageArea>
                 <MessageInput chatSettings={chatSettings} />

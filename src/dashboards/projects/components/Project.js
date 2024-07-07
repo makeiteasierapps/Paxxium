@@ -47,6 +47,11 @@ const Project = ({ onClose }) => {
     const agent = getChatByProjectId(selectedProject.id);
     const theme = useTheme();
 
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+
     useEffect(() => {
         fetchEmbeddedDocs(selectedProject.id);
     }, []);
@@ -61,16 +66,13 @@ const Project = ({ onClose }) => {
         formData.append('projectId', selectedProject.id);
 
         try {
-            const response = await fetch(
-                'http://localhost:50006/projects/extract',
-                {
-                    method: 'POST',
-                    headers: {
-                        Authorization: idToken,
-                    },
-                    body: formData,
-                }
-            );
+            const response = await fetch(`${backendUrl}/projects/extract`, {
+                method: 'POST',
+                headers: {
+                    Authorization: idToken,
+                },
+                body: formData,
+            });
 
             if (!response.ok) throw new Error('Failed to upload file');
 

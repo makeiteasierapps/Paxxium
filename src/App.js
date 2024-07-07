@@ -51,27 +51,24 @@ const AuthenticatedApp = () => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_BACKEND_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
         if (isAuthorized) return;
         const fetchData = async () => {
             if (idToken && user) {
                 try {
-                    const response = await fetch(
-                        `${backendUrl}/auth_check`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: idToken,
-                            },
-                            body: JSON.stringify({
-                                uid: uid,
-                            }),
-                        }
-                    );
+                    const response = await fetch(`${backendUrl}/auth_check`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: idToken,
+                        },
+                        body: JSON.stringify({
+                            uid: uid,
+                        }),
+                    });
 
                     const responseData = await response.json();
                     // Checks if admin has grtanted access to the app

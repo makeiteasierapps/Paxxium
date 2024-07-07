@@ -20,9 +20,9 @@ export const NewsProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_BACKEND_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
+    process.env.NODE_ENV === 'development'
+        ? `http://${process.env.REACT_APP_BACKEND_URL}`
+        : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const updateNewsData = (updateFunc) =>
         setNewsData((prevNewsData) => updateFunc(prevNewsData));

@@ -10,7 +10,6 @@ import { AuthContext } from '../../../auth/AuthContext';
 import { processIncomingStream } from '../utils/processIncomingStream';
 import { resizeImage } from '../utils/resizeImage';
 import { io } from 'socket.io-client';
-
 import { SnackbarContext } from '../../../SnackbarContext';
 
 export const ChatContext = createContext();
@@ -21,21 +20,21 @@ export const ChatProvider = ({ children }) => {
     const [messages, setMessages] = useState({});
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const selectedChatId = useRef(null);
     const socket = useRef(null);
-
-    const messagesUrl =
-        process.env.NODE_ENV === 'development'
-            ? 'http://localhost:50000'
-            : process.env.REACT_APP_BACKEND_URL_PROD;
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_BACKEND_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+
+    const wsBackendUrl =
+        process.env.NODE_ENV === 'development'
+            ? `ws://${process.env.REACT_APP_BACKEND_URL}`
+            : `wss://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        const newSocket = io(`${protocol}://${backendUrl}`);
+        const newSocket = io(wsBackendUrl);
 
         socket.current = newSocket;
 
@@ -98,54 +97,54 @@ export const ChatProvider = ({ children }) => {
         return messages[chatId] || [];
     };
 
+    const fetchChatsFromDB = useCallback(async () => {
+        const response = await fetch(`${backendUrl}/chat`, {
+            method: 'GET',
+            headers: {
+                userId: uid,
+            },
+        });
+
+        if (!response.ok) throw new Error('Failed to load user conversations');
+
+        const data = await response.json();
+        setChatArray(data);
+
+        const messagesFromData = data.reduce((acc, chat) => {
+            if (chat.messages) {
+                acc[chat.chatId] = chat.messages;
+            }
+            return acc;
+        }, {});
+        console.log('messagesFromData', messagesFromData);
+        setMessages(messagesFromData);
+
+        localStorage.setItem('chatArray', JSON.stringify(data));
+        return data;
+    }, [backendUrl, uid]);
+
     const getChats = useCallback(async () => {
         try {
-            const cachedChats = localStorage.getItem('chatArray');
-            if (cachedChats) {
-                const parsedChats = JSON.parse(cachedChats);
-                setChatArray(parsedChats);
+            const cachedChats = JSON.parse(localStorage.getItem('chatArray'));
+            if (cachedChats && cachedChats.length > 0) {
+                setChatArray(cachedChats);
 
-                // New: Update messages state based on cached chats
-                const cachedMessages = parsedChats.reduce((acc, chat) => {
+                const cachedMessages = cachedChats.reduce((acc, chat) => {
                     if (chat.messages) {
                         acc[chat.chatId] = chat.messages;
                     }
                     return acc;
                 }, {});
                 setMessages(cachedMessages);
-
-                return parsedChats;
+                return cachedChats;
+            } else {
+                return fetchChatsFromDB();
             }
-
-            const response = await fetch(`${backendUrl}/chat`, {
-                method: 'GET',
-                headers: {
-                    userId: uid,
-                },
-            });
-
-            if (!response.ok)
-                throw new Error('Failed to load user conversations');
-
-            const data = await response.json();
-            setChatArray(data);
-
-            // Assuming each chat object in the data array now includes a messages array
-            const messagesFromData = data.reduce((acc, chat) => {
-                if (chat.messages) {
-                    acc[chat.chatId] = chat.messages;
-                }
-                return acc;
-            }, {});
-            setMessages(messagesFromData); // Update messages state with the loaded data
-
-            localStorage.setItem('chatArray', JSON.stringify(data));
-            return data;
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
-    }, [backendUrl, showSnackbar, uid]);
+    }, [fetchChatsFromDB, showSnackbar]);
 
     const loadChat = async (chatId) => {
         // This is done so that the chat visibility persists even after the page is refreshed
@@ -211,7 +210,7 @@ export const ChatProvider = ({ children }) => {
         formData.append('image', imageBlob, 'image.png');
 
         try {
-            const response = await fetch(`${messagesUrl}/messages/utils`, {
+            const response = await fetch(`${backendUrl}/messages/utils`, {
                 method: 'POST',
                 headers: {
                     userId: uid,
@@ -254,7 +253,6 @@ export const ChatProvider = ({ children }) => {
         const userMessage = {
             content: input,
             message_from: 'user',
-            user_id: uid,
             time_stamp: new Date().toISOString(),
             type: 'database',
             image_url: imageUrl,
@@ -277,50 +275,42 @@ export const ChatProvider = ({ children }) => {
     };
 
     const handleStreamingResponse = useCallback(async (data) => {
-        const selectedChatId = data.room;
+        console.log('data', data);
+        selectedChatId.current = data.room;
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
         } else {
             let newMessageParts;
             setMessages((prevMessages) => {
+                console.log('prevMessages', prevMessages);
                 newMessageParts = processIncomingStream(
                     prevMessages,
-                    selectedChatId,
+                    selectedChatId.current,
                     data
                 );
 
-                localStorage.setItem(
-                    'messages',
-                    JSON.stringify(newMessageParts)
-                );
-                return newMessageParts;
-            });
+                // Update chatArray state to reflect the new messages
+                setChatArray((prevChatArray) => {
+                    const updatedChatArray = prevChatArray.map((chat) => {
+                        if (chat.chatId === selectedChatId.current) {
+                            return {
+                                ...chat,
+                                messages:
+                                    newMessageParts[selectedChatId.current], // Ensure messages is an array
+                            };
+                        }
+                        return chat;
+                    });
 
-            // Update chatArray state to reflect the new messages
-            setChatArray((prevChatArray) => {
-                const updatedChatArray = prevChatArray.map((chat) => {
-                    if (chat.chatId === selectedChatId) {
-                        return {
-                            ...chat,
-                            messages: newMessageParts[selectedChatId],
-                        };
-                    }
-                    return chat;
+                    // Save updated chatArray to local storage
+                    localStorage.setItem(
+                        'chatArray',
+                        JSON.stringify(updatedChatArray)
+                    );
+
+                    return updatedChatArray;
                 });
-
-                // Save updated chatArray to local storage
-                (async () => {
-                    try {
-                        localStorage.setItem(
-                            'chatArray',
-                            JSON.stringify(updatedChatArray)
-                        );
-                    } catch (error) {
-                        console.error('Failed to save chat array:', error);
-                    }
-                })();
-
-                return updatedChatArray;
+                return newMessageParts;
             });
         }
     }, []);
@@ -374,7 +364,7 @@ export const ChatProvider = ({ children }) => {
 
     const clearChat = async (chatId) => {
         try {
-            const response = await fetch(`${messagesUrl}/messages`, {
+            const response = await fetch(`${backendUrl}/messages`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: idToken,

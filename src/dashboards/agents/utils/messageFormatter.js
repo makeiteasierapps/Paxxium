@@ -33,17 +33,14 @@ export const formatBlockMessage = (message) => {
         if (match.index > lastIndex) {
             parts.push({
                 type: 'text',
-                content: message.content.substring(
-                    lastIndex,
-                    match.index
-                ),
+                content: [message.content.substring(lastIndex, match.index)],
             });
         }
 
         // Add the highlighted code block to the parts array.
         parts.push({
             type: 'code',
-            content: highlightedCode,
+            content: [highlightedCode],
             language: lang,
         });
 
@@ -54,32 +51,7 @@ export const formatBlockMessage = (message) => {
     if (lastIndex < message.content.length) {
         parts.push({
             type: 'text',
-            content: message.content.substring(lastIndex),
-        });
-    }
-
-    return parts;
-};
-
-export const formatStreamMessage = (message, insideCodeBlock, language) => {
-    const parts = [];
-    if (insideCodeBlock) {
-        const highlightedCode = Prism.highlight(
-            message.content,
-            Prism.languages[language] || Prism.languages.plaintext,
-            language
-        );
-        parts.push({
-            type: 'code',
-            content: highlightedCode,
-            language: language,
-            message_from: message.message_from,
-        });
-    } else {
-        parts.push({
-            type: 'text',
-            content: message.content,
-            message_from: message.message_from,
+            content: [message.content.substring(lastIndex)],
         });
     }
 

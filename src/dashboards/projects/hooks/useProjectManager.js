@@ -18,7 +18,7 @@ export const useProjectManager = (backendUrl) => {
 
     const deleteProject = async (projectId) => {
         try {
-            const response = await fetch(`${backendUrl}/projects/delete`, {
+            const response = await fetch(`${backendUrl}/projects`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: idToken,
@@ -45,7 +45,7 @@ export const useProjectManager = (backendUrl) => {
         const formData = JSON.stringify({ name, objective });
         try {
             const create_project_response = await fetch(
-                'http://localhost:50006/projects/create',
+                `${backendUrl}/projects`,
                 {
                     method: 'POST',
                     headers: {

@@ -7,7 +7,7 @@ const UserMessage = ({ message }) => {
     const { avatar } = useContext(ProfileContext);
 
     return (
-        <MessageContainer messageFrom={message.message_from}>
+        <MessageContainer messageFrom='user'>
             <Avatar
                 variant="rounded"
                 src={avatar}

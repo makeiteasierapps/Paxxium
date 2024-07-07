@@ -28,8 +28,8 @@ const NewsCard = ({ news, index }) => {
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_BACKEND_URL
-            : process.env.REACT_APP_BACKEND_URL_PROD;
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const markArticleRead = async () => {
         try {
@@ -111,19 +111,25 @@ const NewsCard = ({ news, index }) => {
                     </Tooltip>
                 </StyledCardMedia>
                 <CardContent>
-                    <Typography variant="h5" component="div" gutterBottom color="text.secondary" align="center">
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        gutterBottom
+                        color="text.secondary"
+                        align="center"
+                    >
                         {news.title}
                     </Typography>
-                    <Typography variant="body2" color="text.primary" align="center">
+                    <Typography
+                        variant="body2"
+                        color="text.primary"
+                        align="center"
+                    >
                         {news.summary}
                     </Typography>
                 </CardContent>
                 <CardActions>
-                    <StyledButton
-                        size="medium"
-                        href={news.url}
-                        target="_blank"
-                    >
+                    <StyledButton size="medium" href={news.url} target="_blank">
                         Read More
                     </StyledButton>
                 </CardActions>

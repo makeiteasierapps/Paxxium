@@ -1,13 +1,15 @@
 export const processIncomingStream = (prevMessage, id, tokenObj) => {
     // Ignore empty message_content
     if (tokenObj.content === '') {
+        console.log('returning prevMessage', prevMessage);
         return prevMessage;
     }
 
+    // If the message array for the chatId does not exist, create it
     if (!prevMessage[id]) {
         prevMessage[id] = [];
     }
-
+    // If the message array for the chatId is empty or the last message is from the user, add the tokenObj to the message array
     if (
         prevMessage[id].length === 0 ||
         prevMessage[id][prevMessage[id].length - 1].message_from === 'user'
@@ -24,7 +26,6 @@ export const processIncomingStream = (prevMessage, id, tokenObj) => {
         };
     } else {
         const newPrevMessage = { ...prevMessage };
-
         const lastMessageIndex = newPrevMessage[id].length - 1;
         let lastMessageObject = newPrevMessage[id][lastMessageIndex];
 
