@@ -1,5 +1,7 @@
 import { useState, createContext, useContext, useEffect } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
+import { AuthContext } from '../../../auth/AuthContext';
+
 export const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {
@@ -12,16 +14,20 @@ export const ImageProvider = ({ children }) => {
     const [userPrompt, setUserPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
+    const { uid, backendUrlProd } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+            : `https://${backendUrlProd}`;
 
     useEffect(() => {
         const cachedImageUrls = localStorage.getItem('imageList');
         if (cachedImageUrls) {
             setImageList(JSON.parse(cachedImageUrls));
+            return;
+        }
+        if (!uid) {
             return;
         }
         const fetchImages = async () => {
@@ -30,6 +36,7 @@ export const ImageProvider = ({ children }) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+                        uid: uid,
                     },
                 });
 
@@ -52,7 +59,7 @@ export const ImageProvider = ({ children }) => {
             }
         };
         fetchImages();
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, uid, showSnackbar]);
 
     const saveImage = async (image) => {
         try {
@@ -61,6 +68,7 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
                 body: JSON.stringify({ image: image.url }),
             });
@@ -95,6 +103,7 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
                 body: JSON.stringify(path),
             });
@@ -123,6 +132,7 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
                 body: JSON.stringify(imageRequest),
             });

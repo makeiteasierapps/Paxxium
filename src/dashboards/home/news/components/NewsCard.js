@@ -1,12 +1,7 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-    Tooltip,
-    Typography,
-    CardActions,
-    CardContent,
-} from '@mui/material';
+import { Tooltip, Typography, CardActions, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useContext, useState } from 'react';
 import { NewsContext } from '../NewsContext';

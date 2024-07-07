@@ -28,7 +28,7 @@ StyledButton.defaultProps = {
 
 export default function LoginPage() {
     const auth = getAuth();
-    const { setUser, setIsAuthorized } = useContext(AuthContext);
+    const { setUser } = useContext(AuthContext);
     const { showSnackbar, hideSnackbar, snackbarInfo } =
         useContext(SnackbarContext);
 

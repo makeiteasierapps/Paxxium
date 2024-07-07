@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = auth.onIdTokenChanged(async function (user) {
             if (user) {
+                console.log(user)
                 // User is signed in or their token has been refreshed.
                 const token = await user.getIdToken();
                 setIdToken(token);

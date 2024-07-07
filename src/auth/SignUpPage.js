@@ -18,6 +18,7 @@ import {
     WelcomeMessageText,
 } from '../auth/authStyledComponents';
 
+
 export default function SignUp() {
     const [formValid, setFormValid] = useState({
         username: true,

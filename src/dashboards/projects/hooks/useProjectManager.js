@@ -1,12 +1,14 @@
 import { useState, useContext, useCallback } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
+import { AuthContext } from '../../../auth/AuthContext';
 
 export const useProjectManager = (backendUrl) => {
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
     const { setChatArray } = useContext(ChatContext);
+    const { uid } = useContext(AuthContext);
 
     const addProject = (project) => {
         setProjects((prevProjects) => {
@@ -47,6 +49,7 @@ export const useProjectManager = (backendUrl) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        uid: uid,
                     },
                     body: formData,
                 }
@@ -74,6 +77,9 @@ export const useProjectManager = (backendUrl) => {
         try {
             const response = await fetch(`${backendUrl}/projects`, {
                 method: 'GET',
+                headers: {
+                    uid: uid,
+                },
             });
 
             if (!response.ok) {
@@ -85,7 +91,7 @@ export const useProjectManager = (backendUrl) => {
         } catch (error) {
             showSnackbar('Error fetching projects', 'error');
         }
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, showSnackbar, uid]);
 
     return {
         projects,

@@ -8,6 +8,7 @@ import {
 
 import 'react-image-crop/dist/ReactCrop.css';
 import { SnackbarContext } from '../../SnackbarContext';
+import { AuthContext } from '../../auth/AuthContext';
 
 export const questions = {
     'Personal Interests': [
@@ -90,6 +91,7 @@ export const ProfileProvider = ({ children }) => {
     const [profileData, setProfileData] = useState({});
     const [answers, setAnswers] = useState(initializeAnswers(questions));
     const [avatar, setAvatar] = useState();
+    const { uid } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -104,7 +106,9 @@ export const ProfileProvider = ({ children }) => {
                     `${backendUrl}/profile/update_avatar`,
                     {
                         method: 'POST',
-                        headers: {},
+                        headers: {
+                            uid: uid,
+                        },
                         body: formData,
                     }
                 );
@@ -151,6 +155,9 @@ export const ProfileProvider = ({ children }) => {
             // If no cached data, proceed to fetch from the backend
             const response = await fetch(`${backendUrl}/profile`, {
                 method: 'GET',
+                headers: {
+                    uid: uid,
+                },
             });
 
             if (!response.ok) {
@@ -168,7 +175,7 @@ export const ProfileProvider = ({ children }) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, showSnackbar, uid]);
 
     const updateUserProfile = async (profileData) => {
         try {
@@ -176,6 +183,7 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
                 body: JSON.stringify(profileData),
             });
@@ -204,6 +212,9 @@ export const ProfileProvider = ({ children }) => {
 
             const response = await fetch(`${backendUrl}/profile/answers`, {
                 method: 'GET',
+                headers: {
+                    uid: uid,
+                },
             });
 
             if (!response.ok) {
@@ -228,7 +239,7 @@ export const ProfileProvider = ({ children }) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, showSnackbar, uid]);
 
     const updateAnswers = async (answers) => {
         try {
@@ -236,6 +247,7 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
                 body: JSON.stringify({ answers }),
             });
@@ -257,6 +269,7 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
             });
 
@@ -286,9 +299,12 @@ export const ProfileProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        if (!uid) {
+            return;
+        }
         loadProfile();
         getAnswers();
-    }, []);
+    }, [uid]);
 
     const handleAnswerChange = (category, question, answer) => {
         setAnswers((prevAnswers) => ({

@@ -499,10 +499,13 @@ export const ChatProvider = ({ children }) => {
     };
 
     useEffect(() => {
+        if (!uid) {
+            return;
+        }
         getChats().then(() => {
             setLoading(false);
         });
-    }, []);
+    }, [uid]);
 
     return (
         <ChatContext.Provider

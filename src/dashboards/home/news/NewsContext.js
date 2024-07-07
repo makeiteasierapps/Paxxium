@@ -6,6 +6,7 @@ import {
     useEffect,
 } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
+import { AuthContext } from '../../../auth/AuthContext';
 
 export const NewsContext = createContext();
 
@@ -16,6 +17,7 @@ export const NewsProvider = ({ children }) => {
     const [query, setQuery] = useState('');
     const [slideIndex, setSlideIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const { uid } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -54,6 +56,7 @@ export const NewsProvider = ({ children }) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+                        uid: uid,
                     },
                 });
 
@@ -72,7 +75,7 @@ export const NewsProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, uid, showSnackbar]);
 
     const fetchNewsData = useCallback(
         async (queryParam = query) => {
@@ -82,6 +85,7 @@ export const NewsProvider = ({ children }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        uid: uid,
                     },
                     body: JSON.stringify({
                         query: queryParam,
@@ -113,7 +117,7 @@ export const NewsProvider = ({ children }) => {
                 setIsLoading(false);
             }
         },
-        [backendUrl, query, showSnackbar]
+        [backendUrl, query, showSnackbar, uid]
     );
 
     const aiNewsFetch = useCallback(async () => {
@@ -123,6 +127,7 @@ export const NewsProvider = ({ children }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                 },
             });
 
@@ -155,11 +160,14 @@ export const NewsProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [backendUrl, showSnackbar]);
+    }, [backendUrl, showSnackbar, uid]);
 
     useEffect(() => {
+        if (!uid) {
+            return;
+        }
         loadNewsData();
-    }, []);
+    }, [uid]);
 
     return (
         <NewsContext.Provider

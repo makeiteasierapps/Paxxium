@@ -66,7 +66,7 @@ export const ProjectProvider = ({ children }) => {
 
     useEffect(() => {
         projectManager.fetchProjects();
-    }, []);
+    }, [projectManager]);
 
     return (
         <ProjectContext.Provider

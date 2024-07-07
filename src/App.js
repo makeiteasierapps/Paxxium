@@ -83,7 +83,7 @@ const AuthenticatedApp = () => {
         };
 
         fetchData();
-    }, [setUid, user, uid, setIsAuthorized, isAuthorized]);
+    }, [setUid, user, uid, setIsAuthorized, isAuthorized, backendUrl]);
 
     if (!initialCheckDone) {
         return null;
