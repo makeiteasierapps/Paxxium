@@ -5,13 +5,11 @@ import {
     useContext,
     useEffect,
 } from 'react';
-import { AuthContext } from '../../../auth/AuthContext';
 import { SnackbarContext } from '../../../SnackbarContext';
 
 export const NewsContext = createContext();
 
 export const NewsProvider = ({ children }) => {
-    const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
     const [newsData, setNewsData] = useState([]);
     const [readFilter, setReadFilter] = useState(false);
@@ -20,9 +18,9 @@ export const NewsProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const backendUrl =
-    process.env.NODE_ENV === 'development'
-        ? `http://${process.env.REACT_APP_BACKEND_URL}`
-        : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+        process.env.NODE_ENV === 'development'
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const updateNewsData = (updateFunc) =>
         setNewsData((prevNewsData) => updateFunc(prevNewsData));
@@ -56,7 +54,6 @@ export const NewsProvider = ({ children }) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                 });
 
@@ -75,7 +72,7 @@ export const NewsProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     const fetchNewsData = useCallback(
         async (queryParam = query) => {
@@ -85,7 +82,6 @@ export const NewsProvider = ({ children }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: JSON.stringify({
                         query: queryParam,
@@ -117,7 +113,7 @@ export const NewsProvider = ({ children }) => {
                 setIsLoading(false);
             }
         },
-        [backendUrl, idToken, query, showSnackbar]
+        [backendUrl, query, showSnackbar]
     );
 
     const aiNewsFetch = useCallback(async () => {
@@ -127,7 +123,6 @@ export const NewsProvider = ({ children }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
             });
 
@@ -160,12 +155,11 @@ export const NewsProvider = ({ children }) => {
         } finally {
             setIsLoading(false);
         }
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     useEffect(() => {
-        if (!idToken) return;
         loadNewsData();
-    }, [idToken]);
+    }, []);
 
     return (
         <NewsContext.Provider

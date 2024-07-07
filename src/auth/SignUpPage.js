@@ -102,12 +102,10 @@ export default function SignUp() {
                     throw new Error('User not created');
                 }
 
-                const idToken = await user.getIdToken();
                 const response = await fetch(`${backendUrl}/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: JSON.stringify({
                         uid: uid,

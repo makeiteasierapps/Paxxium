@@ -1,13 +1,11 @@
 import { useState, useContext, useCallback } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
-import { AuthContext } from '../../../auth/AuthContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
 
 export const useProjectManager = (backendUrl) => {
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
-    const { idToken } = useContext(AuthContext);
     const { setChatArray } = useContext(ChatContext);
 
     const addProject = (project) => {
@@ -21,7 +19,6 @@ export const useProjectManager = (backendUrl) => {
             const response = await fetch(`${backendUrl}/projects`, {
                 method: 'DELETE',
                 headers: {
-                    Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ projectId }),
@@ -50,7 +47,6 @@ export const useProjectManager = (backendUrl) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: formData,
                 }
@@ -78,9 +74,6 @@ export const useProjectManager = (backendUrl) => {
         try {
             const response = await fetch(`${backendUrl}/projects`, {
                 method: 'GET',
-                headers: {
-                    Authorization: idToken,
-                },
             });
 
             if (!response.ok) {
@@ -92,7 +85,7 @@ export const useProjectManager = (backendUrl) => {
         } catch (error) {
             showSnackbar('Error fetching projects', 'error');
         }
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     return {
         projects,

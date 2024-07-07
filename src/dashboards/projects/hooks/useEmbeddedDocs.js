@@ -1,13 +1,11 @@
-import {useState, useCallback, useContext} from 'react';
-import { AuthContext } from '../../../auth/AuthContext';
+import { useState, useCallback, useContext } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 
 export const useEmbeddedDocs = (backendUrl) => {
-    const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
     const [embeddedDocs, setEmbeddedDocs] = useState({});
-    
+
     const fetchEmbeddedDocs = useCallback(
         async (projectId) => {
             try {
@@ -16,7 +14,6 @@ export const useEmbeddedDocs = (backendUrl) => {
                     {
                         method: 'GET',
                         headers: {
-                            Authorization: idToken,
                             'Project-ID': projectId,
                         },
                     }
@@ -35,7 +32,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 showSnackbar('Error fetching documents', 'error');
             }
         },
-        [backendUrl, idToken, showSnackbar]
+        [backendUrl, showSnackbar]
     );
 
     const addEmbeddedDoc = (projectId, doc) => {
@@ -54,7 +51,6 @@ export const useEmbeddedDocs = (backendUrl) => {
                 {
                     method: 'DELETE',
                     headers: {
-                        Authorization: idToken,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ docId }),

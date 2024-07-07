@@ -14,7 +14,6 @@ export const useDocumentData = (
     const [docId, setDocId] = useState(null);
     const [category, setCategory] = useState('');
 
-    const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
     const projectId = selectedProject ? selectedProject.id : null;
@@ -106,9 +105,6 @@ export const useDocumentData = (
                 `${backendUrl}/projects/text_doc?projectId=${projectId}`,
                 {
                     method: 'GET',
-                    headers: {
-                        Authorization: idToken,
-                    },
                 }
             );
 
@@ -135,7 +131,6 @@ export const useDocumentData = (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: idToken,
             },
             body: JSON.stringify({
                 doc: doc,
@@ -163,7 +158,6 @@ export const useDocumentData = (
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: JSON.stringify({
                         projectId,

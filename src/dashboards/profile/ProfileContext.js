@@ -7,7 +7,6 @@ import {
 } from 'react';
 
 import 'react-image-crop/dist/ReactCrop.css';
-import { AuthContext } from '../../auth/AuthContext';
 import { SnackbarContext } from '../../SnackbarContext';
 
 export const questions = {
@@ -87,7 +86,6 @@ const initializeAnswers = (questions) => {
 export const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-    const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
     const [profileData, setProfileData] = useState({});
     const [answers, setAnswers] = useState(initializeAnswers(questions));
@@ -106,9 +104,7 @@ export const ProfileProvider = ({ children }) => {
                     `${backendUrl}/profile/update_avatar`,
                     {
                         method: 'POST',
-                        headers: {
-                            Authorization: idToken,
-                        },
+                        headers: {},
                         body: formData,
                     }
                 );
@@ -138,7 +134,7 @@ export const ProfileProvider = ({ children }) => {
                 console.error(error);
             }
         },
-        [backendUrl, idToken, showSnackbar]
+        [backendUrl, showSnackbar]
     );
 
     const loadProfile = useCallback(async () => {
@@ -155,9 +151,6 @@ export const ProfileProvider = ({ children }) => {
             // If no cached data, proceed to fetch from the backend
             const response = await fetch(`${backendUrl}/profile`, {
                 method: 'GET',
-                headers: {
-                    Authorization: idToken,
-                },
             });
 
             if (!response.ok) {
@@ -175,7 +168,7 @@ export const ProfileProvider = ({ children }) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     const updateUserProfile = async (profileData) => {
         try {
@@ -183,7 +176,6 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify(profileData),
             });
@@ -212,9 +204,6 @@ export const ProfileProvider = ({ children }) => {
 
             const response = await fetch(`${backendUrl}/profile/answers`, {
                 method: 'GET',
-                headers: {
-                    Authorization: idToken,
-                },
             });
 
             if (!response.ok) {
@@ -239,7 +228,7 @@ export const ProfileProvider = ({ children }) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     const updateAnswers = async (answers) => {
         try {
@@ -247,7 +236,6 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify({ answers }),
             });
@@ -269,7 +257,6 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
             });
 
@@ -299,10 +286,9 @@ export const ProfileProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!idToken) return;
         loadProfile();
         getAnswers();
-    }, [idToken]);
+    }, []);
 
     const handleAnswerChange = (category, question, answer) => {
         setAnswers((prevAnswers) => ({

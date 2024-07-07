@@ -1,5 +1,4 @@
 import { useState, createContext, useContext, useEffect } from 'react';
-import { AuthContext } from '../../../auth/AuthContext';
 import { SnackbarContext } from '../../../SnackbarContext';
 export const ImageContext = createContext();
 
@@ -12,7 +11,6 @@ export const ImageProvider = ({ children }) => {
     const [imageList, setImageList] = useState([]);
     const [userPrompt, setUserPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { idToken } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
     const backendUrl =
@@ -21,10 +19,6 @@ export const ImageProvider = ({ children }) => {
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
-        if (!idToken) {
-            return;
-        }
-
         const cachedImageUrls = localStorage.getItem('imageList');
         if (cachedImageUrls) {
             setImageList(JSON.parse(cachedImageUrls));
@@ -35,7 +29,6 @@ export const ImageProvider = ({ children }) => {
                 const response = await fetch(`${backendUrl}/images`, {
                     method: 'GET',
                     headers: {
-                        Authorization: idToken,
                         'Content-Type': 'application/json',
                     },
                 });
@@ -59,7 +52,7 @@ export const ImageProvider = ({ children }) => {
             }
         };
         fetchImages();
-    }, [backendUrl, idToken, showSnackbar]);
+    }, [backendUrl, showSnackbar]);
 
     const saveImage = async (image) => {
         try {
@@ -67,7 +60,6 @@ export const ImageProvider = ({ children }) => {
             const response = await fetch(`${backendUrl}/images/save`, {
                 method: 'POST',
                 headers: {
-                    Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ image: image.url }),
@@ -102,7 +94,6 @@ export const ImageProvider = ({ children }) => {
             const response = await fetch(`${backendUrl}/images`, {
                 method: 'POST',
                 headers: {
-                    Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(path),
@@ -131,7 +122,6 @@ export const ImageProvider = ({ children }) => {
             const response = await fetch(`${backendUrl}/images`, {
                 method: 'POST',
                 headers: {
-                    Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(imageRequest),

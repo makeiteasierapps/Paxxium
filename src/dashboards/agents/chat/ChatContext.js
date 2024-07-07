@@ -15,7 +15,7 @@ import { SnackbarContext } from '../../../SnackbarContext';
 export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {
     const { showSnackbar } = useContext(SnackbarContext);
-    const { idToken, uid } = useContext(AuthContext);
+    const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);
     const [messages, setMessages] = useState({});
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -155,7 +155,6 @@ export const ChatProvider = ({ children }) => {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: JSON.stringify({ chatId, is_open: true }),
                 }
@@ -326,7 +325,6 @@ export const ChatProvider = ({ children }) => {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: idToken,
                     },
                     body: JSON.stringify({ chatId, is_open: false }),
                 }
@@ -360,7 +358,6 @@ export const ChatProvider = ({ children }) => {
             const response = await fetch(`${backendUrl}/messages`, {
                 method: 'DELETE',
                 headers: {
-                    Authorization: idToken,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ chatId }),
@@ -405,7 +402,6 @@ export const ChatProvider = ({ children }) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify({ chatId }),
             });
@@ -478,7 +474,6 @@ export const ChatProvider = ({ children }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify(newAgentSettings),
             });
@@ -504,11 +499,10 @@ export const ChatProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!idToken) return;
         getChats().then(() => {
             setLoading(false);
         });
-    }, [idToken]);
+    }, []);
 
     return (
         <ChatContext.Provider

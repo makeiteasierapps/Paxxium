@@ -2,7 +2,6 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-    Button,
     Tooltip,
     Typography,
     CardActions,
@@ -10,7 +9,6 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useContext, useState } from 'react';
-import { AuthContext } from '../../../../auth/AuthContext';
 import { NewsContext } from '../NewsContext';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import {
@@ -23,7 +21,7 @@ import {
 const NewsCard = ({ news, index }) => {
     const { markNewsAsRead, deleteNewsArticle, setSlideIndex } =
         useContext(NewsContext);
-    const { idToken } = useContext(AuthContext);
+
     const [openDialog, setOpenDialog] = useState(false);
 
     const backendUrl =
@@ -37,7 +35,6 @@ const NewsCard = ({ news, index }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify({ articleId: news.id }),
             });
@@ -57,7 +54,6 @@ const NewsCard = ({ news, index }) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: idToken,
                 },
                 body: JSON.stringify({ articleId: news.id }),
             });

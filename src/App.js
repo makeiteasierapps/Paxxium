@@ -30,7 +30,7 @@ const drawerWidth = 50;
 const expandedDrawerWidth = 150;
 
 const AuthenticatedApp = () => {
-    const { idToken, uid, user, setUid, isAuthorized, setIsAuthorized } =
+    const { uid, user, setUid, isAuthorized, setIsAuthorized } =
         useContext(AuthContext);
 
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -57,13 +57,12 @@ const AuthenticatedApp = () => {
     useEffect(() => {
         if (isAuthorized) return;
         const fetchData = async () => {
-            if (idToken && user) {
+            if (user) {
                 try {
                     const response = await fetch(`${backendUrl}/auth_check`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: idToken,
                         },
                         body: JSON.stringify({
                             uid: uid,
@@ -84,7 +83,7 @@ const AuthenticatedApp = () => {
         };
 
         fetchData();
-    }, [idToken, setUid, user, uid, setIsAuthorized, isAuthorized]);
+    }, [setUid, user, uid, setIsAuthorized, isAuthorized]);
 
     if (!initialCheckDone) {
         return null;

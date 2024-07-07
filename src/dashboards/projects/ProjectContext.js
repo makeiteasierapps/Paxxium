@@ -1,6 +1,4 @@
-import { useState, createContext, useContext, useEffect } from 'react';
-
-import { AuthContext } from '../../auth/AuthContext';
+import { useState, createContext, useEffect } from 'react';
 import { useDocumentData } from './hooks/useDocumentData';
 import { useHighlights } from './hooks/useHighlights';
 import { useProjectManager } from './hooks/useProjectManager';
@@ -12,8 +10,6 @@ export const ProjectProvider = ({ children }) => {
     const [selectedProject, setSelectedProject] = useState(null);
     const [documentText, setDocumentText] = useState('');
     const [highlights, setHighlights] = useState([]);
-
-    const { idToken } = useContext(AuthContext);
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -50,7 +46,6 @@ export const ProjectProvider = ({ children }) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: idToken,
             },
             body: JSON.stringify({
                 urls: formattedUrls,
@@ -70,9 +65,8 @@ export const ProjectProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!idToken) return;
         projectManager.fetchProjects();
-    }, [idToken]);
+    }, []);
 
     return (
         <ProjectContext.Provider

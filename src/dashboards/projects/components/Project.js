@@ -2,7 +2,6 @@ import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
 import { ProjectContext } from '../ProjectContext';
 import { ChatContext } from '../../agents/chat/ChatContext';
-import { AuthContext } from '../../../auth/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../agents/chat/Chat';
 import EmbeddedDocCard from './EmbeddedDocCard';
@@ -38,7 +37,6 @@ const Project = ({ onClose }) => {
     } = useContext(ProjectContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
-    const { idToken } = useContext(AuthContext);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
@@ -68,9 +66,6 @@ const Project = ({ onClose }) => {
         try {
             const response = await fetch(`${backendUrl}/projects/extract`, {
                 method: 'POST',
-                headers: {
-                    Authorization: idToken,
-                },
                 body: formData,
             });
 
