@@ -192,15 +192,10 @@ export const ChatProvider = ({ children }) => {
         }
     };
 
-    const resizeAndConvertImageToBase64 = (image, width, height) => {
+    const resizeAndConvertImageToBlob = (image, width, height) => {
         return new Promise((resolve, reject) => {
             resizeImage(image, width, height, (resizedImageBlob) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    resolve(reader.result);
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(resizedImageBlob);
+                resolve(resizedImageBlob);
             });
         });
     };
@@ -233,7 +228,7 @@ export const ChatProvider = ({ children }) => {
         let imageUrl = null;
         if (image) {
             try {
-                const resizedImageBlob = await resizeAndConvertImageToBase64(
+                const resizedImageBlob = await resizeAndConvertImageToBlob(
                     image,
                     400,
                     400
@@ -275,14 +270,12 @@ export const ChatProvider = ({ children }) => {
     };
 
     const handleStreamingResponse = useCallback(async (data) => {
-        console.log('data', data);
         selectedChatId.current = data.room;
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
         } else {
             let newMessageParts;
             setMessages((prevMessages) => {
-                console.log('prevMessages', prevMessages);
                 newMessageParts = processIncomingStream(
                     prevMessages,
                     selectedChatId.current,

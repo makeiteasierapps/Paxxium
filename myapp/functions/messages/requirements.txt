@@ -1,9 +1,0 @@
-firebase-admin==6.4.0
-google-cloud-kms==2.21.2
-python-dotenv==1.0.1
-openai==1.13.3
-crcmod==1.7
-pymongo==4.6.3
-canopy-sdk==0.9.0
-tiktoken
-gunicorn==20.1.0

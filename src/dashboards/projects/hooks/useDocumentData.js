@@ -156,7 +156,6 @@ export const useDocumentData = (
         highlights = null,
         docId = null
     ) => {
-        console.log(docId);
         try {
             const response = await fetch(
                 `${backendUrl}/projects/save_text_doc`,

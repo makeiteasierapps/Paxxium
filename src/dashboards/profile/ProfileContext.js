@@ -192,7 +192,6 @@ export const ProfileProvider = ({ children }) => {
                 throw new Error('Failed to update user profile');
             }
 
-            console.log(profileData);
             localStorage.setItem('profileData', JSON.stringify(profileData));
 
             showSnackbar('User profile updated', 'success');

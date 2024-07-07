@@ -1,7 +1,6 @@
 export const processIncomingStream = (prevMessage, id, tokenObj) => {
     // Ignore empty message_content
     if (tokenObj.content === '') {
-        console.log('returning prevMessage', prevMessage);
         return prevMessage;
     }
 

@@ -27,7 +27,6 @@ const Chat = ({
     const nodeRef = useRef(null);
     const { messages, socket } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    console.log(messages[chatId]);
 
     useEffect(() => {
         if (socket.current) {
