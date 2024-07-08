@@ -269,6 +269,7 @@ export const ChatProvider = ({ children }) => {
     };
 
     const handleStreamingResponse = useCallback(async (data) => {
+        console.log('data', data);
         selectedChatId.current = data.room;
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
