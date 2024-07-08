@@ -8,6 +8,7 @@ import {
     IconButton,
     TextField,
 } from '@mui/material';
+import Markdown from 'react-markdown';
 
 // AgentDash.js
 export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
@@ -25,6 +26,27 @@ SettingsSubmitButton.defaultProps = {
     disableRipple: true,
     variant: 'outlined',
 };
+
+export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
+    '& table': {
+        borderCollapse: 'collapse',
+        margin: '15px 0',
+        width: '100%',
+    },
+    '& th, & td': {
+        border: '1px solid #ddd',
+        padding: '12px',
+        textAlign: 'left',
+    },
+    '& th': {
+        fontWeight: 'bold',
+    },
+    '& td:first-of-type': {
+        width: '1%',
+        wordBreak: 'keep-all',
+        textAlign: 'center',
+    },
+}));
 
 export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
