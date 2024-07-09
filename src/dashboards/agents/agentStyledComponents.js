@@ -28,6 +28,9 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
+    '& h1, & h2, & h3, & h4, & h5, & h6 & p & ul & ol & li': {
+        margin: '0', // Reduce margin around headers
+    },
     '& table': {
         borderCollapse: 'collapse',
         margin: '15px 0',
