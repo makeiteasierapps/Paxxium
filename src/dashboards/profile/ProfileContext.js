@@ -213,7 +213,8 @@ export const ProfileProvider = ({ children }) => {
             const response = await fetch(`${backendUrl}/profile/answers`, {
                 method: 'GET',
                 headers: {
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
             });
 
@@ -247,7 +248,8 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ answers }),
             });
@@ -269,7 +271,8 @@ export const ProfileProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
             });
 
@@ -278,6 +281,7 @@ export const ProfileProvider = ({ children }) => {
             }
 
             const data = await response.json();
+            console.log(data)
             const cachedProfileData = localStorage.getItem('profileData');
             if (cachedProfileData) {
                 const profileData = JSON.parse(cachedProfileData);

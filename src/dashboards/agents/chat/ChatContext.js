@@ -101,7 +101,8 @@ export const ChatProvider = ({ children }) => {
         const response = await fetch(`${backendUrl}/chat`, {
             method: 'GET',
             headers: {
-                userId: uid,
+                'userId': uid,
+                'dbName': process.env.REACT_APP_DB_NAME,
             },
         });
 
@@ -116,7 +117,6 @@ export const ChatProvider = ({ children }) => {
             }
             return acc;
         }, {});
-        console.log('messagesFromData', messagesFromData);
         setMessages(messagesFromData);
 
         localStorage.setItem('chatArray', JSON.stringify(data));
@@ -269,7 +269,6 @@ export const ChatProvider = ({ children }) => {
     };
 
     const handleStreamingResponse = useCallback(async (data) => {
-        console.log('data', data);
         selectedChatId.current = data.room;
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
@@ -326,6 +325,7 @@ export const ChatProvider = ({ children }) => {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({ chatId, is_open: false }),
                 }
@@ -360,6 +360,7 @@ export const ChatProvider = ({ children }) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ chatId }),
             });
@@ -403,6 +404,7 @@ export const ChatProvider = ({ children }) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ chatId }),
             });
@@ -439,6 +441,7 @@ export const ChatProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
                     userId: uid,
@@ -475,6 +478,7 @@ export const ChatProvider = ({ children }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify(newAgentSettings),
             });

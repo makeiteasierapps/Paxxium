@@ -22,6 +22,7 @@ export const useProjectManager = (backendUrl) => {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ projectId }),
             });
@@ -49,7 +50,8 @@ export const useProjectManager = (backendUrl) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        uid: uid,
+                        'uid': uid,
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                     body: formData,
                 }
@@ -78,7 +80,8 @@ export const useProjectManager = (backendUrl) => {
             const response = await fetch(`${backendUrl}/projects`, {
                 method: 'GET',
                 headers: {
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
             });
 

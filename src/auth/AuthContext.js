@@ -10,7 +10,9 @@ const backendUrl =
 let auth;
 
 const fetchFirebaseConfig = async () => {
-    const response = await fetch(`${backendUrl}/auth_check`);
+    const response = await fetch(`${backendUrl}/auth_check`, {
+        method: 'GET',
+    });
     const config = await response.json();
     return config;
 };

@@ -105,6 +105,9 @@ export const useDocumentData = (
                 `${backendUrl}/projects/text_doc?projectId=${projectId}`,
                 {
                     method: 'GET',
+                    headers: {
+                        'dbName': process.env.REACT_APP_DB_NAME,
+                    },
                 }
             );
 
@@ -131,6 +134,7 @@ export const useDocumentData = (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'dbName': process.env.REACT_APP_DB_NAME,
             },
             body: JSON.stringify({
                 doc: doc,
@@ -158,6 +162,7 @@ export const useDocumentData = (
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({
                         projectId,

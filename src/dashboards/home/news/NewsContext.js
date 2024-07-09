@@ -56,7 +56,8 @@ export const NewsProvider = ({ children }) => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        uid: uid,
+                        'uid': uid,
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                 });
 
@@ -85,7 +86,8 @@ export const NewsProvider = ({ children }) => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        uid: uid,
+                        'uid': uid,
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({
                         query: queryParam,
@@ -127,7 +129,8 @@ export const NewsProvider = ({ children }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
             });
 

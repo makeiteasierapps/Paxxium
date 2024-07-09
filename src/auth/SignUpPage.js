@@ -18,7 +18,6 @@ import {
     WelcomeMessageText,
 } from '../auth/authStyledComponents';
 
-
 export default function SignUp() {
     const [formValid, setFormValid] = useState({
         username: true,
@@ -107,6 +106,7 @@ export default function SignUp() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        dbName: process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({
                         uid: uid,

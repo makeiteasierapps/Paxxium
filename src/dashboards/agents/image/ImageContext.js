@@ -27,7 +27,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
             });
 
@@ -67,7 +68,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ image: image.url }),
             });
@@ -102,7 +104,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify(path),
             });
@@ -131,7 +134,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    uid: uid,
+                    'uid': uid,
+                    'dbName': process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify(imageRequest),
             });
