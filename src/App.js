@@ -63,6 +63,7 @@ const AuthenticatedApp = () => {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            dbName: process.env.REACT_APP_DB_NAME,
                         },
                         body: JSON.stringify({
                             uid: uid,
