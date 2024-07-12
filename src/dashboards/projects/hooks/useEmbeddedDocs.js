@@ -51,11 +51,13 @@ export const useEmbeddedDocs = (backendUrl) => {
     const deleteEmbeddedDoc = async (projectId, docId) => {
         try {
             const response = await fetch(
-                `${backendUrl}/projects/documents/delete`,
+                `${backendUrl}/projects/documents`,
                 {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        'uid': uid,
+                        'dbName': process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({ docId }),
                 }

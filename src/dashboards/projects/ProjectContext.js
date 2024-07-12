@@ -1,12 +1,14 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { useDocumentData } from './hooks/useDocumentData';
 import { useHighlights } from './hooks/useHighlights';
 import { useProjectManager } from './hooks/useProjectManager';
 import { useEmbeddedDocs } from './hooks/useEmbeddedDocs';
+import { AuthContext } from '../../auth/AuthContext';
 
 export const ProjectContext = createContext();
 
 export const ProjectProvider = ({ children }) => {
+    const { uid } = useContext(AuthContext);
     const [selectedProject, setSelectedProject] = useState(null);
     const [documentText, setDocumentText] = useState('');
     const [highlights, setHighlights] = useState([]);
@@ -46,6 +48,8 @@ export const ProjectProvider = ({ children }) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'uid': uid,
+                'dbName': process.env.REACT_APP_DB_NAME,
             },
             body: JSON.stringify({
                 urls: formattedUrls,
