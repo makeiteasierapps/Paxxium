@@ -1,4 +1,10 @@
-import { useState, createContext, useContext, useEffect, useCallback } from 'react';
+import {
+    useState,
+    createContext,
+    useContext,
+    useEffect,
+    useCallback,
+} from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
 import { AuthContext } from '../../../auth/AuthContext';
 
@@ -27,8 +33,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'uid': uid,
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
             });
 
@@ -68,8 +74,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'uid': uid,
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({ image: image.url }),
             });
@@ -101,13 +107,13 @@ export const ImageProvider = ({ children }) => {
     const deleteImage = async (path) => {
         try {
             const response = await fetch(`${backendUrl}/images`, {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'uid': uid,
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
-                body: JSON.stringify(path),
+                body: JSON.stringify({ path: path }),
             });
 
             if (!response.ok) {
@@ -134,8 +140,8 @@ export const ImageProvider = ({ children }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'uid': uid,
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify(imageRequest),
             });
