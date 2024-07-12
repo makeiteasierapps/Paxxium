@@ -15,6 +15,7 @@ export const useDocumentData = (
     const [category, setCategory] = useState('');
 
     const { showSnackbar } = useContext(SnackbarContext);
+    const { uid } = useContext(AuthContext);
 
     const projectId = selectedProject ? selectedProject.id : null;
 
@@ -107,6 +108,7 @@ export const useDocumentData = (
                     method: 'GET',
                     headers: {
                         'dbName': process.env.REACT_APP_DB_NAME,
+                        'uid': uid,
                     },
                 }
             );

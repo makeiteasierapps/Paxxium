@@ -1,8 +1,10 @@
 import { useState, useCallback, useContext } from 'react';
 import { SnackbarContext } from '../../../SnackbarContext';
+import { AuthContext } from '../../../auth/AuthContext'
 
 export const useEmbeddedDocs = (backendUrl) => {
     const { showSnackbar } = useContext(SnackbarContext);
+    const { uid } = useContext(AuthContext);
 
     const [embeddedDocs, setEmbeddedDocs] = useState({});
 
@@ -15,6 +17,8 @@ export const useEmbeddedDocs = (backendUrl) => {
                         method: 'GET',
                         headers: {
                             'Project-ID': projectId,
+                            'uid': uid,
+                            'dbName': process.env.REACT_APP_DB_NAME,
                         },
                     }
                 );
@@ -32,7 +36,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 showSnackbar('Error fetching documents', 'error');
             }
         },
-        [backendUrl, showSnackbar]
+        [backendUrl, showSnackbar, uid]
     );
 
     const addEmbeddedDoc = (projectId, doc) => {
