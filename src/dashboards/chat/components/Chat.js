@@ -25,14 +25,12 @@ const Chat = ({
     setIsChatOpen = null,
 }) => {
     const nodeRef = useRef(null);
-    const { messages, socket } = useContext(ChatContext);
+    const { messages, joinRoom } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     useEffect(() => {
-        if (socket.current) {
-            socket.current.emit('join_room', { chatId: chatId });
-        }
-    }, [socket, chatId]);
+        joinRoom(chatId);
+    }, [joinRoom, chatId]);
 
     // scrolls chat window to the bottom
     useEffect(() => {
