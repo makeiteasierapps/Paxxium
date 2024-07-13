@@ -8,13 +8,13 @@ import {
     CardActions,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material/';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 
 const EmbeddedDocCard = ({ document }) => {
     const {
         embeddedDocsManager: { deleteEmbeddedDoc },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.project_id, document.id);

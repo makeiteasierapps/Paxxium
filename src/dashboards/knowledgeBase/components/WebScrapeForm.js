@@ -1,11 +1,11 @@
 import { useState, useContext } from 'react';
 import SendIcon from '@mui/icons-material/Send';
 import { TextField, Box, Switch, FormControlLabel } from '@mui/material';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 import { SettingsSubmitButton } from '../../chat/chatStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
-    const { scrapeUrls } = useContext(ProjectContext);
+    const { scrapeUrls } = useContext(KbContext);
     const [urls, setUrls] = useState('');
     const [crawlEntireSite, setCrawlEntireSite] = useState(false);
 

@@ -1,6 +1,6 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../chat/components/Chat';
@@ -30,11 +30,11 @@ const MainContainer = styled(Box)(({ theme }) => ({
 
 // Need to look at how I am managing the state of ProjectChat
 // I think I should move the state to be local so that each project manages its own chat
-const Project = ({ onClose }) => {
+const KbMain = ({ onClose }) => {
     const {
         selectedProject,
         embeddedDocsManager: { embeddedDocs, fetchEmbeddedDocs },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -221,4 +221,4 @@ const Project = ({ onClose }) => {
     );
 };
 
-export default Project;
+export default KbMain;

@@ -1,6 +1,6 @@
 import { useState, useCallback, useContext } from 'react';
-import { SnackbarContext } from '../contexts/SnackbarContext';
-import { AuthContext } from '../contexts/AuthContext'
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import { AuthContext } from '../../contexts/AuthContext'
 
 export const useEmbeddedDocs = (backendUrl) => {
     const { showSnackbar } = useContext(SnackbarContext);

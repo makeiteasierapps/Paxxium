@@ -1,18 +1,18 @@
 import { useContext } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
-import { ProjectContext } from '../../contexts/ProjectContext';
-import ProjectSpeedDial from './components/ProjectSpeedDial';
-import ProjectCard from './components/ProjectCard';
-import Project from './components/Project';
-import NewProject from './components/NewProject';
+import { KbContext } from '../../contexts/KbContext';
+import ProjectSpeedDial from './components/KbSpeedDial';
+import ProjectCard from './components/KbCard';
+import Project from './components/KbMain';
+import NewProject from './components/NewKnowledgeBase';
 import { useTheme } from '@mui/material/styles';
 
-const ProjectsDash = () => {
+const KbDash = () => {
     const {
         projectManager: { projects, isNewProjectOpen },
         selectedProject,
         setSelectedProject,
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     const theme = useTheme();
 
@@ -62,4 +62,4 @@ const ProjectsDash = () => {
     );
 };
 
-export default ProjectsDash;
+export default KbDash;

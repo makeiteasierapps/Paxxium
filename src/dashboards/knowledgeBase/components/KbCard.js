@@ -3,13 +3,13 @@ import { Box, Typography, Card, CardContent, CardActions } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Delete } from '@mui/icons-material';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 
-const ProjectCard = ({ project, onSelect }) => {
+const KbCard = ({ project, onSelect }) => {
     const theme = useTheme();
     const {
         projectManager: { deleteProject },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
     const handleDeleteProject = () => {
         deleteProject(project.id);
     };
@@ -70,4 +70,4 @@ const ProjectCard = ({ project, onSelect }) => {
     );
 };
 
-export default ProjectCard;
+export default KbCard;

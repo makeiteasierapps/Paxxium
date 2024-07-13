@@ -9,20 +9,20 @@ import {
     Routes,
 } from 'react-router-dom';
 import theme from './Theme';
-import { AuthContext, AuthProvider } from './contexts/AuthContext';
 import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
 import ChatDash from './dashboards/chat/ChatDash';
 import ImageDash from './dashboards/image/ImageDash';
 import ProfileDash from './dashboards/profile/ProfileDash';
 import HomeDash from './dashboards/home/HomeDash';
-import ProjectsDash from './dashboards/projects/ProjectsDash';
+import KbDash from './dashboards/knowledgeBase/KbDash';
+import { AuthContext, AuthProvider } from './contexts/AuthContext';
 import { ImageProvider } from './contexts/ImageContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
-import { ProjectProvider } from './contexts/ProjectContext';
+import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
 
@@ -130,10 +130,7 @@ const AuthenticatedApp = () => {
                             <Route path="/agents" element={<ChatDash />} />
                             <Route path="/dalle" element={<ImageDash />} />
                             <Route path="/profile" element={<ProfileDash />} />
-                            <Route
-                                path="/projects"
-                                element={<ProjectsDash />}
-                            />
+                            <Route path="/projects" element={<KbDash />} />
                         </Routes>
                     </Box>
                 </>
@@ -160,9 +157,9 @@ const App = () => {
                             <ImageProvider>
                                 <ChatProvider>
                                     <ProfileProvider>
-                                        <ProjectProvider>
+                                        <KbProvider>
                                             <AuthenticatedApp />
-                                        </ProjectProvider>
+                                        </KbProvider>
                                     </ProfileProvider>
                                 </ChatProvider>
                             </ImageProvider>

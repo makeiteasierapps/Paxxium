@@ -8,7 +8,7 @@ import { Dropdown } from '@mui/base/Dropdown';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { Menu } from '@mui/base/Menu';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { ProjectContext } from '../../../../contexts/ProjectContext';
+import { KbContext } from '../../../../contexts/KbContext';
 
 const encoding = getEncoding('cl100k_base');
 
@@ -29,7 +29,7 @@ const TextInputUtilityBar = () => {
             handleDelete,
         },
         documentManager: { handleSave, handleEmbed, category, setCategory },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
 

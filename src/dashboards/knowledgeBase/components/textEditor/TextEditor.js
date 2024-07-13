@@ -1,7 +1,7 @@
 import { useEffect, useContext } from 'react';
 import { Box } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
-import { ProjectContext } from '../../../../contexts/ProjectContext';
+import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
 
 const MainBox = styled(Box)({
@@ -26,7 +26,7 @@ const TextEditor = ({ document }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
         documentManager: { setDocumentDetails },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     useEffect(() => {
         setDocumentDetails(document);

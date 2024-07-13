@@ -7,7 +7,7 @@ import {
     DialogContent,
     DialogTitle,
 } from '@mui/material';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 
 const NewProject = () => {
     const {
@@ -16,7 +16,7 @@ const NewProject = () => {
             isNewProjectOpen,
             setIsNewProjectOpen,
         },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
     const [name, setName] = useState('');
     const [objective, setObjective] = useState('');
 

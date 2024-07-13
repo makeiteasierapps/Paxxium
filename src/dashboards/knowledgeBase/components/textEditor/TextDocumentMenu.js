@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { ProjectContext } from '../../../../contexts/ProjectContext';
+import { KbContext } from '../../../../contexts/KbContext';
 import TextEditor from './TextEditor';
 import {
     Button,
@@ -13,7 +13,7 @@ import {
 const TextDocumentMenu = () => {
     const {
         documentManager: { textDocArray, fetchData, addNewDoc },
-    } = useContext(ProjectContext);
+    } = useContext(KbContext);
 
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);

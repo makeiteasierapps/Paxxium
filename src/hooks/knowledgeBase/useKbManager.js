@@ -1,9 +1,9 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
-import { SnackbarContext } from '../contexts/SnackbarContext';
-import { ChatContext } from '../contexts/ChatContext';
-import { AuthContext } from '../contexts/AuthContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import { ChatContext } from '../../contexts/ChatContext';
+import { AuthContext } from '../../contexts/AuthContext';
 
-export const useProjectManager = (backendUrl) => {
+export const useKbManager = (backendUrl) => {
     const [projects, setProjects] = useState([]);
     const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);

@@ -1,10 +1,12 @@
 import { useContext } from 'react';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, Box } from '@mui/material';
-import { ProjectContext } from '../../../contexts/ProjectContext';
+import { KbContext } from '../../../contexts/KbContext';
 import { PlaylistAdd } from '@mui/icons-material/';
 
-export default function ProjectSpeedDial() {
-    const { projectManager: { setIsNewProjectOpen } } = useContext(ProjectContext);
+export default function KbSpeedDial() {
+    const {
+        projectManager: { setIsNewProjectOpen },
+    } = useContext(KbContext);
     return (
         <Box
             sx={{

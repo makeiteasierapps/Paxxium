@@ -1,13 +1,13 @@
 import { useState, createContext, useContext } from 'react';
-import { useDocumentData } from '../hooks/useDocumentData';
-import { useHighlights } from '../hooks/useHighlights';
-import { useProjectManager } from '../hooks/useProjectManager';
-import { useEmbeddedDocs } from '../hooks/useEmbeddedDocs';
+import { useDocumentData } from '../hooks/knowledgeBase/useDocumentData';
+import { useHighlights } from '../hooks/knowledgeBase/useHighlights';
+import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
+import { useEmbeddedDocs } from '../hooks/knowledgeBase/useEmbeddedDocs';
 import { AuthContext } from './AuthContext';
 
-export const ProjectContext = createContext();
+export const KbContext = createContext();
 
-export const ProjectProvider = ({ children }) => {
+export const KbProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const [selectedProject, setSelectedProject] = useState(null);
     const [documentText, setDocumentText] = useState('');
@@ -34,7 +34,7 @@ export const ProjectProvider = ({ children }) => {
         setHighlights
     );
 
-    const projectManager = useProjectManager(backendUrl);
+    const projectManager = useKbManager(backendUrl);
 
     const embeddedDocsManager = useEmbeddedDocs(backendUrl);
 
@@ -48,8 +48,8 @@ export const ProjectProvider = ({ children }) => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'uid': uid,
-                'dbName': process.env.REACT_APP_DB_NAME,
+                uid: uid,
+                dbName: process.env.REACT_APP_DB_NAME,
             },
             body: JSON.stringify({
                 urls: formattedUrls,
@@ -69,7 +69,7 @@ export const ProjectProvider = ({ children }) => {
     };
 
     return (
-        <ProjectContext.Provider
+        <KbContext.Provider
             value={{
                 selectedProject,
                 setSelectedProject,
@@ -82,6 +82,6 @@ export const ProjectProvider = ({ children }) => {
             }}
         >
             {children}
-        </ProjectContext.Provider>
+        </KbContext.Provider>
     );
 };
