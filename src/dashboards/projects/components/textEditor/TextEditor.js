@@ -1,7 +1,7 @@
 import { useEffect, useContext } from 'react';
 import { Box } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
-import { ProjectContext } from '../../ProjectContext';
+import { ProjectContext } from '../../../../contexts/ProjectContext';
 import { styled } from '@mui/system';
 
 const MainBox = styled(Box)({

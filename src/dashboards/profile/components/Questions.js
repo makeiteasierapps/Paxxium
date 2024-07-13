@@ -1,7 +1,6 @@
 import { Box, Tab, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
-import { ProfileContext } from '../ProfileContext';
-import { questions } from '../ProfileContext';
+import { ProfileContext, questions } from '../../../contexts/ProfileContext';
 
 import {
     StyledTabs,

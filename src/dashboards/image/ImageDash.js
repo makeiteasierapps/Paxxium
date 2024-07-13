@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { ImageContext } from './ImageContext';
-import { SnackbarContext } from '../../../SnackbarContext';
+import { ImageContext } from '../../contexts/ImageContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
 import DalleSettings from './DalleSettings';
 import ImagePreview from './ImagePreview';
 import ImageGallery from './ImageGallery';
-import MySnackbar from '../../../SnackBar';
+import MySnackbar from '../../SnackBar';
 
 import { Box } from '@mui/material';
 const ImageDash = () => {

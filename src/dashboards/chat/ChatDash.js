@@ -1,14 +1,14 @@
 import { memo, useContext } from 'react';
-import { SnackbarContext } from '../../SnackbarContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
-import Chat from './chat/Chat';
-import ChatSettings from './chat/components/ChatSettings';
-import { ChatContext } from './chat/ChatContext';
+import Chat from './components/Chat';
+import ChatSettings from './components/ChatSettings';
+import { ChatContext } from '../../contexts/ChatContext';
 import { Box } from '@mui/material';
 
 import { CustomGridLoader } from '../main/customLoaders';
 
-const AgentDash = () => {
+const ChatDash = () => {
     const { chatArray, loading } = useContext(ChatContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
@@ -48,4 +48,4 @@ const AgentDash = () => {
     );
 };
 
-export default memo(AgentDash);
+export default memo(ChatDash);

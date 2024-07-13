@@ -6,11 +6,11 @@ import {
     useCallback,
     useEffect,
 } from 'react';
-import { AuthContext } from '../../../auth/AuthContext';
-import { processIncomingStream } from '../utils/processIncomingStream';
-import { resizeImage } from '../utils/resizeImage';
+import { AuthContext } from './AuthContext';
+import { processIncomingStream } from '../dashboards/utils/processIncomingStream';
+import { resizeImage } from '../dashboards/utils/resizeImage';
 import { io } from 'socket.io-client';
-import { SnackbarContext } from '../../../SnackbarContext';
+import { SnackbarContext } from './SnackbarContext';
 
 export const ChatContext = createContext();
 export const ChatProvider = ({ children }) => {

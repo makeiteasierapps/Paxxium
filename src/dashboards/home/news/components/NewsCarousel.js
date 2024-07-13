@@ -1,8 +1,8 @@
 import { useContext } from 'react';
 import { styled } from '@mui/system';
 import Carousel from 'react-spring-3d-carousel';
-import { NewsContext } from '../NewsContext';
-import { SnackbarContext } from '../../../../SnackbarContext';
+import { NewsContext } from '../../../../contexts/NewsContext';
+import { SnackbarContext } from '../../../../contexts/SnackbarContext';
 import NewsCard from './NewsCard';
 import {
     SearchContainer,

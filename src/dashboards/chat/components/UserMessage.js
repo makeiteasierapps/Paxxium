@@ -1,13 +1,13 @@
 import { Avatar } from '@mui/material';
 import { useContext } from 'react';
-import { ProfileContext } from '../../../profile/ProfileContext';
-import { MessageContainer, MessageContent } from '../../agentStyledComponents';
+import { ProfileContext } from '../../../contexts/ProfileContext';
+import { MessageContainer, MessageContent } from '../chatStyledComponents';
 
 const UserMessage = ({ message }) => {
     const { avatar } = useContext(ProfileContext);
 
     return (
-        <MessageContainer messageFrom='user'>
+        <MessageContainer messageFrom="user">
             <Avatar
                 variant="rounded"
                 src={avatar}

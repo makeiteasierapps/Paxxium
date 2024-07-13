@@ -7,8 +7,8 @@ import {
 } from 'react';
 
 import 'react-image-crop/dist/ReactCrop.css';
-import { SnackbarContext } from '../../SnackbarContext';
-import { AuthContext } from '../../auth/AuthContext';
+import { SnackbarContext } from './SnackbarContext';
+import { AuthContext } from './AuthContext';
 
 export const questions = {
     'Personal Interests': [

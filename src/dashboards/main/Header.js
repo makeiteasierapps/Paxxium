@@ -2,7 +2,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { signOut } from 'firebase/auth';
 import { useContext, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext, auth } from '../../auth/AuthContext';
+import { AuthContext, auth } from '../../contexts/AuthContext';
 import { HeaderContainer, HeaderIconButton } from './mainStyledComponents';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton } from '@mui/material';

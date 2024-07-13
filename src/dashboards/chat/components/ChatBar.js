@@ -5,14 +5,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
-import { ChatContext } from '../ChatContext';
+import { ChatContext } from '../../../contexts/ChatContext';
 
 import {
     Bar,
     ClearAndTrashIcons,
     StyledIconButton,
     CloseIconButton,
-} from '../../agentStyledComponents';
+} from '../chatStyledComponents';
 
 const ChatBar = ({
     chatName,

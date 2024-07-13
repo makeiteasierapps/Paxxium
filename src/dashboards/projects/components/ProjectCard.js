@@ -2,8 +2,8 @@ import { useContext } from 'react';
 import { Box, Typography, Card, CardContent, CardActions } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Delete } from '@mui/icons-material';
-import { StyledIconButton } from '../../agents/agentStyledComponents';
-import { ProjectContext } from '../ProjectContext';
+import { StyledIconButton } from '../../chat/chatStyledComponents';
+import { ProjectContext } from '../../../contexts/ProjectContext';
 
 const ProjectCard = ({ project, onSelect }) => {
     const theme = useTheme();

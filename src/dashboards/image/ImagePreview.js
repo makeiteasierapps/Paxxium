@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { IconButton, Tooltip, Paper, CircularProgress } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ImageContext } from './ImageContext';
+import { ImageContext } from '../../contexts/ImageContext';
 
 const ImagePreview = ({ children }) => {
     const {

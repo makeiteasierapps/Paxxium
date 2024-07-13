@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import { useContext, useState, useRef } from 'react';
-import { ProfileContext } from '../ProfileContext';
+import { ProfileContext } from '../../../contexts/ProfileContext';
 import { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 

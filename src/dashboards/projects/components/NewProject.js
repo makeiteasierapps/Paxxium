@@ -7,7 +7,7 @@ import {
     DialogContent,
     DialogTitle,
 } from '@mui/material';
-import { ProjectContext } from '../ProjectContext';
+import { ProjectContext } from '../../../contexts/ProjectContext';
 
 const NewProject = () => {
     const {

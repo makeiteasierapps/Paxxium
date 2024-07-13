@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { ProjectContext } from '../../ProjectContext';
+import { ProjectContext } from '../../../../contexts/ProjectContext';
 import TextEditor from './TextEditor';
 import {
     Button,

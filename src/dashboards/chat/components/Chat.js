@@ -1,16 +1,16 @@
 import { memo, useContext, useEffect, useRef, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ChatContext } from './ChatContext';
-import AgentMessage from './components/AgentMessage';
-import ChatSettings from './components/ChatSettings';
-import ChatBar from './components/ChatBar';
-import MessageInput from './components/MessageInput';
-import UserMessage from './components/UserMessage';
+import { ChatContext } from '../../../contexts/ChatContext';
+import AgentMessage from './AgentMessage';
+import ChatSettings from './ChatSettings';
+import ChatBar from './ChatBar';
+import MessageInput from './MessageInput';
+import UserMessage from './UserMessage';
 import {
     MessagesContainer,
     MessageArea,
     ChatContainerStyled,
-} from '../agentStyledComponents';
+} from '../chatStyledComponents';
 
 const Chat = ({
     agent: {

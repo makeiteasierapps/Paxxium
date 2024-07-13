@@ -7,7 +7,7 @@ import {
     Box,
 } from '@mui/material/';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ImageContext } from './ImageContext';
+import { ImageContext } from '../../contexts/ImageContext';
 
 const ImageGallery = () => {
     const { imageList, deleteImage } = useContext(ImageContext);

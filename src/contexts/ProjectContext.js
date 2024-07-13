@@ -1,9 +1,9 @@
 import { useState, createContext, useContext } from 'react';
-import { useDocumentData } from './hooks/useDocumentData';
-import { useHighlights } from './hooks/useHighlights';
-import { useProjectManager } from './hooks/useProjectManager';
-import { useEmbeddedDocs } from './hooks/useEmbeddedDocs';
-import { AuthContext } from '../../auth/AuthContext';
+import { useDocumentData } from '../hooks/useDocumentData';
+import { useHighlights } from '../hooks/useHighlights';
+import { useProjectManager } from '../hooks/useProjectManager';
+import { useEmbeddedDocs } from '../hooks/useEmbeddedDocs';
+import { AuthContext } from './AuthContext';
 
 export const ProjectContext = createContext();
 

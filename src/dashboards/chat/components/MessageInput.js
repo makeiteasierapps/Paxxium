@@ -11,8 +11,8 @@ import Tooltip from '@mui/material/Tooltip';
 import SendIcon from '@mui/icons-material/Send';
 import AddBox from '@mui/icons-material/AddBox';
 import ClearIcon from '@mui/icons-material/Clear';
-import { ChatContext } from '../ChatContext';
-import { InputArea, StyledIconButton } from '../../agentStyledComponents';
+import { ChatContext } from '../../../contexts/ChatContext';
+import { InputArea, StyledIconButton } from '../chatStyledComponents';
 import { styled } from '@mui/material/styles';
 import { useDropzone } from 'react-dropzone';
 

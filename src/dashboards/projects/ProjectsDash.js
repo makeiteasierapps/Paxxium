@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
-import { ProjectContext } from './ProjectContext';
+import { ProjectContext } from '../../contexts/ProjectContext';
 import ProjectSpeedDial from './components/ProjectSpeedDial';
 import ProjectCard from './components/ProjectCard';
 import Project from './components/Project';

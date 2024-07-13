@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, Box } from '@mui/material';
-import { ProjectContext } from '../ProjectContext';
+import { ProjectContext } from '../../../contexts/ProjectContext';
 import { PlaylistAdd } from '@mui/icons-material/';
 
 export default function ProjectSpeedDial() {

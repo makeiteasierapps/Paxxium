@@ -9,20 +9,20 @@ import {
     Routes,
 } from 'react-router-dom';
 import theme from './Theme';
-import { AuthContext, AuthProvider } from './auth/AuthContext';
+import { AuthContext, AuthProvider } from './contexts/AuthContext';
 import LoginPage from './auth/LoginPage';
 import SignUpPage from './auth/SignUpPage';
-import AgentDash from './dashboards/agents/AgentDash';
-import ImageDash from './dashboards/agents/image/ImageDash';
+import ChatDash from './dashboards/chat/ChatDash';
+import ImageDash from './dashboards/image/ImageDash';
 import ProfileDash from './dashboards/profile/ProfileDash';
 import HomeDash from './dashboards/home/HomeDash';
 import ProjectsDash from './dashboards/projects/ProjectsDash';
-import { ImageProvider } from './dashboards/agents/image/ImageContext';
-import { ChatProvider } from './dashboards/agents/chat/ChatContext';
-import { NewsProvider } from './dashboards/home/news/NewsContext';
-import { ProfileProvider } from './dashboards/profile/ProfileContext';
-import { SnackbarProvider } from './SnackbarContext';
-import { ProjectProvider } from './dashboards/projects/ProjectContext';
+import { ImageProvider } from './contexts/ImageContext';
+import { ChatProvider } from './contexts/ChatContext';
+import { NewsProvider } from './contexts/NewsContext';
+import { ProfileProvider } from './contexts/ProfileContext';
+import { SnackbarProvider } from './contexts/SnackbarContext';
+import { ProjectProvider } from './contexts/ProjectContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
 
@@ -127,7 +127,7 @@ const AuthenticatedApp = () => {
                                     key={i}
                                 />
                             ))}
-                            <Route path="/agents" element={<AgentDash />} />
+                            <Route path="/agents" element={<ChatDash />} />
                             <Route path="/dalle" element={<ImageDash />} />
                             <Route path="/profile" element={<ProfileDash />} />
                             <Route

@@ -1,7 +1,7 @@
-import { Box, Button, CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { useContext, useState } from 'react';
-import { ProfileContext } from './ProfileContext';
-import { SnackbarContext } from '../../SnackbarContext';
+import { ProfileContext } from '../../contexts/ProfileContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
 import Questions from './components/Questions';
 import User from './components/User';

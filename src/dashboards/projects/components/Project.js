@@ -1,12 +1,12 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
-import { ProjectContext } from '../ProjectContext';
-import { ChatContext } from '../../agents/chat/ChatContext';
+import { ProjectContext } from '../../../contexts/ProjectContext';
+import { ChatContext } from '../../../contexts/ChatContext';
 import WebScrapeForm from './WebScrapeForm';
-import ProjectChat from '../../agents/chat/Chat';
+import ProjectChat from '../../chat/components/Chat';
 import EmbeddedDocCard from './EmbeddedDocCard';
 import TextDocumentMenu from './textEditor/TextDocumentMenu';
-import { StyledIconButton } from '../../agents/agentStyledComponents';
+import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
 import {
     WebAsset,

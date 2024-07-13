@@ -10,13 +10,13 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useContext, useState } from 'react';
-import { ChatContext } from '../ChatContext';
+import { ChatContext } from '../../../contexts/ChatContext';
 import {
     SettingsMenuContainer,
     SettingsSubmitButton,
     SettingsMenuButton,
     InvisibleInput,
-} from '../../agentStyledComponents';
+} from '../chatStyledComponents';
 
 const settingsMenuVariants = {
     visible: {

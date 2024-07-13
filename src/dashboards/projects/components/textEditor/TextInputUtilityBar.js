@@ -2,13 +2,13 @@ import { useContext } from 'react';
 import { Box, Typography, TextField, Button, Slider } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { StyledIconButton } from '../../../agents/agentStyledComponents';
+import { StyledIconButton } from '../../../chat/chatStyledComponents';
 import { getEncoding } from 'js-tiktoken';
 import { Dropdown } from '@mui/base/Dropdown';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { Menu } from '@mui/base/Menu';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { ProjectContext } from '../../ProjectContext';
+import { ProjectContext } from '../../../../contexts/ProjectContext';
 
 const encoding = getEncoding('cl100k_base');
 
@@ -218,8 +218,12 @@ const MenuItem = styled(BaseMenuItem)(
     }
   
     &:focus {
-      outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
-      background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
+      outline: 3px solid ${
+          theme.palette.mode === 'dark' ? blue[600] : blue[200]
+      };
+      background-color: ${
+          theme.palette.mode === 'dark' ? grey[800] : grey[100]
+      };
       color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
     }
   
@@ -255,7 +259,9 @@ const MenuButton = styled(BaseMenuButton)(
     }
   
     &:focus-visible {
-      box-shadow: 0 0 0 4px ${theme.palette.mode === 'dark' ? blue[300] : blue[200]};
+      box-shadow: 0 0 0 4px ${
+          theme.palette.mode === 'dark' ? blue[300] : blue[200]
+      };
       outline: none;
     }
     `

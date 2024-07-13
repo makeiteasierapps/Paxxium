@@ -5,8 +5,8 @@ import {
     useContext,
     useEffect,
 } from 'react';
-import { SnackbarContext } from '../../../SnackbarContext';
-import { AuthContext } from '../../../auth/AuthContext';
+import { SnackbarContext } from './SnackbarContext';
+import { AuthContext } from './AuthContext';
 
 export const NewsContext = createContext();
 

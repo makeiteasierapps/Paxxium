@@ -12,7 +12,7 @@ import {
 import { styled } from '@mui/system';
 import SendIcon from '@mui/icons-material/Send';
 
-import { ImageContext } from './ImageContext';
+import { ImageContext } from '../../contexts/ImageContext';
 
 const StyledButton = styled(Button)(({ theme }) => ({
     fontFamily: 'Titillium Web, sans-serif',

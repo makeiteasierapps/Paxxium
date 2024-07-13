@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
-import { SnackbarContext } from '../../../SnackbarContext';
-import { AuthContext } from '../../../auth/AuthContext';
+import { SnackbarContext } from '../contexts/SnackbarContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 export const useDocumentData = (
     selectedProject,

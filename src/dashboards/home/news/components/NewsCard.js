@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Tooltip, Typography, CardActions, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useContext, useState } from 'react';
-import { NewsContext } from '../NewsContext';
+import { NewsContext } from '../../../../contexts/NewsContext';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import {
     StyledCard,

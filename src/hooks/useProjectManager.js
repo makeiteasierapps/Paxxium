@@ -1,7 +1,7 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
-import { SnackbarContext } from '../../../SnackbarContext';
-import { ChatContext } from '../../agents/chat/ChatContext';
-import { AuthContext } from '../../../auth/AuthContext';
+import { SnackbarContext } from '../contexts/SnackbarContext';
+import { ChatContext } from '../contexts/ChatContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 export const useProjectManager = (backendUrl) => {
     const [projects, setProjects] = useState([]);

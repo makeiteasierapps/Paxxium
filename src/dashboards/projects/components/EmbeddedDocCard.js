@@ -8,8 +8,8 @@ import {
     CardActions,
 } from '@mui/material';
 import { Delete } from '@mui/icons-material/';
-import { ProjectContext } from '../ProjectContext';
-import { StyledIconButton } from '../../agents/agentStyledComponents';
+import { ProjectContext } from '../../../contexts/ProjectContext';
+import { StyledIconButton } from '../../chat/chatStyledComponents';
 
 const EmbeddedDocCard = ({ document }) => {
     const {
