@@ -14,6 +14,7 @@ const ImagePreview = ({ children }) => {
         setUserPrompt,
         isLoading,
     } = useContext(ImageContext);
+    
     const [width, height] = imageRequest.size.split('x').map(Number);
     const aspectRatio = width / height;
     const [hover, setHover] = useState(false);

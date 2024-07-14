@@ -84,6 +84,7 @@ const initializeAnswers = (questions) => {
     });
     return initialAnswers;
 };
+
 export const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {

@@ -33,21 +33,18 @@ StyledButton.defaultProps = {
 };
 
 const DalleSettings = () => {
+    const [size, setSize] = useState('1024x1024');
+    const [quality, setQuality] = useState('Standard');
+    const [style, setStyle] = useState('Vivid');
     const [anchorEl, setAnchorEl] = useState({});
     const open = Boolean(anchorEl);
 
     const {
-        size,
-        setSize,
-        quality,
-        setQuality,
-        style,
-        setStyle,
-        generateDalleImage,
-        userPrompt,
-        setUserPrompt,
+        generateImage,
         setIsLoading,
         isLoading,
+        userPrompt,
+        setUserPrompt,
     } = useContext(ImageContext);
 
     const handleClick = (menu) => (event) => {
@@ -243,7 +240,7 @@ const DalleSettings = () => {
                                                 style: style,
                                                 prompt: userPrompt,
                                             };
-                                            generateDalleImage(imageRequest);
+                                            generateImage(imageRequest);
                                         }}
                                         disabled={!userPrompt || isLoading}
                                     >

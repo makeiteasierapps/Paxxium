@@ -11,8 +11,8 @@ import { ImageContext } from '../../contexts/ImageContext';
 
 const ImageGallery = () => {
     const { imageList, deleteImage } = useContext(ImageContext);
-
     const [hoverIndex, setHoverIndex] = useState(false);
+
     return (
         <Box sx={{ width: '90%', height: '40%', overflowY: 'scroll' }}>
             <ImageList variant="masonry" cols={3} gap={8}>
