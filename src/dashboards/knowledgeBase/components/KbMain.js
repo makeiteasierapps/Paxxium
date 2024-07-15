@@ -31,10 +31,8 @@ const MainContainer = styled(Box)(({ theme }) => ({
 // Need to look at how I am managing the state of ProjectChat
 // I think I should move the state to be local so that each project manages its own chat
 const KbMain = ({ onClose }) => {
-    const {
-        selectedProject,
-        embeddedDocsManager: { embeddedDocs, fetchEmbeddedDocs },
-    } = useContext(KbContext);
+    const { selectedProject, embeddedDocs, fetchEmbeddedDocs } =
+        useContext(KbContext);
 
     const { getChatByProjectId } = useContext(ChatContext);
     const [isChatOpen, setIsChatOpen] = useState(false);

@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { styled } from '@mui/system';
 import Carousel from 'react-spring-3d-carousel';
 import { NewsContext } from '../../../../contexts/NewsContext';
@@ -39,21 +39,20 @@ StyledButton.defaultProps = {
 };
 const NewsCarousel = () => {
     const {
-        newsData,
-        query,
-        setQuery,
+        displayedNewsData,
         slideIndex,
-        loadNewsData,
         fetchNewsData,
         aiNewsFetch,
-        readFilter,
-        setReadFilter,
-        setUnreadNewsData,
         isLoading,
+        toggleReadFilter,
+        readFilter,
     } = useContext(NewsContext);
 
     const { hideSnackbar, snackbarInfo } = useContext(SnackbarContext);
-    const newsSlides = newsData.map((news, index) => ({
+
+    const [query, setQuery] = useState('');
+
+    const newsSlides = displayedNewsData.map((news, index) => ({
         key: news.id,
         content: <NewsCard news={news} index={index} />,
     }));
@@ -105,7 +104,7 @@ const NewsCarousel = () => {
             <CarouselContainer id="carousel-container">
                 {isLoading ? (
                     <CustomGridLoader />
-                ) : newsData.length > 0 ? (
+                ) : displayedNewsData.length > 0 ? (
                     <Carousel
                         id="carousel"
                         slides={newsSlides}
@@ -124,14 +123,7 @@ const NewsCarousel = () => {
                 >
                     <Switch
                         checked={readFilter}
-                        onChange={(event) => {
-                            setReadFilter(event.target.checked);
-                            if (event.target.checked) {
-                                setUnreadNewsData();
-                            } else {
-                                loadNewsData();
-                            }
-                        }}
+                        onChange={toggleReadFilter}
                         name="readFilter"
                         color="primary"
                     />

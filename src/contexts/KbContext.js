@@ -78,7 +78,7 @@ export const KbProvider = ({ children }) => {
                 documentManager,
                 highlightsManager,
                 projectManager,
-                embeddedDocsManager,
+                ...embeddedDocsManager,
             }}
         >
             {children}

@@ -12,9 +12,7 @@ import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 
 const EmbeddedDocCard = ({ document }) => {
-    const {
-        embeddedDocsManager: { deleteEmbeddedDoc },
-    } = useContext(KbContext);
+    const { deleteEmbeddedDoc } = useContext(KbContext);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.project_id, document.id);
