@@ -39,6 +39,7 @@ export const ChatProvider = ({ children }) => {
                 messages,
                 socket,
                 joinRoom,
+                getChatByProjectId,
                 ...chatManager,
                 ...messageManager,
                 ...chatSettings,

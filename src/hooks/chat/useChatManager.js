@@ -57,15 +57,6 @@ export const useChatManager = (
         }
     }, [fetchChatsFromDB, setChatArray, setMessages, showSnackbar]);
 
-    useEffect(() => {
-        if (!uid) {
-            return;
-        }
-        getChats().then(() => {
-            setLoading(false);
-        });
-    }, [getChats, setLoading, uid]);
-
     const createChat = async (
         agentModel,
         systemPrompt,
@@ -224,6 +215,15 @@ export const useChatManager = (
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
+
+    useEffect(() => {
+        if (!uid) {
+            return;
+        }
+        getChats().then(() => {
+            setLoading(false);
+        });
+    }, [getChats, setLoading, uid]);
 
     return {
         getChats,
