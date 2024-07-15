@@ -17,6 +17,7 @@ import ProfileDash from './dashboards/profile/ProfileDash';
 import HomeDash from './dashboards/home/HomeDash';
 import KbDash from './dashboards/knowledgeBase/KbDash';
 import { AuthContext, AuthProvider } from './contexts/AuthContext';
+import { ImageProvider } from './contexts/ImageContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
@@ -153,13 +154,15 @@ const App = () => {
                 <AuthProvider>
                     <Router>
                         <NewsProvider>
-                            <ChatProvider>
-                                <ProfileProvider>
-                                    <KbProvider>
-                                        <AuthenticatedApp />
-                                    </KbProvider>
-                                </ProfileProvider>
-                            </ChatProvider>
+                            <ImageProvider>
+                                <ChatProvider>
+                                    <ProfileProvider>
+                                        <KbProvider>
+                                            <AuthenticatedApp />
+                                        </KbProvider>
+                                    </ProfileProvider>
+                                </ChatProvider>
+                            </ImageProvider>
                         </NewsProvider>
                     </Router>
                 </AuthProvider>
