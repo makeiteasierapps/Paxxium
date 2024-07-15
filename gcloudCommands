@@ -1,5 +1,0 @@
-copy a directory
-gcloud compute scp --recurse ./vms/retrieval retrieval:~/retrieval --zone us-central1-a --project paxxiumv1
-
-connect to the vm
-gcloud compute ssh --zone "us-central1-a" "retrieval" --project "paxxiumv1"

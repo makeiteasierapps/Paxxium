@@ -34,14 +34,18 @@ To get things set up you will need to set up a Firebase project with a couple of
      - Storage
 
 5. **Service Accounts:**
-   - Under 'Project Settings' > 'Service Accounts', generate a new private key. This JSON file is for server-side Admin SDK use and should be added to the `fb_config` folder.
+   - Under 'Project Settings' > 'Service Accounts', generate a new private key. This JSON file is for server-side Admin SDK use and should be added to the `fb_config` folder in Paxxserv.
 
 
-That completes the setup for Firebase. Next, we can clone the repo and and set up the config we obtained from the previous steps.
+That completes the setup for Firebase. 
 
 ## Cloning the Repository
 
-First, clone the Paxxium project repository from GitHub:
+Clone the Paxxium project repository from GitHub:
 [https://github.com/makeiteasierapps/paxxium](https://github.com/makeiteasierapps/paxxium)
+
+From the project root `npm install`
+
+To start the project `npm start`
 
 
