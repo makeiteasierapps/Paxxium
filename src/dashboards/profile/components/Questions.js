@@ -1,6 +1,6 @@
 import { Box, Tab, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
-import { ProfileContext, questions } from '../../../contexts/ProfileContext';
+import { ProfileContext } from '../../../contexts/ProfileContext';
 
 import {
     StyledTabs,
@@ -9,7 +9,7 @@ import {
 } from '../styledProfileComponents';
 
 const Questions = () => {
-    const { answers, handleAnswerChange } = useContext(ProfileContext);
+    const { answers, handleAnswerChange, questions} = useContext(ProfileContext);
     const [currentTab, setCurrentTab] = useState(0);
 
     return (
