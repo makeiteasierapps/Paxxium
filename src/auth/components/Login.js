@@ -4,11 +4,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
-import { AuthContext, auth } from '../contexts/AuthContext';
-import { SnackbarContext } from '../contexts/SnackbarContext';
-import paxxiumTextLogo from '../assets/images/paxxium-logo-text-only.png';
-import { StyledTextField } from '../auth/authStyledComponents';
-import MySnackBar from '../SnackBar';
+import { AuthContext, auth } from '../../contexts/AuthContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
+import { StyledTextField } from '../authStyledComponents';
+import MySnackBar from '../../SnackBar';
 
 export const StyledButton = styled(Button)(({ theme }) => ({
     fontFamily: 'Titillium Web, sans-serif',
@@ -26,7 +26,7 @@ StyledButton.defaultProps = {
     variant: 'outlined',
 };
 
-export default function LoginPage() {
+const Login = ({ setIsLogin }) => {
     const { setUser, setUid } = useContext(AuthContext);
     const { showSnackbar, hideSnackbar, snackbarInfo } =
         useContext(SnackbarContext);
@@ -62,16 +62,7 @@ export default function LoginPage() {
     };
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                width: '100%',
-            }}
-        >
+        <>
             <Box
                 component="img"
                 src={paxxiumTextLogo}
@@ -126,16 +117,22 @@ export default function LoginPage() {
                 >
                     Sign In
                 </StyledButton>
-                <Link href="/signup" variant="body2">
+                <Link
+                    onClick={() => setIsLogin(false)}
+                    variant="body2"
+                    sx={{ cursor: 'pointer' }}
+                >
                     {"Don't have an account? Sign Up"}
                 </Link>
+                <MySnackBar
+                    open={snackbarInfo.open}
+                    message={snackbarInfo.message}
+                    severity={snackbarInfo.severity}
+                    handleClose={hideSnackbar}
+                />
             </Box>
-            <MySnackBar
-                open={snackbarInfo.open}
-                message={snackbarInfo.message}
-                severity={snackbarInfo.severity}
-                handleClose={hideSnackbar}
-            />
-        </Box>
+        </>
     );
-}
+};
+
+export default Login;

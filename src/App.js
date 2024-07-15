@@ -9,8 +9,7 @@ import {
     Routes,
 } from 'react-router-dom';
 import theme from './Theme';
-import LoginPage from './auth/LoginPage';
-import SignUpPage from './auth/SignUpPage';
+import AuthScreen from './auth/AuthScreen';
 import ChatDash from './dashboards/chat/ChatDash';
 import ImageDash from './dashboards/image/ImageDash';
 import ProfileDash from './dashboards/profile/ProfileDash';
@@ -137,9 +136,8 @@ const AuthenticatedApp = () => {
             )}
             {!isAuthorized && (
                 <Routes>
-                    <Route path="/" element={<LoginPage />} />
+                    <Route path="/" element={<AuthScreen />} />
                     <Route path="*" element={<Navigate replace to="/" />} />
-                    <Route path="/signup" element={<SignUpPage />} />
                 </Routes>
             )}
         </>

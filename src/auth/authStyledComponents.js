@@ -14,6 +14,7 @@ export const StyledContainer = styled(Container)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    height: '100vh',
 }));
 
 export const WelcomeMessageText = styled(Typography)(({ theme }) => ({

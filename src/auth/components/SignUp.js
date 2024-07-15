@@ -12,13 +12,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import {
-    StyledTextField,
-    StyledContainer,
-    WelcomeMessageText,
-} from '../auth/authStyledComponents';
+import { StyledTextField, WelcomeMessageText } from '../authStyledComponents';
 
-export default function SignUp() {
+const SignUp = ({ setIsLogin }) => {
     const [formValid, setFormValid] = useState({
         username: true,
         email: true,
@@ -130,7 +126,7 @@ export default function SignUp() {
     };
 
     return (
-        <StyledContainer component="main" maxWidth="xs">
+        <>
             <Typography variant="h2" fontFamily="Trillium Web">
                 Paxxium
             </Typography>
@@ -231,7 +227,11 @@ export default function SignUp() {
                 </StyledButton>
                 <Grid container justifyContent="center">
                     <Grid item>
-                        <Link href="/" variant="body2">
+                        <Link
+                            onClick={() => setIsLogin(true)}
+                            variant="body2"
+                            sx={{ cursor: 'pointer' }}
+                        >
                             Already have an account? Sign in
                         </Link>
                     </Grid>
@@ -269,6 +269,8 @@ export default function SignUp() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </StyledContainer>
+        </>
     );
-}
+};
+
+export default SignUp;
