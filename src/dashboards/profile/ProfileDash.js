@@ -1,77 +1,94 @@
-import { Box, CircularProgress } from '@mui/material';
+import {
+    Box,
+    CircularProgress,
+    styled,
+    TextField,
+    Typography,
+} from '@mui/material';
+
 import { useContext, useState } from 'react';
 import { ProfileContext } from '../../contexts/ProfileContext';
-import { SettingsContext } from '../../contexts/SettingsContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
-import Questions from './components/Questions';
 
+import { StyledButton } from './styledProfileComponents';
+const MainContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    height: '90vh',
+}));
 
-import { MainContainer, StyledButton } from './styledProfileComponents';
+const InputContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: '9px',
+    width: '70vw',
+    height: '40vh',
+    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
+}));
+
+const CustomTextField = styled(TextField)(({ theme }) => ({
+    width: '80%',
+    textAlign: 'center',
+    '& .MuiInputBase-input': {
+        textAlign: 'center',
+    },
+    '& .MuiInputBase-root': {
+        border: 'none',
+    },
+    '& .MuiInput-underline:before': {
+        borderBottom: 'none',
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+        borderBottom: 'none',
+    },
+    '& .MuiInput-underline:after': {
+        borderBottom: 'none',
+    },
+}));
 
 const ProfileDash = () => {
-    const {
-        answers,
-        updateAnswers,
-        analyzeAnsweredQuestions,
-    } = useContext(ProfileContext);
-    const { profileData } = useContext(SettingsContext);
+    const [userInput, setUserInput] = useState('');
+    const { generateFollowUpQuestions, isLoading } = useContext(ProfileContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
-
-    // State to manage analysis loading indicator
-    const [isLoading, setIsLoading] = useState(false);
     
-    const handleUpdate = async (answers = null) => {
-        setIsLoading(true);
-        await updateAnswers(answers);
-        setIsLoading(false);
-    };
 
-    const handleAnalyzeProfile = async () => {
-        setIsLoading(true); 
-        await analyzeAnsweredQuestions();
-        setIsLoading(false);
+    const handleStartGeneratingQuestions = async () => {
+        await generateFollowUpQuestions();
     };
 
     return (
         <MainContainer id="main-container">
-            <Questions />
-            <StyledButton
-                id="update-profile-button"
-                onClick={() => handleUpdate(answers)}
-                size="large"
-                sx={{ margin: 3 }}
-                disabled={isLoading}
-            >
-                {isLoading ? <CircularProgress size={24} /> : 'Save'}
-            </StyledButton>
-            <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-            >
-                <Box
-                    sx={{
-                        padding: 2,
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
+            <InputContainer>
+                <Typography variant="h6" gutterBottom>
+                    Tell Paxx about yourself
+                </Typography>
+                <CustomTextField
+                    multiline
+                    rows={4}
+                    fullWidth
+                    autoFocus
+                    variant="standard"
+                    value={userInput}
+                    onChange={(event) => {
+                        setUserInput(event.target.value);
                     }}
-                >
-                    {profileData.analysis
-                        ? profileData.analysis
-                        : 'Analyze Profile'}
-                </Box>
+                />
                 <StyledButton
-                    onClick={handleAnalyzeProfile}
+                    id="start-generating-questions"
+                    onClick={handleStartGeneratingQuestions}
                     size="large"
-                    disabled={isLoading}
                     sx={{ margin: 3 }}
+                    disabled={isLoading}
                 >
-                    {isLoading ? <CircularProgress size={24} /> : 'Analyze'}
+                    {isLoading ? <CircularProgress size={24} /> : 'Get Started'}
                 </StyledButton>
-            </Box>
-
+            </InputContainer>
             <MySnackbar
                 open={snackbarInfo.open}
                 message={snackbarInfo.message}

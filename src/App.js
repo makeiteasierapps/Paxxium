@@ -55,6 +55,7 @@ const AuthenticatedApp = () => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
+
     useEffect(() => {
         if (isAuthorized) return;
         const fetchData = async () => {
@@ -86,6 +87,8 @@ const AuthenticatedApp = () => {
 
         fetchData();
     }, [setUid, user, uid, setIsAuthorized, isAuthorized, backendUrl]);
+
+    
 
     if (!initialCheckDone) {
         return null;

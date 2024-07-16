@@ -15,6 +15,7 @@ export const useQuestionsManager = (backendUrl) => {
         return initialAnswers;
     };
     const [answers, setAnswers] = useState(initializeAnswers(questions));
+    const [isLoading, setIsLoading] = useState(false);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
@@ -115,6 +116,17 @@ export const useQuestionsManager = (backendUrl) => {
         }
     };
 
+    const generateFollowUpQuestions = async () => {
+        setIsLoading(true);
+        const response = await fetch(`${backendUrl}/profile/questions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        setIsLoading(false);
+    };
+
     useEffect(() => {
         if (!uid) {
             return;
@@ -137,5 +149,7 @@ export const useQuestionsManager = (backendUrl) => {
         updateAnswers,
         questions,
         analyzeAnsweredQuestions,
+        generateFollowUpQuestions,
+        isLoading,
     };
 };
