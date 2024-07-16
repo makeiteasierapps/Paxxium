@@ -8,18 +8,25 @@ import {
     Popover,
     Collapse,
 } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import AgentsIcon from '@mui/icons-material/People';
-import ProfileIcon from '@mui/icons-material/AccountCircle';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import {
+    Home as HomeIcon,
+    People as AgentsIcon,
+    Settings as SettingsIcon,
+    AccountCircle as ProfileIcon,
+    AccountTree as AccountTreeIcon,
+    Logout as LogoutIcon,
+    ExpandLess,
+    ExpandMore,
+} from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import paxxiumLogo from '../../assets/images/paxxium-logo.png';
 import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
-
+import { signOut } from 'firebase/auth';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext, auth } from '../../contexts/AuthContext';
 import { HeaderIconButton } from './mainStyledComponents';
 
 const SideDrawer = ({
@@ -33,6 +40,20 @@ const SideDrawer = ({
     const location = useLocation();
     const [popOverAnchor, setPopOverAnchor] = useState(null);
     const [agentsOpen, setAgentsOpen] = useState(false);
+    const navigate = useNavigate();
+    const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            setIdToken(null);
+            setUser(null);
+            setIsAuthorized(false);
+            localStorage.clear();
+            navigate('/');
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const ConditionalTooltip = ({ children, title, condition }) => {
         return condition ? (
@@ -92,6 +113,40 @@ const SideDrawer = ({
                     <AccountTreeIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Projects</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+    const settingsButton = (
+        <ConditionalTooltip title="Settings" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/settings"
+                currentPath={location.pathname}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <SettingsIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Settings</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+
+    const logoutButton = (
+        <ConditionalTooltip title="Logout" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                id="logout-button"
+                onClick={handleLogout}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <LogoutIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Logout</Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -269,6 +324,8 @@ const SideDrawer = ({
 
                 {profileButton}
                 {projectsButton}
+                {settingsButton}
+                {logoutButton}
             </Box>
         </Box>
     );
