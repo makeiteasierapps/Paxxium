@@ -59,6 +59,39 @@ export const useQuestionsManager = (backendUrl) => {
         }
     }, [backendUrl, showSnackbar, uid]);
 
+
+    const analyzeAnsweredQuestions = async () => {
+        try {
+            const response = await fetch(`${backendUrl}/profile/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to analyze profile');
+            }
+
+            const data = await response.json();
+            console.log(data);
+            const cachedProfileData = localStorage.getItem('profileData');
+            if (cachedProfileData) {
+                const profileData = JSON.parse(cachedProfileData);
+                profileData.analysis = data.analysis;
+                localStorage.setItem(
+                    'profileData',
+                    JSON.stringify(profileData)
+                ); // Save back to local storage
+            }
+        } catch (error) {
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            console.error(error);
+        }
+    };
+
     const updateAnswers = async (answers) => {
         try {
             const response = await fetch(`${backendUrl}/profile/answers`, {
@@ -103,5 +136,6 @@ export const useQuestionsManager = (backendUrl) => {
         handleAnswerChange,
         updateAnswers,
         questions,
+        analyzeAnsweredQuestions,
     };
 };

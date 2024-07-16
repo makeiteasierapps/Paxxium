@@ -2,11 +2,12 @@ import { useCallback, useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 
-export const useProfileManager = (backendUrl) => {
+export const useSettingsManager = (backendUrl) => {
     const [profileData, setProfileData] = useState({});
     const [avatar, setAvatar] = useState();
-    const {uid} = useContext(AuthContext);
-    const {showSnackbar} = useContext(SnackbarContext);
+    const [isLoading, setIsLoading] = useState(false);
+    const { uid } = useContext(AuthContext);
+    const { showSnackbar } = useContext(SnackbarContext);
 
     const loadProfile = useCallback(async () => {
         try {
@@ -44,13 +45,15 @@ export const useProfileManager = (backendUrl) => {
         }
     }, [backendUrl, showSnackbar, uid]);
 
-    const updateUserProfile = async (profileData) => {
+    const updateUserProfile = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch(`${backendUrl}/profile/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify(profileData),
             });
@@ -66,6 +69,7 @@ export const useProfileManager = (backendUrl) => {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
+        setIsLoading(false);
     };
 
     const updateAvatar = useCallback(
@@ -112,56 +116,19 @@ export const useProfileManager = (backendUrl) => {
         [backendUrl, showSnackbar]
     );
 
-    const analyzeProfile = async () => {
-        try {
-            const response = await fetch(`${backendUrl}/profile/analyze`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to analyze profile');
-            }
-
-            const data = await response.json();
-            console.log(data);
-            const cachedProfileData = localStorage.getItem('profileData');
-            if (cachedProfileData) {
-                const profileData = JSON.parse(cachedProfileData);
-                profileData.analysis = data.analysis;
-                localStorage.setItem(
-                    'profileData',
-                    JSON.stringify(profileData)
-                ); // Save back to local storage
-            }
-
-            setProfileData((prevProfileData) => ({
-                ...prevProfileData,
-                analysis: data.analysis,
-            }));
-        } catch (error) {
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            console.error(error);
-        }
-    };
-
     useEffect(() => {
         if (!uid) {
             return;
         }
         loadProfile();
-
     }, [uid]);
 
     return {
         profileData,
+        setProfileData,
+        isLoading,
         avatar,
         updateUserProfile,
         updateAvatar,
-        analyzeProfile,
     };
 };

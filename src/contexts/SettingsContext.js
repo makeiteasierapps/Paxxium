@@ -1,24 +1,25 @@
 import { createContext } from 'react';
 import 'react-image-crop/dist/ReactCrop.css';
-import { useQuestionsManager } from '../hooks/useQuestionsManager';
+import { useSettingsManager } from '../hooks/useSettingsManager';
 
-export const ProfileContext = createContext();
+export const SettingsContext = createContext();
 
-export const ProfileProvider = ({ children }) => {
+export const SettingsProvider = ({ children }) => {
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const questionsManager = useQuestionsManager(backendUrl);
+    
+    const settingsManager = useSettingsManager(backendUrl);
 
     return (
-        <ProfileContext.Provider
+        <SettingsContext.Provider
             value={{
-                ...questionsManager,
+                ...settingsManager,
             }}
         >
             {children}
-        </ProfileContext.Provider>
+        </SettingsContext.Provider>
     );
 };

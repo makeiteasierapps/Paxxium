@@ -1,52 +1,49 @@
 import { Box, CircularProgress } from '@mui/material';
 import { useContext, useState } from 'react';
 import { ProfileContext } from '../../contexts/ProfileContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
 import Questions from './components/Questions';
-import User from './components/User';
+
 
 import { MainContainer, StyledButton } from './styledProfileComponents';
 
 const ProfileDash = () => {
     const {
-        analyzeProfile,
-        profileData,
         answers,
-        updateUserProfile,
         updateAnswers,
+        analyzeAnsweredQuestions,
     } = useContext(ProfileContext);
+    const { profileData } = useContext(SettingsContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
     // State to manage analysis loading indicator
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [isUpdating, setIsUpdating] = useState(false);
-    const handleUpdate = async (profileData = null, answers = null) => {
-        setIsUpdating(true);
-        await updateUserProfile(profileData);
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const handleUpdate = async (answers = null) => {
+        setIsLoading(true);
         await updateAnswers(answers);
-        setIsUpdating(false);
+        setIsLoading(false);
     };
 
     const handleAnalyzeProfile = async () => {
-        setIsAnalyzing(true); // Start loading
-        await analyzeProfile();
-        setIsAnalyzing(false); // End loading
+        setIsLoading(true); 
+        await analyzeAnsweredQuestions();
+        setIsLoading(false);
     };
 
     return (
         <MainContainer id="main-container">
-            <User />
-
             <Questions />
             <StyledButton
                 id="update-profile-button"
-                onClick={() => handleUpdate(profileData, answers)}
+                onClick={() => handleUpdate(answers)}
                 size="large"
                 sx={{ margin: 3 }}
-                disabled={isUpdating}
+                disabled={isLoading}
             >
-                {isUpdating ? <CircularProgress size={24} /> : 'Save'}
+                {isLoading ? <CircularProgress size={24} /> : 'Save'}
             </StyledButton>
             <Box
                 display="flex"
@@ -68,10 +65,10 @@ const ProfileDash = () => {
                 <StyledButton
                     onClick={handleAnalyzeProfile}
                     size="large"
-                    disabled={isAnalyzing}
+                    disabled={isLoading}
                     sx={{ margin: 3 }}
                 >
-                    {isAnalyzing ? <CircularProgress size={24} /> : 'Analyze'}
+                    {isLoading ? <CircularProgress size={24} /> : 'Analyze'}
                 </StyledButton>
             </Box>
 

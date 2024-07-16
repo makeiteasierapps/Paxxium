@@ -15,12 +15,14 @@ import ImageDash from './dashboards/image/ImageDash';
 import ProfileDash from './dashboards/profile/ProfileDash';
 import HomeDash from './dashboards/home/HomeDash';
 import KbDash from './dashboards/knowledgeBase/KbDash';
+import SettingsDash from './dashboards/settings/SettingsDash';
 import { AuthContext, AuthProvider } from './contexts/AuthContext';
 import { ImageProvider } from './contexts/ImageContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { SnackbarProvider } from './contexts/SnackbarContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
@@ -130,6 +132,10 @@ const AuthenticatedApp = () => {
                             <Route path="/dalle" element={<ImageDash />} />
                             <Route path="/profile" element={<ProfileDash />} />
                             <Route path="/projects" element={<KbDash />} />
+                            <Route
+                                path="/settings"
+                                element={<SettingsDash />}
+                            />
                         </Routes>
                     </Box>
                 </>
@@ -150,19 +156,21 @@ const App = () => {
             <CssBaseline />
             <SnackbarProvider>
                 <AuthProvider>
-                    <Router>
-                        <NewsProvider>
-                            <ImageProvider>
-                                <ChatProvider>
-                                    <ProfileProvider>
-                                        <KbProvider>
-                                            <AuthenticatedApp />
-                                        </KbProvider>
-                                    </ProfileProvider>
-                                </ChatProvider>
-                            </ImageProvider>
-                        </NewsProvider>
-                    </Router>
+                    <SettingsProvider>
+                        <Router>
+                            <NewsProvider>
+                                <ImageProvider>
+                                    <ChatProvider>
+                                        <ProfileProvider>
+                                            <KbProvider>
+                                                <AuthenticatedApp />
+                                            </KbProvider>
+                                        </ProfileProvider>
+                                    </ChatProvider>
+                                </ImageProvider>
+                            </NewsProvider>
+                        </Router>
+                    </SettingsProvider>
                 </AuthProvider>
             </SnackbarProvider>
         </ThemeProvider>

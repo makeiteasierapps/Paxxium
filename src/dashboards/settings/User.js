@@ -1,6 +1,6 @@
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { useContext, useState, useRef } from 'react';
-import { ProfileContext } from '../../../contexts/ProfileContext';
+import { SettingsContext } from '../../contexts/SettingsContext';
 import { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
@@ -8,13 +8,14 @@ import {
     UserContainer,
     AvatarContainer,
     StyledAvatar,
+    StyledButton,
     ProfileTextField,
     Username,
     TextFieldContainer,
     StyledAvatarPlaceholder,
-} from '../styledProfileComponents';
+} from '../profile/styledProfileComponents';
 
-import AvatarDialog from './AvatarDialog';
+import AvatarDialog from '../settings/AvatarDialog';
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
@@ -45,8 +46,8 @@ const User = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const { profileData, setProfileData, avatar, updateAvatar } =
-        useContext(ProfileContext);
+    const { profileData, setProfileData, avatar, updateAvatar, isLoading, updateUserProfile } =
+        useContext(SettingsContext);
 
     const handleClose = () => {
         setOpen(false);
@@ -58,6 +59,7 @@ const User = () => {
         }
         setOpen(false);
     };
+
 
     function onImageLoad(e) {
         if (aspect) {
@@ -241,6 +243,15 @@ const User = () => {
                     }
                 />
             </TextFieldContainer>
+            <StyledButton
+                id="update-profile-button"
+                onClick={() => updateUserProfile()}
+                size="large"
+                sx={{ margin: 3 }}
+                disabled={isLoading}
+            >
+                {isLoading ? <CircularProgress size={24} /> : 'Save'}
+            </StyledButton>
         </UserContainer>
     );
 };
