@@ -59,7 +59,7 @@ const ProfileDash = () => {
     
 
     const handleStartGeneratingQuestions = async () => {
-        await generateFollowUpQuestions();
+        await generateFollowUpQuestions(userInput);
     };
 
     return (

@@ -60,7 +60,6 @@ export const useQuestionsManager = (backendUrl) => {
         }
     }, [backendUrl, showSnackbar, uid]);
 
-
     const analyzeAnsweredQuestions = async () => {
         try {
             const response = await fetch(`${backendUrl}/profile/analyze`, {
@@ -116,15 +115,52 @@ export const useQuestionsManager = (backendUrl) => {
         }
     };
 
-    const generateFollowUpQuestions = async () => {
+    const generateFollowUpQuestions = async (userInput) => {
         setIsLoading(true);
-        const response = await fetch(`${backendUrl}/profile/questions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        setIsLoading(false);
+        try {
+            const response = await fetch(
+                `${backendUrl}/profile/generate_questions`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                    },
+                    body: JSON.stringify({ userInput }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to generate follow-up questions');
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.trim()) {
+                        const result = JSON.parse(line);
+                        console.log('Received question:', result);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error generating follow-up questions:', error);
+            showSnackbar(
+                `Error generating follow-up questions: ${error.message}`,
+                'error'
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
