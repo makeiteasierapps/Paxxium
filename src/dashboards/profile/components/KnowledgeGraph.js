@@ -17,19 +17,6 @@ const sampleData = [
         ],
     },
     {
-        category: 'Personal Background',
-        questions: [
-            'Can you share a bit about your upbringing and how it has influenced your approach to parenting and work-life balance?',
-            'How has being a single parent impacted your daily routine and decision-making process?',
-            "What significant life events have shaped your current goals and aspirations, particularly in pursuing a master's degree in educational psychology?",
-            'In what ways do your interests in gardening and painting contribute to your overall well-being and stress management?',
-            'How do you prioritize your health goals while juggling parenting, work, and educational pursuits?',
-            'What strategies have you found effective in maintaining a healthy work-life balance as a school counselor and single parent?',
-            'How do you stay motivated to pursue your educational aspirations despite the challenges of balancing multiple responsibilities?',
-            'What advice would you give to other single parents looking to improve their diet and incorporate regular exercise into their routine?',
-        ],
-    },
-    {
         category: 'Education and Career',
         questions: [
             'What motivated you to pursue a career as a school counselor?',
@@ -154,10 +141,15 @@ const Node = ({
 
     if (node.name === 'Root') node.name = 'Personalized Questions';
 
-    const angle = (index / total) * 2 * Math.PI;
+    let angle, x, y;
     const radius = 150 * (depth + 1);
-    const x = radius * Math.cos(angle);
-    const y = radius * Math.sin(angle);
+
+    angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+
+    x = radius * Math.cos(angle);
+    y = radius * Math.sin(angle);
+
+    const isQuestion = !node.children || node.children.length === 0;
 
     return (
         <Box
@@ -173,17 +165,19 @@ const Node = ({
                 whileTap={{ scale: 0.9 }}
                 onClick={handleClick}
                 style={{
-                    borderRadius: '50%',
+                    borderRadius: isQuestion ? '10px' : '50%',
                     background: '#3f51b5',
                     color: 'white',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: 100,
-                    height: 100,
+                    width: isQuestion ? 250 : 100,
+                    height: isQuestion ? 100 : 100,
                     cursor: 'pointer',
                     margin: 20,
                     position: 'relative',
+                    padding: isQuestion ? '10px' : '0',
+                    textAlign: isQuestion ? 'center' : 'left',
                 }}
             >
                 <Typography
