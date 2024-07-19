@@ -4,20 +4,47 @@ import { SnackbarContext } from '../contexts/SnackbarContext';
 import { questions } from '../assets/questions';
 
 export const useQuestionsManager = (backendUrl) => {
-    const initializeAnswers = (questions) => {
-        const initialAnswers = {};
-        Object.keys(questions).forEach((category) => {
-            initialAnswers[category] = {};
-            questions[category].forEach((question) => {
-                initialAnswers[category][question] = '';
-            });
-        });
-        return initialAnswers;
-    };
-    const [answers, setAnswers] = useState(initializeAnswers(questions));
+    const [treeData, setTreeData] = useState({
+        name: 'Root',
+        children: [],
+        parent: null,
+    });
+    const [newCategory, setNewCategory] = useState(null);
+    const [answers, setAnswers] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
+
+    useEffect(() => {
+        if (newCategory) {
+            setTreeData((prevTreeData) =>
+                addCategoryToTree(prevTreeData, newCategory)
+            );
+        }
+    }, [newCategory]);
+
+    const addCategoryToTree = (root, newCategory) => {
+        const categoryNode = {
+            name: newCategory.category,
+            children: [],
+            parent: root,
+        };
+
+        newCategory.questions.forEach((questionAnswerPair) => {
+            const questionNode = {
+                name: questionAnswerPair.question,
+                answer: questionAnswerPair.answer || '',
+                children: [],
+                parent: categoryNode,
+            };
+            categoryNode.children.push(questionNode);
+        });
+
+        // Append the new category to the root's children
+        root.children.push(categoryNode);
+
+        return root;
+    };
 
     const getAnswers = useCallback(async () => {
         try {
@@ -149,6 +176,7 @@ export const useQuestionsManager = (backendUrl) => {
                     if (line.trim()) {
                         const result = JSON.parse(line);
                         console.log('Received question:', result);
+                        setNewCategory(result);
                     }
                 }
             }
@@ -187,5 +215,6 @@ export const useQuestionsManager = (backendUrl) => {
         analyzeAnsweredQuestions,
         generateFollowUpQuestions,
         isLoading,
+        treeData,
     };
 };
