@@ -92,7 +92,7 @@ export const useQuestionsManager = (backendUrl) => {
         }
     };
 
-    const updateAnswers = async (answers) => {
+    const updateAnswers = async (node) => {
         try {
             const response = await fetch(`${backendUrl}/profile/answers`, {
                 method: 'POST',
@@ -101,7 +101,7 @@ export const useQuestionsManager = (backendUrl) => {
                     uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
-                body: JSON.stringify({ answers }),
+                body: JSON.stringify({ node }),
             });
 
             if (!response.ok) {

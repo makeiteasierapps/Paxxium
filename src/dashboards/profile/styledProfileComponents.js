@@ -1,6 +1,27 @@
 import { Box, Tabs, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
 
+
+export const CustomTextField = styled(TextField)(({ theme }) => ({
+    width: '80%',
+    textAlign: 'center',
+    '& .MuiInputBase-input': {
+        textAlign: 'center',
+    },
+    '& .MuiInputBase-root': {
+        border: 'none',
+    },
+    '& .MuiInput-underline:before': {
+        borderBottom: 'none',
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+        borderBottom: 'none',
+    },
+    '& .MuiInput-underline:after': {
+        borderBottom: 'none',
+    },
+}));
+
 export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',

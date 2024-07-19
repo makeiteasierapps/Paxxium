@@ -1,97 +1,321 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { CustomTextField } from '../styledProfileComponents';
+import { ProfileContext } from '../../../contexts/ProfileContext';
 const sampleData = [
     {
         category: 'Personal Background',
         questions: [
-            'Can you share a bit about your upbringing and how it has influenced your approach to parenting and work-life balance?',
-            'How has being a single parent impacted your daily routine and decision-making process?',
-            "What significant life events have shaped your current goals and aspirations, particularly in pursuing a master's degree in educational psychology?",
-            'In what ways do your interests in gardening and painting contribute to your overall well-being and stress management?',
-            'How do you prioritize your health goals while juggling parenting, work, and educational pursuits?',
-            'What strategies have you found effective in maintaining a healthy work-life balance as a school counselor and single parent?',
-            'How do you stay motivated to pursue your educational aspirations despite the challenges of balancing multiple responsibilities?',
-            'What advice would you give to other single parents looking to improve their diet and incorporate regular exercise into their routine?',
+            {
+                question:
+                    'Can you share a bit about your upbringing and how it has influenced your approach to parenting and work-life balance?',
+                answer: 'Hi How arte you',
+            },
+            {
+                question:
+                    'How has being a single parent impacted your daily routine and decision-making process?',
+                answer: '',
+            },
+            {
+                question:
+                    "What significant life events have shaped your current goals and aspirations, particularly in pursuing a master's degree in educational psychology?",
+                answer: '',
+            },
+            {
+                question:
+                    'In what ways do your interests in gardening and painting contribute to your overall well-being and stress management?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you prioritize your health goals while juggling parenting, work, and educational pursuits?',
+                answer: '',
+            },
+            {
+                question:
+                    'What strategies have you found effective in maintaining a healthy work-life balance as a school counselor and single parent?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you stay motivated to pursue your educational aspirations despite the challenges of balancing multiple responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'What advice would you give to other single parents looking to improve their diet and incorporate regular exercise into their routine?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Education and Career',
         questions: [
-            'What motivated you to pursue a career as a school counselor?',
-            'Can you share more about your educational journey and how it has led you to where you are today?',
-            'What are your career goals in the field of educational psychology?',
-            "How do you envision balancing your job as a school counselor with pursuing a master's degree?",
-            'Have you considered any specific career advancements or opportunities within the field of educational psychology?',
-            'What challenges do you anticipate facing in balancing your parenting responsibilities with your career and educational aspirations?',
-            'How do you plan to stay motivated and focused on your personal health and education goals while juggling multiple responsibilities?',
-            'Are there any specific areas within educational psychology that you are particularly passionate about or interested in exploring further?',
+            {
+                question:
+                    'What motivated you to pursue a career as a school counselor?',
+                answer: '',
+            },
+            {
+                question:
+                    'Can you share more about your educational journey and how it has led you to where you are today?',
+                answer: '',
+            },
+            {
+                question:
+                    'What are your career goals in the field of educational psychology?',
+                answer: '',
+            },
+            {
+                question:
+                    "How do you envision balancing your job as a school counselor with pursuing a master's degree?",
+                answer: '',
+            },
+            {
+                question:
+                    'Have you considered any specific career advancements or opportunities within the field of educational psychology?',
+                answer: '',
+            },
+            {
+                question:
+                    'What challenges do you anticipate facing in balancing your parenting responsibilities with your career and educational aspirations?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you plan to stay motivated and focused on your personal health and education goals while juggling multiple responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'Are there any specific areas within educational psychology that you are particularly passionate about or interested in exploring further?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Physical and Mental Health',
         questions: [
-            'How would you describe your current diet and eating habits?',
-            'Do you engage in regular physical activity or exercise? If so, what does your routine look like?',
-            'Have you noticed any changes in your mental health or emotional well-being recently?',
-            'Are there any persistent health issues or disabilities that you are managing?',
-            'How do you cope with stress and maintain a work-life balance as a single parent and school counselor?',
-            'What strategies do you use to stay motivated in pursuing your health and educational goals?',
-            'Have you considered seeking professional support or counseling to address any challenges you are facing?',
-            'How can we support you in finding resources or assistance to help you achieve a better work-life balance and overall well-being?',
+            {
+                question:
+                    'How would you describe your current diet and eating habits?',
+                answer: '',
+            },
+            {
+                question:
+                    'Do you engage in regular physical activity or exercise? If so, what does your routine look like?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you noticed any changes in your mental health or emotional well-being recently?',
+                answer: '',
+            },
+            {
+                question:
+                    'Are there any persistent health issues or disabilities that you are managing?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you cope with stress and maintain a work-life balance as a single parent and school counselor?',
+                answer: '',
+            },
+            {
+                question:
+                    'What strategies do you use to stay motivated in pursuing your health and educational goals?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you considered seeking professional support or counseling to address any challenges you are facing?',
+                answer: '',
+            },
+            {
+                question:
+                    'How can we support you in finding resources or assistance to help you achieve a better work-life balance and overall well-being?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Interests and Hobbies',
         questions: [
-            'What inspired you to start gardening and painting?',
-            'How do you find time to pursue your hobbies amidst your busy schedule?',
-            'Have you considered involving your daughter in your gardening or painting activities?',
-            'What benefits do you experience from engaging in gardening and painting?',
-            'Are there any specific projects or techniques you would like to learn more about in gardening or painting?',
-            'How do your hobbies contribute to your overall well-being and stress relief?',
-            'Have you thought about joining a gardening or painting community to connect with like-minded individuals?',
-            'In what ways do your hobbies help you stay motivated in achieving your health and educational goals?',
-            'Do you have any future plans or goals related to your gardening and painting interests?',
-            'How do you see your hobbies evolving as you continue to pursue your educational aspirations?',
+            {
+                question: 'What inspired you to start gardening and painting?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you find time to pursue your hobbies amidst your busy schedule?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you considered involving your daughter in your gardening or painting activities?',
+                answer: '',
+            },
+            {
+                question:
+                    'What benefits do you experience from engaging in gardening and painting?',
+                answer: '',
+            },
+            {
+                question:
+                    'Are there any specific projects or techniques you would like to learn more about in gardening or painting?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do your hobbies contribute to your overall well-being and stress relief?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you thought about joining a gardening or painting community to connect with like-minded individuals?',
+                answer: '',
+            },
+            {
+                question:
+                    'In what ways do your hobbies help you stay motivated in achieving your health and educational goals?',
+                answer: '',
+            },
+            {
+                question:
+                    'Do you have any future plans or goals related to your gardening and painting interests?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you see your hobbies evolving as you continue to pursue your educational aspirations?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Current Life Situation',
         questions: [
-            'How do you currently manage your time between parenting, work, hobbies, health goals, and educational aspirations?',
-            'What specific challenges do you face in balancing all these responsibilities?',
-            'Are there any specific strategies or routines that have helped you maintain a work-life balance?',
-            'How do you ensure quality time with your daughter while pursuing your educational and career goals?',
-            'What support systems or resources do you rely on to help you juggle all these responsibilities?',
-            'In what ways do you prioritize self-care and personal well-being amidst your busy schedule?',
-            'What motivates you to stay focused on your health and education goals despite the challenges?',
-            'How do you handle stress and maintain a positive mindset during demanding times?',
-            'Have you considered seeking professional guidance or support to help you navigate these various responsibilities?',
-            'What advice or tips would you give to other single parents facing similar challenges?',
+            {
+                question:
+                    'How do you currently manage your time between parenting, work, hobbies, health goals, and educational aspirations?',
+                answer: '',
+            },
+            {
+                question:
+                    'What specific challenges do you face in balancing all these responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'Are there any specific strategies or routines that have helped you maintain a work-life balance?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you ensure quality time with your daughter while pursuing your educational and career goals?',
+                answer: '',
+            },
+            {
+                question:
+                    'What support systems or resources do you rely on to help you juggle all these responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'In what ways do you prioritize self-care and personal well-being amidst your busy schedule?',
+                answer: '',
+            },
+            {
+                question:
+                    'What motivates you to stay focused on your health and education goals despite the challenges?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you handle stress and maintain a positive mindset during demanding times?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you considered seeking professional guidance or support to help you navigate these various responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'What advice or tips would you give to other single parents facing similar challenges?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Social Relationships',
         questions: [
-            'How do you involve your daughter in your hobbies like gardening and painting?',
-            'What support do you have from family or friends in balancing your parenting responsibilities and work as a school counselor?',
-            'Have you considered joining any parent support groups or community programs to connect with other single parents?',
-            'How do you maintain communication with your friends while juggling your various responsibilities?',
-            'In what ways do you prioritize self-care and social connections to stay motivated in achieving your health and educational goals?',
+            {
+                question:
+                    'How do you involve your daughter in your hobbies like gardening and painting?',
+                answer: '',
+            },
+            {
+                question:
+                    'What support do you have from family or friends in balancing your parenting responsibilities and work as a school counselor?',
+                answer: '',
+            },
+            {
+                question:
+                    'Have you considered joining any parent support groups or community programs to connect with other single parents?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you maintain communication with your friends while juggling your various responsibilities?',
+                answer: '',
+            },
+            {
+                question:
+                    'In what ways do you prioritize self-care and social connections to stay motivated in achieving your health and educational goals?',
+                answer: '',
+            },
         ],
     },
     {
         category: 'Goals and Aspirations',
         questions: [
-            'What are your short-term goals in terms of improving your diet and incorporating regular exercise?',
-            'How do you envision balancing parenting, your job as a school counselor, hobbies, health goals, and educational aspirations?',
-            "What motivates you to pursue a master's degree in educational psychology?",
-            'In what ways do you see your interests in gardening and painting aligning with your long-term goals?',
-            'What specific challenges do you face in maintaining work-life balance as a single parent?',
-            'How do you plan to stay motivated in achieving your personal health and education goals?',
-            'What advice or strategies would you find most helpful in effective parenting as a single parent?',
+            {
+                question:
+                    'What are your short-term goals in terms of improving your diet and incorporating regular exercise?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you envision balancing parenting, your job as a school counselor, hobbies, health goals, and educational aspirations?',
+                answer: '',
+            },
+            {
+                question:
+                    "What motivates you to pursue a master's degree in educational psychology?",
+                answer: '',
+            },
+            {
+                question:
+                    'In what ways do you see your interests in gardening and painting aligning with your long-term goals?',
+                answer: '',
+            },
+            {
+                question:
+                    'What specific challenges do you face in maintaining work-life balance as a single parent?',
+                answer: '',
+            },
+            {
+                question:
+                    'How do you plan to stay motivated in achieving your personal health and education goals?',
+                answer: '',
+            },
+            {
+                question:
+                    'What advice or strategies would you find most helpful in effective parenting as a single parent?',
+                answer: '',
+            },
         ],
     },
 ];
@@ -105,12 +329,14 @@ const transformDataToTree = (data) => {
             children: [],
             parent: root,
         };
-        category.questions.forEach((question) => {
+        category.questions.forEach((questionAnswerPair) => {
             const questionNode = {
-                name: question,
+                name: questionAnswerPair.question,
+                answer: questionAnswerPair.answer,
                 children: [],
                 parent: categoryNode,
             };
+
             categoryNode.children.push(questionNode);
         });
         root.children.push(categoryNode);
@@ -127,9 +353,13 @@ const Node = ({
     total = 1,
     expandedNodes,
     setExpandedNodes,
+    activeNode,
 }) => {
     const isExpanded = expandedNodes.includes(node);
+    const [answer, setAnswer] = useState('');
+    const { updateAnswers } = useContext(ProfileContext);
 
+    console.log(node);
     const handleClick = () => {
         if (isExpanded) {
             setExpandedNodes(expandedNodes.filter((n) => n !== node));
@@ -137,6 +367,12 @@ const Node = ({
             setExpandedNodes([...expandedNodes, node]);
         }
         onClick(node);
+    };
+
+    const handleAnswerChange = (e, node) => {
+        
+        node.answer = e.target.value;
+        updateAnswers(node);
     };
 
     if (node.name === 'Root') node.name = 'Personalized Questions';
@@ -153,8 +389,13 @@ const Node = ({
 
     return (
         <Box
+            id="node-container"
             sx={{
                 position: 'absolute',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
                 left: depth === 0 ? '50%' : `calc(50% + ${x}px)`,
                 top: depth === 0 ? '50%' : `calc(50% + ${y}px)`,
                 transform: 'translate(-50%, -50%)',
@@ -200,8 +441,31 @@ const Node = ({
                             total={node.children.length}
                             expandedNodes={expandedNodes}
                             setExpandedNodes={setExpandedNodes}
+                            activeNode={activeNode}
                         />
                     ))}
+                    {isQuestion && node === activeNode && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Typography variant="body2">
+                                {node.answer}
+                            </Typography>
+                            <CustomTextField
+                                multiline
+                                rows={4}
+                                fullWidth
+                                autoFocus
+                                variant="standard"
+                                value={node.answer}
+                                onChange={(e) => setAnswer(e.target.value)}
+                            />
+                        </Box>
+                    )}
                 </AnimatePresence>
             )}
         </Box>
@@ -246,6 +510,7 @@ const GraphComponent = () => {
                     onClick={handleNodeClick}
                     expandedNodes={expandedNodes}
                     setExpandedNodes={setExpandedNodes}
+                    activeNode={activeNode}
                 />
             </Box>
         </Box>

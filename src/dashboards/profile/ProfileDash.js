@@ -2,7 +2,6 @@ import {
     Box,
     CircularProgress,
     styled,
-    TextField,
     Typography,
 } from '@mui/material';
 import { useContext, useState } from 'react';
@@ -10,7 +9,7 @@ import { ProfileContext } from '../../contexts/ProfileContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
 import GraphComponent from './components/KnowledgeGraph';
-import { StyledButton } from './styledProfileComponents';
+import { StyledButton, CustomTextField } from './styledProfileComponents';
 const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -29,26 +28,6 @@ const InputContainer = styled(Box)(({ theme }) => ({
     width: '70vw',
     height: '40vh',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-}));
-
-const CustomTextField = styled(TextField)(({ theme }) => ({
-    width: '80%',
-    textAlign: 'center',
-    '& .MuiInputBase-input': {
-        textAlign: 'center',
-    },
-    '& .MuiInputBase-root': {
-        border: 'none',
-    },
-    '& .MuiInput-underline:before': {
-        borderBottom: 'none',
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-        borderBottom: 'none',
-    },
-    '& .MuiInput-underline:after': {
-        borderBottom: 'none',
-    },
 }));
 
 const ProfileDash = () => {
