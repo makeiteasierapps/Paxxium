@@ -5,12 +5,11 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-
 import { useContext, useState } from 'react';
 import { ProfileContext } from '../../contexts/ProfileContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import MySnackbar from '../../SnackBar';
-
+import GraphComponent from './components/KnowledgeGraph';
 import { StyledButton } from './styledProfileComponents';
 const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -56,7 +55,6 @@ const ProfileDash = () => {
     const [userInput, setUserInput] = useState('');
     const { generateFollowUpQuestions, isLoading } = useContext(ProfileContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
-    
 
     const handleStartGeneratingQuestions = async () => {
         await generateFollowUpQuestions(userInput);
@@ -95,6 +93,7 @@ const ProfileDash = () => {
                 severity={snackbarInfo.severity}
                 handleClose={hideSnackbar}
             />
+            <GraphComponent />
         </MainContainer>
     );
 };
