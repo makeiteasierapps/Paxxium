@@ -9,7 +9,6 @@ const GraphComponent = () => {
     const [expandedNodes, setExpandedNodes] = useState([treeData]);
 
     useEffect(() => {
-        console.log('treeData', treeData);
         setActiveNode(treeData);
         setExpandedNodes([treeData]);
     }, [treeData]);
