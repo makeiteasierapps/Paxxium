@@ -1,5 +1,43 @@
 import { Box, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
+import { motion } from 'framer-motion';
+
+const commonStyles = {
+    background: 'black',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    margin: 20,
+    position: 'relative',
+    padding: '10px',
+    textAlign: 'center',
+};
+
+export const StyledRootNode = styled(motion.div)(({ theme }) => ({
+    ...commonStyles,
+    borderRadius: '0',
+    width: 200,
+    height: 200,
+    clipPath:
+        'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+}));
+
+export const StyledQuestionNode = styled(motion.div)(({ theme }) => ({
+    ...commonStyles,
+    borderRadius: '10px',
+    width: 250,
+    height: 100,
+}));
+
+export const StyledCategoryNode = styled(motion.div)(({ theme }) => ({
+    ...commonStyles,
+    width: 110,
+    height: 110,
+    clipPath:
+        'polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%)',
+}));
 
 export const CustomTextField = styled(TextField)(({ theme }) => ({
     width: '80%',
@@ -21,15 +59,14 @@ export const CustomTextField = styled(TextField)(({ theme }) => ({
     },
 }));
 
-export const MainContainer = styled(Box)(({ theme }) => ({
+export const InputContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: theme.spacing(2),
-    gap: theme.spacing(10),
-    margin: 'auto',
-    maxWidth: '1200px',
+    borderRadius: '9px',
+    width: '70vw',
+    height: '40vh',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
 }));
 
@@ -135,3 +172,8 @@ export const StyledButton = styled(Button)(({ theme }) => ({
         color: 'black',
     },
 }));
+
+StyledButton.defaultProps = {
+    disableRipple: true,
+    variant: 'outlined',
+};

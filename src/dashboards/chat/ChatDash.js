@@ -5,6 +5,7 @@ import Chat from './components/Chat';
 import ChatSettings from './components/ChatSettings';
 import { ChatContext } from '../../contexts/ChatContext';
 import { Box } from '@mui/material';
+import { MainContainer } from '../styledComponents/DashStyledComponents';
 
 import { CustomGridLoader } from '../main/customLoaders';
 
@@ -13,14 +14,7 @@ const ChatDash = () => {
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                flexDirection: 'column',
-                height: '100vh',
-            }}
-        >
+        <MainContainer>
             {loading ? (
                 <Box marginTop={30}>
                     <CustomGridLoader />
@@ -44,7 +38,7 @@ const ChatDash = () => {
                 severity={snackbarInfo.severity}
                 handleClose={hideSnackbar}
             />
-        </Box>
+        </MainContainer>
     );
 };
 
