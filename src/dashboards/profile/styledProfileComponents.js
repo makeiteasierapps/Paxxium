@@ -1,6 +1,5 @@
-import { Box, Tabs, TextField, Typography, Button } from '@mui/material';
+import { Box, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
-
 
 export const CustomTextField = styled(TextField)(({ theme }) => ({
     width: '80%',
@@ -32,41 +31,6 @@ export const MainContainer = styled(Box)(({ theme }) => ({
     margin: 'auto',
     maxWidth: '1200px',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-}));
-
-export const StyledTabs = styled(Tabs)(({ theme }) => ({
-    width: '100%',
-    marginBottom: theme.spacing(1),
-    '& .MuiTabs-indicator': {
-        display: 'none',
-    },
-    '& .MuiTabs-flexContainer': {
-        justifyContent: 'center',
-    },
-    '& .MuiTab-root': {
-        padding: theme.spacing(1),
-        color: theme.palette.text.primary,
-        '&:hover': {
-            color: theme.palette.text.secondary,
-        },
-        '&.Mui-selected': {
-            color: theme.palette.text.secondary,
-        },
-    },
-}));
-
-export const QuestionsContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
-    height: '50vh',
-    overflowY: 'scroll',
-    marginTop: theme.spacing(2),
-}));
-
-export const Question = styled(Typography)(({ theme }) => ({
-    marginBottom: theme.spacing(2),
 }));
 
 export const UserContainer = styled(Box)(({ theme }) => ({
@@ -171,8 +135,3 @@ export const StyledButton = styled(Button)(({ theme }) => ({
         color: 'black',
     },
 }));
-
-StyledButton.defaultProps = {
-    disableRipple: true,
-    variant: 'outlined',
-};
