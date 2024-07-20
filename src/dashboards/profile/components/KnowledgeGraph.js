@@ -1,7 +1,14 @@
 import { useState, useContext, useEffect } from 'react';
-import { Box, Typography, styled } from '@mui/material';
+import {
+    Box,
+    Typography,
+    TextField,
+    styled,
+    InputAdornment,
+} from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CustomTextField } from '../styledProfileComponents';
+import SendIcon from '@mui/icons-material/Send';
+import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { ProfileContext } from '../../../contexts/ProfileContext';
 
 const StyledRootNode = styled(motion.div)(({ theme }) => ({
@@ -20,6 +27,22 @@ const StyledRootNode = styled(motion.div)(({ theme }) => ({
     textAlign: 'center',
     clipPath:
         'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+}));
+
+const StyledQuestionNode = styled(motion.div)(({ theme }) => ({
+    borderRadius: '10px',
+    background: 'black',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 250,
+    height: 100,
+    cursor: 'pointer',
+    margin: 20,
+    position: 'relative',
+    padding: '10px',
+    textAlign: 'center',
 }));
 
 const StyledCategoryNode = styled(motion.div)(({ theme }) => ({
@@ -62,7 +85,26 @@ const RootNode = ({ node, onClick }) => {
     );
 };
 
-const CategoryNode = ({ node, onClick, isQuestion, width, height }) => {
+const QuestionNode = ({ node, onClick }) => {
+    return (
+        <StyledShadowWrapper>
+            <StyledQuestionNode
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClick}
+            >
+                <Typography
+                    variant="body2"
+                    sx={{ textAlign: 'center', padding: '5px' }}
+                >
+                    {node.name}
+                </Typography>
+            </StyledQuestionNode>
+        </StyledShadowWrapper>
+    );
+};
+
+const CategoryNode = ({ node, onClick }) => {
     return (
         <StyledShadowWrapper>
             <StyledCategoryNode
@@ -78,19 +120,6 @@ const CategoryNode = ({ node, onClick, isQuestion, width, height }) => {
                 </Typography>
             </StyledCategoryNode>
         </StyledShadowWrapper>
-    );
-};
-
-const QuestionNode = ({ node, onClick, isQuestion }) => {
-    return (
-        <CategoryNode
-            node={node}
-            onClick={onClick}
-            isQuestion={isQuestion}
-            width={isQuestion ? 250 : 100}
-            height={100}
-            borderRadius={isQuestion ? '10px' : '50%'}
-        />
     );
 };
 
@@ -117,7 +146,8 @@ const Node = ({
     };
 
     const handleSaveAnswer = (e, node) => {
-        updateAnswer(node._id, answer);
+        console.log('node', node);
+        updateAnswer(node.id, answer);
     };
 
     const isRoot =
@@ -151,17 +181,9 @@ const Node = ({
             {isRoot ? (
                 <RootNode node={node} onClick={handleClick} />
             ) : isQuestion ? (
-                <QuestionNode
-                    node={node}
-                    onClick={handleClick}
-                    isQuestion={isQuestion}
-                />
+                <QuestionNode node={node} onClick={handleClick} />
             ) : (
-                <CategoryNode
-                    node={node}
-                    onClick={handleClick}
-                    isQuestion={isQuestion}
-                />
+                <CategoryNode node={node} onClick={handleClick} />
             )}
 
             {isExpanded && node.children && (
@@ -185,18 +207,34 @@ const Node = ({
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
+                                height: '300px',
                             }}
                         >
                             <Typography variant="body2">
                                 {node.answer}
                             </Typography>
-                            <CustomTextField
-                                multiline
-                                rows={4}
+                            <TextField
                                 fullWidth
                                 autoFocus
-                                variant="standard"
+                                variant="outlined"
                                 value={answer}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <StyledIconButton
+                                                disadfsabled={!answer}
+                                                disableRipple
+                                                aria-label="answer input field"
+                                                onClick={() => {
+                                                    handleSaveAnswer(answer, node);
+                                                    setAnswer('');
+                                                }}
+                                            >
+                                                <SendIcon />
+                                            </StyledIconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
                                 onChange={(e) => setAnswer(e.target.value)}
                             />
                         </Box>
