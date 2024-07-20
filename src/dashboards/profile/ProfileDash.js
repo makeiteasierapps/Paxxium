@@ -1,9 +1,4 @@
-import {
-    Box,
-    CircularProgress,
-    styled,
-    Typography,
-} from '@mui/material';
+import { Box, CircularProgress, styled, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
 import { ProfileContext } from '../../contexts/ProfileContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
@@ -32,11 +27,11 @@ const InputContainer = styled(Box)(({ theme }) => ({
 
 const ProfileDash = () => {
     const [userInput, setUserInput] = useState('');
-    const { generateFollowUpQuestions, isLoading } = useContext(ProfileContext);
+    const { generateBaseQuestions, isLoading } = useContext(ProfileContext);
     const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
     const handleStartGeneratingQuestions = async () => {
-        await generateFollowUpQuestions(userInput);
+        await generateBaseQuestions(userInput);
     };
 
     return (

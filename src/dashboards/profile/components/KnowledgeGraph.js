@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Box, Typography, styled } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CustomTextField } from '../styledProfileComponents';
@@ -18,11 +18,29 @@ const StyledRootNode = styled(motion.div)(({ theme }) => ({
     position: 'relative',
     padding: '10px',
     textAlign: 'center',
-    clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+    clipPath:
+        'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+}));
+
+const StyledCategoryNode = styled(motion.div)(({ theme }) => ({
+    background: 'black',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 110,
+    height: 110,
+    cursor: 'pointer',
+    margin: 20,
+    position: 'relative',
+    padding: '10px',
+    textAlign: 'center',
+    clipPath:
+        'polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%)',
 }));
 
 const StyledShadowWrapper = styled('div')(({ theme }) => ({
-    filter: `drop-shadow(0px 0px 10px dodgerblue)`,
+    filter: `drop-shadow(0px 0px 10px ${theme.palette.primary.main})`,
 }));
 
 const RootNode = ({ node, onClick }) => {
@@ -44,35 +62,35 @@ const RootNode = ({ node, onClick }) => {
     );
 };
 
+const CategoryNode = ({ node, onClick, isQuestion, width, height }) => {
+    return (
+        <StyledShadowWrapper>
+            <StyledCategoryNode
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClick}
+            >
+                <Typography
+                    variant="body2"
+                    sx={{ textAlign: 'center', padding: '5px' }}
+                >
+                    {node.name}
+                </Typography>
+            </StyledCategoryNode>
+        </StyledShadowWrapper>
+    );
+};
+
 const QuestionNode = ({ node, onClick, isQuestion }) => {
     return (
-        <motion.div
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+        <CategoryNode
+            node={node}
             onClick={onClick}
-            style={{
-                borderRadius: isQuestion ? '10px' : '50%',
-                background: '#3f51b5',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: isQuestion ? 250 : 100,
-                height: isQuestion ? 100 : 100,
-                cursor: 'pointer',
-                margin: 20,
-                position: 'relative',
-                padding: isQuestion ? '10px' : '0',
-                textAlign: isQuestion ? 'center' : 'left',
-            }}
-        >
-            <Typography
-                variant="body2"
-                sx={{ textAlign: 'center', padding: '5px' }}
-            >
-                {node.name}
-            </Typography>
-        </motion.div>
+            isQuestion={isQuestion}
+            width={isQuestion ? 250 : 100}
+            height={100}
+            borderRadius={isQuestion ? '10px' : '50%'}
+        />
     );
 };
 
@@ -88,20 +106,18 @@ const Node = ({
 }) => {
     const isExpanded = expandedNodes.includes(node);
     const [answer, setAnswer] = useState('');
-    const { updateAnswers } = useContext(ProfileContext);
+    const { updateAnswer } = useContext(ProfileContext);
 
     const handleClick = () => {
-        if (isExpanded) {
-            setExpandedNodes(expandedNodes.filter((n) => n !== node));
-        } else {
-            setExpandedNodes([...expandedNodes, node]);
-        }
+        setExpandedNodes((prev) =>
+            isExpanded ? prev.filter((n) => n !== node) : [...prev, node]
+        );
+
         onClick(node);
     };
 
-    const handleAnswerChange = (e, node) => {
-        node.answer = e.target.value;
-        updateAnswers(node);
+    const handleSaveAnswer = (e, node) => {
+        updateAnswer(node._id, answer);
     };
 
     const isRoot =
@@ -116,7 +132,7 @@ const Node = ({
     x = radius * Math.cos(angle);
     y = radius * Math.sin(angle);
 
-    const isQuestion = !node.children || node.children.length === 0;
+    const isQuestion = 'answer' in node;
 
     return (
         <Box
@@ -134,8 +150,14 @@ const Node = ({
         >
             {isRoot ? (
                 <RootNode node={node} onClick={handleClick} />
-            ) : (
+            ) : isQuestion ? (
                 <QuestionNode
+                    node={node}
+                    onClick={handleClick}
+                    isQuestion={isQuestion}
+                />
+            ) : (
+                <CategoryNode
                     node={node}
                     onClick={handleClick}
                     isQuestion={isQuestion}
@@ -174,7 +196,7 @@ const Node = ({
                                 fullWidth
                                 autoFocus
                                 variant="standard"
-                                value={node.answer}
+                                value={answer}
                                 onChange={(e) => setAnswer(e.target.value)}
                             />
                         </Box>
@@ -190,12 +212,16 @@ const GraphComponent = () => {
     const [activeNode, setActiveNode] = useState(treeData);
     const [expandedNodes, setExpandedNodes] = useState([treeData]);
 
+    useEffect(() => {
+        console.log('treeData', treeData);
+        setActiveNode(treeData);
+        setExpandedNodes([treeData]);
+    }, [treeData]);
+
     const handleNodeClick = (node) => {
-        if (node === activeNode && node.parent) {
-            setActiveNode(node.parent);
-        } else {
-            setActiveNode(node);
-        }
+        setActiveNode((prevActiveNode) =>
+            node === prevActiveNode && node.parent ? node.parent : node
+        );
     };
 
     return (
@@ -207,7 +233,6 @@ const GraphComponent = () => {
                 height: '100%',
                 width: '100%',
                 position: 'relative',
-                border: '1px solid red',
             }}
         >
             <Box

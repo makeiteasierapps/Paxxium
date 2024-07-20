@@ -1,7 +1,6 @@
 import { useCallback, useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { SnackbarContext } from '../contexts/SnackbarContext';
-import { questions } from '../assets/questions';
 
 export const useQuestionsManager = (backendUrl) => {
     const [treeData, setTreeData] = useState({
@@ -10,28 +9,27 @@ export const useQuestionsManager = (backendUrl) => {
         parent: null,
     });
     const [newCategory, setNewCategory] = useState(null);
-    const [answers, setAnswers] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
 
-    useEffect(() => {
-        if (newCategory) {
-            setTreeData((prevTreeData) =>
-                addCategoryToTree(prevTreeData, newCategory)
-            );
+    const addCategoryToTree = useCallback((root, newCategory) => {
+        const newRoot = { ...root };
+        if (Array.isArray(newCategory)) {
+            newCategory.forEach((category) => {
+                addCategoryToTree(newRoot, category);
+            });
+            return newRoot;
         }
-    }, [newCategory]);
-
-    const addCategoryToTree = (root, newCategory) => {
         const categoryNode = {
             name: newCategory.category,
             children: [],
-            parent: root,
+            parent: newRoot,
         };
 
         newCategory.questions.forEach((questionAnswerPair) => {
             const questionNode = {
+                id: questionAnswerPair._id,
                 name: questionAnswerPair.question,
                 answer: questionAnswerPair.answer || '',
                 children: [],
@@ -40,52 +38,47 @@ export const useQuestionsManager = (backendUrl) => {
             categoryNode.children.push(questionNode);
         });
 
-        // Append the new category to the root's children
-        root.children.push(categoryNode);
+        newRoot.children.push(categoryNode);
 
-        return root;
-    };
+        return newRoot; 
+    }, []);
 
-    const getAnswers = useCallback(async () => {
+    useEffect(() => {
+        if (newCategory) {
+            setTreeData((prevTreeData) =>
+                addCategoryToTree(prevTreeData, newCategory)
+            );
+        }
+    }, [addCategoryToTree, newCategory]);
+
+    const updateAnswer = async (questionId, answer) => {
         try {
-            // Attempt to retrieve the answers from local storage first
-            // const cachedAnswers = localStorage.getItem('profileAnswers');
-            // if (cachedAnswers) {
-            //     setAnswers(JSON.parse(cachedAnswers));
-            //     return; // Exit the function early
-            // }
-
             const response = await fetch(`${backendUrl}/profile/answers`, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
+                body: JSON.stringify({ questionId, answer }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch answers');
+                throw new Error('Failed to update answers');
             }
-            const data = await response.json();
-            // Check if data.answers is not empty and is an object
-            if (data.answers && Object.keys(data.answers).length > 0) {
-                setAnswers(data.answers);
-                // Cache the fetched answers in local storage
-                localStorage.setItem(
-                    'profileAnswers',
-                    JSON.stringify(data.answers)
-                );
-            } else {
-                // Optionally, handle the case where no valid answers are fetched
-                console.log(
-                    'No valid answers fetched, keeping the current state.'
-                );
-            }
+            const updateNodeAnswer = (node) => {
+                if (node.id === questionId) {
+                    node.answer = answer; // Update the answer
+                }
+                node.children.forEach(updateNodeAnswer); // Recursively update children
+            };
+
+            treeData.children.forEach(updateNodeAnswer);
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
         }
-    }, [backendUrl, showSnackbar, uid]);
+    };
 
     const analyzeAnsweredQuestions = async () => {
         try {
@@ -103,7 +96,6 @@ export const useQuestionsManager = (backendUrl) => {
             }
 
             const data = await response.json();
-            console.log(data);
             const cachedProfileData = localStorage.getItem('profileData');
             if (cachedProfileData) {
                 const profileData = JSON.parse(cachedProfileData);
@@ -119,30 +111,7 @@ export const useQuestionsManager = (backendUrl) => {
         }
     };
 
-    const updateAnswers = async (node) => {
-        try {
-            const response = await fetch(`${backendUrl}/profile/answers`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-                body: JSON.stringify({ node }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update answers');
-            }
-
-            localStorage.setItem('profileAnswers', JSON.stringify(answers));
-        } catch (error) {
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            console.log(error);
-        }
-    };
-
-    const generateFollowUpQuestions = async (userInput) => {
+    const generateBaseQuestions = async (userInput) => {
         setIsLoading(true);
         try {
             const response = await fetch(
@@ -191,29 +160,38 @@ export const useQuestionsManager = (backendUrl) => {
         }
     };
 
+    const getQuestions = useCallback(async () => {
+        try {
+            const response = await fetch(`${backendUrl}/profile/questions`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+            });
+            const data = await response.json();
+            setTreeData((prevTreeData) =>
+                addCategoryToTree(prevTreeData, data)
+            );
+            console.log('data', data);
+        } catch (error) {
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            console.error(error);
+        }
+    }, [addCategoryToTree, backendUrl, showSnackbar, uid]);
+
     useEffect(() => {
         if (!uid) {
             return;
         }
-        getAnswers();
-    }, [getAnswers, uid]);
+        getQuestions();
+    }, [getQuestions, uid]);
 
-    const handleAnswerChange = (category, question, answer) => {
-        setAnswers((prevAnswers) => ({
-            ...prevAnswers,
-            [category]: {
-                ...(prevAnswers[category] || {}),
-                [question]: answer,
-            },
-        }));
-    };
     return {
-        answers,
-        handleAnswerChange,
-        updateAnswers,
-        questions,
+        updateAnswer,
         analyzeAnsweredQuestions,
-        generateFollowUpQuestions,
+        generateBaseQuestions,
         isLoading,
         treeData,
     };
