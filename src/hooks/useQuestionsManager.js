@@ -9,9 +9,11 @@ export const useQuestionsManager = (backendUrl) => {
         parent: null,
     });
     const [newCategory, setNewCategory] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
+    const [isQuestionsFormOpen, setIsQuestionsFormOpen] = useState(false);
+    const [isGraphOpen, setIsGraphOpen] = useState(false);
 
     const addCategoryToTree = useCallback((root, newCategory) => {
         const newRoot = { ...root };
@@ -40,7 +42,7 @@ export const useQuestionsManager = (backendUrl) => {
 
         newRoot.children.push(categoryNode);
 
-        return newRoot; 
+        return newRoot;
     }, []);
 
     useEffect(() => {
@@ -131,6 +133,9 @@ export const useQuestionsManager = (backendUrl) => {
                 throw new Error('Failed to generate follow-up questions');
             }
 
+            setIsQuestionsFormOpen(false);
+            setIsGraphOpen(true);
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 
@@ -171,20 +176,29 @@ export const useQuestionsManager = (backendUrl) => {
                 },
             });
             const data = await response.json();
-            setTreeData((prevTreeData) =>
-                addCategoryToTree(prevTreeData, data)
-            );
-            console.log('data', data);
+            setTreeData((prevTreeData) => {
+                const newTreeData = addCategoryToTree(prevTreeData, data);
+                // Determine which component to show based on the new data
+                if (newTreeData.children.length > 0) {
+                    setIsQuestionsFormOpen(false);
+                    setIsGraphOpen(true);
+                } else {
+                    setIsQuestionsFormOpen(true);
+                    setIsGraphOpen(false);
+                }
+                return newTreeData;
+            });
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     }, [addCategoryToTree, backendUrl, showSnackbar, uid]);
 
     useEffect(() => {
-        if (!uid) {
-            return;
-        }
+        if (!uid) return;
+        setIsLoading(true);
         getQuestions();
     }, [getQuestions, uid]);
 
@@ -194,5 +208,7 @@ export const useQuestionsManager = (backendUrl) => {
         generateBaseQuestions,
         isLoading,
         treeData,
+        isQuestionsFormOpen,
+        isGraphOpen,
     };
 };
