@@ -25,7 +25,6 @@ const StyledShadowWrapper = styled('div')(({ theme }) => ({
 
 const RootNode = ({ node, onClick }) => {
     const { avatar } = useContext(SettingsContext);
-    console.log('avatar', avatar);
     return (
         <StyledShadowWrapper>
             <StyledRootNode

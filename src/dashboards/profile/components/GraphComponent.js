@@ -4,7 +4,7 @@ import Node from './Node';
 import { ProfileContext } from '../../../contexts/ProfileContext';
 
 const GraphComponent = () => {
-    const { treeData } = useContext(ProfileContext);
+    const { treeData, analyzeAnsweredQuestions } = useContext(ProfileContext);
     const [activeNode, setActiveNode] = useState(treeData);
     const [expandedNodes, setExpandedNodes] = useState([treeData]);
 

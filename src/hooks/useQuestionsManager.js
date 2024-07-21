@@ -70,12 +70,13 @@ export const useQuestionsManager = (backendUrl) => {
             }
             const updateNodeAnswer = (node) => {
                 if (node.id === questionId) {
-                    node.answer = answer; // Update the answer
+                    node.answer = answer;
                 }
                 node.children.forEach(updateNodeAnswer); // Recursively update children
             };
 
             treeData.children.forEach(updateNodeAnswer);
+            localStorage.setItem('questionsData', JSON.stringify(treeData));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
@@ -98,15 +99,16 @@ export const useQuestionsManager = (backendUrl) => {
             }
 
             const data = await response.json();
-            const cachedProfileData = localStorage.getItem('profileData');
-            if (cachedProfileData) {
-                const profileData = JSON.parse(cachedProfileData);
-                profileData.analysis = data.analysis;
-                localStorage.setItem(
-                    'profileData',
-                    JSON.stringify(profileData)
-                ); // Save back to local storage
-            }
+            console.log(data);
+            // const cachedProfileData = localStorage.getItem('profileData');
+            // if (cachedProfileData) {
+            //     const profileData = JSON.parse(cachedProfileData);
+            //     profileData.analysis = data.analysis;
+            //     localStorage.setItem(
+            //         'profileData',
+            //         JSON.stringify(profileData)
+            //     ); // Save back to local storage
+            // }
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);
@@ -138,6 +140,7 @@ export const useQuestionsManager = (backendUrl) => {
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            const newQuestions = [];
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -149,11 +152,21 @@ export const useQuestionsManager = (backendUrl) => {
                 for (const line of lines) {
                     if (line.trim()) {
                         const result = JSON.parse(line);
-                        console.log('Received question:', result);
                         setNewCategory(result);
+                        newQuestions.push(result);
                     }
                 }
             }
+            const cachedQuestions =
+                JSON.parse(localStorage.getItem('questionsData')) || {};
+            newQuestions.forEach((question) => {
+                // Add each question to the cached questions
+                cachedQuestions.children.push(question); // Assuming the structure allows this
+            });
+            localStorage.setItem(
+                'questionsData',
+                JSON.stringify(cachedQuestions)
+            );
         } catch (error) {
             console.error('Error generating follow-up questions:', error);
             showSnackbar(
@@ -167,6 +180,22 @@ export const useQuestionsManager = (backendUrl) => {
 
     const getQuestions = useCallback(async () => {
         try {
+            const cachedQuestions = localStorage.getItem('questionsData');
+            if (cachedQuestions) {
+                const data = JSON.parse(cachedQuestions);
+                setTreeData((prevTreeData) => {
+                    const newTreeData = addCategoryToTree(prevTreeData, data);
+                    if (newTreeData.children.length > 0) {
+                        setIsQuestionsFormOpen(false);
+                        setIsGraphOpen(true);
+                    } else {
+                        setIsQuestionsFormOpen(true);
+                        setIsGraphOpen(false);
+                    }
+                    return newTreeData;
+                });
+                return;
+            }
             const response = await fetch(`${backendUrl}/profile/questions`, {
                 method: 'GET',
                 headers: {
@@ -176,6 +205,7 @@ export const useQuestionsManager = (backendUrl) => {
                 },
             });
             const data = await response.json();
+            localStorage.setItem('questionsData', JSON.stringify(data));
             setTreeData((prevTreeData) => {
                 const newTreeData = addCategoryToTree(prevTreeData, data);
                 // Determine which component to show based on the new data
