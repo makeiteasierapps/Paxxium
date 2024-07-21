@@ -22,6 +22,9 @@ export const StyledRootNode = styled(motion.div)(({ theme }) => ({
     height: 200,
     clipPath:
         'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+    backgroundSize: '100% 100%',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
 }));
 
 export const StyledQuestionNode = styled(motion.div)(({ theme }) => ({
