@@ -5,23 +5,18 @@ import { KbContext } from '../../../contexts/KbContext';
 import { SettingsSubmitButton } from '../../chat/chatStyledComponents';
 
 const WebScrapeForm = ({ projectName, projectId }) => {
-    const { scrapeUrls } = useContext(KbContext);
-    const [urls, setUrls] = useState('');
-    const [crawlEntireSite, setCrawlEntireSite] = useState(false);
+    const { scrapeUrl } = useContext(KbContext);
+    const [url, setUrl] = useState('');
+    const [crawl, setCrawl] = useState(false);
 
     const handleScrapeRequest = async () => {
-        const urlsArray = urls
-            .split(',')
-            .map((url) => url.trim())
-            .filter((url) => url); // Split by comma, trim spaces, and filter out empty strings
-        const formattedUrls = urlsArray.map((url) => {
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                return 'https://' + url; // Default to http if no protocol is specified
-            }
-            return url;
-        });
-        scrapeUrls(projectId, projectName, formattedUrls, crawlEntireSite);
-        setUrls('');
+        const trimmedUrl = url.trim(); // Get the single URL and trim spaces
+        if (!trimmedUrl) return; // Exit if the URL is empty
+        const formattedUrl = trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') 
+            ? trimmedUrl 
+            : 'https://' + trimmedUrl; 
+        scrapeUrl(projectId, projectName, formattedUrl, crawl); 
+        setUrl('');
     };
 
     return (
@@ -32,24 +27,24 @@ const WebScrapeForm = ({ projectName, projectId }) => {
             width="60%"
         >
             <TextField
-                label="URLs, comma separated"
-                value={urls}
-                onChange={(e) => setUrls(e.target.value)}
+                label="URL"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
                 fullWidth
                 margin="normal"
             />
             <FormControlLabel
                 control={
                     <Switch
-                        checked={crawlEntireSite}
-                        onChange={(e) => setCrawlEntireSite(e.target.checked)}
-                        name="crawlEntireSite"
+                        checked={crawl}
+                        onChange={(e) => setCrawl(e.target.checked)}
+                        name="crawl"
                     />
                 }
                 label="Crawl Entire Site"
             />
             <SettingsSubmitButton
-                disabled={!urls}
+                disabled={!url}
                 onClick={handleScrapeRequest}
                 endIcon={<SendIcon />}
             >

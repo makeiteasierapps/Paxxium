@@ -38,13 +38,87 @@ export const KbProvider = ({ children }) => {
 
     const embeddedDocsManager = useEmbeddedDocs(backendUrl);
 
-    const scrapeUrls = async (
-        projectId,
-        projectName,
-        formattedUrls,
-        crawlEntireSite
-    ) => {
-        const response = await fetch(`${backendUrl}/projects/scrape`, {
+    const scrapeUrl = async (projectId, projectName, url, crawl) => {
+        const endpoint = crawl ? 'crawl' : 'scrape';
+        const params = {
+            url,
+            pageOptions: {
+                onlyMainContent: true,
+            },
+        };
+        const firecrawlResponse = await fetch(
+            `${process.env.REACT_APP_FIRECRAWL_URL}/${endpoint}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(params),
+            }
+        );
+
+        if (!firecrawlResponse.ok) throw new Error('Failed to scrape url');
+
+        const firecrawlData = await firecrawlResponse.json();
+        let urlDocument;
+        if (firecrawlData.jobId) {
+            const jobId = firecrawlData.jobId;
+            // Poll for job status
+            const checkJobStatus = async (jobId) => {
+                const firecrawlResponse = await fetch(
+                    `${process.env.REACT_APP_FIRECRAWL_URL}/crawl/status/${jobId}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+
+                if (!firecrawlResponse.ok)
+                    throw new Error('Failed to check job status');
+
+                const statusData = await firecrawlResponse.json();
+                return statusData;
+            };
+
+            // Polling mechanism
+            let jobStatus;
+            const interval = setInterval(async () => {
+                jobStatus = await checkJobStatus(jobId);
+                if (jobStatus.status === 'completed') {
+                    clearInterval(interval);
+                    // Handle the completed job data
+                    console.log('Crawl completed:', jobStatus.data);
+                    urlDocument = {
+                        content: jobStatus.data,
+                    };
+                } else if (jobStatus.status === 'failed') {
+                    clearInterval(interval);
+                    throw new Error('Crawl job failed');
+                }
+            }, 5000);
+
+            await new Promise((resolve) => {
+                const checkCompletion = setInterval(() => {
+                    if (jobStatus && jobStatus.status === 'completed') {
+                        clearInterval(checkCompletion);
+                        resolve();
+                    }
+                }, 500); 
+            });
+        } else {
+            urlDocument = {
+                content: [
+                    {
+                        markdown: firecrawlData.data.markdown,
+                        metadata: firecrawlData.data.metadata,
+                    },
+                ],
+            };
+        }
+
+        const response = await fetch(`${backendUrl}/projects/documents`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,20 +126,17 @@ export const KbProvider = ({ children }) => {
                 dbName: process.env.REACT_APP_DB_NAME,
             },
             body: JSON.stringify({
-                urls: formattedUrls,
-                projectName,
                 projectId,
-                crawlEntireSite,
+                projectName,
+                document: urlDocument,
+                type: 'url',
             }),
         });
 
-        if (!response.ok) throw new Error('Failed to scrape url');
+        if (!response.ok) throw new Error('Failed to add document');
 
         const data = await response.json();
-        const docs = data.docs;
-        docs.forEach((doc) => {
-            embeddedDocsManager.addEmbeddedDoc(projectId, doc);
-        });
+        console.log(data.message);
     };
 
     return (
@@ -74,7 +145,7 @@ export const KbProvider = ({ children }) => {
                 selectedProject,
                 setSelectedProject,
                 documentText,
-                scrapeUrls,
+                scrapeUrl,
                 documentManager,
                 highlightsManager,
                 projectManager,
