@@ -2,6 +2,7 @@ import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
 import { KbContext } from '../../../contexts/KbContext';
 import { ChatContext } from '../../../contexts/ChatContext';
+import { AuthContext } from '../../../contexts/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import ProjectChat from '../../chat/components/Chat';
 import EmbeddedDocCard from './EmbeddedDocCard';
@@ -33,7 +34,7 @@ const MainContainer = styled(Box)(({ theme }) => ({
 const KbMain = ({ onClose }) => {
     const { selectedProject, embeddedDocs, fetchEmbeddedDocs } =
         useContext(KbContext);
-
+    const { uid } = useContext(AuthContext);
     const { getChatByProjectId } = useContext(ChatContext);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
@@ -65,11 +66,16 @@ const KbMain = ({ onClose }) => {
             const response = await fetch(`${backendUrl}/projects/extract`, {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    dbName: process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                },
             });
 
             if (!response.ok) throw new Error('Failed to upload file');
 
-            console.log('File uploaded successfully');
+            const data = await response.json();
+            console.log(data.content);
         } catch (error) {
             console.error('Error uploading file:', error);
         }
