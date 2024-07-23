@@ -28,6 +28,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 }
 
                 const data = await response.json();
+                console.log(data);
                 setEmbeddedDocs((prevDocuments) => ({
                     ...prevDocuments,
                     [projectId]: data.documents,

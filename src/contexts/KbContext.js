@@ -72,13 +72,12 @@ export const KbProvider = ({ children }) => {
                 console.log(decoder.decode(value));
             }
 
-            console.log('Scraping completed');
         } catch (error) {
             console.error('Scraping failed:', error);
             throw error;
         }
     };
-    
+
     return (
         <KbContext.Provider
             value={{

@@ -14,7 +14,6 @@ import {
     FileCopy,
     Chat,
     Close,
-    Source,
     TextFields,
 } from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
@@ -35,13 +34,10 @@ const KbMain = ({ onClose }) => {
     const { selectedProject, embeddedDocs, fetchEmbeddedDocs } =
         useContext(KbContext);
     const { uid } = useContext(AuthContext);
-    const { getChatByProjectId } = useContext(ChatContext);
-    const [isChatOpen, setIsChatOpen] = useState(false);
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
-    const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isTextFieldsOpen, setIsTextFieldsOpen] = useState(false);
     const fileInputRef = useRef(null);
-    const agent = getChatByProjectId(selectedProject.id);
+    
     const theme = useTheme();
 
     const backendUrl =
@@ -51,7 +47,7 @@ const KbMain = ({ onClose }) => {
 
     useEffect(() => {
         fetchEmbeddedDocs(selectedProject.id);
-    }, []);
+    }, [fetchEmbeddedDocs, selectedProject.id]);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
@@ -140,8 +136,6 @@ const KbMain = ({ onClose }) => {
                         onClick={() => {
                             setIsTextFieldsOpen(!isTextFieldsOpen);
                             setIsWebScrapeOpen(false);
-                            setIsDocumentOpen(false);
-                            setIsChatOpen(false);
                         }}
                         aria-label="Scrape Web"
                     >
@@ -150,8 +144,6 @@ const KbMain = ({ onClose }) => {
                     <StyledIconButton
                         onClick={() => {
                             setIsWebScrapeOpen(!isWebScrapeOpen);
-                            setIsDocumentOpen(false);
-                            setIsChatOpen(false);
                             setIsTextFieldsOpen(false);
                         }}
                         aria-label="Scrape Web"
@@ -170,28 +162,6 @@ const KbMain = ({ onClose }) => {
                             style={{ display: 'none' }}
                         />
                     </StyledIconButton>
-                    <StyledIconButton
-                        onClick={() => {
-                            setIsChatOpen(!isChatOpen);
-                            setIsDocumentOpen(false);
-                            setIsWebScrapeOpen(false);
-                            setIsTextFieldsOpen(false);
-                        }}
-                        aria-label="Chat"
-                    >
-                        <Chat />
-                    </StyledIconButton>
-                    <StyledIconButton
-                        onClick={() => {
-                            setIsDocumentOpen(!isDocumentOpen);
-                            setIsChatOpen(false);
-                            setIsWebScrapeOpen(false);
-                            setIsTextFieldsOpen(false);
-                        }}
-                        aria-label="Documents"
-                    >
-                        <Source />
-                    </StyledIconButton>
                 </Box>
                 {isWebScrapeOpen ? (
                     <WebScrapeForm
@@ -199,28 +169,23 @@ const KbMain = ({ onClose }) => {
                         projectId={selectedProject.id}
                     />
                 ) : null}
-                {isChatOpen ? (
-                    <ProjectChat agent={agent} setIsChatOpen={setIsChatOpen} />
-                ) : null}
-                {isDocumentOpen ? (
-                    <Grid container spacing={2} justifyContent="center">
-                        {embeddedDocs[selectedProject.id]?.map((document) => (
-                            <Grid
-                                item
-                                xs={12}
-                                sm={6}
-                                md={4}
-                                lg={3}
-                                xl={3}
-                                key={document.id}
-                            >
-                                <EmbeddedDocCard document={document} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                ) : null}
                 {isTextFieldsOpen ? <TextDocumentMenu /> : null}
             </Box>
+            <Grid container spacing={2} justifyContent="center">
+                {embeddedDocs[selectedProject.id]?.map((document) => (
+                    <Grid
+                        item
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={3}
+                        xl={3}
+                        key={document.id}
+                    >
+                        <EmbeddedDocCard document={document} />
+                    </Grid>
+                ))}
+            </Grid>
         </MainContainer>
     );
 };

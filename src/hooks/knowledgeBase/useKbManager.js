@@ -62,12 +62,6 @@ export const useKbManager = (backendUrl) => {
             }
             const data = await create_project_response.json();
             const newProject = data.new_project;
-            const newChatData = data.new_chat;
-
-            setChatArray((prevChats) => {
-                const updatedChatArray = [newChatData, ...prevChats];
-                return updatedChatArray;
-            });
             addProject(newProject);
             setIsNewProjectOpen(false);
         } catch (error) {

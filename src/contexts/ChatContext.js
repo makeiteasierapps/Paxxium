@@ -25,11 +25,7 @@ export const ChatProvider = ({ children }) => {
     const chatManager = useChatManager(backendUrl, uid, showSnackbar, setChatArray, setMessages, setLoading);
     const messageManager = useMessageManager(backendUrl, uid, showSnackbar, setChatArray, setMessages, messages, socket);
     const chatSettings = useChatSettings(backendUrl, showSnackbar, setChatArray);
-
-    const getChatByProjectId = (id) => {
-        return chatArray.find((agent) => agent.project_id === id);
-    };
-
+    
     return (
         <ChatContext.Provider
             value={{
@@ -39,7 +35,6 @@ export const ChatProvider = ({ children }) => {
                 messages,
                 socket,
                 joinRoom,
-                getChatByProjectId,
                 ...chatManager,
                 ...messageManager,
                 ...chatSettings,
