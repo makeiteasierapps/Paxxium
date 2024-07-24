@@ -4,7 +4,6 @@ import { KbContext } from '../../../contexts/KbContext';
 import { AuthContext } from '../../../contexts/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
 import EmbeddedDocCard from './EmbeddedDocCard';
-import TextDocumentMenu from './textEditor/TextDocumentMenu';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
 import { WebAsset, FileCopy, Close, TextFields } from '@mui/icons-material/';
@@ -159,7 +158,6 @@ const KbMain = ({ onClose }) => {
                         kbId={selectedKb.id}
                     />
                 ) : null}
-                {isTextFieldsOpen ? <TextDocumentMenu /> : null}
             </Box>
             <Grid container spacing={2} justifyContent="center">
                 {embeddedDocs[selectedKb.id]?.map((document) => (

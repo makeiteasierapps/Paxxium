@@ -27,17 +27,20 @@ export const useTextEditorManager = (
             id: textDocId,
             kb_id: kbId,
         };
-
+        
         const savedData = JSON.parse(localStorage.getItem('documents')) || {};
         savedData[kbId] = [
             ...(savedData[kbId] || []).filter((doc) => doc.id !== textDocId),
             newDoc,
         ];
-        localStorage.setItem('documents', JSON.stringify(savedData));
+
         setEmbeddedDocs((prevDocs) => ({
             ...prevDocs,
             [kbId]: savedData[kbId],
         }));
+
+        localStorage.setItem('documents', JSON.stringify(savedData));
+
         return textDocId;
     };
 
@@ -77,8 +80,7 @@ export const useTextEditorManager = (
         savedData[kbId] = [...kbDocs, newTextDoc];
 
         localStorage.setItem('documents', JSON.stringify(savedData));
-        // setDocumentDetails(newTextDoc);
-        
+        setDocumentDetails(newTextDoc);
     };
 
     const setDocumentDetails = (doc) => {

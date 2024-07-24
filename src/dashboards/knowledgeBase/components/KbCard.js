@@ -10,9 +10,11 @@ const KbCard = ({ kb, onSelect }) => {
     const {
         kbManager: { deleteKnowledgeBase },
     } = useContext(KbContext);
+    
     const handleDeleteKnowledgeBase = () => {
         deleteKnowledgeBase(kb.id);
     };
+
     return (
         <Card
             sx={{

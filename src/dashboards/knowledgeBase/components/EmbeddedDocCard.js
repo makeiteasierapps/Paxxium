@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import {
     Box,
     Typography,
@@ -6,16 +6,26 @@ import {
     CardContent,
     CardHeader,
     CardActions,
+    Modal,
 } from '@mui/material';
-import { Delete } from '@mui/icons-material/';
+import { Delete, Add } from '@mui/icons-material/';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
+import TextEditor from './textEditor/TextEditor';
 
 const EmbeddedDocCard = ({ document }) => {
     const { deleteEmbeddedDoc } = useContext(KbContext);
+    const [open, setOpen] = useState(false);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.kb_id, document.id);
+    };
+    const openTextEditor = (document) => {
+        setOpen(true); // Open the modal
+    };
+
+    const handleClose = () => {
+        setOpen(false); // Close the modal
     };
 
     return (
@@ -27,7 +37,19 @@ const EmbeddedDocCard = ({ document }) => {
             }}
             elevation={6}
         >
-            <CardHeader title="Document Source" subheader={document.source} />
+            <CardHeader
+                title="Document Source"
+                subheader={document.source}
+                action={
+                    document.source === 'user' ? (
+                        <StyledIconButton
+                            onClick={() => openTextEditor(document)}
+                        >
+                            <Add />
+                        </StyledIconButton>
+                    ) : null
+                }
+            />
             <CardContent>
                 <Box
                     sx={{
@@ -50,6 +72,11 @@ const EmbeddedDocCard = ({ document }) => {
                     <Delete />
                 </StyledIconButton>
             </CardActions>
+            <Modal open={open} onClose={handleClose}>
+                <Box>
+                    <TextEditor document={document} onClose={handleClose} />
+                </Box>
+            </Modal>
         </Card>
     );
 };

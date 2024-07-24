@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useEffect } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
 import { useHighlights } from '../hooks/knowledgeBase/useHighlights';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';

@@ -60,15 +60,6 @@ export const useEmbeddedDocs = (backendUrl) => {
                 throw new Error('Failed to delete document');
             }
 
-            const savedData =
-                JSON.parse(localStorage.getItem('documents')) || {};
-            const updatedKbDocs =
-                savedData[kbId]?.filter((doc) => doc.id !== docId) || [];
-            localStorage.setItem(
-                'documents',
-                JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
-            );
-
             setEmbeddedDocs((prevDocs) => {
                 const updatedKbDocs = prevDocs[kbId].filter(
                     (doc) => doc.id !== docId
@@ -78,6 +69,17 @@ export const useEmbeddedDocs = (backendUrl) => {
                     [kbId]: updatedKbDocs,
                 };
             });
+            
+            const savedData =
+                JSON.parse(localStorage.getItem('documents')) || {};
+            const updatedKbDocs =
+                savedData[kbId]?.filter((doc) => doc.id !== docId) || [];
+            localStorage.setItem(
+                'documents',
+                JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
+            );
+
+            
         } catch (error) {
             showSnackbar('Error deleting document', 'error');
         }
