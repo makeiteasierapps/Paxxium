@@ -9,19 +9,19 @@ import {
 } from '@mui/material';
 import { KbContext } from '../../../contexts/KbContext';
 
-const NewProject = () => {
+const NewKnowledgeBase = () => {
     const {
-        projectManager: {
-            createProject,
-            isNewProjectOpen,
-            setIsNewProjectOpen,
+        kbManager: {
+            createKnowledgeBase,
+            isNewKbOpen,
+            setIsNewKbOpen,
         },
     } = useContext(KbContext);
     const [name, setName] = useState('');
     const [objective, setObjective] = useState('');
 
-    const handleCreateProject = async (name, objective) => {
-        createProject(name, objective).then(() => {
+    const handleCreateKnowledgeBase = async (name, objective) => {
+        createKnowledgeBase(name, objective).then(() => {
             setName('');
             setObjective('');
         });
@@ -30,12 +30,12 @@ const NewProject = () => {
     return (
         <Dialog
             gap={2}
-            open={isNewProjectOpen}
-            onClose={() => setIsNewProjectOpen(false)}
+            open={isNewKbOpen}
+            onClose={() => setIsNewKbOpen(false)}
             aria-labelledby="form-dialog-title"
         >
             <DialogTitle id="form-dialog-title">
-                Create a New Project
+                Create a New Knowledge Base
             </DialogTitle>
             <DialogContent>
                 <TextField
@@ -51,7 +51,7 @@ const NewProject = () => {
                 <TextField
                     margin="dense"
                     id="objective"
-                    label="Please describe your project and your objectives..."
+                    label="Please describe your Knowledge Base and your objectives..."
                     type="text"
                     fullWidth
                     multiline
@@ -62,20 +62,20 @@ const NewProject = () => {
             </DialogContent>
             <DialogActions>
                 <Button
-                    onClick={() => setIsNewProjectOpen(false)}
+                    onClick={() => setIsNewKbOpen(false)}
                     color="primary"
                 >
                     Cancel
                 </Button>
                 <Button
-                    onClick={() => handleCreateProject(name, objective)}
+                    onClick={() => handleCreateKnowledgeBase(name, objective)}
                     color="primary"
                 >
-                    Create Project
+                    Create Knowledge Base
                 </Button>
             </DialogActions>
         </Dialog>
     );
 };
 
-export default NewProject;
+export default NewKnowledgeBase;

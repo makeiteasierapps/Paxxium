@@ -101,18 +101,18 @@ const SideDrawer = ({
         </ConditionalTooltip>
     );
 
-    const projectsButton = (
-        <ConditionalTooltip title="Projects" condition={!isDrawerExpanded}>
+    const KbButton = (
+        <ConditionalTooltip title="Knowledge Base" condition={!isDrawerExpanded}>
             <HeaderIconButton
                 disableRipple
                 component={Link}
-                to="/projects"
+                to="/kb"
                 currentPath={location.pathname}
             >
                 <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
                     <AccountTreeIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
-                        <Typography paddingLeft={1}>Projects</Typography>
+                        <Typography paddingLeft={1}>Knowledge Base</Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -323,7 +323,7 @@ const SideDrawer = ({
                 )}
 
                 {profileButton}
-                {projectsButton}
+                {KbButton}
                 {settingsButton}
                 {logoutButton}
             </Box>

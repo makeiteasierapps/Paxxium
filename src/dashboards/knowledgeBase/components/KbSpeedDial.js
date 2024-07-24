@@ -5,7 +5,7 @@ import { PlaylistAdd } from '@mui/icons-material/';
 
 export default function KbSpeedDial() {
     const {
-        projectManager: { setIsNewProjectOpen },
+        kbManager: { setIsNewKbOpen },
     } = useContext(KbContext);
     return (
         <Box
@@ -25,8 +25,8 @@ export default function KbSpeedDial() {
                 <SpeedDialAction
                     key={'Web Scrape'}
                     icon={<PlaylistAdd />}
-                    tooltipTitle={'New Project'}
-                    onClick={() => setIsNewProjectOpen(true)}
+                    tooltipTitle={'New Knowledge Base'}
+                    onClick={() => setIsNewKbOpen(true)}
                 />
             </SpeedDial>
         </Box>

@@ -134,7 +134,7 @@ const AuthenticatedApp = () => {
                             <Route path="/agents" element={<ChatDash />} />
                             <Route path="/dalle" element={<ImageDash />} />
                             <Route path="/profile" element={<ProfileDash />} />
-                            <Route path="/projects" element={<KbDash />} />
+                            <Route path="/kb" element={<KbDash />} />
                             <Route
                                 path="/settings"
                                 element={<SettingsDash />}

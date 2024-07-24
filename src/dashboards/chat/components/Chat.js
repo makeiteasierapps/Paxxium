@@ -20,7 +20,6 @@ const Chat = ({
         chat_name: chatName,
         agent_model: agentModel,
         use_profile_data: useProfileData,
-        project_id: projectId,
     },
     setIsChatOpen = null,
 }) => {
@@ -45,7 +44,6 @@ const Chat = ({
         systemPrompt,
         chatConstants,
         useProfileData,
-        projectId,
     };
 
     return (

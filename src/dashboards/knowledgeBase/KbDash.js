@@ -1,23 +1,23 @@
 import { useContext } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { KbContext } from '../../contexts/KbContext';
-import ProjectSpeedDial from './components/KbSpeedDial';
-import ProjectCard from './components/KbCard';
-import Project from './components/KbMain';
-import NewProject from './components/NewKnowledgeBase';
+import KbSpeedDial from './components/KbSpeedDial';
+import KbCard from './components/KbCard';
+import KbMain from './components/KbMain';
+import NewKnowledgeBase from './components/NewKnowledgeBase';
 import { useTheme } from '@mui/material/styles';
 
 const KbDash = () => {
     const {
-        projectManager: { projects, isNewProjectOpen },
-        selectedProject,
-        setSelectedProject,
+        kbManager: { kbArray, isNewKbOpen },
+        selectedKb,
+        setSelectedKb,
     } = useContext(KbContext);
 
     const theme = useTheme();
 
-    if (selectedProject) {
-        return <Project onClose={() => setSelectedProject(null)} />;
+    if (selectedKb) {
+        return <KbMain onClose={() => setSelectedKb(null)} />;
     }
 
     return (
@@ -41,23 +41,23 @@ const KbDash = () => {
                 }
                 fontWeight="bold"
             >
-                Projects
+                Knowledge Base
             </Typography>
 
             <Grid container spacing={2} justifyContent="center">
-                {projects &&
-                    projects.map((project) => (
-                        <Grid item xs={12} sm={4} key={project.id}>
-                            <ProjectCard
-                                project={project}
-                                onSelect={() => setSelectedProject(project)}
+                {kbArray &&
+                    kbArray.map((kb) => (
+                        <Grid item xs={12} sm={4} key={kb.id}>
+                            <KbCard
+                                kb={kb}
+                                onSelect={() => setSelectedKb(kb)}
                             />
                         </Grid>
                     ))}
             </Grid>
 
-            {isNewProjectOpen && <NewProject />}
-            <ProjectSpeedDial />
+            {isNewKbOpen && <NewKnowledgeBase />}
+            <KbSpeedDial />
         </Box>
     );
 };

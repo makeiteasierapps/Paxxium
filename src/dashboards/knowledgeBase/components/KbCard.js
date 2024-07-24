@@ -5,13 +5,13 @@ import { Delete } from '@mui/icons-material';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { KbContext } from '../../../contexts/KbContext';
 
-const KbCard = ({ project, onSelect }) => {
+const KbCard = ({ kb, onSelect }) => {
     const theme = useTheme();
     const {
-        projectManager: { deleteProject },
+        kbManager: { deleteKnowledgeBase },
     } = useContext(KbContext);
-    const handleDeleteProject = () => {
-        deleteProject(project.id);
+    const handleDeleteKnowledgeBase = () => {
+        deleteKnowledgeBase(kb.id);
     };
     return (
         <Card
@@ -20,7 +20,7 @@ const KbCard = ({ project, onSelect }) => {
                 backgroundColor: '#111111',
                 cursor: 'pointer',
                 '&:hover': {
-                    opacity: 0.9, // Example: Slightly reduce opacity on hover
+                    opacity: 0.9, 
                 },
             }}
             onClick={onSelect}
@@ -42,7 +42,7 @@ const KbCard = ({ project, onSelect }) => {
                         }
                         sx={{ whiteSpace: 'nowrap' }}
                     >
-                        {project.name}
+                        {kb.name}
                     </Typography>
                     <Typography
                         variant="body1"
@@ -52,7 +52,7 @@ const KbCard = ({ project, onSelect }) => {
                         }
                         color="primary"
                     >
-                        {project.objective}
+                        {kb.objective}
                     </Typography>
                 </Box>
             </CardContent>
@@ -60,7 +60,7 @@ const KbCard = ({ project, onSelect }) => {
                 <StyledIconButton
                     onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteProject();
+                        handleDeleteKnowledgeBase();
                     }}
                 >
                     <Delete />

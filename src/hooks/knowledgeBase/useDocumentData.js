@@ -3,7 +3,7 @@ import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
 export const useDocumentData = (
-    selectedProject,
+    selectedKb,
     documentText,
     setDocumentText,
     highlights,
@@ -17,29 +17,27 @@ export const useDocumentData = (
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
 
-    const projectId = selectedProject ? selectedProject.id : null;
+    const kbId = selectedKb ? selectedKb.id : null;
 
     const handleSave = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const projectDocs = savedData[projectId] || [];
+        const kbDocs = savedData[kbId] || [];
 
-        await saveTextDoc(projectId, category, documentText, highlights, docId);
+        await saveTextDoc(kbId, category, documentText, highlights, docId);
 
         const newDoc = {
             content: documentText,
             category: category,
             highlights: highlights,
             id: docId,
-            projectId: projectId,
+            kbId,
         };
 
-        const updatedProjectDocs = projectDocs.filter(
-            (doc) => doc.id !== docId
-        );
-        updatedProjectDocs.push(newDoc);
-        setTextDocArray(updatedProjectDocs);
+        const updatedKbDocs = kbDocs.filter((doc) => doc.id !== docId);
+        updatedKbDocs.push(newDoc);
+        setTextDocArray(updatedKbDocs);
 
-        savedData[projectId] = updatedProjectDocs;
+        savedData[kbId] = updatedKbDocs;
         localStorage.setItem('textDocs', JSON.stringify(savedData));
         return docId;
     };
@@ -51,7 +49,7 @@ export const useDocumentData = (
         }
         await embedTextDoc(
             currentDocId,
-            projectId,
+            kbId,
             documentText,
             highlights,
             category
@@ -59,21 +57,21 @@ export const useDocumentData = (
     };
 
     const addNewDoc = async () => {
-        const docId = await saveTextDoc(projectId);
+        const docId = await saveTextDoc(kbId);
         const newTextDoc = {
             content: '',
             category: '',
             highlights: [],
             id: docId,
-            projectId: projectId,
+            kbId,
         };
 
         setTextDocArray([...textDocArray, newTextDoc]);
 
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const projectDocs = savedData[projectId] || [];
-        projectDocs.push(newTextDoc);
-        savedData[projectId] = projectDocs;
+        const kbDocs = savedData[kbId] || [];
+        kbDocs.push(newTextDoc);
+        savedData[kbId] = kbDocs;
 
         localStorage.setItem('textDocs', JSON.stringify(savedData));
         setDocumentDetails(newTextDoc);
@@ -81,13 +79,13 @@ export const useDocumentData = (
 
     const fetchData = async () => {
         const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const projectDocs = savedData[projectId] || [];
+        const kbDocs = savedData[kbId] || [];
 
-        if (projectDocs.length > 0) {
-            setTextDocArray(projectDocs);
+        if (kbDocs.length > 0) {
+            setTextDocArray(kbDocs);
         } else {
-            const docs = await getTextDocs(projectId);
-            savedData[projectId] = docs;
+            const docs = await getTextDocs(kbId);
+            savedData[kbId] = docs;
             setTextDocArray(docs);
             localStorage.setItem('textDocs', JSON.stringify(savedData));
         }
@@ -103,12 +101,12 @@ export const useDocumentData = (
     const getTextDocs = async () => {
         try {
             const response = await fetch(
-                `${backendUrl}/projects/text_doc?projectId=${projectId}`,
+                `${backendUrl}/kb/text_doc?kbId=${kbId}`,
                 {
                     method: 'GET',
                     headers: {
-                        'dbName': process.env.REACT_APP_DB_NAME,
-                        'uid': uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                        uid: uid,
                     },
                 }
             );
@@ -125,33 +123,36 @@ export const useDocumentData = (
         }
     };
 
-    const embedTextDoc = async (
-        docId,
-        projectId,
-        doc,
-        highlights,
-        category
-    ) => {
-        const response = await fetch(`${backendUrl}/projects/embed`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'dbName': process.env.REACT_APP_DB_NAME,
-            },
-            body: JSON.stringify({
-                doc: doc,
-                highlights: highlights,
-                docId: docId,
-                projectId: projectId,
-                category: category,
-            }),
-        });
-        const data = await response.json();
-        console.log(data);
+    const embedTextDoc = async (docId, kbId, doc, highlights, category) => {
+        try {
+            const response = await fetch(`${backendUrl}/kb/embed`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: JSON.stringify({
+                    doc,
+                    highlights,
+                    docId,
+                    kbId,
+                    category,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to embed text doc');
+            }
+
+            const data = await response.json();
+            console.log(data);
+        } catch (error) {
+            console.error('Error embedding text doc:', error);
+        }
     };
 
     const saveTextDoc = async (
-        projectId,
+        kbId,
         category = null,
         text = null,
         highlights = null,
@@ -159,15 +160,15 @@ export const useDocumentData = (
     ) => {
         try {
             const response = await fetch(
-                `${backendUrl}/projects/save_text_doc`,
+                `${backendUrl}/kb/save_text_doc`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'dbName': process.env.REACT_APP_DB_NAME,
+                        dbName: process.env.REACT_APP_DB_NAME,
                     },
                     body: JSON.stringify({
-                        projectId,
+                        kbId,
                         category,
                         text,
                         highlights,

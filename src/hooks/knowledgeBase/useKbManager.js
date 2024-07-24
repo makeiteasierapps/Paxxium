@@ -1,92 +1,90 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { ChatContext } from '../../contexts/ChatContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
 export const useKbManager = (backendUrl) => {
-    const [projects, setProjects] = useState([]);
-    const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+    const [kbArray, setKbArray] = useState([]);
+    const [isNewKbOpen, setIsNewKbOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
-    const { setChatArray } = useContext(ChatContext);
     const { uid } = useContext(AuthContext);
 
-    const addProject = (project) => {
-        setProjects((prevProjects) => {
-            return [...prevProjects, project];
+    const addKnowledgeBase = (kb) => {
+        setKbArray((prevKbArray) => {
+            return [...prevKbArray, kb];
         });
     };
 
-    const deleteProject = async (projectId) => {
+    const deleteKnowledgeBase = async (kbId) => {
         try {
-            const response = await fetch(`${backendUrl}/projects`, {
+            const response = await fetch(`${backendUrl}/kb`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
-                body: JSON.stringify({ projectId }),
+                body: JSON.stringify({ kbId }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to delete project');
+                throw new Error('Failed to delete knowledge base');
             }
 
-            setProjects((prevProjects) => {
-                return prevProjects.filter(
-                    (project) => project.id !== projectId
+            setKbArray((prevKbArray) => {
+                return prevKbArray.filter(
+                    (kb) => kb.id !== kbId
                 );
             });
         } catch (error) {
-            showSnackbar('Error deleting project', 'error');
+            showSnackbar('Error deleting knowledge base', 'error');
         }
     };
 
-    const createProject = async (name, objective) => {
+    const createKnowledgeBase = async (name, objective) => {
         const formData = JSON.stringify({ name, objective });
         try {
-            const create_project_response = await fetch(
-                `${backendUrl}/projects`,
+            const response = await fetch(
+                `${backendUrl}/kb`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'uid': uid,
-                        'dbName': process.env.REACT_APP_DB_NAME,
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
                     },
                     body: formData,
                 }
             );
 
-            if (!create_project_response.ok) {
-                throw new Error('Failed to create project');
+            if (!response.ok) {
+                throw new Error('Failed to create knowledge base');
             }
-            const data = await create_project_response.json();
-            const newProject = data.new_project;
-            addProject(newProject);
-            setIsNewProjectOpen(false);
+            const data = await response.json();
+            const newKnowledgeBase = data.new_knowledge_base;
+            addKnowledgeBase(newKnowledgeBase);
+            setIsNewKbOpen(false);
         } catch (error) {
-            showSnackbar('Error creating project', 'error');
+            showSnackbar('Error creating knowledge base', 'error');
         }
     };
 
-    const fetchProjects = useCallback(async () => {
+    const fetchKBs = useCallback(async () => {
         try {
-            const response = await fetch(`${backendUrl}/projects`, {
+            const response = await fetch(`${backendUrl}/kb`, {
                 method: 'GET',
                 headers: {
-                    'uid': uid,
-                    'dbName': process.env.REACT_APP_DB_NAME,
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
                 },
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch projects');
+                throw new Error('Failed to fetch knowledge base');
             }
 
             const data = await response.json();
-            setProjects(data.projects);
+            setKbArray(data.kb_list);
         } catch (error) {
-            showSnackbar('Error fetching projects', 'error');
+            showSnackbar('Error fetching knowledge base', 'error');
         }
     }, [backendUrl, showSnackbar, uid]);
 
@@ -94,15 +92,14 @@ export const useKbManager = (backendUrl) => {
         if (!uid) {
             return;
         }
-        fetchProjects();
-    }, [fetchProjects, uid]);
+        fetchKBs();
+    }, [fetchKBs, uid]);
 
     return {
-        projects,
-        isNewProjectOpen,
-        setIsNewProjectOpen,
-        createProject,
-        deleteProject,
-        fetchProjects,
+        kbArray,
+        isNewKbOpen,
+        setIsNewKbOpen,
+        createKnowledgeBase,
+        deleteKnowledgeBase,
     };
 };

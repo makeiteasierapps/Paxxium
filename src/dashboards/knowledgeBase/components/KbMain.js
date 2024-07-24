@@ -1,21 +1,13 @@
 import { useContext, useRef, useEffect, useState } from 'react';
 import { styled } from '@mui/system';
 import { KbContext } from '../../../contexts/KbContext';
-import { ChatContext } from '../../../contexts/ChatContext';
 import { AuthContext } from '../../../contexts/AuthContext';
 import WebScrapeForm from './WebScrapeForm';
-import ProjectChat from '../../chat/components/Chat';
 import EmbeddedDocCard from './EmbeddedDocCard';
 import TextDocumentMenu from './textEditor/TextDocumentMenu';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
-import {
-    WebAsset,
-    FileCopy,
-    Chat,
-    Close,
-    TextFields,
-} from '@mui/icons-material/';
+import { WebAsset, FileCopy, Close, TextFields } from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
 
 const MainContainer = styled(Box)(({ theme }) => ({
@@ -28,16 +20,14 @@ const MainContainer = styled(Box)(({ theme }) => ({
     fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
 }));
 
-// Need to look at how I am managing the state of ProjectChat
-// I think I should move the state to be local so that each project manages its own chat
 const KbMain = ({ onClose }) => {
-    const { selectedProject, embeddedDocs, fetchEmbeddedDocs } =
+    const { selectedKb, embeddedDocs, fetchEmbeddedDocs } =
         useContext(KbContext);
     const { uid } = useContext(AuthContext);
     const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
     const [isTextFieldsOpen, setIsTextFieldsOpen] = useState(false);
     const fileInputRef = useRef(null);
-    
+
     const theme = useTheme();
 
     const backendUrl =
@@ -46,8 +36,8 @@ const KbMain = ({ onClose }) => {
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
-        fetchEmbeddedDocs(selectedProject.id);
-    }, [fetchEmbeddedDocs, selectedProject.id]);
+        fetchEmbeddedDocs(selectedKb.id);
+    }, [fetchEmbeddedDocs, selectedKb.id]);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
@@ -55,11 +45,11 @@ const KbMain = ({ onClose }) => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('projectName', selectedProject.name);
-        formData.append('projectId', selectedProject.id);
+        formData.append('kbName', selectedKb.name);
+        formData.append('kbId', selectedKb.id);
 
         try {
-            const response = await fetch(`${backendUrl}/projects/extract`, {
+            const response = await fetch(`${backendUrl}/kb/extract`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -115,7 +105,7 @@ const KbMain = ({ onClose }) => {
                     variant="h2"
                     fontWeight={'medium'}
                 >
-                    {selectedProject.name}
+                    {selectedKb.name}
                 </Typography>
                 <Typography
                     fontFamily={
@@ -123,7 +113,7 @@ const KbMain = ({ onClose }) => {
                     }
                     variant="body"
                 >
-                    {selectedProject.objective}
+                    {selectedKb.objective}
                 </Typography>
                 <Box
                     display="flex"
@@ -165,14 +155,14 @@ const KbMain = ({ onClose }) => {
                 </Box>
                 {isWebScrapeOpen ? (
                     <WebScrapeForm
-                        projectName={selectedProject.name}
-                        projectId={selectedProject.id}
+                        kbName={selectedKb.name}
+                        kbId={selectedKb.id}
                     />
                 ) : null}
                 {isTextFieldsOpen ? <TextDocumentMenu /> : null}
             </Box>
             <Grid container spacing={2} justifyContent="center">
-                {embeddedDocs[selectedProject.id]?.map((document) => (
+                {embeddedDocs[selectedKb.id]?.map((document) => (
                     <Grid
                         item
                         xs={12}

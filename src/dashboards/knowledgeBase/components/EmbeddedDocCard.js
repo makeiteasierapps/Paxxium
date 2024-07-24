@@ -15,7 +15,7 @@ const EmbeddedDocCard = ({ document }) => {
     const { deleteEmbeddedDoc } = useContext(KbContext);
 
     const handleDelete = () => {
-        deleteEmbeddedDoc(document.project_id, document.id);
+        deleteEmbeddedDoc(document.kb_id, document.id);
     };
 
     return (

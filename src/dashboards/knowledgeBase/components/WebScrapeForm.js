@@ -4,7 +4,7 @@ import { TextField, Box, Switch, FormControlLabel } from '@mui/material';
 import { KbContext } from '../../../contexts/KbContext';
 import { SettingsSubmitButton } from '../../chat/chatStyledComponents';
 
-const WebScrapeForm = ({ projectName, projectId }) => {
+const WebScrapeForm = ({ kbName, kbId }) => {
     const { scrapeUrl } = useContext(KbContext);
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
@@ -15,7 +15,7 @@ const WebScrapeForm = ({ projectName, projectId }) => {
         const formattedUrl = trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://') 
             ? trimmedUrl 
             : 'https://' + trimmedUrl; 
-        scrapeUrl(projectId, projectName, formattedUrl, crawl); 
+        scrapeUrl(kbId, kbName, formattedUrl, crawl); 
         setUrl('');
     };
 

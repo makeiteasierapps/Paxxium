@@ -153,7 +153,7 @@ export const useHighlights = (
         });
     };
 
-    const handleInput = (e, project) => {
+    const handleInput = (e) => {
         const contentEditable = contentEditableRef.current;
         const newText = e.target.innerText;
         const diff = newText.length - documentText.length;

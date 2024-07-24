@@ -9,14 +9,14 @@ export const useEmbeddedDocs = (backendUrl) => {
     const [embeddedDocs, setEmbeddedDocs] = useState({});
 
     const fetchEmbeddedDocs = useCallback(
-        async (projectId) => {
+        async (kbId) => {
             try {
                 const response = await fetch(
-                    `${backendUrl}/projects/documents`,
+                    `${backendUrl}/kb/documents`,
                     {
                         method: 'GET',
                         headers: {
-                            'Project-ID': projectId,
+                            'Kb-ID': kbId,
                             'uid': uid,
                             'dbName': process.env.REACT_APP_DB_NAME,
                         },
@@ -31,7 +31,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 console.log(data);
                 setEmbeddedDocs((prevDocuments) => ({
                     ...prevDocuments,
-                    [projectId]: data.documents,
+                    [kbId]: data.documents,
                 }));
             } catch (error) {
                 showSnackbar('Error fetching documents', 'error');
@@ -40,19 +40,19 @@ export const useEmbeddedDocs = (backendUrl) => {
         [backendUrl, showSnackbar, uid]
     );
 
-    const addEmbeddedDoc = (projectId, doc) => {
+    const addEmbeddedDoc = (kbId, doc) => {
         setEmbeddedDocs((prevDocs) => {
             return {
                 ...prevDocs,
-                [projectId]: [...prevDocs[projectId], doc],
+                [kbId]: [...prevDocs[kbId], doc],
             };
         });
     };
 
-    const deleteEmbeddedDoc = async (projectId, docId) => {
+    const deleteEmbeddedDoc = async (kbId, docId) => {
         try {
             const response = await fetch(
-                `${backendUrl}/projects/documents`,
+                `${backendUrl}/kb/documents`,
                 {
                     method: 'DELETE',
                     headers: {
@@ -69,12 +69,12 @@ export const useEmbeddedDocs = (backendUrl) => {
             }
 
             setEmbeddedDocs((prevDocs) => {
-                const updatedProjectDocs = prevDocs[projectId].filter(
+                const updatedKbDocs = prevDocs[kbId].filter(
                     (doc) => doc.id !== docId
                 );
                 return {
                     ...prevDocs,
-                    [projectId]: updatedProjectDocs,
+                    [kbId]: updatedKbDocs,
                 };
             });
         } catch (error) {

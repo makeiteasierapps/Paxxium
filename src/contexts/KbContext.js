@@ -9,7 +9,7 @@ export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
-    const [selectedProject, setSelectedProject] = useState(null);
+    const [selectedKb, setSelectedKb] = useState(null);
     const [documentText, setDocumentText] = useState('');
     const [highlights, setHighlights] = useState([]);
 
@@ -19,7 +19,7 @@ export const KbProvider = ({ children }) => {
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const documentManager = useDocumentData(
-        selectedProject,
+        selectedKb,
         documentText,
         setDocumentText,
         highlights,
@@ -34,15 +34,15 @@ export const KbProvider = ({ children }) => {
         setHighlights
     );
 
-    const projectManager = useKbManager(backendUrl);
+    const kbManager = useKbManager(backendUrl);
 
     const embeddedDocsManager = useEmbeddedDocs(backendUrl);
 
-    const scrapeUrl = async (projectId, projectName, url, crawl) => {
+    const scrapeUrl = async (kbId, kbName, url, crawl) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
 
         try {
-            const response = await fetch(`${backendUrl}/projects/documents`, {
+            const response = await fetch(`${backendUrl}/kb/documents`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,8 +50,8 @@ export const KbProvider = ({ children }) => {
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
-                    projectId,
-                    projectName,
+                    kbId,
+                    kbName,
                     url,
                     endpoint,
                     type: 'url',
@@ -71,7 +71,6 @@ export const KbProvider = ({ children }) => {
 
                 console.log(decoder.decode(value));
             }
-
         } catch (error) {
             console.error('Scraping failed:', error);
             throw error;
@@ -81,13 +80,13 @@ export const KbProvider = ({ children }) => {
     return (
         <KbContext.Provider
             value={{
-                selectedProject,
-                setSelectedProject,
+                selectedKb,
+                setSelectedKb,
                 documentText,
                 scrapeUrl,
                 documentManager,
                 highlightsManager,
-                projectManager,
+                kbManager,
                 ...embeddedDocsManager,
             }}
         >
