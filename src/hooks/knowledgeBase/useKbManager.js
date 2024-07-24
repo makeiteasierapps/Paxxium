@@ -59,7 +59,8 @@ export const useKbManager = (backendUrl) => {
                 throw new Error('Failed to create knowledge base');
             }
             const data = await response.json();
-            const newKnowledgeBase = data.new_knowledge_base;
+            const newKnowledgeBase = data.new_kb;
+            console.log(newKnowledgeBase);
             addKnowledgeBase(newKnowledgeBase);
             setIsNewKbOpen(false);
         } catch (error) {

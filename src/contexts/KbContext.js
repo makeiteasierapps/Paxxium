@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react';
+import { useState, createContext, useContext, useEffect } from 'react';
 import { useDocumentData } from '../hooks/knowledgeBase/useDocumentData';
 import { useHighlights } from '../hooks/knowledgeBase/useHighlights';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
@@ -12,7 +12,6 @@ export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
     const [documentText, setDocumentText] = useState('');
     const [highlights, setHighlights] = useState([]);
-
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
