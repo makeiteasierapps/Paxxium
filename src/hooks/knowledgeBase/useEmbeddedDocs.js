@@ -1,34 +1,29 @@
 import { useState, useCallback, useContext } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { AuthContext } from '../../contexts/AuthContext'
+import { AuthContext } from '../../contexts/AuthContext';
 
 export const useEmbeddedDocs = (backendUrl) => {
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
-
     const [embeddedDocs, setEmbeddedDocs] = useState({});
 
     const fetchEmbeddedDocs = useCallback(
         async (kbId) => {
             try {
-                const response = await fetch(
-                    `${backendUrl}/kb/documents`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Kb-ID': kbId,
-                            'uid': uid,
-                            'dbName': process.env.REACT_APP_DB_NAME,
-                        },
-                    }
-                );
+                const response = await fetch(`${backendUrl}/kb/documents`, {
+                    method: 'GET',
+                    headers: {
+                        'Kb-ID': kbId,
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                    },
+                });
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch documents');
                 }
 
                 const data = await response.json();
-                console.log(data);
                 setEmbeddedDocs((prevDocuments) => ({
                     ...prevDocuments,
                     [kbId]: data.documents,
@@ -51,22 +46,28 @@ export const useEmbeddedDocs = (backendUrl) => {
 
     const deleteEmbeddedDoc = async (kbId, docId) => {
         try {
-            const response = await fetch(
-                `${backendUrl}/kb/documents`,
-                {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'uid': uid,
-                        'dbName': process.env.REACT_APP_DB_NAME,
-                    },
-                    body: JSON.stringify({ docId }),
-                }
-            );
+            const response = await fetch(`${backendUrl}/kb/documents`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: JSON.stringify({ docId }),
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to delete document');
             }
+
+            const savedData =
+                JSON.parse(localStorage.getItem('documents')) || {};
+            const updatedKbDocs =
+                savedData[kbId]?.filter((doc) => doc.id !== docId) || [];
+            localStorage.setItem(
+                'documents',
+                JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
+            );
 
             setEmbeddedDocs((prevDocs) => {
                 const updatedKbDocs = prevDocs[kbId].filter(
@@ -84,6 +85,7 @@ export const useEmbeddedDocs = (backendUrl) => {
 
     return {
         embeddedDocs,
+        setEmbeddedDocs,
         fetchEmbeddedDocs,
         addEmbeddedDoc,
         deleteEmbeddedDoc,

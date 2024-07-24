@@ -28,7 +28,7 @@ const TextInputUtilityBar = () => {
             handleRangeSliderChange,
             handleDelete,
         },
-        documentManager: { handleSave, handleEmbed, category, setCategory },
+        textEditorManager: { handleSave, handleEmbed, category, setCategory },
     } = useContext(KbContext);
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];

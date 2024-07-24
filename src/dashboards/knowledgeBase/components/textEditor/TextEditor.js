@@ -25,7 +25,7 @@ const StyledTextEditor = styled(Box)({
 const TextEditor = ({ document }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
-        documentManager: { setDocumentDetails },
+        textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState, createContext, useContext, useEffect } from 'react';
-import { useDocumentData } from '../hooks/knowledgeBase/useDocumentData';
+import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
 import { useHighlights } from '../hooks/knowledgeBase/useHighlights';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useEmbeddedDocs } from '../hooks/knowledgeBase/useEmbeddedDocs';
@@ -17,13 +17,16 @@ export const KbProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const documentManager = useDocumentData(
+    const embeddedDocsManager = useEmbeddedDocs(backendUrl);
+
+    const textEditorManager = useTextEditorManager(
         selectedKb,
         documentText,
         setDocumentText,
         highlights,
         setHighlights,
-        backendUrl
+        backendUrl,
+        embeddedDocsManager.setEmbeddedDocs
     );
 
     const highlightsManager = useHighlights(
@@ -34,8 +37,6 @@ export const KbProvider = ({ children }) => {
     );
 
     const kbManager = useKbManager(backendUrl);
-
-    const embeddedDocsManager = useEmbeddedDocs(backendUrl);
 
     const scrapeUrl = async (kbId, kbName, url, crawl) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
@@ -67,8 +68,14 @@ export const KbProvider = ({ children }) => {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
+                const data = JSON.parse(decoder.decode(value));
 
-                console.log(decoder.decode(value));
+                if (data.status === 'completed') {
+                    embeddedDocsManager.setEmbeddedDocs((prevDocs) => ({
+                        ...prevDocs,
+                        [kbId]: [...prevDocs[kbId], ...data.content],
+                    }));
+                }
             }
         } catch (error) {
             console.error('Scraping failed:', error);
@@ -83,7 +90,7 @@ export const KbProvider = ({ children }) => {
                 setSelectedKb,
                 documentText,
                 scrapeUrl,
-                documentManager,
+                textEditorManager,
                 highlightsManager,
                 kbManager,
                 ...embeddedDocsManager,

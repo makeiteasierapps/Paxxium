@@ -2,48 +2,47 @@ import { useState, useContext } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
-export const useDocumentData = (
+export const useTextEditorManager = (
     selectedKb,
     documentText,
     setDocumentText,
     highlights,
     setHighlights,
-    backendUrl
+    backendUrl,
+    setEmbeddedDocs
 ) => {
-    const [textDocArray, setTextDocArray] = useState([]);
-    const [docId, setDocId] = useState(null);
+    const [textDocId, setTextDocId] = useState(null);
     const [category, setCategory] = useState('');
-
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
-
     const kbId = selectedKb ? selectedKb.id : null;
 
     const handleSave = async () => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const kbDocs = savedData[kbId] || [];
-
-        await saveTextDoc(kbId, category, documentText, highlights, docId);
+        await saveTextDoc(kbId, category, documentText, highlights, textDocId);
 
         const newDoc = {
             content: documentText,
             category: category,
             highlights: highlights,
-            id: docId,
-            kbId,
+            id: textDocId,
+            kb_id: kbId,
         };
 
-        const updatedKbDocs = kbDocs.filter((doc) => doc.id !== docId);
-        updatedKbDocs.push(newDoc);
-        setTextDocArray(updatedKbDocs);
-
-        savedData[kbId] = updatedKbDocs;
-        localStorage.setItem('textDocs', JSON.stringify(savedData));
-        return docId;
+        const savedData = JSON.parse(localStorage.getItem('documents')) || {};
+        savedData[kbId] = [
+            ...(savedData[kbId] || []).filter((doc) => doc.id !== textDocId),
+            newDoc,
+        ];
+        localStorage.setItem('documents', JSON.stringify(savedData));
+        setEmbeddedDocs((prevDocs) => ({
+            ...prevDocs,
+            [kbId]: savedData[kbId],
+        }));
+        return textDocId;
     };
 
     const handleEmbed = async () => {
-        let currentDocId = docId;
+        let currentDocId = textDocId;
         if (!currentDocId) {
             currentDocId = await handleSave();
         }
@@ -63,64 +62,30 @@ export const useDocumentData = (
             category: '',
             highlights: [],
             id: docId,
+            source: 'user',
             kbId,
         };
 
-        setTextDocArray([...textDocArray, newTextDoc]);
+        setEmbeddedDocs((prevDocs) => ({
+            ...prevDocs,
+            [kbId]: [...prevDocs[kbId], newTextDoc],
+        }));
 
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
+        const savedData = JSON.parse(localStorage.getItem('documents')) || {};
         const kbDocs = savedData[kbId] || [];
         kbDocs.push(newTextDoc);
-        savedData[kbId] = kbDocs;
+        savedData[kbId] = [...kbDocs, newTextDoc];
 
-        localStorage.setItem('textDocs', JSON.stringify(savedData));
-        setDocumentDetails(newTextDoc);
-    };
-
-    const fetchData = async () => {
-        const savedData = JSON.parse(localStorage.getItem('textDocs')) || {};
-        const kbDocs = savedData[kbId] || [];
-
-        if (kbDocs.length > 0) {
-            setTextDocArray(kbDocs);
-        } else {
-            const docs = await getTextDocs(kbId);
-            savedData[kbId] = docs;
-            setTextDocArray(docs);
-            localStorage.setItem('textDocs', JSON.stringify(savedData));
-        }
+        localStorage.setItem('documents', JSON.stringify(savedData));
+        // setDocumentDetails(newTextDoc);
+        
     };
 
     const setDocumentDetails = (doc) => {
-        setDocId(doc.id || null);
+        setTextDocId(doc.id || null);
         setDocumentText(doc.content || '');
         setHighlights(doc.highlights || []);
         setCategory(doc.category || '');
-    };
-
-    const getTextDocs = async () => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/kb/text_doc?kbId=${kbId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        dbName: process.env.REACT_APP_DB_NAME,
-                        uid: uid,
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error('Failed to get text doc');
-            }
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error(error);
-            showSnackbar('Error getting text doc', 'error');
-        }
     };
 
     const embedTextDoc = async (docId, kbId, doc, highlights, category) => {
@@ -129,6 +94,7 @@ export const useDocumentData = (
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
@@ -159,23 +125,22 @@ export const useDocumentData = (
         docId = null
     ) => {
         try {
-            const response = await fetch(
-                `${backendUrl}/kb/save_text_doc`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        dbName: process.env.REACT_APP_DB_NAME,
-                    },
-                    body: JSON.stringify({
-                        kbId,
-                        category,
-                        text,
-                        highlights,
-                        docId,
-                    }),
-                }
-            );
+            const response = await fetch(`${backendUrl}/kb/save_text_doc`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: JSON.stringify({
+                    kbId,
+                    category,
+                    text,
+                    highlights,
+                    docId,
+                    source: 'user',
+                }),
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to save text doc');
@@ -190,14 +155,12 @@ export const useDocumentData = (
     };
 
     return {
-        textDocArray,
         addNewDoc,
         setDocumentDetails,
-        docId,
+        textDocId,
         category,
         setCategory,
         handleSave,
         handleEmbed,
-        fetchData,
     };
 };

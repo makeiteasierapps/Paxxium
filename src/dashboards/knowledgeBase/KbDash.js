@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Box, Grid, Typography } from '@mui/material';
 import { KbContext } from '../../contexts/KbContext';
 import KbSpeedDial from './components/KbSpeedDial';
-import KbCard from './components/KbCard';
+import KbHeading from './components/KbHeading';
 import KbMain from './components/KbMain';
 import NewKnowledgeBase from './components/NewKnowledgeBase';
 import { useTheme } from '@mui/material/styles';
@@ -48,7 +48,7 @@ const KbDash = () => {
                 {kbArray &&
                     kbArray.map((kb) => (
                         <Grid item xs={12} sm={4} key={kb.id}>
-                            <KbCard
+                            <KbHeading
                                 kb={kb}
                                 onSelect={() => setSelectedKb(kb)}
                             />
