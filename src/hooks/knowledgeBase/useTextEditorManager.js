@@ -13,22 +13,9 @@ export const useTextEditorManager = (
 ) => {
     const [textDocId, setTextDocId] = useState(null);
     const [category, setCategory] = useState('');
-    const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
     const kbId = selectedKb ? selectedKb.id : null;
-
-    const openTextEditor = (document = null) => {
-        setIsTextEditorOpen(true); // Open the modal
-        if (document) {
-            console.log('doc exists')
-            setDocumentDetails(document);
-        }
-    };
-
-    const handleClose = () => {
-        setIsTextEditorOpen(false); 
-    };
 
     const handleSave = async () => {
         await saveTextDoc(kbId, category, documentText, highlights, textDocId);
@@ -177,8 +164,5 @@ export const useTextEditorManager = (
         setCategory,
         handleSave,
         handleEmbed,
-        openTextEditor,
-        handleClose,
-        isTextEditorOpen,
     };
 };

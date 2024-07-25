@@ -22,17 +22,17 @@ const StyledTextEditor = styled(Box)({
     marginTop: '10px',
 });
 
-const TextEditor = ({ document = null }) => {
+const TextEditor = ({ onClose, doc = null }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
     useEffect(() => {
-        if (document) {
-            setDocumentDetails(document);
+        if (doc) {
+            setDocumentDetails(doc);
         }
-    }, []);
+    }, [doc, setDocumentDetails]);
 
     useEffect(() => {
         const contentEditable = contentEditableRef.current;

@@ -14,13 +14,18 @@ import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
 const EmbeddedDocCard = ({ document }) => {
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
     const {
         deleteEmbeddedDoc,
-        textEditorManager: { openTextEditor, handleClose, isTextEditorOpen },
+        textEditorManager: { toggleEditorVisibiliy, isTextEditorOpen },
     } = useContext(KbContext);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.kb_id, document.id);
+    };
+
+    const toggleEditor = () => {
+        setIsEditorOpen(!isEditorOpen);
     };
 
     return (
@@ -37,9 +42,7 @@ const EmbeddedDocCard = ({ document }) => {
                 subheader={document.source}
                 action={
                     document.source === 'user' ? (
-                        <StyledIconButton
-                            onClick={() => openTextEditor(document)}
-                        >
+                        <StyledIconButton onClick={toggleEditor}>
                             <Add />
                         </StyledIconButton>
                     ) : null
@@ -67,9 +70,9 @@ const EmbeddedDocCard = ({ document }) => {
                     <Delete />
                 </StyledIconButton>
             </CardActions>
-            <Modal open={isTextEditorOpen} onClose={handleClose}>
+            <Modal open={isEditorOpen} onClose={toggleEditor}>
                 <Box>
-                    <TextEditor document={document} onClose={handleClose} />
+                    <TextEditor onClose={toggleEditor} doc={document} />
                 </Box>
             </Modal>
         </Card>

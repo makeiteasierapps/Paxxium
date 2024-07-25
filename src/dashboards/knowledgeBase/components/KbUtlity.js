@@ -18,10 +18,11 @@ import TextEditor from './textEditor/TextEditor';
 const KbUtility = ({ kbName, kbId }) => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
     const {
         scrapeUrl,
         selectedKb,
-        textEditorManager: { isTextEditorOpen, handleClose, openTextEditor },
+        textEditorManager: { isTextEditorOpen, toggleEditorVisibiliy },
     } = useContext(KbContext);
     const { uid } = useContext(AuthContext);
 
@@ -73,6 +74,10 @@ const KbUtility = ({ kbName, kbId }) => {
 
     const handleExtractFileClick = () => {
         fileInputRef.current.click();
+    };
+
+    const toggleEditor = () => {
+        setIsEditorOpen(!isEditorOpen);
     };
 
     return (
@@ -129,11 +134,11 @@ const KbUtility = ({ kbName, kbId }) => {
                     }
                     label="Crawl Site"
                 />
-                <Button onClick={openTextEditor}>Open Editor</Button>
+                <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
-            <Modal open={isTextEditorOpen} onClose={handleClose}>
+            <Modal open={isEditorOpen} onClose={toggleEditor}>
                 <Box>
-                    <TextEditor onClose={handleClose} />
+                    <TextEditor onClose={toggleEditor} />
                 </Box>
             </Modal>
         </Box>
