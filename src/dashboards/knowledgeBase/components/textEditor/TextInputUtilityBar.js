@@ -33,7 +33,6 @@ const TextInputUtilityBar = () => {
 
     const categories = ['Personal', 'Project', 'Skills', 'Education'];
 
-    console.log(documentText);
     const createHandleMenuClick = (menuItem) => {
         return () => {
             console.log(`Clicked on ${menuItem}`);

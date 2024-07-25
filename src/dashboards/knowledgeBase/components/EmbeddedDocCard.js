@@ -14,18 +14,13 @@ import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
 const EmbeddedDocCard = ({ document }) => {
-    const { deleteEmbeddedDoc } = useContext(KbContext);
-    const [open, setOpen] = useState(false);
+    const {
+        deleteEmbeddedDoc,
+        textEditorManager: { openTextEditor, handleClose, isTextEditorOpen },
+    } = useContext(KbContext);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.kb_id, document.id);
-    };
-    const openTextEditor = (document) => {
-        setOpen(true); // Open the modal
-    };
-
-    const handleClose = () => {
-        setOpen(false); // Close the modal
     };
 
     return (
@@ -72,7 +67,7 @@ const EmbeddedDocCard = ({ document }) => {
                     <Delete />
                 </StyledIconButton>
             </CardActions>
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={isTextEditorOpen} onClose={handleClose}>
                 <Box>
                     <TextEditor document={document} onClose={handleClose} />
                 </Box>

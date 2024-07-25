@@ -22,14 +22,16 @@ const StyledTextEditor = styled(Box)({
     marginTop: '10px',
 });
 
-const TextEditor = ({ document }) => {
+const TextEditor = ({ document = null }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
     useEffect(() => {
-        setDocumentDetails(document);
+        if (document) {
+            setDocumentDetails(document);
+        }
     }, []);
 
     useEffect(() => {
@@ -48,7 +50,7 @@ const TextEditor = ({ document }) => {
 
     return (
         <MainBox>
-            <TextInputUtilityBar document={document} />
+            <TextInputUtilityBar />
             <StyledTextEditor
                 ref={contentEditableRef}
                 contentEditable
