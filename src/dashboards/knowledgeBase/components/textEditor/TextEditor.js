@@ -1,28 +1,34 @@
 import { useEffect, useContext } from 'react';
-import { Box } from '@mui/material';
+import { Box, Modal } from '@mui/material';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
+
+const ModalContent = styled(Box)({
+    backgroundColor: 'black',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: '8px',
+    zIndex: 9999,
+});
 
 const MainBox = styled(Box)({
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-    height: '70vh',
-    border: '1px solid #e0e0e0',
+    height: '80vh',
 });
 
 const StyledTextEditor = styled(Box)({
     whiteSpace: 'pre-wrap',
     padding: '10px 20px',
     border: '1px solid #e0e0e0',
-    height: '100%',
-    width: '85vw',
+    height: 'calc(100% - 50px)',
     overflowY: 'auto',
     marginTop: '10px',
 });
 
-const TextEditor = ({ onClose, doc = null }) => {
+const TextEditor = ({ open, onClose, doc = null }) => {
     const {
         highlightsManager: { contentEditableRef, handleInput, handleMouseUp },
         textEditorManager: { setDocumentDetails },
@@ -49,15 +55,19 @@ const TextEditor = ({ onClose, doc = null }) => {
     }, [contentEditableRef, handleInput, handleMouseUp]);
 
     return (
-        <MainBox>
-            <TextInputUtilityBar />
-            <StyledTextEditor
-                ref={contentEditableRef}
-                contentEditable
-                onInput={handleInput}
-                onMouseUp={handleMouseUp}
-            />
-        </MainBox>
+        <Modal open={open} onClose={onClose} fullScreen>
+            <ModalContent>
+                <MainBox>
+                    <TextInputUtilityBar onClose={onClose} />
+                    <StyledTextEditor
+                        ref={contentEditableRef}
+                        contentEditable
+                        onInput={handleInput}
+                        onMouseUp={handleMouseUp}
+                    />
+                </MainBox>
+            </ModalContent>
+        </Modal>
     );
 };
 

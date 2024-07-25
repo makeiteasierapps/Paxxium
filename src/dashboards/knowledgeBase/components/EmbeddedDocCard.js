@@ -8,17 +8,14 @@ import {
     CardActions,
     Modal,
 } from '@mui/material';
-import { Delete, Add } from '@mui/icons-material/';
+import { Delete, Add, OpenInNew } from '@mui/icons-material/';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
 const EmbeddedDocCard = ({ document }) => {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const {
-        deleteEmbeddedDoc,
-        textEditorManager: { toggleEditorVisibiliy, isTextEditorOpen },
-    } = useContext(KbContext);
+    const { deleteEmbeddedDoc } = useContext(KbContext);
 
     const handleDelete = () => {
         deleteEmbeddedDoc(document.kb_id, document.id);
@@ -69,12 +66,13 @@ const EmbeddedDocCard = ({ document }) => {
                 <StyledIconButton onClick={handleDelete}>
                     <Delete />
                 </StyledIconButton>
+                <StyledIconButton onClick={toggleEditor}>
+                    <OpenInNew />
+                </StyledIconButton>
             </CardActions>
-            <Modal open={isEditorOpen} onClose={toggleEditor}>
-                <Box>
-                    <TextEditor onClose={toggleEditor} doc={document} />
-                </Box>
-            </Modal>
+            {isEditorOpen && (
+                <TextEditor open={toggleEditor} onClose={toggleEditor} doc={document} />
+            )}
         </Card>
     );
 };

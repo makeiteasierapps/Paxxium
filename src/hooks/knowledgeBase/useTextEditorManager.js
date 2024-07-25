@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
@@ -83,12 +83,13 @@ export const useTextEditorManager = (
         setDocumentDetails(newTextDoc);
     };
 
-    const setDocumentDetails = (doc) => {
+    const setDocumentDetails = useCallback((doc) => {
+        console.log('setting document details', doc);
         setTextDocId(doc.id || null);
         setDocumentText(doc.content || '');
         setHighlights(doc.highlights || []);
         setCategory(doc.category || '');
-    };
+    }, []);
 
     const embedTextDoc = async (docId, kbId, doc, highlights, category) => {
         try {

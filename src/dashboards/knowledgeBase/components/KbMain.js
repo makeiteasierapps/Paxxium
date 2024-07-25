@@ -46,7 +46,7 @@ const KbMain = ({ onClose }) => {
                         position: 'absolute',
                         top: 10,
                         left: 60,
-                        zIndex: 2000,
+                        zIndex: 1000,
                     }}
                 >
                     <StyledIconButton

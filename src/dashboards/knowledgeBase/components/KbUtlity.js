@@ -9,7 +9,6 @@ import {
     FormControlLabel,
     Button,
     InputAdornment,
-    Modal,
 } from '@mui/material';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
@@ -22,7 +21,6 @@ const KbUtility = ({ kbName, kbId }) => {
     const {
         scrapeUrl,
         selectedKb,
-        textEditorManager: { isTextEditorOpen, toggleEditorVisibiliy },
     } = useContext(KbContext);
     const { uid } = useContext(AuthContext);
 
@@ -136,11 +134,9 @@ const KbUtility = ({ kbName, kbId }) => {
                 />
                 <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
-            <Modal open={isEditorOpen} onClose={toggleEditor}>
-                <Box>
-                    <TextEditor onClose={toggleEditor} />
-                </Box>
-            </Modal>
+            {isEditorOpen && (
+                <TextEditor open={toggleEditor} onClose={toggleEditor} />
+            )}
         </Box>
     );
 };
