@@ -1,6 +1,6 @@
 import { useState, createContext, useContext } from 'react';
 import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
-import { useHighlights } from '../hooks/knowledgeBase/useHighlights';
+import { useHighlightManager } from '../hooks/knowledgeBase/useHighlightManager';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useEmbeddedDocs } from '../hooks/knowledgeBase/useEmbeddedDocs';
 import { AuthContext } from './AuthContext';
@@ -10,7 +10,7 @@ export const KbContext = createContext();
 export const KbProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const [selectedKb, setSelectedKb] = useState(null);
-    const [documentText, setDocumentText] = useState('');
+    const [editorContent, setEditorContent] = useState('');
     const [highlights, setHighlights] = useState([]);
     const [quill, setQuill] = useState(null);
     const backendUrl =
@@ -22,15 +22,19 @@ export const KbProvider = ({ children }) => {
 
     const textEditorManager = useTextEditorManager(
         selectedKb,
-        documentText,
-        setDocumentText,
+        editorContent,
+        setEditorContent,
         highlights,
         setHighlights,
         backendUrl,
         embeddedDocsManager.setEmbeddedDocs
     );
-    
-    const highlightsManager = useHighlights(highlights, setHighlights, quill);
+
+    const highlightsManager = useHighlightManager(
+        highlights,
+        setHighlights,
+        quill
+    );
 
     const kbManager = useKbManager(backendUrl);
 
@@ -86,7 +90,8 @@ export const KbProvider = ({ children }) => {
                 quill,
                 setQuill,
                 setSelectedKb,
-                documentText,
+                editorContent,
+                setEditorContent,
                 scrapeUrl,
                 textEditorManager,
                 highlightsManager,

@@ -1,7 +1,7 @@
 import { useEffect, useContext, useState, useCallback } from 'react';
-import { Box, Modal, Popper, Paper, Button } from '@mui/material';
+import { Box, Modal } from '@mui/material';
 import ReactQuill from 'react-quill';
-import { marked } from 'marked';
+
 import 'react-quill/dist/quill.snow.css';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
@@ -28,40 +28,22 @@ const MainBox = styled(Box)({
     height: '100%',
 });
 
-const FloatingMenu = styled(Paper)(({ theme }) => ({
-    padding: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(1),
-    backgroundColor: 'white', // Make sure it's visible
-}));
-
 const TextEditor = ({ open, onClose, doc = null }) => {
-    const [value, setValue] = useState(doc ? marked(doc.content.replace(/\n/g, '<br/>')) : '');
-    const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+
     const {
         quill,
         setQuill,
         highlights,
         setHighlights,
-        highlightsManager: { handleChunkClick, getRandomColor },
+        editorContent,
+        setEditorContent,
+        highlightsManager: {
+            handleChunkClick,
+            applyHighlights,
+            handleHighlight,
+        },
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
-
-    useEffect(() => {
-        if (doc) {
-            setDocumentDetails(doc);
-        }
-    }, [doc, setDocumentDetails]);
-
-    const applyHighlights = useCallback(() => {
-        console.log('apply highlights');
-        if (quill) {
-            highlights.forEach(({ start, end, color }) => {
-                quill.formatText(start, end - start, { background: color });
-            });
-        }
-    }, [quill, highlights]);
 
     const handleClick = useCallback(
         (event) => {
@@ -73,7 +55,6 @@ const TextEditor = ({ open, onClose, doc = null }) => {
                     (chunk) =>
                         clickedIndex >= chunk.start && clickedIndex < chunk.end
                 );
-                console.log(clickedChunk);
                 if (clickedChunk) {
                     console.log('Clicked highlight:', clickedChunk);
                     handleChunkClick(clickedChunk);
@@ -81,10 +62,15 @@ const TextEditor = ({ open, onClose, doc = null }) => {
                     handleChunkClick(null);
                 }
             }
-            setMenuAnchorEl(null);
         },
         [quill, highlights, handleChunkClick]
     );
+
+    useEffect(() => {
+        if (doc) {
+            setDocumentDetails(doc);
+        }
+    }, [doc, setDocumentDetails]);
 
     useEffect(() => {
         if (quill) {
@@ -97,52 +83,22 @@ const TextEditor = ({ open, onClose, doc = null }) => {
         }
     }, [quill, applyHighlights, handleClick]);
 
-    const handleHighlight = (range) => {
-        if (quill && range && range.length > 0) {
-            const color = getRandomColor(highlights.map((h) => h.color));
-            quill.formatText(range.index, range.length, { background: color });
-            const newHighlight = {
-                id: `chunk${highlights.length + 1}`,
-                start: range.index,
-                end: range.index + range.length,
-                color: color,
-                text: quill.getText(range.index, range.length),
-            };
-            setHighlights([...highlights, newHighlight]);
-        }
-    };
-
-    const handleRemoveHighlight = () => {
-        if (quill) {
-            const range = quill.getSelection();
-            if (range) {
-                quill.removeFormat(range.index, range.length);
-                setHighlights(
-                    highlights.filter(
-                        (h) =>
-                            h.end <= range.index ||
-                            h.start >= range.index + range.length
-                    )
-                );
-            }
-        }
-        setMenuAnchorEl(null);
-    };
-
     const handleMouseUp = () => {
         if (!quill) return;
         const selection = quill.getSelection();
         if (selection && selection.length > 0) {
             handleHighlight(selection);
         }
-        setMenuAnchorEl(null);
     };
-
+    
     return (
         <Modal open={open} onClose={null}>
             <ModalContent>
                 <MainBox>
-                    <TextInputUtilityBar onClose={onClose} />
+                    <TextInputUtilityBar
+                        onClose={onClose}
+                        setHighlights={setHighlights}
+                    />
                     <ReactQuill
                         ref={(el) => {
                             if (el) {
@@ -150,38 +106,13 @@ const TextEditor = ({ open, onClose, doc = null }) => {
                             }
                         }}
                         theme="snow"
-                        value={value}
-                        onChange={setValue}
+                        value={editorContent}
+                        onChange={setEditorContent}
                         onChangeSelection={handleMouseUp}
                         modules={{
                             toolbar: false,
                         }}
                     />
-                    <Popper
-                        open={Boolean(menuAnchorEl)}
-                        anchorEl={menuAnchorEl}
-                        placement="bottom-start"
-                        style={{ zIndex: 9999 }}
-                        modifiers={[
-                            {
-                                name: 'preventOverflow',
-                                enabled: true,
-                                options: {
-                                    altAxis: true,
-                                    altBoundary: true,
-                                    tether: true,
-                                    rootBoundary: 'document',
-                                    padding: 8,
-                                },
-                            },
-                        ]}
-                    >
-                        <FloatingMenu>
-                            <Button onClick={handleRemoveHighlight}>
-                                Remove Highlight
-                            </Button>
-                        </FloatingMenu>
-                    </Popper>
                 </MainBox>
             </ModalContent>
         </Modal>

@@ -19,11 +19,10 @@ const TextInputUtilityBar = ({ onClose }) => {
     const {
         highlightsManager: {
             selectedChunk,
-            setSelectedChunk,
             handleColorChange,
             removeHighlight,
         },
-        textEditorManager: { handleSave, handleEmbed },
+        textEditorManager: { handleSave, handleEmbed, removeDocumentDetails },
     } = useContext(KbContext);
 
     return (
@@ -56,7 +55,7 @@ const TextInputUtilityBar = ({ onClose }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    setSelectedChunk(null);
+                    removeDocumentDetails();
                     onClose();
                 }}
             >

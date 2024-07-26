@@ -1,11 +1,13 @@
 import { useState, useContext, useCallback } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 export const useTextEditorManager = (
     selectedKb,
-    documentText,
-    setDocumentText,
+    editorContent,
+    setEditorContent,
     highlights,
     setHighlights,
     backendUrl,
@@ -17,29 +19,46 @@ export const useTextEditorManager = (
     const kbId = selectedKb ? selectedKb.id : null;
 
     const handleSave = async () => {
-        await saveTextDoc(kbId, documentText, highlights, textDocId);
+        const cleanContent = DOMPurify.sanitize(editorContent, {
+            ALLOWED_TAGS: [],
+        })
+            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with regular spaces
+            .replace(/\n\s*\n/g, '\n\n') // Reduce multiple newlines to maximum two
+            .trim(); // Remove leading and trailing whitespace
+
+        const docId = await saveTextDoc(
+            kbId,
+            cleanContent,
+            highlights,
+            textDocId
+        );
 
         const newDoc = {
-            content: documentText,
+            content: cleanContent,
             highlights: highlights,
-            id: textDocId,
+            id: docId,
             kb_id: kbId,
+            source: 'user',
         };
-        
+
+        setEmbeddedDocs((prevDocs) => {
+            const existingDocs = prevDocs[kbId] || [];
+            const updatedDocs = existingDocs.filter((doc) => doc.id !== docId);
+            return {
+                ...prevDocs,
+                [kbId]: [...updatedDocs, newDoc],
+            };
+        });
+
+        // Update localStorage
         const savedData = JSON.parse(localStorage.getItem('documents')) || {};
-        savedData[kbId] = [
-            ...(savedData[kbId] || []).filter((doc) => doc.id !== textDocId),
-            newDoc,
-        ];
-
-        setEmbeddedDocs((prevDocs) => ({
-            ...prevDocs,
-            [kbId]: savedData[kbId],
-        }));
-
+        savedData[kbId] = savedData[kbId] || [];
+        const updatedDocs = savedData[kbId].filter((doc) => doc.id !== docId);
+        savedData[kbId] = [...updatedDocs, newDoc];
         localStorage.setItem('documents', JSON.stringify(savedData));
 
-        return textDocId;
+        setTextDocId(docId);
+        return docId;
     };
 
     const handleEmbed = async () => {
@@ -47,48 +66,27 @@ export const useTextEditorManager = (
         if (!currentDocId) {
             currentDocId = await handleSave();
         }
-        await embedTextDoc(
-            currentDocId,
-            kbId,
-            documentText,
-            highlights,
-
-        );
+        await embedTextDoc(currentDocId, kbId, editorContent, highlights);
     };
 
-    const addNewDoc = async () => {
-        const docId = await saveTextDoc(kbId);
-        const newTextDoc = {
-            content: '',
-            category: '',
-            highlights: [],
-            id: docId,
-            source: 'user',
-            kbId,
-        };
+    const setDocumentDetails = useCallback(
+        (doc) => {
+            setTextDocId(doc.id || null);
+            setEditorContent(
+                doc.content ? marked(doc.content.replace(/\n/g, '<br/>')) : ''
+            );
+            setHighlights(doc.highlights || []);
+        },
+        [setTextDocId, setEditorContent, setHighlights]
+    );
 
-        setEmbeddedDocs((prevDocs) => ({
-            ...prevDocs,
-            [kbId]: [...prevDocs[kbId], newTextDoc],
-        }));
-
-        const savedData = JSON.parse(localStorage.getItem('documents')) || {};
-        const kbDocs = savedData[kbId] || [];
-        kbDocs.push(newTextDoc);
-        savedData[kbId] = [...kbDocs, newTextDoc];
-
-        localStorage.setItem('documents', JSON.stringify(savedData));
-        setDocumentDetails(newTextDoc);
+    const removeDocumentDetails = () => {
+        setTextDocId(null);
+        setEditorContent('');
+        setHighlights([]);
     };
 
-    const setDocumentDetails = useCallback((doc) => {
-        console.log(doc)
-        setTextDocId(doc.id || null);
-        setDocumentText(doc.content || '');
-        setHighlights(doc.highlights || []);
-    }, [setTextDocId, setDocumentText, setHighlights]);
-
-    const embedTextDoc = async (docId, kbId, doc, highlights, category) => {
+    const embedTextDoc = async (docId, kbId, doc, highlights) => {
         try {
             const response = await fetch(`${backendUrl}/kb/embed`, {
                 method: 'POST',
@@ -102,7 +100,6 @@ export const useTextEditorManager = (
                     highlights,
                     docId,
                     kbId,
-                    category,
                 }),
             });
 
@@ -119,7 +116,6 @@ export const useTextEditorManager = (
 
     const saveTextDoc = async (
         kbId,
-        category = null,
         text = null,
         highlights = null,
         docId = null
@@ -134,7 +130,6 @@ export const useTextEditorManager = (
                 },
                 body: JSON.stringify({
                     kbId,
-                    category,
                     text,
                     highlights,
                     docId,
@@ -147,6 +142,7 @@ export const useTextEditorManager = (
             }
 
             const data = await response.json();
+            console.log(data);
             return data.docId;
         } catch (error) {
             console.error(error);
@@ -155,8 +151,8 @@ export const useTextEditorManager = (
     };
 
     return {
-        addNewDoc,
         setDocumentDetails,
+        removeDocumentDetails,
         textDocId,
         handleSave,
         handleEmbed,

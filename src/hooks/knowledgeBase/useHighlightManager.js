@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
-export const useHighlights = (highlights, setHighlights, quill) => {
+export const useHighlightManager = (highlights, setHighlights, quill) => {
     const [selectedChunk, setSelectedChunk] = useState(null);
 
     const handleColorChange = (event, newValue) => {
@@ -62,6 +62,57 @@ export const useHighlights = (highlights, setHighlights, quill) => {
         }
     };
 
+    const applyHighlights = useCallback(() => {
+        if (quill) {
+            highlights.forEach(({ start, end, color }) => {
+                quill.formatText(start, end - start, { background: color });
+            });
+        }
+    }, [quill, highlights]);
+
+
+    const handleHighlight = (range) => {
+        if (quill && range && range.length > 0) {
+            const color = getRandomColor(highlights.map((h) => h.color));
+            const newHighlights = [];
+
+            let currentIndex = range.index;
+            const endIndex = range.index + range.length;
+
+            const findNextUnhighlightedSection = (start, end) => {
+                return highlights.find((h) => h.start > start && h.start < end);
+            };
+
+            const createHighlight = (start, end) => {
+                quill.formatText(start, end - start, { background: color });
+                return {
+                    id: `chunk${highlights.length + newHighlights.length + 1}`,
+                    start: start,
+                    end: end,
+                    color: color,
+                    text: quill.getText(start, end - start),
+                };
+            };
+
+            while (currentIndex < endIndex) {
+                const nextHighlight = findNextUnhighlightedSection(
+                    currentIndex,
+                    endIndex
+                );
+                const sectionEnd = nextHighlight
+                    ? nextHighlight.start
+                    : endIndex;
+
+                newHighlights.push(createHighlight(currentIndex, sectionEnd));
+
+                currentIndex = nextHighlight ? nextHighlight.end : endIndex;
+            }
+
+            setHighlights([...highlights, ...newHighlights]);
+        }
+    };
+
+
     return {
         highlights,
         setHighlights,
@@ -70,6 +121,7 @@ export const useHighlights = (highlights, setHighlights, quill) => {
         setSelectedChunk,
         handleColorChange,
         removeHighlight,
-        getRandomColor,
+        applyHighlights,
+        handleHighlight,
     };
 };
