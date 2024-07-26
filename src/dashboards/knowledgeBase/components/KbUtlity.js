@@ -87,7 +87,6 @@ const KbUtility = ({ kbName, kbId }) => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 fullWidth
-                margin="normal"
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
