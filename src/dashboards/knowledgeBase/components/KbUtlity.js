@@ -18,10 +18,7 @@ const KbUtility = ({ kbName, kbId }) => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const {
-        scrapeUrl,
-        selectedKb,
-    } = useContext(KbContext);
+    const { scrapeUrl, selectedKb } = useContext(KbContext);
     const { uid } = useContext(AuthContext);
 
     const fileInputRef = useRef(null);
@@ -135,7 +132,7 @@ const KbUtility = ({ kbName, kbId }) => {
                 <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
             {isEditorOpen && (
-                <TextEditor open={toggleEditor} onClose={toggleEditor} />
+                <TextEditor open={isEditorOpen} onClose={toggleEditor} />
             )}
         </Box>
     );

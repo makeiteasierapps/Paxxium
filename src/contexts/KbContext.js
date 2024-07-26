@@ -12,6 +12,7 @@ export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
     const [documentText, setDocumentText] = useState('');
     const [highlights, setHighlights] = useState([]);
+    const [quill, setQuill] = useState(null);
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
@@ -28,13 +29,8 @@ export const KbProvider = ({ children }) => {
         backendUrl,
         embeddedDocsManager.setEmbeddedDocs
     );
-
-    const highlightsManager = useHighlights(
-        documentText,
-        setDocumentText,
-        highlights,
-        setHighlights
-    );
+    
+    const highlightsManager = useHighlights(highlights, setHighlights, quill);
 
     const kbManager = useKbManager(backendUrl);
 
@@ -87,11 +83,15 @@ export const KbProvider = ({ children }) => {
         <KbContext.Provider
             value={{
                 selectedKb,
+                quill,
+                setQuill,
                 setSelectedKb,
                 documentText,
                 scrapeUrl,
                 textEditorManager,
                 highlightsManager,
+                highlights,
+                setHighlights,
                 kbManager,
                 ...embeddedDocsManager,
             }}

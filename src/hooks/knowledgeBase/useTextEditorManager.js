@@ -12,17 +12,15 @@ export const useTextEditorManager = (
     setEmbeddedDocs
 ) => {
     const [textDocId, setTextDocId] = useState(null);
-    const [category, setCategory] = useState('');
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
     const kbId = selectedKb ? selectedKb.id : null;
 
     const handleSave = async () => {
-        await saveTextDoc(kbId, category, documentText, highlights, textDocId);
+        await saveTextDoc(kbId, documentText, highlights, textDocId);
 
         const newDoc = {
             content: documentText,
-            category: category,
             highlights: highlights,
             id: textDocId,
             kb_id: kbId,
@@ -54,7 +52,7 @@ export const useTextEditorManager = (
             kbId,
             documentText,
             highlights,
-            category
+
         );
     };
 
@@ -84,12 +82,11 @@ export const useTextEditorManager = (
     };
 
     const setDocumentDetails = useCallback((doc) => {
-        console.log('setting document details', doc);
+        console.log(doc)
         setTextDocId(doc.id || null);
         setDocumentText(doc.content || '');
         setHighlights(doc.highlights || []);
-        setCategory(doc.category || '');
-    }, []);
+    }, [setTextDocId, setDocumentText, setHighlights]);
 
     const embedTextDoc = async (docId, kbId, doc, highlights, category) => {
         try {
@@ -161,8 +158,6 @@ export const useTextEditorManager = (
         addNewDoc,
         setDocumentDetails,
         textDocId,
-        category,
-        setCategory,
         handleSave,
         handleEmbed,
     };

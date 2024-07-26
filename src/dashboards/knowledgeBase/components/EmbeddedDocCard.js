@@ -6,9 +6,8 @@ import {
     CardContent,
     CardHeader,
     CardActions,
-    Modal,
 } from '@mui/material';
-import { Delete, Add, OpenInNew } from '@mui/icons-material/';
+import { Delete, OpenInNew } from '@mui/icons-material/';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
@@ -34,17 +33,7 @@ const EmbeddedDocCard = ({ document }) => {
             }}
             elevation={6}
         >
-            <CardHeader
-                title="Document Source"
-                subheader={document.source}
-                action={
-                    document.source === 'user' ? (
-                        <StyledIconButton onClick={toggleEditor}>
-                            <Add />
-                        </StyledIconButton>
-                    ) : null
-                }
-            />
+            <CardHeader title="Document Source" subheader={document.source} />
             <CardContent>
                 <Box
                     sx={{
@@ -71,7 +60,11 @@ const EmbeddedDocCard = ({ document }) => {
                 </StyledIconButton>
             </CardActions>
             {isEditorOpen && (
-                <TextEditor open={toggleEditor} onClose={toggleEditor} doc={document} />
+                <TextEditor
+                    open={isEditorOpen}
+                    onClose={toggleEditor}
+                    doc={document}
+                />
             )}
         </Card>
     );
