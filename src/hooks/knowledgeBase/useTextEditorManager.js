@@ -18,14 +18,17 @@ export const useTextEditorManager = (
     const { uid } = useContext(AuthContext);
     const kbId = selectedKb ? selectedKb.id : null;
 
-    const handleSave = async () => {
-        const cleanContent = DOMPurify.sanitize(editorContent, {
+    const cleanEditorContent = (content) => {
+        return DOMPurify.sanitize(content, {
             ALLOWED_TAGS: [],
         })
             .replace(/&nbsp;/g, ' ') // Replace &nbsp; with regular spaces
             .replace(/\n\s*\n/g, '\n\n') // Reduce multiple newlines to maximum two
             .trim(); // Remove leading and trailing whitespace
+    };
 
+    const handleSave = async () => {
+        const cleanContent = cleanEditorContent(editorContent);
         const docId = await saveTextDoc(
             kbId,
             cleanContent,
@@ -62,11 +65,14 @@ export const useTextEditorManager = (
     };
 
     const handleEmbed = async () => {
+        //makes sure the document is saved before embedding
         let currentDocId = textDocId;
         if (!currentDocId) {
             currentDocId = await handleSave();
         }
-        await embedTextDoc(currentDocId, kbId, editorContent, highlights);
+
+        const cleanContent = cleanEditorContent(editorContent);
+        await embedTextDoc(currentDocId, kbId, cleanContent, highlights);
     };
 
     const setDocumentDetails = useCallback(
@@ -86,7 +92,7 @@ export const useTextEditorManager = (
         setHighlights([]);
     };
 
-    const embedTextDoc = async (docId, kbId, doc, highlights) => {
+    const embedTextDoc = async (docId, kbId, content, highlights) => {
         try {
             const response = await fetch(`${backendUrl}/kb/embed`, {
                 method: 'POST',
@@ -96,7 +102,7 @@ export const useTextEditorManager = (
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
-                    doc,
+                    content,
                     highlights,
                     docId,
                     kbId,
