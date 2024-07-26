@@ -1,6 +1,7 @@
-import { useEffect, useContext, useState, useCallback, useRef } from 'react';
+import { useEffect, useContext, useState, useCallback } from 'react';
 import { Box, Modal, Popper, Paper, Button } from '@mui/material';
 import ReactQuill from 'react-quill';
+import { marked } from 'marked';
 import 'react-quill/dist/quill.snow.css';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
@@ -36,7 +37,7 @@ const FloatingMenu = styled(Paper)(({ theme }) => ({
 }));
 
 const TextEditor = ({ open, onClose, doc = null }) => {
-    const [value, setValue] = useState(doc ? doc.content : '');
+    const [value, setValue] = useState(doc ? marked(doc.content.replace(/\n/g, '<br/>')) : '');
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);
     const {
         quill,
