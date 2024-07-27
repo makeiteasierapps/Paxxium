@@ -129,12 +129,6 @@ const NewsCarousel = () => {
                     />
                 </Tooltip>
             </Box>
-            <MySnackbar
-                open={snackbarInfo.open}
-                message={snackbarInfo.message}
-                severity={snackbarInfo.severity}
-                handleClose={hideSnackbar}
-            />
         </Box>
     );
 };

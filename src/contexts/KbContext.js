@@ -1,13 +1,15 @@
-import { useState, createContext } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
 import { useHighlightManager } from '../hooks/knowledgeBase/useHighlightManager';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useKbDocManager } from '../hooks/knowledgeBase/useKbDocManager';
 import { useExtractionManager } from '../hooks/knowledgeBase/useExtractionManager';
+import { SnackbarContext } from './SnackbarContext';
 
 export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
+    const { showSnackbar } = useContext(SnackbarContext);
     const [selectedKb, setSelectedKb] = useState(null);
     const [editorContent, setEditorContent] = useState('');
     const [highlights, setHighlights] = useState([]);
@@ -17,8 +19,12 @@ export const KbProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const kbDocManager = useKbDocManager(backendUrl, selectedKb,
-        editorContent, highlights);
+    const kbDocManager = useKbDocManager(
+        backendUrl,
+        selectedKb,
+        editorContent,
+        highlights,
+    );
 
     const textEditorManager = useTextEditorManager(
         setEditorContent,

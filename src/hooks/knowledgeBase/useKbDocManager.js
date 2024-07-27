@@ -1,16 +1,16 @@
 import { useState, useCallback, useContext } from 'react';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import DOMPurify from 'dompurify';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 export const useKbDocManager = (
     backendUrl,
     selectedKb,
     editorContent,
-    highlights
+    highlights,
 ) => {
-    const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
+    const { showSnackbar } = useSnackbar();
     const [kbDocs, setKbDocs] = useState({});
     const [currentKbDoc, setCurrentKbDoc] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
@@ -96,6 +96,7 @@ export const useKbDocManager = (
 
             const data = await response.json();
             console.log(data.kb_doc);
+            showSnackbar('Document embedded successfully', 'success');
             return data.kb_doc;
         } catch (error) {
             console.error('Error embedding text doc:', error);
@@ -121,6 +122,7 @@ export const useKbDocManager = (
             }
 
             const data = await response.json();
+            showSnackbar('Document saved successfully', 'success');
             return data.kb_doc;
         } catch (error) {
             console.error(error);

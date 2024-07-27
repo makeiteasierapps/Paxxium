@@ -26,6 +26,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
+import MySnackBar from './SnackBar';
 
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
@@ -54,7 +55,6 @@ const AuthenticatedApp = () => {
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
-
 
     useEffect(() => {
         if (isAuthorized) return;
@@ -87,8 +87,6 @@ const AuthenticatedApp = () => {
 
         fetchData();
     }, [setUid, user, uid, setIsAuthorized, isAuthorized, backendUrl]);
-
-    
 
     if (!initialCheckDone) {
         return null;
@@ -154,10 +152,31 @@ const AuthenticatedApp = () => {
 };
 
 const App = () => {
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'info',
+    });
+
+    const showSnackbar = (message, severity = 'info') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
+    const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbar({ ...snackbar, open: false });
+    };
+    const snackbarValue = {
+        showSnackbar,
+        handleCloseSnackbar,
+        ...snackbar
+    };
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <SnackbarProvider>
+            <SnackbarProvider value={snackbarValue}>
                 <AuthProvider>
                     <SettingsProvider>
                         <Router>
@@ -167,6 +186,14 @@ const App = () => {
                                         <ProfileProvider>
                                             <KbProvider>
                                                 <AuthenticatedApp />
+                                                <MySnackBar
+                                                    open={snackbar.open}
+                                                    handleClose={
+                                                        handleCloseSnackbar
+                                                    }
+                                                    message={snackbar.message}
+                                                    severity={snackbar.severity}
+                                                />
                                             </KbProvider>
                                         </ProfileProvider>
                                     </ChatProvider>

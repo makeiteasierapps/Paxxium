@@ -1,34 +1,19 @@
-import { useState, createContext } from 'react';
+import { createContext, useContext } from 'react';
 
 export const SnackbarContext = createContext();
 
-export const SnackbarProvider = ({ children }) => {
-    // Snackbar state
-    const [snackbarInfo, setSnackbarInfo] = useState({
-        open: false,
-        message: '',
-        severity: 'info',
-    });
-
-    // Function to show snackbar
-    const showSnackbar = (message, severity) => {
-        setSnackbarInfo({ open: true, message, severity });
-    };
-
-    // Function to hide snackbar
-    const hideSnackbar = () => {
-        setSnackbarInfo({ ...snackbarInfo, open: false });
-    };
-
+export const SnackbarProvider = ({ children, value }) => {
     return (
-        <SnackbarContext.Provider
-            value={{
-                showSnackbar,
-                hideSnackbar,
-                snackbarInfo,
-            }}
-        >
+        <SnackbarContext.Provider value={value}>
             {children}
         </SnackbarContext.Provider>
     );
+};
+
+export const useSnackbar = () => {
+    const context = useContext(SnackbarContext);
+    if (context === undefined) {
+        throw new Error('useSnackbar must be used within a SnackbarProvider');
+    }
+    return context;
 };
