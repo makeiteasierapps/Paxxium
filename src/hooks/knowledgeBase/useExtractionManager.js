@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-
 export const useExtractionManager = (backendUrl, setKbDocs) => {
     const { uid } = useContext(AuthContext);
     const scrapeUrl = async (kbId, kbName, url, crawl) => {
@@ -34,12 +33,12 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const data = JSON.parse(decoder.decode(value));
-                console.log(data);
                 if (data.status === 'completed') {
                     setKbDocs((prevDocs) => ({
                         ...prevDocs,
                         [kbId]: [...prevDocs[kbId], ...data.content],
                     }));
+                    return data.content ;
                 }
             }
         } catch (error) {
@@ -62,7 +61,7 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
             if (!response.ok) throw new Error('Failed to upload file');
 
             const data = await response.json();
-            console.log(data.content);
+            return data;
         } catch (error) {
             console.error('Error uploading file:', error);
         }

@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useCallback } from 'react';
+import { useEffect, useContext, useCallback } from 'react';
 import { Box, Modal } from '@mui/material';
 import ReactQuill from 'react-quill';
 
@@ -56,7 +56,6 @@ const TextEditor = ({ open, onClose, doc = null }) => {
                         clickedIndex >= chunk.start && clickedIndex < chunk.end
                 );
                 if (clickedChunk) {
-                    console.log('Clicked highlight:', clickedChunk);
                     handleChunkClick(clickedChunk);
                 } else {
                     handleChunkClick(null);

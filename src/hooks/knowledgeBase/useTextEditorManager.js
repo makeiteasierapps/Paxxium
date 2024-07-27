@@ -19,6 +19,9 @@ export const useTextEditorManager = (
     const kbId = selectedKb ? selectedKb.id : null;
 
     const cleanEditorContent = (content) => {
+        // I need to finda solution that cleans without removing the markdown
+        // I am converting markdown to html so that in can render in quill
+        // I need to convert it back to markdown when saving?
         return DOMPurify.sanitize(content, {
             ALLOWED_TAGS: [],
         })
@@ -28,25 +31,17 @@ export const useTextEditorManager = (
     };
 
     const handleSave = async () => {
-        const cleanContent = cleanEditorContent(editorContent);
-        const docId = await saveTextDoc(
+        // const cleanContent = cleanEditorContent(editorContent);
+        const newDoc = await saveTextDoc(
             kbId,
-            cleanContent,
+            editorContent,
             highlights,
             textDocId
         );
 
-        const newDoc = {
-            content: cleanContent,
-            highlights: highlights,
-            id: docId,
-            kb_id: kbId,
-            source: 'user',
-        };
-
         setKbDocs((prevDocs) => {
             const existingDocs = prevDocs[kbId] || [];
-            const updatedDocs = existingDocs.filter((doc) => doc.id !== docId);
+            const updatedDocs = existingDocs.filter((doc) => doc.id !== newDoc.id);
             return {
                 ...prevDocs,
                 [kbId]: [...updatedDocs, newDoc],
@@ -56,21 +51,16 @@ export const useTextEditorManager = (
         // Update localStorage
         const savedData = JSON.parse(localStorage.getItem('documents')) || {};
         savedData[kbId] = savedData[kbId] || [];
-        const updatedDocs = savedData[kbId].filter((doc) => doc.id !== docId);
+        const updatedDocs = savedData[kbId].filter((doc) => doc.id !== newDoc.id);
         savedData[kbId] = [...updatedDocs, newDoc];
         localStorage.setItem('documents', JSON.stringify(savedData));
 
-        setTextDocId(docId);
-        return docId;
+        setTextDocId(newDoc.id);
+        return newDoc.id;
     };
 
     const handleEmbed = async () => {
-        //makes sure the document is saved before embedding
         let currentDocId = textDocId;
-        if (!currentDocId) {
-            currentDocId = await handleSave();
-        }
-
         const cleanContent = cleanEditorContent(editorContent);
         await embedTextDoc(currentDocId, kbId, cleanContent, highlights);
     };
@@ -123,7 +113,7 @@ export const useTextEditorManager = (
 
     const saveTextDoc = async (
         kbId,
-        text = null,
+        text,
         highlights = null,
         docId = null
     ) => {
@@ -140,7 +130,6 @@ export const useTextEditorManager = (
                     text,
                     highlights,
                     docId,
-                    source: 'user',
                 }),
             });
 
@@ -149,8 +138,7 @@ export const useTextEditorManager = (
             }
 
             const data = await response.json();
-            console.log(data);
-            return data.docId;
+            return data.kb_doc;
         } catch (error) {
             console.error(error);
             showSnackbar('Error saving text doc', 'error');

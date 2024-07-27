@@ -18,6 +18,7 @@ const KbUtility = ({ kbName, kbId }) => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [kbDoc, setKbDoc] = useState(null);
     const { scrapeUrl, selectedKb, extractFile } = useContext(KbContext);
 
     const fileInputRef = useRef(null);
@@ -30,8 +31,11 @@ const KbUtility = ({ kbName, kbId }) => {
             trimmedUrl.startsWith('https://')
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
-        scrapeUrl(kbId, kbName, formattedUrl, crawl);
+        const scrapedKbDoc = await scrapeUrl(kbId, kbName, formattedUrl, crawl);
+        setKbDoc(scrapedKbDoc[0]);
+        console.log(scrapedKbDoc[0]);
         setUrl('');
+        setIsEditorOpen(true);
     };
 
     const handleFileSelect = async (event) => {
@@ -43,13 +47,18 @@ const KbUtility = ({ kbName, kbId }) => {
         formData.append('kbName', selectedKb.name);
         formData.append('kbId', selectedKb.id);
 
-        extractFile(formData);
+        const extractedKbDoc = await extractFile(formData);
+        setKbDoc(extractedKbDoc);
+        console.log(extractedKbDoc);
+        setIsEditorOpen(true);
     };
 
     const toggleEditor = () => {
         setIsEditorOpen(!isEditorOpen);
+        if (!isEditorOpen) {
+            setKbDoc(null); // Reset kbDoc when opening editor manually
+        }
     };
-
     return (
         <Box
             onClick={(e) => e.stopPropagation()}
@@ -106,7 +115,11 @@ const KbUtility = ({ kbName, kbId }) => {
                 <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
             {isEditorOpen && (
-                <TextEditor open={isEditorOpen} onClose={toggleEditor} />
+                <TextEditor
+                    open={isEditorOpen}
+                    onClose={toggleEditor}
+                    doc={kbDoc}
+                />
             )}
         </Box>
     );
