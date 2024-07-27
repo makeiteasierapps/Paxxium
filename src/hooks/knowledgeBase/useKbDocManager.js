@@ -1,13 +1,15 @@
 import { useState, useCallback, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import DOMPurify from 'dompurify';
+import TurndownService from 'turndown';
 import { useSnackbar } from '../../contexts/SnackbarContext';
+
+const turndownService = new TurndownService();
 
 export const useKbDocManager = (
     backendUrl,
     selectedKb,
     editorContent,
-    highlights,
+    highlights
 ) => {
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
@@ -15,16 +17,15 @@ export const useKbDocManager = (
     const [currentKbDoc, setCurrentKbDoc] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
 
-    const cleanEditorContent = (content) => {
-        // I need to finda solution that cleans without removing the markdown
-        // I am converting markdown to html so that in can render in quill
-        // I need to convert it back to markdown when saving?
-        return DOMPurify.sanitize(content, {
-            ALLOWED_TAGS: [],
-        })
-            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with regular spaces
+    const convertHTMLtoMarkdown = (content) => {
+        let markdown = turndownService.turndown(content);
+
+        // Clean the Markdown content
+        markdown = markdown
             .replace(/\n\s*\n/g, '\n\n') // Reduce multiple newlines to maximum two
             .trim(); // Remove leading and trailing whitespace
+
+        return markdown;
     };
 
     const updateDocumentState = (newDoc) => {
@@ -51,32 +52,34 @@ export const useKbDocManager = (
         setCurrentKbDoc(newDoc);
     };
 
-    const handleSave = async () => {
-        const newDoc = await saveKbDoc({
-            ...currentKbDoc,
-            kbId,
-            content: editorContent,
-            highlights,
-        });
-
-        updateDocumentState(newDoc);
-        return newDoc.id;
-    };
-
-    const handleEmbed = async () => {
-        const cleanContent = cleanEditorContent(editorContent);
-        let embeddedDoc = await embedKbDoc({
+    const handleDocOperation = async (operation) => {
+        const cleanContent = convertHTMLtoMarkdown(editorContent);
+        const docData = {
             ...currentKbDoc,
             kbId,
             content: cleanContent,
             highlights,
-        });
-        embeddedDoc.content = editorContent;
-        console.log('embeddedDoc', embeddedDoc);
-        if (embeddedDoc) {
-            updateDocumentState(embeddedDoc);
+        };
+
+        let updatedDoc;
+        if (operation === 'save') {
+            updatedDoc = await saveKbDoc(docData);
+        } else if (operation === 'embed') {
+            updatedDoc = await embedKbDoc(docData);
+        } else {
+            throw new Error('Invalid operation');
         }
+
+        if (updatedDoc) {
+            updatedDoc.content = editorContent;
+            updateDocumentState(updatedDoc);
+        }
+
+        return updatedDoc.id;
     };
+
+    const handleSave = () => handleDocOperation('save');
+    const handleEmbed = () => handleDocOperation('embed');
 
     const embedKbDoc = async (docData) => {
         try {
