@@ -17,12 +17,14 @@ const MainUtilityBox = styled(Box)({
 
 const TextInputUtilityBar = ({ onClose }) => {
     const {
+        handleSave,
+        handleEmbed,
         highlightsManager: {
             selectedChunk,
             handleColorChange,
             removeHighlight,
         },
-        textEditorManager: { handleSave, handleEmbed, removeDocumentDetails },
+        textEditorManager: { removeDocumentDetails },
     } = useContext(KbContext);
 
     return (

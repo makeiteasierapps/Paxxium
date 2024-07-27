@@ -17,16 +17,13 @@ export const KbProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const kbDocManager = useKbDocManager(backendUrl);
+    const kbDocManager = useKbDocManager(backendUrl, selectedKb,
+        editorContent, highlights);
 
     const textEditorManager = useTextEditorManager(
-        selectedKb,
-        editorContent,
         setEditorContent,
-        highlights,
         setHighlights,
-        backendUrl,
-        kbDocManager.setKbDocs
+        kbDocManager.setCurrentKbDoc
     );
 
     const highlightsManager = useHighlightManager(

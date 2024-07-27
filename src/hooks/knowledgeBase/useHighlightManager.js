@@ -112,7 +112,6 @@ export const useHighlightManager = (highlights, setHighlights, quill) => {
         }
     };
 
-
     return {
         highlights,
         setHighlights,
