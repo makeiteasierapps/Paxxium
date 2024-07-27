@@ -6,31 +6,12 @@ import KbUtility from './KbUtlity';
 import KbDocCard from './KbDocCard';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
-import { ChevronRight, ChevronLeft, Close } from '@mui/icons-material/';
 import { useTheme } from '@mui/material/styles';
 import { StyledContainer } from '../../styledComponents/DashStyledComponents';
-
-const MainContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    position: 'relative',
-    flexDirection: 'column',
-    width: '100%',
-    height: '90vh',
-    fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
-}));
-
-const ContentContainer = styled(Box)({
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'row',
-    overflowY: 'auto',
-});
+import { Close } from '@mui/icons-material';
 
 const KbMain = ({ onClose }) => {
-    const { selectedKb, kbDocs, fetchKbDocs } =
-        useContext(KbContext);
-
-    const [isUtilityOpen, setIsUtilityOpen] = useState(false);
+    const { selectedKb, kbDocs, fetchKbDocs } = useContext(KbContext);
 
     const theme = useTheme();
 
@@ -39,7 +20,15 @@ const KbMain = ({ onClose }) => {
     }, [fetchKbDocs, selectedKb.id]);
 
     return (
-        <MainContainer onClick={(e) => e.stopPropagation()}>
+        <StyledContainer
+            sx={{
+                height: '90vh',
+                position: 'relative',
+                alignItems: 'stretch',
+                justifyContent: 'flex-start',
+            }}
+            onClick={(e) => e.stopPropagation()}
+        >
             <Box sx={{ position: 'absolute', top: 10, left: 10, zIndex: 1000 }}>
                 <StyledIconButton
                     aria-label="Close fullscreen"
@@ -50,13 +39,18 @@ const KbMain = ({ onClose }) => {
                 </StyledIconButton>
             </Box>
 
-            <StyledContainer sx={{ mb: 3, height: '10vh' }}>
+            <Box sx={{ padding: '40px 20px 20px', textAlign: 'center' }}>
                 <Typography
                     fontFamily={
                         theme.typography.applyFontFamily('title').fontFamily
                     }
                     variant="h2"
-                    fontWeight={'medium'}
+                    fontWeight="bold"
+                    sx={{
+                        mb: 2,
+                        fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' },
+                        color: theme.palette.primary.main,
+                    }}
                 >
                     {selectedKb.name}
                 </Typography>
@@ -65,56 +59,38 @@ const KbMain = ({ onClose }) => {
                         theme.typography.applyFontFamily('primary').fontFamily
                     }
                     variant="body1"
+                    sx={{
+                        mb: 4,
+                        maxWidth: '800px',
+                        margin: '0 auto',
+                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                        color: theme.palette.text.secondary,
+                    }}
                 >
                     {selectedKb.objective}
                 </Typography>
-            </StyledContainer>
-
-            <ContentContainer>
-                <Box sx={{ flex: 1, padding: '20px', position: 'relative' }}>
-                    <StyledIconButton
-                        onClick={() => setIsUtilityOpen(!isUtilityOpen)}
-                        aria-label={
-                            isUtilityOpen ? 'Close utility' : 'Open utility'
-                        }
-                        sx={{
-                            position: 'absolute',
-                            top: 0,
-                            zIndex: 11,
-                        }}
-                    >
-                        {isUtilityOpen ? <ChevronLeft /> : <ChevronRight />}
-                    </StyledIconButton>
-
-                    <AnimatePresence>
-                        <Box sx={{ width: '100%', height: '100px' }}>
-                            {isUtilityOpen && (
-                                <KbUtility
-                                    kbName={selectedKb.name}
-                                    kbId={selectedKb.id}
-                                />
-                            )}
-                        </Box>
-                    </AnimatePresence>
-
-                    <Grid container spacing={2}>
-                        {kbDocs[selectedKb.id]?.map((document) => (
-                            <Grid
-                                item
-                                xs={12}
-                                sm={6}
-                                md={4}
-                                lg={3}
-                                xl={3}
-                                key={document.id}
-                            >
-                                <KbDocCard document={document} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                </Box>
-            </ContentContainer>
-        </MainContainer>
+            </Box>
+            <Box sx={{ width: '100%', height: '100px', mb: 3, px: 2 }}>
+                <KbUtility kbName={selectedKb.name} kbId={selectedKb.id} />
+            </Box>
+            <Box sx={{ padding: '0 20px', flexGrow: 1, overflowY: 'auto' }}>
+                <Grid container spacing={2}>
+                    {kbDocs[selectedKb.id]?.map((document) => (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            lg={3}
+                            xl={3}
+                            key={document.id}
+                        >
+                            <KbDocCard document={document} />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        </StyledContainer>
     );
 };
 

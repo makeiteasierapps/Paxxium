@@ -1,5 +1,4 @@
 import { useState, useContext, useRef } from 'react';
-import { AuthContext } from '../../../contexts/AuthContext';
 import SendIcon from '@mui/icons-material/Send';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -49,22 +48,21 @@ const KbUtility = ({ kbName, kbId }) => {
 
         const extractedKbDoc = await extractFile(formData);
         setKbDoc(extractedKbDoc);
-        console.log(extractedKbDoc);
         setIsEditorOpen(true);
     };
 
     const toggleEditor = () => {
         setIsEditorOpen(!isEditorOpen);
         if (!isEditorOpen) {
-            setKbDoc(null); // Reset kbDoc when opening editor manually
+            setKbDoc(null);
         }
     };
+
     return (
         <Box
             onClick={(e) => e.stopPropagation()}
             display="flex"
             flexDirection="column"
-            width="60%"
         >
             <TextField
                 label="URL"
