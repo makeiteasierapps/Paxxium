@@ -18,14 +18,9 @@ const KbUtility = ({ kbName, kbId }) => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const { scrapeUrl, selectedKb } = useContext(KbContext);
-    const { uid } = useContext(AuthContext);
+    const { scrapeUrl, selectedKb, extractFile } = useContext(KbContext);
 
     const fileInputRef = useRef(null);
-    const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const handleScrapeRequest = async () => {
         const trimmedUrl = url.trim();
@@ -48,27 +43,7 @@ const KbUtility = ({ kbName, kbId }) => {
         formData.append('kbName', selectedKb.name);
         formData.append('kbId', selectedKb.id);
 
-        try {
-            const response = await fetch(`${backendUrl}/kb/extract`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    dbName: process.env.REACT_APP_DB_NAME,
-                    uid: uid,
-                },
-            });
-
-            if (!response.ok) throw new Error('Failed to upload file');
-
-            const data = await response.json();
-            console.log(data.content);
-        } catch (error) {
-            console.error('Error uploading file:', error);
-        }
-    };
-
-    const handleExtractFileClick = () => {
-        fileInputRef.current.click();
+        extractFile(formData);
     };
 
     const toggleEditor = () => {
@@ -92,7 +67,7 @@ const KbUtility = ({ kbName, kbId }) => {
                         <InputAdornment position="end">
                             <StyledIconButton
                                 disableRipple
-                                onClick={handleExtractFileClick}
+                                onClick={() => fileInputRef.current.click()}
                             >
                                 <AddIcon />
                                 <input

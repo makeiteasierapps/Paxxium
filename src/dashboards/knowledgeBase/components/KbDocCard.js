@@ -12,12 +12,12 @@ import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
-const EmbeddedDocCard = ({ document }) => {
+const KbDocCard = ({ document }) => {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const { deleteEmbeddedDoc } = useContext(KbContext);
+    const { deleteKbDoc } = useContext(KbContext);
 
     const handleDelete = () => {
-        deleteEmbeddedDoc(document.kb_id, document.id);
+        deleteKbDoc(document.kb_id, document.id);
     };
 
     const toggleEditor = () => {
@@ -70,4 +70,4 @@ const EmbeddedDocCard = ({ document }) => {
     );
 };
 
-export default EmbeddedDocCard;
+export default KbDocCard;

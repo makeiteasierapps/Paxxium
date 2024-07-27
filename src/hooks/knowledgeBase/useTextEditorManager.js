@@ -11,7 +11,7 @@ export const useTextEditorManager = (
     highlights,
     setHighlights,
     backendUrl,
-    setEmbeddedDocs
+    setKbDocs
 ) => {
     const [textDocId, setTextDocId] = useState(null);
     const { showSnackbar } = useContext(SnackbarContext);
@@ -44,7 +44,7 @@ export const useTextEditorManager = (
             source: 'user',
         };
 
-        setEmbeddedDocs((prevDocs) => {
+        setKbDocs((prevDocs) => {
             const existingDocs = prevDocs[kbId] || [];
             const updatedDocs = existingDocs.filter((doc) => doc.id !== docId);
             return {

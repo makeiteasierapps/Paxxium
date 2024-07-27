@@ -2,12 +2,12 @@ import { useState, useCallback, useContext } from 'react';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { AuthContext } from '../../contexts/AuthContext';
 
-export const useEmbeddedDocs = (backendUrl) => {
+export const useKbDocManager = (backendUrl) => {
     const { showSnackbar } = useContext(SnackbarContext);
     const { uid } = useContext(AuthContext);
-    const [embeddedDocs, setEmbeddedDocs] = useState({});
+    const [kbDocs, setKbDocs] = useState({});
 
-    const fetchEmbeddedDocs = useCallback(
+    const fetchKbDocs = useCallback(
         async (kbId) => {
             try {
                 const response = await fetch(`${backendUrl}/kb/documents`, {
@@ -24,7 +24,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 }
 
                 const data = await response.json();
-                setEmbeddedDocs((prevDocuments) => ({
+                setKbDocs((prevDocuments) => ({
                     ...prevDocuments,
                     [kbId]: data.documents,
                 }));
@@ -35,16 +35,7 @@ export const useEmbeddedDocs = (backendUrl) => {
         [backendUrl, showSnackbar, uid]
     );
 
-    const addEmbeddedDoc = (kbId, doc) => {
-        setEmbeddedDocs((prevDocs) => {
-            return {
-                ...prevDocs,
-                [kbId]: [...prevDocs[kbId], doc],
-            };
-        });
-    };
-
-    const deleteEmbeddedDoc = async (kbId, docId) => {
+    const deleteKbDoc = async (kbId, docId) => {
         try {
             const response = await fetch(`${backendUrl}/kb/documents`, {
                 method: 'DELETE',
@@ -60,7 +51,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                 throw new Error('Failed to delete document');
             }
 
-            setEmbeddedDocs((prevDocs) => {
+            setKbDocs((prevDocs) => {
                 const updatedKbDocs = prevDocs[kbId].filter(
                     (doc) => doc.id !== docId
                 );
@@ -69,7 +60,7 @@ export const useEmbeddedDocs = (backendUrl) => {
                     [kbId]: updatedKbDocs,
                 };
             });
-            
+
             const savedData =
                 JSON.parse(localStorage.getItem('documents')) || {};
             const updatedKbDocs =
@@ -78,18 +69,15 @@ export const useEmbeddedDocs = (backendUrl) => {
                 'documents',
                 JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
             );
-
-            
         } catch (error) {
             showSnackbar('Error deleting document', 'error');
         }
     };
 
     return {
-        embeddedDocs,
-        setEmbeddedDocs,
-        fetchEmbeddedDocs,
-        addEmbeddedDoc,
-        deleteEmbeddedDoc,
+        kbDocs,
+        setKbDocs,
+        fetchKbDocs,
+        deleteKbDoc,
     };
 };

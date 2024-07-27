@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KbContext } from '../../../contexts/KbContext';
 import KbUtility from './KbUtlity';
-import EmbeddedDocCard from './EmbeddedDocCard';
+import KbDocCard from './KbDocCard';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import { Box, Typography, Grid } from '@mui/material';
 import { ChevronRight, ChevronLeft, Close } from '@mui/icons-material/';
@@ -27,7 +27,7 @@ const ContentContainer = styled(Box)({
 });
 
 const KbMain = ({ onClose }) => {
-    const { selectedKb, embeddedDocs, fetchEmbeddedDocs } =
+    const { selectedKb, kbDocs, fetchKbDocs } =
         useContext(KbContext);
 
     const [isUtilityOpen, setIsUtilityOpen] = useState(false);
@@ -35,8 +35,8 @@ const KbMain = ({ onClose }) => {
     const theme = useTheme();
 
     useEffect(() => {
-        fetchEmbeddedDocs(selectedKb.id);
-    }, [fetchEmbeddedDocs, selectedKb.id]);
+        fetchKbDocs(selectedKb.id);
+    }, [fetchKbDocs, selectedKb.id]);
 
     return (
         <MainContainer onClick={(e) => e.stopPropagation()}>
@@ -98,7 +98,7 @@ const KbMain = ({ onClose }) => {
                     </AnimatePresence>
 
                     <Grid container spacing={2}>
-                        {embeddedDocs[selectedKb.id]?.map((document) => (
+                        {kbDocs[selectedKb.id]?.map((document) => (
                             <Grid
                                 item
                                 xs={12}
@@ -108,7 +108,7 @@ const KbMain = ({ onClose }) => {
                                 xl={3}
                                 key={document.id}
                             >
-                                <EmbeddedDocCard document={document} />
+                                <KbDocCard document={document} />
                             </Grid>
                         ))}
                     </Grid>
