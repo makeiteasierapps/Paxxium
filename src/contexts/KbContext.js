@@ -26,7 +26,7 @@ export const KbProvider = ({ children }) => {
         highlights,
         setHighlights,
         backendUrl,
-        kbDocManager.setEmbeddedDocs
+        kbDocManager.setKbDocs
     );
 
     const highlightsManager = useHighlightManager(
@@ -39,7 +39,7 @@ export const KbProvider = ({ children }) => {
 
     const extractionManager = useExtractionManager(
         backendUrl,
-        kbDocManager.setEmbeddedDocs
+        kbDocManager.setKbDocs
     );
 
     return (
