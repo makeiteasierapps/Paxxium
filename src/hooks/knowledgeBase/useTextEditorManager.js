@@ -106,6 +106,7 @@ export const useTextEditorManager = (
                     highlights,
                     docId,
                     kbId,
+                    source: 'user',
                 }),
             });
 
@@ -127,7 +128,7 @@ export const useTextEditorManager = (
         docId = null
     ) => {
         try {
-            const response = await fetch(`${backendUrl}/kb/save_text_doc`, {
+            const response = await fetch(`${backendUrl}/kb/save_doc`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

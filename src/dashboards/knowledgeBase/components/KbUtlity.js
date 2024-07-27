@@ -49,7 +49,7 @@ const KbUtility = ({ kbName, kbId }) => {
         formData.append('kbId', selectedKb.id);
 
         try {
-            const response = await fetch(`${backendUrl}/kb/extract`, {
+            const response = await fetch(`${backendUrl}/kb/extract_pdf`, {
                 method: 'POST',
                 body: formData,
                 headers: {

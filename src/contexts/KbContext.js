@@ -42,7 +42,7 @@ export const KbProvider = ({ children }) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
 
         try {
-            const response = await fetch(`${backendUrl}/kb/documents`, {
+            const response = await fetch(`${backendUrl}/kb/extract`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const KbProvider = ({ children }) => {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const data = JSON.parse(decoder.decode(value));
-
+                console.log(data);
                 if (data.status === 'completed') {
                     embeddedDocsManager.setEmbeddedDocs((prevDocs) => ({
                         ...prevDocs,
