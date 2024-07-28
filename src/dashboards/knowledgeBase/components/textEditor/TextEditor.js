@@ -28,8 +28,13 @@ const MainBox = styled(Box)({
     height: '100%',
 });
 
-const TextEditor = ({ open, onClose, doc = null }) => {
-
+const TextEditor = ({
+    open,
+    onClose,
+    currentUrlIndex,
+    setCurrentUrlIndex = null,
+    doc = null,
+}) => {
     const {
         quill,
         setQuill,
@@ -67,10 +72,9 @@ const TextEditor = ({ open, onClose, doc = null }) => {
 
     useEffect(() => {
         if (doc) {
-            console.log(doc);
-            setDocumentDetails(doc);
+            setDocumentDetails(doc, currentUrlIndex);
         }
-    }, [doc, setDocumentDetails]);
+    }, [doc, setDocumentDetails, currentUrlIndex]);
 
     useEffect(() => {
         if (quill) {
@@ -90,7 +94,7 @@ const TextEditor = ({ open, onClose, doc = null }) => {
             handleHighlight(selection);
         }
     };
-    
+
     return (
         <Modal open={open} onClose={null}>
             <ModalContent>

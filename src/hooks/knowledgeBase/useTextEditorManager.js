@@ -7,24 +7,21 @@ export const useTextEditorManager = (
     setCurrentKbDoc
 ) => {
     const setDocumentDetails = useCallback(
-        (doc) => {
+        (doc, currentUrlIndex) => {
             setCurrentKbDoc(doc);
             if (doc.content) {
                 setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
             }
 
             if (doc.urls) {
-                const stripProtocol = (url) =>
-                    url.replace(/^(https?:\/\/)?(www\.)?/, '');
-                const docSource = stripProtocol(doc.source);
-                const matchingUrl = doc.urls.find(
-                    (url) => stripProtocol(url.source) === docSource
+                setEditorContent(
+                    marked(
+                        doc.urls[currentUrlIndex].content.replace(
+                            /\n/g,
+                            '<br/>'
+                        )
+                    )
                 );
-                if (matchingUrl) {
-                    setEditorContent(
-                        marked(matchingUrl.content.replace(/\n/g, '<br/>'))
-                    );
-                }
             }
             setHighlights(doc.highlights || []);
         },

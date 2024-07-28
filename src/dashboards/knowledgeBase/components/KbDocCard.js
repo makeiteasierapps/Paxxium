@@ -7,7 +7,6 @@ import {
     CardActions,
     IconButton,
     Typography,
-    Tooltip,
 } from '@mui/material';
 import {
     Delete,
@@ -70,21 +69,19 @@ const KbDocCard = ({ document }) => {
                 title="Document Source"
                 subheader={
                     <>
-                        <Tooltip title={urls[currentUrlIndex].source}>
-                            <Typography
-                                variant="body2"
-                                sx={{
-                                    maxWidth: '90%',
-                                    display: 'inline-block',
-                                    verticalAlign: 'middle',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                }}
-                            >
-                                {urls[currentUrlIndex].source}
-                            </Typography>
-                        </Tooltip>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                maxWidth: '90%',
+                                display: 'inline-block',
+                                verticalAlign: 'middle',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {urls[currentUrlIndex].source}
+                        </Typography>
                         {urls.length > 1 && (
                             <Typography
                                 variant="caption"
@@ -184,6 +181,8 @@ const KbDocCard = ({ document }) => {
                     open={isEditorOpen}
                     onClose={toggleEditor}
                     doc={document}
+                    currentUrlIndex={currentUrlIndex}
+                    setCurrentUrlIndex={setCurrentUrlIndex}
                 />
             )}
         </Card>
