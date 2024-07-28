@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import {
     Box,
     Typography,
@@ -11,11 +11,21 @@ import { Delete, OpenInNew } from '@mui/icons-material/';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
+import Markdown from 'react-markdown';
 
 const KbDocCard = ({ document }) => {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const { deleteKbDoc } = useContext(KbContext);
 
+    const matchingContent = useMemo(() => {
+        const stripProtocol = (url) =>
+            url.replace(/^(https?:\/\/)?(www\.)?/, '');
+        const docSource = stripProtocol(document.source);
+        const matchingUrl = document.urls.find(
+            (url) => stripProtocol(url.source) === docSource
+        );
+        return matchingUrl ? matchingUrl.content : '';
+    }, [document]);
     const handleDelete = () => {
         deleteKbDoc(document.kb_id, document.id);
     };
@@ -48,7 +58,7 @@ const KbDocCard = ({ document }) => {
                         boxShadow: 1,
                     }}
                 >
-                    <Typography variant="body1">{document.content}</Typography>
+                    <Markdown>{matchingContent}</Markdown>
                 </Box>
             </CardContent>
             <CardActions>
