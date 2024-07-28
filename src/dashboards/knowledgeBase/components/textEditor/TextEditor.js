@@ -67,6 +67,7 @@ const TextEditor = ({ open, onClose, doc = null }) => {
 
     useEffect(() => {
         if (doc) {
+            console.log(doc);
             setDocumentDetails(doc);
         }
     }, [doc, setDocumentDetails]);

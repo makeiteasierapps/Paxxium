@@ -4,7 +4,6 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
     const { uid } = useContext(AuthContext);
     const scrapeUrl = async (kbId, kbName, url, crawl) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
-
         try {
             const response = await fetch(`${backendUrl}/kb/extract`, {
                 method: 'POST',
@@ -36,7 +35,7 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
                 if (data.status === 'completed') {
                     setKbDocs((prevDocs) => ({
                         ...prevDocs,
-                        [kbId]: [...prevDocs[kbId], ...data.content],
+                        [kbId]: [...prevDocs[kbId], data.content],
                     }));
                     return data.content ;
                 }

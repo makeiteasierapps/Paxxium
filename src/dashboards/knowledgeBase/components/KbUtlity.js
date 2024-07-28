@@ -31,8 +31,7 @@ const KbUtility = ({ kbName, kbId }) => {
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
         const scrapedKbDoc = await scrapeUrl(kbId, kbName, formattedUrl, crawl);
-        setKbDoc(scrapedKbDoc[0]);
-        console.log(scrapedKbDoc[0]);
+        setKbDoc(scrapedKbDoc);
         setUrl('');
         setIsEditorOpen(true);
     };

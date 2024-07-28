@@ -8,10 +8,25 @@ export const useTextEditorManager = (
 ) => {
     const setDocumentDetails = useCallback(
         (doc) => {
+            console.log(doc);
             setCurrentKbDoc(doc);
-            setEditorContent(
-                doc.content ? marked(doc.content.replace(/\n/g, '<br/>')) : ''
-            );
+            if (doc.content) {
+                setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
+            }
+
+            if (doc.urls) {
+                const stripProtocol = (url) =>
+                    url.replace(/^(https?:\/\/)?(www\.)?/, '');
+                const docSource = stripProtocol(doc.source);
+                const matchingUrl = doc.urls.find(
+                    (url) => stripProtocol(url.source) === docSource
+                );
+                if (matchingUrl) {
+                    setEditorContent(
+                        marked(matchingUrl.content.replace(/\n/g, '<br/>'))
+                    );
+                }
+            }
             setHighlights(doc.highlights || []);
         },
         [setCurrentKbDoc, setEditorContent, setHighlights]
