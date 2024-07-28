@@ -4,12 +4,10 @@ import { useHighlightManager } from '../hooks/knowledgeBase/useHighlightManager'
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useKbDocManager } from '../hooks/knowledgeBase/useKbDocManager';
 import { useExtractionManager } from '../hooks/knowledgeBase/useExtractionManager';
-import { SnackbarContext } from './SnackbarContext';
 
 export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
-    const { showSnackbar } = useContext(SnackbarContext);
     const [selectedKb, setSelectedKb] = useState(null);
     const [editorContent, setEditorContent] = useState('');
     const [highlights, setHighlights] = useState([]);

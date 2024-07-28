@@ -31,10 +31,11 @@ const MainBox = styled(Box)({
 const TextEditor = ({
     open,
     onClose,
-    currentUrlIndex,
+    currentUrlIndex = null,
     setCurrentUrlIndex = null,
     doc = null,
 }) => {
+
     const {
         quill,
         setQuill,
@@ -102,6 +103,7 @@ const TextEditor = ({
                     <TextInputUtilityBar
                         onClose={onClose}
                         setHighlights={setHighlights}
+                        currentUrlIndex={currentUrlIndex}
                     />
                     <ReactQuill
                         ref={(el) => {

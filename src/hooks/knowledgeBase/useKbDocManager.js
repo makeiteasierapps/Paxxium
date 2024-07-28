@@ -52,14 +52,31 @@ export const useKbDocManager = (
         setCurrentKbDoc(newDoc);
     };
 
-    const handleDocOperation = async (operation) => {
-        const cleanContent = convertHTMLtoMarkdown(editorContent);
-        const docData = {
-            ...currentKbDoc,
-            kbId,
-            content: cleanContent,
-            highlights,
-        };
+    const handleDocOperation = async (operation, currentUrlIndex) => {
+        let docData;
+        if (currentKbDoc.type === 'url') {
+            docData = {
+                ...currentKbDoc,
+                kbId,
+                urls: currentKbDoc.urls.map((url, index) =>
+                    index === currentUrlIndex
+                        ? {
+                              ...url,
+                              content: convertHTMLtoMarkdown(editorContent),
+                          }
+                        : url
+                ),
+                highlights,
+            };
+        } else {
+            // PDF type
+            docData = {
+                ...currentKbDoc,
+                kbId,
+                content: convertHTMLtoMarkdown(editorContent),
+                highlights,
+            };
+        }
 
         let updatedDoc;
         if (operation === 'save') {
@@ -71,15 +88,21 @@ export const useKbDocManager = (
         }
 
         if (updatedDoc) {
-            updatedDoc.content = editorContent;
+            if (updatedDoc.type === 'url') {
+                updatedDoc.urls[currentUrlIndex].content = editorContent;
+            } else {
+                updatedDoc.content = editorContent;
+            }
             updateDocumentState(updatedDoc);
         }
 
         return updatedDoc.id;
     };
 
-    const handleSave = () => handleDocOperation('save');
-    const handleEmbed = () => handleDocOperation('embed');
+    const handleSave = (currentUrlIndex) =>
+        handleDocOperation('save', currentUrlIndex);
+    const handleEmbed = (currentUrlIndex) =>
+        handleDocOperation('embed', currentUrlIndex);
 
     const embedKbDoc = async (docData) => {
         try {
@@ -121,7 +144,7 @@ export const useKbDocManager = (
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save text doc');
+                throw new Error('Failed to save document');
             }
 
             const data = await response.json();

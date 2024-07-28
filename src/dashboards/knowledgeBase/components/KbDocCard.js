@@ -21,15 +21,14 @@ import TextEditor from './textEditor/TextEditor';
 import Markdown from 'react-markdown';
 
 const KbDocCard = ({ document }) => {
-    const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const { deleteKbDoc } = useContext(KbContext);
 
-    const urls = useMemo(() => document.urls || [], [document]);
+    const [currentUrlIndex, setCurrentUrlIndex] = useState(
+        () => (document.urls?.length ?? 1) - 1
+    );
 
-    useEffect(() => {
-        setCurrentUrlIndex(urls.length - 1);
-    }, [urls]);
+    const urls = useMemo(() => document.urls || [], [document]);
 
     const currentContent = useMemo(() => {
         if (urls.length === 0) return '';
@@ -80,7 +79,7 @@ const KbDocCard = ({ document }) => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {urls[currentUrlIndex].source}
+                            {urls[currentUrlIndex].metadata.sourceURL}
                         </Typography>
                         {urls.length > 1 && (
                             <Typography

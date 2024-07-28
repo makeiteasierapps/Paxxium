@@ -116,7 +116,6 @@ const KbUtility = ({ kbName, kbId }) => {
                     open={isEditorOpen}
                     onClose={toggleEditor}
                     doc={kbDoc}
-                    currentUrlIndex={-1}
                 />
             )}
         </Box>

@@ -15,7 +15,7 @@ const MainUtilityBox = styled(Box)({
     padding: '10px',
 });
 
-const TextInputUtilityBar = ({ onClose }) => {
+const TextInputUtilityBar = ({ onClose, currentUrlIndex }) => {
     const {
         handleSave,
         handleEmbed,
@@ -67,7 +67,7 @@ const TextInputUtilityBar = ({ onClose }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    handleSave();
+                    handleSave(currentUrlIndex);
                 }}
             >
                 Save
@@ -76,7 +76,7 @@ const TextInputUtilityBar = ({ onClose }) => {
                 variant="outlined"
                 color="primary"
                 onClick={() => {
-                    handleEmbed();
+                    handleEmbed(currentUrlIndex);
                 }}
             >
                 Embed
