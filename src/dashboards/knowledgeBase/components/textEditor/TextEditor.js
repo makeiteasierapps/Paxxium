@@ -13,7 +13,7 @@ import 'react-quill/dist/quill.snow.css';
 import { StyledIconButton } from '../../../chat/chatStyledComponents';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
-import { borderColor, styled } from '@mui/system';
+import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
 import { getEncoding } from 'js-tiktoken';
 
@@ -77,6 +77,7 @@ const TextEditor = ({
     doc = null,
 }) => {
     const theme = useTheme();
+    console.log(urls)
     const {
         quill,
         setQuill,
@@ -96,6 +97,10 @@ const TextEditor = ({
         },
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
+
+    if (!currentUrlIndex) {
+        currentUrlIndex = doc.urls.length - 1;
+    }
 
     const handleClick = useCallback(
         (event) => {
@@ -170,19 +175,61 @@ const TextEditor = ({
                             }}
                         />
                     </EditorContainer>
-                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2 }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: 2,
+                        }}
+                    >
                         {selectedChunk ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1, maxWidth: '60%' }}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography variant="body2">Token Count:</Typography>
-                                    <Typography variant="body2" fontWeight="bold">
-                                        {encoding.encode(selectedChunk?.text || '').length}
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    flexGrow: 1,
+                                    maxWidth: '60%',
+                                }}
+                            >
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                    }}
+                                >
+                                    <Typography variant="body2">
+                                        Token Count:
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        fontWeight="bold"
+                                    >
+                                        {
+                                            encoding.encode(
+                                                selectedChunk?.text || ''
+                                            ).length
+                                        }
                                     </Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
-                                    <Typography variant="body2">Color:</Typography>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        flexGrow: 1,
+                                    }}
+                                >
+                                    <Typography variant="body2">
+                                        Color:
+                                    </Typography>
                                     <Slider
-                                        value={parseInt(selectedChunk.color.slice(1), 16)}
+                                        value={parseInt(
+                                            selectedChunk.color.slice(1),
+                                            16
+                                        )}
                                         onChange={handleColorChange}
                                         min={0}
                                         max={0xffffff}
@@ -190,7 +237,10 @@ const TextEditor = ({
                                         sx={{ flexGrow: 1, maxWidth: 200 }}
                                     />
                                 </Box>
-                                <StyledIconButton onClick={removeHighlight} size="small">
+                                <StyledIconButton
+                                    onClick={removeHighlight}
+                                    size="small"
+                                >
                                     <Delete fontSize="small" />
                                 </StyledIconButton>
                             </Box>

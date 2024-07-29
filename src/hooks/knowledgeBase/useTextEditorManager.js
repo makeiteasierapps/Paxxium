@@ -8,6 +8,7 @@ export const useTextEditorManager = (
 ) => {
     const setDocumentDetails = useCallback(
         (doc, currentUrlIndex) => {
+
             setCurrentKbDoc(doc);
             if (doc.content) {
                 setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));

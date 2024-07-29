@@ -116,6 +116,7 @@ const KbUtility = ({ kbName, kbId }) => {
                     open={isEditorOpen}
                     onClose={toggleEditor}
                     doc={kbDoc}
+                    urls={kbDoc.urls}
                 />
             )}
         </Box>

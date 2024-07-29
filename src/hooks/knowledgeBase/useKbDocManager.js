@@ -12,6 +12,7 @@ export const useKbDocManager = (
     highlights
 ) => {
     const { uid } = useContext(AuthContext);
+    const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const { showSnackbar } = useSnackbar();
     const [kbDocs, setKbDocs] = useState({});
     const [currentKbDoc, setCurrentKbDoc] = useState({});
@@ -106,6 +107,7 @@ export const useKbDocManager = (
 
     const embedKbDoc = async (docData) => {
         try {
+            setIsDocManagerLoading(true);
             const response = await fetch(`${backendUrl}/kb/embed`, {
                 method: 'POST',
                 headers: {
@@ -123,16 +125,19 @@ export const useKbDocManager = (
             const data = await response.json();
             console.log(data.kb_doc);
             showSnackbar('Document embedded successfully', 'success');
+            setIsDocManagerLoading(false);
             return data.kb_doc;
         } catch (error) {
             console.error('Error embedding text doc:', error);
             showSnackbar('Error embedding text doc', 'error');
+            setIsDocManagerLoading(false);
             return null;
         }
     };
 
     const saveKbDoc = async (docData) => {
         try {
+            setIsDocManagerLoading(true);
             const response = await fetch(`${backendUrl}/kb/save_doc`, {
                 method: 'POST',
                 headers: {
@@ -149,16 +154,20 @@ export const useKbDocManager = (
 
             const data = await response.json();
             showSnackbar('Document saved successfully', 'success');
+            setIsDocManagerLoading(false);
             return data.kb_doc;
         } catch (error) {
             console.error(error);
             showSnackbar('Error saving text doc', 'error');
+            setIsDocManagerLoading(false);
+            return null;
         }
     };
 
     const fetchKbDocs = useCallback(
         async (kbId) => {
             try {
+                setIsDocManagerLoading(true);
                 const response = await fetch(`${backendUrl}/kb/documents`, {
                     method: 'GET',
                     headers: {
@@ -173,12 +182,14 @@ export const useKbDocManager = (
                 }
 
                 const data = await response.json();
+                setIsDocManagerLoading(false);
                 setKbDocs((prevDocuments) => ({
                     ...prevDocuments,
                     [kbId]: data.documents,
                 }));
             } catch (error) {
                 showSnackbar('Error fetching documents', 'error');
+                setIsDocManagerLoading(false);
             }
         },
         [backendUrl, showSnackbar, uid]
@@ -186,6 +197,7 @@ export const useKbDocManager = (
 
     const deleteKbDoc = async (kbId, docId) => {
         try {
+            setIsDocManagerLoading(true);
             const response = await fetch(`${backendUrl}/kb/documents`, {
                 method: 'DELETE',
                 headers: {
@@ -200,6 +212,7 @@ export const useKbDocManager = (
                 throw new Error('Failed to delete document');
             }
 
+            setIsDocManagerLoading(false);
             setKbDocs((prevDocs) => {
                 const updatedKbDocs = prevDocs[kbId].filter(
                     (doc) => doc.id !== docId
@@ -220,6 +233,7 @@ export const useKbDocManager = (
             );
         } catch (error) {
             showSnackbar('Error deleting document', 'error');
+            setIsDocManagerLoading(false);
         }
     };
 

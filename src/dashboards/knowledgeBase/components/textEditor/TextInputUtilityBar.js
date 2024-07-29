@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Typography, Tooltip } from '@mui/material';
 import { Close, ArrowBackIosNew, ArrowForwardIos } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { StyledIconButton } from '../../../chat/chatStyledComponents';
@@ -33,6 +33,7 @@ const TextInputUtilityBar = ({
     setCurrentUrlIndex,
     urls,
 }) => {
+    console.log(urls);
     const {
         textEditorManager: { removeDocumentDetails },
     } = useContext(KbContext);
