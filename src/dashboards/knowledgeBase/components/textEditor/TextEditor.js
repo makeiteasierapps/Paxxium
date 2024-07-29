@@ -75,9 +75,10 @@ const TextEditor = ({
     currentUrlIndex = null,
     setCurrentUrlIndex = null,
     doc = null,
+    source = null,
 }) => {
+
     const theme = useTheme();
-    console.log(urls)
     const {
         quill,
         setQuill,
@@ -98,8 +99,9 @@ const TextEditor = ({
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
-    if (!currentUrlIndex) {
-        currentUrlIndex = doc.urls.length - 1;
+
+    if (!currentUrlIndex && urls) {
+        currentUrlIndex = urls.length - 1;
     }
 
     const handleClick = useCallback(
@@ -157,6 +159,7 @@ const TextEditor = ({
                         currentUrlIndex={currentUrlIndex}
                         setCurrentUrlIndex={setCurrentUrlIndex}
                         urls={urls}
+                        source={source}
                     />
                     <EditorContainer>
                         <StyledReactQuill

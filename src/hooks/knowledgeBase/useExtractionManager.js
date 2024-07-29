@@ -2,7 +2,8 @@ import { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 export const useExtractionManager = (backendUrl, setKbDocs) => {
     const { uid } = useContext(AuthContext);
-    const scrapeUrl = async (kbId, kbName, url, crawl) => {
+    
+    const scrapeUrl = async (kbId, url, crawl) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
         try {
             const response = await fetch(`${backendUrl}/kb/extract`, {
@@ -14,7 +15,6 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
                 },
                 body: JSON.stringify({
                     kbId,
-                    kbName,
                     url,
                     endpoint,
                     type: 'url',
@@ -46,7 +46,7 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
         }
     };
 
-    const extractFile = async (formData) => {
+    const extractFile = async (formData, kbId) => {
         try {
             const response = await fetch(`${backendUrl}/kb/extract`, {
                 method: 'POST',
@@ -60,6 +60,11 @@ export const useExtractionManager = (backendUrl, setKbDocs) => {
             if (!response.ok) throw new Error('Failed to upload file');
 
             const data = await response.json();
+
+            setKbDocs((prevDocs) => ({
+                ...prevDocs,
+                [kbId]: [...prevDocs[kbId], data],
+            }));
             return data;
         } catch (error) {
             console.error('Error uploading file:', error);

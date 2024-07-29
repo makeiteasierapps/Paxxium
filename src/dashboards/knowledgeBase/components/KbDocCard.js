@@ -29,11 +29,12 @@ const KbDocCard = ({ document }) => {
     );
 
     const urls = useMemo(() => document.urls || [], [document]);
-
+    const source = urls.length > 0 ? urls[currentUrlIndex].metadata.sourceURL : document.source
+    
     const currentContent = useMemo(() => {
-        if (urls.length === 0) return '';
+        if (urls.length === 0) return document.content;
         return urls[currentUrlIndex].content || '';
-    }, [urls, currentUrlIndex]);
+    }, [urls, document.content, currentUrlIndex]);
 
     const handlePrevUrl = () => {
         setCurrentUrlIndex((prevIndex) =>
@@ -79,7 +80,7 @@ const KbDocCard = ({ document }) => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {urls[currentUrlIndex].metadata.sourceURL}
+                            {source}
                         </Typography>
                         {urls.length > 1 && (
                             <Typography
@@ -183,6 +184,7 @@ const KbDocCard = ({ document }) => {
                     currentUrlIndex={currentUrlIndex}
                     setCurrentUrlIndex={setCurrentUrlIndex}
                     urls={urls}
+                    source={source}
                 />
             )}
         </Card>

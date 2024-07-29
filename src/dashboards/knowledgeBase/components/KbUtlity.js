@@ -13,7 +13,7 @@ import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
-const KbUtility = ({ kbName, kbId }) => {
+const KbUtility = ({ kbId }) => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -30,7 +30,7 @@ const KbUtility = ({ kbName, kbId }) => {
             trimmedUrl.startsWith('https://')
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
-        const scrapedKbDoc = await scrapeUrl(kbId, kbName, formattedUrl, crawl);
+        const scrapedKbDoc = await scrapeUrl(kbId, formattedUrl, crawl);
         setKbDoc(scrapedKbDoc);
         setUrl('');
         setIsEditorOpen(true);
@@ -45,7 +45,7 @@ const KbUtility = ({ kbName, kbId }) => {
         formData.append('kbName', selectedKb.name);
         formData.append('kbId', selectedKb.id);
 
-        const extractedKbDoc = await extractFile(formData);
+        const extractedKbDoc = await extractFile(formData, kbId);
         setKbDoc(extractedKbDoc);
         setIsEditorOpen(true);
     };
@@ -117,6 +117,7 @@ const KbUtility = ({ kbName, kbId }) => {
                     onClose={toggleEditor}
                     doc={kbDoc}
                     urls={kbDoc.urls}
+                    source={kbDoc.source}
                 />
             )}
         </Box>

@@ -32,8 +32,8 @@ const TextInputUtilityBar = ({
     currentUrlIndex,
     setCurrentUrlIndex,
     urls,
+    source,
 }) => {
-    console.log(urls);
     const {
         textEditorManager: { removeDocumentDetails },
     } = useContext(KbContext);
@@ -60,24 +60,28 @@ const TextInputUtilityBar = ({
             >
                 <Close />
             </StyledIconButton>
+
             <URLContainer>
-                <Tooltip title={urls[currentUrlIndex].metadata.sourceURL}>
+                <Tooltip title={source}>
                     <Typography variant="body2" noWrap>
-                        {urls[currentUrlIndex].metadata.sourceURL}
+                        {source}
                     </Typography>
                 </Tooltip>
             </URLContainer>
-            <NavigationContainer>
-                <StyledIconButton onClick={handlePrevUrl}>
-                    <ArrowBackIosNew />
-                </StyledIconButton>
-                <Typography variant="body2" sx={{ mx: 1 }}>
-                    {`${urls.length - currentUrlIndex} / ${urls.length}`}
-                </Typography>
-                <StyledIconButton onClick={handleNextUrl}>
-                    <ArrowForwardIos />
-                </StyledIconButton>
-            </NavigationContainer>
+
+            {urls && (
+                <NavigationContainer>
+                    <StyledIconButton onClick={handlePrevUrl}>
+                        <ArrowBackIosNew />
+                    </StyledIconButton>
+                    <Typography variant="body2" sx={{ mx: 1 }}>
+                        {`${urls.length - currentUrlIndex} / ${urls.length}`}
+                    </Typography>
+                    <StyledIconButton onClick={handleNextUrl}>
+                        <ArrowForwardIos />
+                    </StyledIconButton>
+                </NavigationContainer>
+            )}
         </MainUtilityBox>
     );
 };
