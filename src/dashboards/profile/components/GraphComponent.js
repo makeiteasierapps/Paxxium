@@ -1,53 +1,25 @@
-import { useState, useContext, useEffect } from 'react';
-import { Box } from '@mui/material';
-import Node from './Node';
+import React, { useMemo, useContext } from 'react';
 import { ProfileContext } from '../../../contexts/ProfileContext';
+import Node from './Node';
 
-const GraphComponent = () => {
-    const { treeData, analyzeAnsweredQuestions } = useContext(ProfileContext);
-    const [activeNode, setActiveNode] = useState(treeData);
-    const [expandedNodes, setExpandedNodes] = useState([treeData]);
+const Graph = () => {
+    const { nodes, isLoading, error } = useContext(ProfileContext);
 
-    useEffect(() => {
-        setActiveNode(treeData);
-        setExpandedNodes([treeData]);
-    }, [treeData]);
+    const rootNode = useMemo(
+        () => nodes.find((node) => node.type === 'root'),
+        [nodes]
+    );
 
-    const handleNodeClick = (node) => {
-        setActiveNode((prevActiveNode) =>
-            node === prevActiveNode && node.parent ? node.parent : node
-        );
-    };
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-                width: '100%',
-                position: 'relative',
-            }}
-        >
-            <Box
-                sx={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                }}
-            >
-                <Node
-                    node={activeNode}
-                    onClick={handleNodeClick}
-                    expandedNodes={expandedNodes}
-                    setExpandedNodes={setExpandedNodes}
-                    activeNode={activeNode}
-                />
-            </Box>
-        </Box>
+        <div className="graph">
+            <svg width="1000" height="1000">
+                {rootNode && <Node node={rootNode} x={500} y={50} />}
+            </svg>
+        </div>
     );
 };
 
-export default GraphComponent;
+export default Graph;

@@ -77,7 +77,7 @@ const CategoryNode = ({ node, onClick }) => {
     );
 };
 
-const QaNode = ({ node, onClick }) => {
+const AnswerNode = ({ node, onClick }) => {
     const [answer, setAnswer] = useState('');
     const { updateAnswer } = useContext(ProfileContext);
 
@@ -161,118 +161,42 @@ const QaNode = ({ node, onClick }) => {
     );
 };
 
-const Node = ({
-    node,
-    onClick,
-    depth = 0,
-    index = 0,
-    total = 1,
-    expandedNodes,
-    setExpandedNodes,
-    activeNode,
-}) => {
-    const isExpanded = expandedNodes.includes(node) || !node.parent;
-    const [isMounted, setIsMounted] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const nodeRef = useRef(null);
-
-    useEffect(() => {
-        if (isHovered && nodeRef.current) {
-            nodeRef.current.style.zIndex = '9999';
-        } else if (nodeRef.current) {
-            nodeRef.current.style.zIndex = depth.toString();
-        }
-    }, [isHovered, depth]);
-
-    // Reset the mount state when the node changes
-    useEffect(() => {
-        setIsMounted(false);
-        const timer = setTimeout(() => setIsMounted(true), 10);
-        return () => clearTimeout(timer);
-    }, [node]);
+const Node = ({ node, x, y }) => {
+    const { nodes, updateNode } = useContext(ProfileContext);
+    const childNodes = nodes.filter((n) => n.parentId === node.id);
 
     const handleClick = () => {
-        setExpandedNodes((prev) =>
-            isExpanded ? prev.filter((n) => n !== node) : [...prev, node]
-        );
-        onClick(node);
+        updateNode(node.id, { isExpanded: !node.isExpanded });
     };
 
-    const isRoot =
-        node.name === 'Root' || node.name === 'Personalized Questions';
-    if (isRoot) node.name = 'Personalized Questions';
-
-    let angle, x, y;
-    const radius = 150 * (depth + 1);
-    angle = (index / total) * 2 * Math.PI - Math.PI / 2;
-    x = radius * Math.cos(angle);
-    y = radius * Math.sin(angle);
-
-    const isQuestion = 'answer' in node && node !== activeNode;
-    const isQa = 'answer' in node;
-
-    const initialAnimationDelay = depth * 0.3 + index * 0.3;
+    const getNodeComponent = () => {
+        switch (node.type) {
+            case 'root':
+                return <RootNode node={node} onClick={handleClick} />;
+            case 'category':
+                return <CategoryNode node={node} onClick={handleClick} />;
+            case 'question':
+                return <QuestionNode node={node} onClick={handleClick} />;
+            case 'answer':
+                return <AnswerNode node={node} onClick={handleClick} />;
+            default:
+                return null;
+        }
+    };
 
     return (
-        <Box
-            ref={nodeRef}
-            key={node.id}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            id="node-container"
-            sx={{
-                position: 'absolute',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column',
-                left: depth === 0 ? '50%' : `calc(50% + ${x}px)`,
-                top: depth === 0 ? '50%' : `calc(50% + ${y}px)`,
-                transform: 'translate(-50%, -50%)',
-            }}
-        >
-            <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{
-                    opacity: isMounted ? 1 : 0,
-                    scale: isMounted ? 1 : 0.5,
-                }}
-                transition={{
-                    delay: initialAnimationDelay,
-                    duration: 0.5,
-                }}
-            >
-                {isRoot ? (
-                    <RootNode node={node} onClick={handleClick} />
-                ) : isQuestion ? (
-                    <QuestionNode node={node} onClick={handleClick} />
-                ) : isQa ? (
-                    <QaNode node={node} onClick={handleClick} />
-                ) : (
-                    <CategoryNode node={node} onClick={handleClick} />
-                )}
-
-                {isExpanded && (
-                    <AnimatePresence>
-                        {node.children.length > 0
-                            ? node.children.map((child, idx) => (
-                                  <Node
-                                      key={`${node.id}-${idx}`}
-                                      node={child}
-                                      onClick={onClick}
-                                      depth={depth + 1}
-                                      index={idx}
-                                      total={node.children.length}
-                                      expandedNodes={expandedNodes}
-                                      setExpandedNodes={setExpandedNodes}
-                                      activeNode={activeNode}
-                                  />
-                              ))
-                            : null}
-                    </AnimatePresence>
-                )}
-            </motion.div>
-        </Box>
+        <g transform={`translate(${x}, ${y})`}>
+            {getNodeComponent()}
+            {node.isExpanded &&
+                childNodes.map((child, index) => (
+                    <Node
+                        key={child.id}
+                        node={child}
+                        x={(index - (childNodes.length - 1) / 2) * 100}
+                        y={100}
+                    />
+                ))}
+        </g>
     );
 };
 
