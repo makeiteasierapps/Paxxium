@@ -1,61 +1,57 @@
 import { useContext } from 'react';
-import { Box, Typography, Button, Slider } from '@mui/material';
-import { Delete, Close } from '@mui/icons-material';
+import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Close, ArrowBackIosNew, ArrowForwardIos } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { StyledIconButton } from '../../../chat/chatStyledComponents';
-import { getEncoding } from 'js-tiktoken';
+
 import { KbContext } from '../../../../contexts/KbContext';
 
-const encoding = getEncoding('cl100k_base');
-
-const MainUtilityBox = styled(Box)({
+const MainUtilityBox = styled('div')(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
-    padding: '10px',
+    padding: theme.spacing(1, 2),
+}));
+
+const NavigationContainer = styled('div')({
+    display: 'flex',
+    alignItems: 'center',
 });
 
-const TextInputUtilityBar = ({ onClose, currentUrlIndex }) => {
+const URLContainer = styled('div')({
+    flex: 1,
+    margin: '0 16px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+});
+
+const TextInputUtilityBar = ({
+    onClose,
+    currentUrlIndex,
+    setCurrentUrlIndex,
+    urls,
+}) => {
     const {
-        handleSave,
-        handleEmbed,
-        highlightsManager: {
-            selectedChunk,
-            handleColorChange,
-            removeHighlight,
-        },
         textEditorManager: { removeDocumentDetails },
     } = useContext(KbContext);
 
+    const handlePrevUrl = () => {
+        setCurrentUrlIndex((prevIndex) =>
+            prevIndex < urls.length - 1 ? prevIndex + 1 : 0
+        );
+    };
+
+    const handleNextUrl = () => {
+        setCurrentUrlIndex((prevIndex) =>
+            prevIndex > 0 ? prevIndex - 1 : urls.length - 1
+        );
+    };
+
     return (
         <MainUtilityBox>
-            {selectedChunk && (
-                <>
-                    <Box>
-                        <Typography>Token Count:</Typography>
-                        <Typography>
-                            {encoding.encode(selectedChunk?.text || '').length}
-                        </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Typography>Color:</Typography>
-                        <Slider
-                            value={parseInt(selectedChunk.color.slice(1), 16)}
-                            onChange={handleColorChange}
-                            min={0}
-                            max={0xffffff}
-                            step={1}
-                        />
-                    </Box>
-                    <StyledIconButton onClick={removeHighlight}>
-                        <Delete />
-                    </StyledIconButton>
-                </>
-            )}
             <StyledIconButton
-                variant="outlined"
-                color="primary"
                 onClick={() => {
                     removeDocumentDetails();
                     onClose();
@@ -63,24 +59,24 @@ const TextInputUtilityBar = ({ onClose, currentUrlIndex }) => {
             >
                 <Close />
             </StyledIconButton>
-            <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => {
-                    handleSave(currentUrlIndex);
-                }}
-            >
-                Save
-            </Button>
-            <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => {
-                    handleEmbed(currentUrlIndex);
-                }}
-            >
-                Embed
-            </Button>
+            <URLContainer>
+                <Tooltip title={urls[currentUrlIndex].metadata.sourceURL}>
+                    <Typography variant="body2" noWrap>
+                        {urls[currentUrlIndex].metadata.sourceURL}
+                    </Typography>
+                </Tooltip>
+            </URLContainer>
+            <NavigationContainer>
+                <StyledIconButton onClick={handlePrevUrl}>
+                    <ArrowBackIosNew />
+                </StyledIconButton>
+                <Typography variant="body2" sx={{ mx: 1 }}>
+                    {`${urls.length - currentUrlIndex} / ${urls.length}`}
+                </Typography>
+                <StyledIconButton onClick={handleNextUrl}>
+                    <ArrowForwardIos />
+                </StyledIconButton>
+            </NavigationContainer>
         </MainUtilityBox>
     );
 };

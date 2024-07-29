@@ -182,6 +182,7 @@ const KbDocCard = ({ document }) => {
                     doc={document}
                     currentUrlIndex={currentUrlIndex}
                     setCurrentUrlIndex={setCurrentUrlIndex}
+                    urls={urls}
                 />
             )}
         </Card>
