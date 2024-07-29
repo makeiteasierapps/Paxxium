@@ -1,6 +1,4 @@
 import { memo, useContext } from 'react';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import MySnackbar from '../../SnackBar';
 import Chat from './components/Chat';
 import ChatSettings from './components/ChatSettings';
 import { ChatContext } from '../../contexts/ChatContext';
@@ -11,7 +9,6 @@ import { CustomGridLoader } from '../main/customLoaders';
 
 const ChatDash = () => {
     const { chatArray, loading } = useContext(ChatContext);
-    const { snackbarInfo, hideSnackbar } = useContext(SnackbarContext);
 
     return (
         <MainContainer>
@@ -32,12 +29,6 @@ const ChatDash = () => {
                     )}
                 </>
             )}
-            <MySnackbar
-                open={snackbarInfo.open}
-                message={snackbarInfo.message}
-                severity={snackbarInfo.severity}
-                handleClose={hideSnackbar}
-            />
         </MainContainer>
     );
 };

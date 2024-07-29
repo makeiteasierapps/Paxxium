@@ -5,10 +5,9 @@ import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import { AuthContext, auth } from '../../contexts/AuthContext';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
 import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
 import { StyledTextField } from '../authStyledComponents';
-import MySnackBar from '../../SnackBar';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
 export const StyledButton = styled(Button)(({ theme }) => ({
     fontFamily: 'Titillium Web, sans-serif',
@@ -28,8 +27,7 @@ StyledButton.defaultProps = {
 
 const Login = ({ setIsLogin }) => {
     const { setUser, setUid } = useContext(AuthContext);
-    const { showSnackbar, hideSnackbar, snackbarInfo } =
-        useContext(SnackbarContext);
+    const { showSnackbar } = useSnackbar();
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -124,12 +122,6 @@ const Login = ({ setIsLogin }) => {
                 >
                     {"Don't have an account? Sign Up"}
                 </Link>
-                <MySnackBar
-                    open={snackbarInfo.open}
-                    message={snackbarInfo.message}
-                    severity={snackbarInfo.severity}
-                    handleClose={hideSnackbar}
-                />
             </Box>
         </>
     );
