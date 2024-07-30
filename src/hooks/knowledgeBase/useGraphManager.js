@@ -66,9 +66,9 @@ export function useGraphManager(backendUrl, uid) {
             categoryNode.children.push(questionNode);
             questionNode.children = [answerNode];
         });
-
         return root;
     }, []);
+
     // Helper function to flatten the tree structure
     const flattenTree = useCallback((node, nodes = []) => {
         nodes.push(node);
@@ -105,9 +105,6 @@ export function useGraphManager(backendUrl, uid) {
             });
 
             const data = await response.json();
-            console.log('data', data);
-            localStorage.setItem('questionsData', JSON.stringify(data));
-
             const rootNode = {
                 id: 'root',
                 type: 'root',
@@ -116,6 +113,8 @@ export function useGraphManager(backendUrl, uid) {
             };
             const treeData = addCategoryToTree(rootNode, data);
             dispatch({ type: 'SET_NODES', payload: flattenTree(treeData) });
+
+            localStorage.setItem('questionsData', JSON.stringify(data));
         } catch (error) {
             console.error(error);
             dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -123,8 +122,9 @@ export function useGraphManager(backendUrl, uid) {
     }, [addCategoryToTree, backendUrl, flattenTree, uid]);
 
     useEffect(() => {
+        if (!uid) return;
         fetchQuestions();
-    }, [fetchQuestions]);
+    }, [fetchQuestions, uid]);
 
     const updateNode = useCallback((id, updates) => {
         dispatch({ type: 'UPDATE_NODE', payload: { id, updates } });

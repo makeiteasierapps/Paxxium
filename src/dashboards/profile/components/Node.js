@@ -161,12 +161,24 @@ const AnswerNode = ({ node, onClick }) => {
     );
 };
 
-const Node = ({ node, x, y }) => {
+const Node = ({ node, x, y, onNodeClick, isCenter = false }) => {
     const { nodes, updateNode } = useContext(ProfileContext);
+    const radius = 200; // Adjust this value to change the circle size
     const childNodes = nodes.filter((n) => n.parentId === node.id);
+
+    console.log('Node Component - node:', node);
 
     const handleClick = () => {
         updateNode(node.id, { isExpanded: !node.isExpanded });
+        onNodeClick(node);
+    };
+
+    const getChildPosition = (index, total) => {
+        const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+        return {
+            x: x + radius * Math.cos(angle),
+            y: y + radius * Math.sin(angle),
+        };
     };
 
     const getNodeComponent = () => {
@@ -185,18 +197,32 @@ const Node = ({ node, x, y }) => {
     };
 
     return (
-        <g transform={`translate(${x}, ${y})`}>
-            {getNodeComponent()}
-            {node.isExpanded &&
-                childNodes.map((child, index) => (
-                    <Node
-                        key={child.id}
-                        node={child}
-                        x={(index - (childNodes.length - 1) / 2) * 100}
-                        y={100}
-                    />
-                ))}
-        </g>
+        <>
+            <div
+                style={{
+                    position: 'absolute',
+                    left: `${x}px`,
+                    top: `${y}px`,
+                    transform: 'translate(-50%, -50%)',
+                }}
+                onClick={handleClick}
+            >
+                {getNodeComponent()}
+            </div>
+            {(node.isExpanded || isCenter) &&
+                childNodes.map((child, index) => {
+                    const position = getChildPosition(index, childNodes.length);
+                    return (
+                        <Node
+                            key={child.id}
+                            node={child}
+                            x={position.x}
+                            y={position.y}
+                            onNodeClick={onNodeClick}
+                        />
+                    );
+                })}
+        </>
     );
 };
 
