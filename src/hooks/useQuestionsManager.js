@@ -1,8 +1,7 @@
 import { useCallback, useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 
-export const useQuestionsManager = (backendUrl) => {
+export const useQuestionsManager = (backendUrl, uid) => {
     const [treeData, setTreeData] = useState({
         name: 'Root',
         children: [],
@@ -10,7 +9,6 @@ export const useQuestionsManager = (backendUrl) => {
     });
     const [newCategory, setNewCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const { uid } = useContext(AuthContext);
     const { showSnackbar } = useContext(SnackbarContext);
     const [isQuestionsFormOpen, setIsQuestionsFormOpen] = useState(false);
     const [isGraphOpen, setIsGraphOpen] = useState(false);

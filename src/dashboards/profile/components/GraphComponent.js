@@ -1,47 +1,53 @@
-import React, { useState, useContext, useCallback } from 'react';
-import { ProfileContext } from '../../../contexts/ProfileContext';
+import { useState, useContext, useEffect } from 'react';
+import { Box } from '@mui/material';
 import Node from './Node';
+import { ProfileContext } from '../../../contexts/ProfileContext';
 
-const Graph = () => {
-    const { nodes, isLoading, error, updateNode } = useContext(ProfileContext);
-    const [centerNode, setCenterNode] = useState(null);
+const GraphComponent = () => {
+    const { treeData, analyzeAnsweredQuestions } = useContext(ProfileContext);
+    const [activeNode, setActiveNode] = useState(treeData);
+    const [expandedNodes, setExpandedNodes] = useState([treeData]);
 
-    const rootNode = nodes.find((node) => node.type === 'root');
+    useEffect(() => {
+        setActiveNode(treeData);
+        setExpandedNodes([treeData]);
+    }, [treeData]);
 
-    const handleNodeClick = useCallback(
-        (node) => {
-            updateNode(node.id, { isExpanded: !node.isExpanded });
-            setCenterNode(node);
-        },
-        [updateNode]
-    );
-
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    const handleNodeClick = (node) => {
+        setActiveNode((prevActiveNode) =>
+            node === prevActiveNode && node.parent ? node.parent : node
+        );
+    };
 
     return (
-        <div
-            className="graph"
-            style={{
-                position: 'relative',
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
                 width: '100%',
-                height: '100vh',
-                border: '1px solid black',
-                overflow: 'hidden',
-                background: 'black',
+                position: 'relative',
             }}
         >
-            {(centerNode || rootNode) && (
+            <Box
+                sx={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                }}
+            >
                 <Node
-                    node={centerNode || rootNode}
-                    x={window.innerWidth / 2}
-                    y={window.innerHeight / 2}
-                    onNodeClick={handleNodeClick}
-                    isCenter={true}
+                    node={activeNode}
+                    onClick={handleNodeClick}
+                    expandedNodes={expandedNodes}
+                    setExpandedNodes={setExpandedNodes}
+                    activeNode={activeNode}
                 />
-            )}
-        </div>
+            </Box>
+        </Box>
     );
 };
 
-export default Graph;
+export default GraphComponent;

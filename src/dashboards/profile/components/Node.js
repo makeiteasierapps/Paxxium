@@ -77,7 +77,7 @@ const CategoryNode = ({ node, onClick }) => {
     );
 };
 
-const AnswerNode = ({ node, onClick }) => {
+const QaNode = ({ node, onClick }) => {
     const [answer, setAnswer] = useState('');
     const { updateAnswer } = useContext(ProfileContext);
 
@@ -161,68 +161,93 @@ const AnswerNode = ({ node, onClick }) => {
     );
 };
 
-const Node = ({ node, x, y, onNodeClick, isCenter = false }) => {
-    const { nodes, updateNode } = useContext(ProfileContext);
-    const radius = 200; // Adjust this value to change the circle size
-    const childNodes = nodes.filter((n) => n.parentId === node.id);
+const Node = ({
+    node,
+    onClick,
+    depth = 0,
+    index = 0,
+    total = 1,
+    expandedNodes,
+    setExpandedNodes,
+    activeNode,
+}) => {
+    const isExpanded = expandedNodes.includes(node) || !node.parent;
+    const [isHovered, setIsHovered] = useState(false);
+    const nodeRef = useRef(null);
 
-    console.log('Node Component - node:', node);
+    useEffect(() => {
+        if (isHovered && nodeRef.current) {
+            nodeRef.current.style.zIndex = '9999';
+        } else if (nodeRef.current) {
+            nodeRef.current.style.zIndex = depth.toString();
+        }
+    }, [isHovered, depth]);
 
     const handleClick = () => {
-        updateNode(node.id, { isExpanded: !node.isExpanded });
-        onNodeClick(node);
+        setExpandedNodes((prev) =>
+            isExpanded ? prev.filter((n) => n !== node) : [...prev, node]
+        );
+        onClick(node);
     };
 
-    const getChildPosition = (index, total) => {
-        const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
-        return {
-            x: x + radius * Math.cos(angle),
-            y: y + radius * Math.sin(angle),
-        };
-    };
+    const isRoot =
+        node.name === 'Root' || node.name === 'Personalized Questions';
+    if (isRoot) node.name = 'Personalized Questions';
 
-    const getNodeComponent = () => {
-        switch (node.type) {
-            case 'root':
-                return <RootNode node={node} onClick={handleClick} />;
-            case 'category':
-                return <CategoryNode node={node} onClick={handleClick} />;
-            case 'question':
-                return <QuestionNode node={node} onClick={handleClick} />;
-            case 'answer':
-                return <AnswerNode node={node} onClick={handleClick} />;
-            default:
-                return null;
-        }
-    };
+    let angle, x, y;
+    const radius = 150 * (depth + 1);
+    angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+    x = radius * Math.cos(angle);
+    y = radius * Math.sin(angle);
+
+    const isQuestion = 'answer' in node && node !== activeNode;
+    const isQa = 'answer' in node;
 
     return (
-        <>
-            <div
-                style={{
-                    position: 'absolute',
-                    left: `${x}px`,
-                    top: `${y}px`,
-                    transform: 'translate(-50%, -50%)',
-                }}
-                onClick={handleClick}
-            >
-                {getNodeComponent()}
-            </div>
-            {(node.isExpanded || isCenter) &&
-                childNodes.map((child, index) => {
-                    const position = getChildPosition(index, childNodes.length);
-                    return (
-                        <Node
-                            key={child.id}
-                            node={child}
-                            x={position.x}
-                            y={position.y}
-                            onNodeClick={onNodeClick}
-                        />
-                    );
-                })}
-        </>
+        <Box
+            ref={nodeRef}
+            key={node.id}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            id="node-container"
+            sx={{
+                position: 'absolute',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                left: depth === 0 ? '50%' : `calc(50% + ${x}px)`,
+                top: depth === 0 ? '50%' : `calc(50% + ${y}px)`,
+                transform: 'translate(-50%, -50%)',
+            }}
+        >
+            {isRoot ? (
+                <RootNode node={node} onClick={handleClick} />
+            ) : isQuestion ? (
+                <QuestionNode node={node} onClick={handleClick} />
+            ) : isQa ? (
+                <QaNode node={node} onClick={handleClick} />
+            ) : (
+                <CategoryNode node={node} onClick={handleClick} />
+            )}
+
+            {isExpanded &&
+                (node.children.length > 0
+                    ? node.children.map((child, idx) => (
+                          <Node
+                              key={`${node.id}-${idx}`}
+                              node={child}
+                              onClick={onClick}
+                              depth={depth + 1}
+                              index={idx}
+                              total={node.children.length}
+                              expandedNodes={expandedNodes}
+                              setExpandedNodes={setExpandedNodes}
+                              activeNode={activeNode}
+                          />
+                      ))
+                    : null)}
+        </Box>
     );
 };
 
