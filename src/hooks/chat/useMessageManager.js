@@ -153,52 +153,56 @@ export const useMessageManager = (
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
         } else {
-            let newMessageParts;
             console.log('data', data);
+            // Possible candiate for useReducer
             setMessages((prevMessages) => {
-                newMessageParts = processIncomingStream(
+                const newMessageParts = processIncomingStream(
                     prevMessages,
                     selectedChatId.current,
                     data
                 );
 
+                let updatedChatArray;
+
                 // Update chatArray state to reflect the new messages
                 setChatArray((prevChatArray) => {
-                    const updatedChatArray = prevChatArray.map((chat) => {
+                    updatedChatArray = prevChatArray.map((chat) => {
                         if (chat.chatId === selectedChatId.current) {
                             return {
                                 ...chat,
                                 messages:
-                                    newMessageParts[selectedChatId.current], // Ensure messages is an array
+                                    newMessageParts[selectedChatId.current],
                             };
                         }
                         return chat;
                     });
 
-                    // Save updated chatArray to local storage
+                    return updatedChatArray;
+                });
+
+                // Schedule localStorage update after state updates
+                setTimeout(() => {
                     localStorage.setItem(
                         'chatArray',
                         JSON.stringify(updatedChatArray)
                     );
+                }, 0);
 
-                    return updatedChatArray;
-                });
                 return newMessageParts;
             });
         }
-    }, []);
+    }, [setChatArray, setMessages]);
 
     useEffect(() => {
         if (!socket.current) return;
 
-        socket.current.on('chat_response', handleStreamingResponse);
+        const currentSocket = socket.current;
+        currentSocket.on('chat_response', handleStreamingResponse);
 
         return () => {
-            if (socket.current) {
-                socket.current.off('chat_response', handleStreamingResponse);
-            }
+            currentSocket.off('chat_response', handleStreamingResponse);
         };
-    }, [handleStreamingResponse]);
+    }, [handleStreamingResponse, socket]);
 
     return {
         addMessage,
