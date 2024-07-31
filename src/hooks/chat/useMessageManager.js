@@ -154,6 +154,7 @@ export const useMessageManager = (
             console.log('end of stream');
         } else {
             let newMessageParts;
+            console.log('data', data);
             setMessages((prevMessages) => {
                 newMessageParts = processIncomingStream(
                     prevMessages,

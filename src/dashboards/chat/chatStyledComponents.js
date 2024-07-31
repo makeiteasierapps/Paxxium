@@ -28,8 +28,20 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
-    '& h1, & h2, & h3, & h4, & h5, & h6 & p & ul & ol & li': {
-        margin: '0', // Reduce margin around headers
+    '& h1, & h2, & h3, & h4, & h5, & h6, & p, & ul, & ol': {
+        margin: '0',
+        padding: '0',
+    },
+    '& ul, & ol': {
+        listStylePosition: 'inside',
+        paddingLeft: '0',
+    },
+    '& li': {
+        marginBottom: '0.25em',
+    },
+    '& li > p': {
+        display: 'inline',
+        margin: '0',
     },
     '& table': {
         borderCollapse: 'collapse',
@@ -48,6 +60,9 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
         width: '1%',
         wordBreak: 'keep-all',
         textAlign: 'center',
+    },
+    '& li > p:first-child': {
+        display: 'inline', // Make the first paragraph in a list item inline
     },
 }));
 
