@@ -61,7 +61,7 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
         wordBreak: 'keep-all',
         textAlign: 'center',
     },
-    '& li > p:first-child': {
+    '& li > p:first-of-type': {
         display: 'inline', // Make the first paragraph in a list item inline
     },
 }));

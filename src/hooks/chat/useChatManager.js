@@ -9,30 +9,43 @@ export const useChatManager = (
     setLoading
 ) => {
     const fetchChatsFromDB = useCallback(async () => {
-        const response = await fetch(`${backendUrl}/chat`, {
-            method: 'GET',
-            headers: {
-                userId: uid,
-                dbName: process.env.REACT_APP_DB_NAME,
-            },
-        });
-
-        if (!response.ok) throw new Error('Failed to load user conversations');
-
-        const data = await response.json();
-        setChatArray(data);
-
-        const messagesFromData = data.reduce((acc, chat) => {
-            if (chat.messages) {
-                acc[chat.chatId] = chat.messages;
+        try {
+            const response = await fetch(`${backendUrl}/chat`, {
+                method: 'GET',
+                headers: {
+                    userId: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+            });
+    
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Failed to load user conversations: ${response.status} ${response.statusText}. ${errorBody}`);
             }
-            return acc;
-        }, {});
-        setMessages(messagesFromData);
-
-        localStorage.setItem('chatArray', JSON.stringify(data));
-        return data;
-    }, [backendUrl, setChatArray, setMessages, uid]);
+    
+            const data = await response.json();
+            if (!Array.isArray(data)) {
+                throw new Error(`Invalid data format: expected an array, got ${typeof data}`);
+            }
+    
+            setChatArray(data);
+    
+            const messagesFromData = data.reduce((acc, chat) => {
+                if (chat.messages) {
+                    acc[chat.chatId] = chat.messages;
+                }
+                return acc;
+            }, {});
+            setMessages(messagesFromData);
+    
+            localStorage.setItem('chatArray', JSON.stringify(data));
+            return data;
+        } catch (error) {
+            console.error('Error in fetchChatsFromDB:', error);
+            showSnackbar(`Failed to fetch chats: ${error.message}`, 'error');
+            throw error; // Re-throw the error for the caller to handle if needed
+        }
+    }, [backendUrl, setChatArray, setMessages, uid, showSnackbar]);
 
     const getChats = useCallback(async () => {
         try {
