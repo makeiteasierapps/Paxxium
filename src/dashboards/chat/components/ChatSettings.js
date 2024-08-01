@@ -42,15 +42,17 @@ const ChatSettings = ({
     agentModel: initialAgentModel = '',
     useProfileData: initialUseProfileData = false,
 }) => {
+    
     const { createChat, updateSettings, chatArray, loadChat } =
         useContext(ChatContext);
 
     const [agentModel, setAgentModel] = useState(initialAgentModel);
+    console.log(agentModel)
     const [systemPrompt, setSystemPrompt] = useState(initialSystemPrompt);
     const [chatConstants, setChatConstants] = useState(initialChatConstants);
     const [useProfileData, setUseProfileData] = useState(initialUseProfileData);
-
     const [chatName, setChatName] = useState(initialChatName);
+    console.log(chatName)
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEdit = (event) => {

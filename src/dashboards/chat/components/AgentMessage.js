@@ -5,7 +5,7 @@ import {
     StyledMarkdown,
 } from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { twilight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 
 const AgentMessage = ({ message }) => {
@@ -14,7 +14,7 @@ const AgentMessage = ({ message }) => {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
                 <SyntaxHighlighter
-                    style={twilight}
+                    style={duotoneDark}
                     language={match[1]}
                     PreTag="div"
                     children={String(children).replace(/\n$/, '')}
@@ -58,7 +58,7 @@ const AgentMessage = ({ message }) => {
                                   <SyntaxHighlighter
                                       key={`code${index}`}
                                       language={msg.language}
-                                      style={twilight}
+                                      style={duotoneDark}
                                   >
                                       {msg.content}
                                   </SyntaxHighlighter>

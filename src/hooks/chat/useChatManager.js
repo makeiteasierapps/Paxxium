@@ -80,6 +80,7 @@ export const useChatManager = (
         chatName
     ) => {
         try {
+            console.log(agentModel)
             const response = await fetch(`${backendUrl}/chat`, {
                 method: 'POST',
                 headers: {
@@ -99,7 +100,7 @@ export const useChatManager = (
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
-
+            console.log(data)
             if (!response.ok) {
                 const errorBody = await response.text();
                 throw new Error(
@@ -172,7 +173,7 @@ export const useChatManager = (
 
     const loadChat = (chatId) => updateChatVisibility(chatId, true);
     const closeChat = (chatId) => updateChatVisibility(chatId, false);
-    
+
     const deleteChat = async (chatId) => {
         try {
             const response = await fetch(`${backendUrl}/chat`, {

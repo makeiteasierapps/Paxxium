@@ -4,9 +4,11 @@ export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Change from 'center' to 'flex-start'
     width: '100%',
-    height: '90vh',
+    minHeight: '90vh',
+    overflow: 'auto',
+    padding: theme.spacing(2), 
 }));
 
 export const StyledContainer = styled(Box)(({ theme }) => ({

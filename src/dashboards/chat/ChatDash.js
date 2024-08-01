@@ -11,7 +11,7 @@ const ChatDash = () => {
     const { chatArray, loading } = useContext(ChatContext);
 
     return (
-        <MainContainer>
+        <MainContainer id="chat-dash-main-container">
             {loading ? (
                 <Box marginTop={30}>
                     <CustomGridLoader />

@@ -18,15 +18,14 @@ const Chat = ({
         chat_constants: chatConstants,
         system_prompt: systemPrompt,
         chat_name: chatName,
-        agent_model: agentModel,
-        use_profile_data: useProfileData,
+        agentModel,
+        useProfileData,
     },
     setIsChatOpen = null,
 }) => {
     const nodeRef = useRef(null);
     const { messages, joinRoom } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
     useEffect(() => {
         joinRoom(chatId);
     }, [joinRoom, chatId]);
@@ -86,7 +85,6 @@ const Chat = ({
                         agentModel={agentModel}
                         useProfileData={useProfileData}
                         setIsSettingsOpen={setIsSettingsOpen}
-                        isSettingsOpen={isSettingsOpen}
                     />
                 ) : null}
             </AnimatePresence>

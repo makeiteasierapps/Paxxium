@@ -125,16 +125,16 @@ export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     position: 'relative',
     marginBottom: theme.spacing(3),
     width: '80%',
-    minHeight: '80%',
+    minHeight: '90vh',
     height: '87%',
     borderRadius: '7px',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-    // xs & sm screens: resize to take up most of the screen
+    // TODO: Fix for small screens
     [theme.breakpoints.down('sm')]: {
         minWidth: '100vw',
         maxWidth: '100vw',
-        minHeight: '100vh',
-        maxHeight: '100vh',
+        minHeight: '95vh',
+        maxHeight: '95vh',
         borderRadius: '0px',
     },
 }));
