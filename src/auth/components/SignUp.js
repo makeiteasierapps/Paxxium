@@ -83,7 +83,14 @@ const SignUp = ({ setIsLogin }) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        // Check if all fields are valid before submitting
+        // Validate all fields and update formValid state
+        const newFormValid = {
+            username: isValid.username(formValues.username),
+            email: isValid.email(formValues.email),
+            password: isValid.password(formValues.password),
+            openAiApiKey: isValid.openAiApiKey(formValues.openAiApiKey),
+        };
+        setFormValid(newFormValid);
         if (Object.values(formValid).every((field) => field)) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(

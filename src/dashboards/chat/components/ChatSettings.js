@@ -33,26 +33,22 @@ const settingsMenuVariants = {
     },
 };
 
-const ChatSettings = ({
-    chatId = '',
-    setIsSettingsOpen = null,
-    chatConstants: initialChatConstants = '',
-    systemPrompt: initialSystemPrompt = '',
-    chatName: initialChatName = '',
-    agentModel: initialAgentModel = '',
-    useProfileData: initialUseProfileData = false,
-}) => {
-    
+const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
     const { createChat, updateSettings, chatArray, loadChat } =
         useContext(ChatContext);
-
-    const [agentModel, setAgentModel] = useState(initialAgentModel);
-    console.log(agentModel)
-    const [systemPrompt, setSystemPrompt] = useState(initialSystemPrompt);
-    const [chatConstants, setChatConstants] = useState(initialChatConstants);
-    const [useProfileData, setUseProfileData] = useState(initialUseProfileData);
-    const [chatName, setChatName] = useState(initialChatName);
-    console.log(chatName)
+    const [agentModel, setAgentModel] = useState(
+        agent ? agent.agent_model : ''
+    );
+    const [systemPrompt, setSystemPrompt] = useState(
+        agent ? agent.system_prompt : ''
+    );
+    const [chatConstants, setChatConstants] = useState(
+        agent ? agent.chat_constants : ''
+    );
+    const [useProfileData, setUseProfileData] = useState(
+        agent ? agent.use_profile_data : false
+    );
+    const [chatName, setChatName] = useState(agent ? agent.chat_name : '');
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEdit = (event) => {
@@ -106,7 +102,7 @@ const ChatSettings = ({
 
     const handleUpdateSettings = () => {
         const newAgentSettings = {
-            chatId: chatId,
+            chatId: agent.chatId,
             agent_model: agentModel,
             system_prompt: systemPrompt,
             chat_constants: chatConstants,
@@ -141,10 +137,10 @@ const ChatSettings = ({
                     xs={12}
                     container
                     display="flex"
-                    justifyContent={chatId ? 'space-between' : 'right'}
+                    justifyContent={agent.chatId ? 'space-between' : 'right'}
                     alignItems="center"
                 >
-                    {chatId && (
+                    {agent.chatId && (
                         <IconButton
                             aria-label="close"
                             onClick={() => setIsSettingsOpen(false)}
@@ -200,7 +196,6 @@ const ChatSettings = ({
                 >
                     <SettingsMenuButton
                         error={errors.selectModel ? true : false}
-                        helperText={errors.selectModel}
                         required
                         id="model"
                         name="model"
@@ -260,7 +255,6 @@ const ChatSettings = ({
                 >
                     <SettingsMenuButton
                         error={errors.selectModel ? true : false}
-                        helperText={errors.selectModel}
                         required
                         id="name"
                         onClick={() => setIsEditing(true)}

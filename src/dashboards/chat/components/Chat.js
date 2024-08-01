@@ -12,23 +12,13 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = ({
-    agent: {
-        chatId,
-        chat_constants: chatConstants,
-        system_prompt: systemPrompt,
-        chat_name: chatName,
-        agentModel,
-        useProfileData,
-    },
-    setIsChatOpen = null,
-}) => {
+const Chat = ({ agent, setIsChatOpen = null }) => {
     const nodeRef = useRef(null);
     const { messages, joinRoom } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     useEffect(() => {
-        joinRoom(chatId);
-    }, [joinRoom, chatId]);
+        joinRoom(agent.chatId);
+    }, [joinRoom, agent.chatId]);
 
     // scrolls chat window to the bottom
     useEffect(() => {
@@ -36,27 +26,19 @@ const Chat = ({
         node.scroll(0, node.scrollHeight);
     }, [messages]);
 
-    const chatSettings = {
-        chatName,
-        chatId,
-        agentModel,
-        systemPrompt,
-        chatConstants,
-        useProfileData,
-    };
 
     return (
         <ChatContainerStyled>
             <ChatBar
-                chatName={chatName}
-                chatId={chatId}
+                chatName={agent.chat_name}
+                chatId={agent.chatId}
                 isSettingsOpen={isSettingsOpen}
                 setIsSettingsOpen={setIsSettingsOpen}
                 setIsChatOpen={setIsChatOpen}
             />
             <MessagesContainer xs={9} id="messages-container">
                 <MessageArea ref={nodeRef}>
-                    {messages[chatId]?.map((message, index) => {
+                    {messages[agent.chatId]?.map((message, index) => {
                         if (message.message_from === 'user') {
                             return (
                                 <UserMessage
@@ -73,17 +55,12 @@ const Chat = ({
                         );
                     })}
                 </MessageArea>
-                <MessageInput chatSettings={chatSettings} />
+                <MessageInput chatSettings={agent} />
             </MessagesContainer>
             <AnimatePresence>
                 {isSettingsOpen ? (
                     <ChatSettings
-                        chatId={chatId}
-                        chatConstants={chatConstants}
-                        systemPrompt={systemPrompt}
-                        chatName={chatName}
-                        agentModel={agentModel}
-                        useProfileData={useProfileData}
+                        agent={agent}
                         setIsSettingsOpen={setIsSettingsOpen}
                     />
                 ) : null}

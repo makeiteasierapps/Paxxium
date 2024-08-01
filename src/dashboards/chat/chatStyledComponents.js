@@ -66,7 +66,9 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
     },
 }));
 
-export const SettingsMenuButton = styled(Button)(({ theme }) => ({
+export const SettingsMenuButton = styled(Button, {
+    shouldForwardProp: (prop) => prop !== 'error',
+})(({ theme, error }) => ({
     fontFamily: theme.typography.applyFontFamily('primary').fontFamily,
     fontWeight: 'bold',
     fontSize: '1rem',
@@ -75,6 +77,8 @@ export const SettingsMenuButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
+    border: error ? `1px solid ${theme.palette.error.main}` : undefined,
+    color: error ? theme.palette.error.main : undefined,
     '&:hover': {
         backgroundColor: theme.palette.primary.main,
         color: 'black',
