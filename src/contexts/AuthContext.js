@@ -27,7 +27,7 @@ const fetchFirebaseConfig = async () => {
         return config;
     } catch (error) {
         console.error('Error fetching Firebase config:', error);
-        throw error; // Re-throw the error for the caller to handle
+        throw error;
     }
 };
 
@@ -38,7 +38,7 @@ const initializeFirebase = async () => {
         auth = getAuth();
     } catch (error) {
         console.error('Error initializing Firebase:', error);
-        throw error; // Re-throw the error for the caller to handle
+        throw error;
     }
 };
 

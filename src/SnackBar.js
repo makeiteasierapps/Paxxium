@@ -3,7 +3,7 @@ import { Snackbar, Alert, Box } from '@mui/material';
 const MySnackBar = ({ open, handleClose, message, severity }) => {
     return (
         <Box>
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+            <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
                 <Alert
                     onClose={handleClose}
                     severity={severity}

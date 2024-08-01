@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { SnackbarProvider } from '../contexts/SnackbarContext';
 import MySnackBar from '../SnackBar';
+
+const showSnackbar =
+    (setSnackbar) =>
+    (message, severity = 'info') => {
+        setSnackbar(() => ({ open: true, message, severity }));
+    };
 
 const SnackbarWrapper = ({ children }) => {
     const [snackbar, setSnackbar] = useState({
@@ -9,10 +15,12 @@ const SnackbarWrapper = ({ children }) => {
         severity: 'info',
     });
 
-    const showSnackbar = (message, severity = 'info') => {
-        setSnackbar({ open: true, message, severity });
-    };
-
+    const memoizedShowSnackbar = useCallback(
+        (message, severity = 'info') =>
+            showSnackbar(setSnackbar)(message, severity),
+        [setSnackbar]
+    );
+    
     const handleCloseSnackbar = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -21,9 +29,9 @@ const SnackbarWrapper = ({ children }) => {
     };
 
     const snackbarValue = {
-        showSnackbar,
+        showSnackbar: memoizedShowSnackbar,
         handleCloseSnackbar,
-        ...snackbar
+        ...snackbar,
     };
 
     return (

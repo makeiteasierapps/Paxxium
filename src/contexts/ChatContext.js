@@ -4,11 +4,12 @@ import { useChatManager } from '../hooks/chat/useChatManager';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
 import { useChatSettings } from '../hooks/chat/useChatSettings';
 import { useSocketConnection } from '../hooks/useSocketConnection';
-import { SnackbarContext } from './SnackbarContext';
+import { useSnackbar } from './SnackbarContext';
 
 export const ChatContext = createContext();
+
 export const ChatProvider = ({ children }) => {
-    const { showSnackbar } = useContext(SnackbarContext);
+    const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);
     const [messages, setMessages] = useState({});

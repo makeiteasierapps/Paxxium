@@ -17,33 +17,34 @@ export const useChatManager = (
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
             });
-    
+
             if (!response.ok) {
                 const errorBody = await response.text();
-                throw new Error(`Failed to load user conversations: ${response.status} ${response.statusText}. ${errorBody}`);
+                throw new Error(
+                    `Failed to load user conversations: ${response.status} ${response.statusText}. ${errorBody}`
+                );
             }
-    
+
             const data = await response.json();
-            if (!Array.isArray(data)) {
-                throw new Error(`Invalid data format: expected an array, got ${typeof data}`);
-            }
-    
+
             setChatArray(data);
-    
-            const messagesFromData = data.reduce((acc, chat) => {
-                if (chat.messages) {
-                    acc[chat.chatId] = chat.messages;
-                }
-                return acc;
-            }, {});
-            setMessages(messagesFromData);
-    
+
+            setMessages((prevMessages) => {
+                const messagesFromData = data.reduce((acc, chat) => {
+                    if (chat.messages) {
+                        acc[chat.chatId] = chat.messages;
+                    }
+                    return acc;
+                }, {});
+                return messagesFromData;
+            });
+
             localStorage.setItem('chatArray', JSON.stringify(data));
             return data;
         } catch (error) {
             console.error('Error in fetchChatsFromDB:', error);
             showSnackbar(`Failed to fetch chats: ${error.message}`, 'error');
-            throw error; // Re-throw the error for the caller to handle if needed
+            throw error;
         }
     }, [backendUrl, setChatArray, setMessages, uid, showSnackbar]);
 
@@ -53,20 +54,21 @@ export const useChatManager = (
             if (cachedChats && cachedChats.length > 0) {
                 setChatArray(cachedChats);
 
-                const cachedMessages = cachedChats.reduce((acc, chat) => {
-                    if (chat.messages) {
-                        acc[chat.chatId] = chat.messages;
-                    }
-                    return acc;
-                }, {});
-                setMessages(cachedMessages);
-                return cachedChats;
+                setMessages((prevMessages) => {
+                    return cachedChats.reduce((acc, chat) => {
+                        if (chat.messages) {
+                            acc[chat.chatId] = chat.messages;
+                        }
+                        return acc;
+                    }, {});
+                });
             } else {
-                return fetchChatsFromDB();
+                return await fetchChatsFromDB();
             }
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            throw error;
         }
     }, [fetchChatsFromDB, setChatArray, setMessages, showSnackbar]);
 
@@ -97,23 +99,29 @@ export const useChatManager = (
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
-            // Update the chatArray directly here
-            setChatArray((prevAgents) => {
-                const updatedChatArray = [data, ...prevAgents];
-                localStorage.setItem(
-                    'chatArray',
-                    JSON.stringify(updatedChatArray)
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(
+                    `Failed to create chat: ${response.status} ${response.statusText}. ${errorBody}`
                 );
-                return updatedChatArray;
-            });
+            }
+
+            setChatArray((prevAgents) => [data, ...prevAgents]);
+
+            const updatedChatArray = [
+                data,
+                ...JSON.parse(localStorage.getItem('chatArray') || '[]'),
+            ];
+            localStorage.setItem('chatArray', JSON.stringify(updatedChatArray));
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
 
+    // combine loadChat and closeChat, they are almost identical
     const loadChat = async (chatId) => {
-        // This is done so that the chat visibility persists even after the page is refreshed
         try {
             const response = await fetch(
                 `${backendUrl}/chat/update_visibility`,
@@ -132,30 +140,39 @@ export const useChatManager = (
 
             // Update the local state only after the database has been updated successfully
             setChatArray((prevAgents) => {
-                let updatedAgentIndex = -1;
-                const updatedAgents = prevAgents.reduce((acc, agent, index) => {
-                    if (agent.chatId === chatId) {
-                        updatedAgentIndex = index; // Capture the index of the agent to be updated
-                        return [{ ...agent, is_open: true }, ...acc]; // Place updated agent at the start
-                    } else {
-                        return [...acc, agent]; // Append other agents as they are
-                    }
-                }, []);
+                const updatedAgents = prevAgents.map((agent) =>
+                    agent.chatId === chatId
+                        ? { ...agent, is_open: true }
+                        : agent
+                );
 
-                // Cache the updated agents array in local storage
+                const updatedAgentIndex = updatedAgents.findIndex(
+                    (agent) => agent.chatId === chatId
+                );
+
                 if (updatedAgentIndex !== -1) {
+                    // Move the updated agent to the start of the array
+                    const [updatedAgent] = updatedAgents.splice(
+                        updatedAgentIndex,
+                        1
+                    );
+                    updatedAgents.unshift(updatedAgent);
+
+                    // Cache the updated agents array in local storage
                     localStorage.setItem(
                         'chatArray',
                         JSON.stringify(updatedAgents)
                     );
+                    return updatedAgents;
                 }
 
-                // If the agent was not found and updated, return the original array to avoid unnecessary state updates
-                return updatedAgentIndex !== -1 ? updatedAgents : prevAgents;
+                // If the agent was not found, return the original array
+                return prevAgents;
             });
         } catch (error) {
             console.log(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            throw error;
         }
     };
 
