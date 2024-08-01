@@ -120,8 +120,7 @@ export const useChatManager = (
         }
     };
 
-    // combine loadChat and closeChat, they are almost identical
-    const loadChat = async (chatId) => {
+    const updateChatVisibility = async (chatId, isOpen) => {
         try {
             const response = await fetch(
                 `${backendUrl}/chat/update_visibility`,
@@ -132,62 +131,7 @@ export const useChatManager = (
                         dbName: process.env.REACT_APP_DB_NAME,
                         userId: uid,
                     },
-                    body: JSON.stringify({ chatId, is_open: true }),
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to update chat');
-
-            // Update the local state only after the database has been updated successfully
-            setChatArray((prevAgents) => {
-                const updatedAgents = prevAgents.map((agent) =>
-                    agent.chatId === chatId
-                        ? { ...agent, is_open: true }
-                        : agent
-                );
-
-                const updatedAgentIndex = updatedAgents.findIndex(
-                    (agent) => agent.chatId === chatId
-                );
-
-                if (updatedAgentIndex !== -1) {
-                    // Move the updated agent to the start of the array
-                    const [updatedAgent] = updatedAgents.splice(
-                        updatedAgentIndex,
-                        1
-                    );
-                    updatedAgents.unshift(updatedAgent);
-
-                    // Cache the updated agents array in local storage
-                    localStorage.setItem(
-                        'chatArray',
-                        JSON.stringify(updatedAgents)
-                    );
-                    return updatedAgents;
-                }
-
-                // If the agent was not found, return the original array
-                return prevAgents;
-            });
-        } catch (error) {
-            console.log(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            throw error;
-        }
-    };
-
-    const closeChat = async (chatId) => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/chat/update_visibility`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        dbName: process.env.REACT_APP_DB_NAME,
-                        userId: uid,
-                    },
-                    body: JSON.stringify({ chatId, is_open: false }),
+                    body: JSON.stringify({ chatId, is_open: isOpen }),
                 }
             );
 
@@ -196,24 +140,39 @@ export const useChatManager = (
             setChatArray((prevChatArray) => {
                 const updatedChatArray = prevChatArray.map((chatObj) =>
                     chatObj.chatId === chatId
-                        ? { ...chatObj, is_open: false }
+                        ? { ...chatObj, is_open: isOpen }
                         : chatObj
                 );
 
-                // Store the updated array in local storage
+                if (isOpen) {
+                    const updatedChatIndex = updatedChatArray.findIndex(
+                        (chat) => chat.chatId === chatId
+                    );
+                    if (updatedChatIndex !== -1) {
+                        const [updatedChat] = updatedChatArray.splice(
+                            updatedChatIndex,
+                            1
+                        );
+                        updatedChatArray.unshift(updatedChat);
+                    }
+                }
+
                 localStorage.setItem(
                     'chatArray',
                     JSON.stringify(updatedChatArray)
                 );
-
                 return updatedChatArray;
             });
         } catch (error) {
-            console.log(error);
+            console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+            if (isOpen) throw error;
         }
     };
 
+    const loadChat = (chatId) => updateChatVisibility(chatId, true);
+    const closeChat = (chatId) => updateChatVisibility(chatId, false);
+    
     const deleteChat = async (chatId) => {
         try {
             const response = await fetch(`${backendUrl}/chat`, {
