@@ -4,7 +4,7 @@ export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Change from 'center' to 'flex-start'
+    justifyContent: 'flex-start', 
     width: '100%',
     minHeight: '90vh',
     overflow: 'auto',

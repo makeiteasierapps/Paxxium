@@ -1,181 +1,211 @@
-import { useCallback, useEffect, useState, useContext } from "react";
-import { useSnackbar } from "../contexts/SnackbarContext";
-import { AuthContext } from "../contexts/AuthContext";
+import { useCallback, useEffect, useState } from 'react';
 
-export const useNewsManager = () => {
-  const [allNewsData, setAllNewsData] = useState([]);
-  const [displayedNewsData, setDisplayedNewsData] = useState([]);
-  const [readFilter, setReadFilter] = useState(false);
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+export const useNewsManager = (uid, showSnackbar, backendUrl) => {
+    const [newsDataArray, setNewsDataArray] = useState([]);
+    const [readFilter, setReadFilter] = useState(false);
+    const [slideIndex, setSlideIndex] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
-  const { showSnackbar } = useSnackbar();
-  const { uid } = useContext(AuthContext);
-
-  const backendUrl =
-    process.env.NODE_ENV === "development"
-      ? `http://${process.env.REACT_APP_BACKEND_URL}`
-      : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
-
-  const deleteNewsArticle = (newsId) => {
-    const updatedAllNews = allNewsData.filter((news) => news.id !== newsId);
-    const updatedDisplayedNews = displayedNewsData.filter(
-      (news) => news.id !== newsId
-    );
-    setAllNewsData(updatedAllNews);
-    setDisplayedNewsData(updatedDisplayedNews);
-    localStorage.setItem("newsData", JSON.stringify(updatedAllNews));
-  };
-
-  const markNewsAsRead = (newsId) => {
-    const updatedAllNews = allNewsData.map((news) =>
-      news.id === newsId ? { ...news, is_read: true } : news
-    );
-    const updatedDisplayedNews = displayedNewsData.map((news) =>
-      news.id === newsId ? { ...news, is_read: true } : news
-    );
-    setAllNewsData(updatedAllNews);
-    setDisplayedNewsData(updatedDisplayedNews);
-    localStorage.setItem("newsData", JSON.stringify(updatedAllNews));
-  };
-
-  const toggleReadFilter = () => {
-    const newReadFilter = !readFilter;
-    setReadFilter(newReadFilter);
-    const updatedDisplayedNews = newReadFilter
-      ? allNewsData.filter((news) => !news.is_read)
-      : allNewsData;
-    setDisplayedNewsData(updatedDisplayedNews);
-  };
-
-  const loadNewsData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const cachedNewsData = localStorage.getItem("newsData");
-      if (cachedNewsData) {
-        const parsedNewsData = JSON.parse(cachedNewsData);
-        setAllNewsData(parsedNewsData);
-        setDisplayedNewsData(parsedNewsData);
-      } else {
-        const response = await fetch(`${backendUrl}/news`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            uid: uid,
-            dbName: process.env.REACT_APP_DB_NAME,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to load news data");
+    const deleteNewsArticle = async (newsId) => {
+        try {
+            const response = await fetch(`${backendUrl}/news`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: JSON.stringify({ articleId: newsId }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            setNewsDataArray((prevNewsDataArray) => {
+                const updatedDisplayedNews = prevNewsDataArray.filter(
+                    (news) => news._id !== newsId
+                );
+                localStorage.setItem(
+                    'newsData',
+                    JSON.stringify(updatedDisplayedNews)
+                );
+                return updatedDisplayedNews;
+            });
+        } catch (error) {
+            console.error(error);
+            throw new Error('Error deleting news article');
         }
+    };
 
-        const data = await response.json();
-        setAllNewsData(data);
-        setDisplayedNewsData(data);
-        // Cache the fetched data in local storage
-        localStorage.setItem("newsData", JSON.stringify(data));
-      }
-    } catch (error) {
-      console.error(error);
-      showSnackbar(`Network or fetch error: ${error.message}`, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [backendUrl, uid, showSnackbar]);
+    const markNewsAsRead = async (newsId, isRead) => {
+        try {
+            const response = await fetch(`${backendUrl}/news`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: JSON.stringify({ articleId: newsId, isRead }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
 
-  const fetchNewsData = useCallback(
-    async (queryParam) => {
-      try {
+            setNewsDataArray((prevNewsDataArray) => {
+                const updatedDisplayedNews = prevNewsDataArray.map((news) =>
+                    news._id === newsId ? { ...news, is_read: isRead } : news
+                );
+
+                localStorage.setItem(
+                    'newsData',
+                    JSON.stringify(updatedDisplayedNews)
+                );
+                return updatedDisplayedNews;
+            });
+        } catch (error) {
+            console.error(error);
+            throw new Error(
+                `Error ${isRead ? 'marking' : 'unmarking'} news as read`
+            );
+        }
+    };
+
+    const toggleReadFilter = () => {
+        const newReadFilter = !readFilter;
+        setReadFilter(newReadFilter);
+        const updatedDisplayedNews = newReadFilter
+            ? newsDataArray.filter((news) => !news.is_read)
+            : newsDataArray;
+        setNewsDataArray(updatedDisplayedNews);
+    };
+
+    const loadNewsData = useCallback(async () => {
         setIsLoading(true);
-        const response = await fetch(`${backendUrl}/news`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            uid: uid,
-            dbName: process.env.REACT_APP_DB_NAME,
-          },
-          body: JSON.stringify({
-            query: queryParam,
-          }),
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+            const cachedNewsData = localStorage.getItem('newsData');
+            if (cachedNewsData) {
+                const parsedNewsData = JSON.parse(cachedNewsData);
+                setNewsDataArray(parsedNewsData);
+            } else {
+                const response = await fetch(`${backendUrl}/news`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load news data');
+                }
+
+                const data = await response.json();
+                setNewsDataArray(data);
+                localStorage.setItem('newsData', JSON.stringify(data));
+            }
+        } catch (error) {
+            console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
         }
-        const newData = await response.json();
-        setAllNewsData((currentNewsData) => {
-          const updatedNewsData = [...newData, ...currentNewsData];
-          localStorage.setItem("newsData", JSON.stringify(updatedNewsData));
+    }, [backendUrl, uid, showSnackbar]);
 
-          return updatedNewsData;
-        });
-        setDisplayedNewsData((currentNewsData) => {
-          const updatedNewsData = [...newData, ...currentNewsData];
-          return updatedNewsData;
-        });
-      } catch (error) {
-        console.error(error);
-        showSnackbar(`Network or fetch error: ${error.message}`, "error");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [backendUrl, showSnackbar, uid]
-  );
+    const fetchNewsData = useCallback(
+        async (queryParam) => {
+            try {
+                setIsLoading(true);
+                const response = await fetch(`${backendUrl}/news`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                    },
+                    body: JSON.stringify({
+                        query: queryParam,
+                    }),
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const newData = await response.json();
+                setNewsDataArray((currentNewsData) => {
+                    const updatedNewsData = [...newData, ...currentNewsData];
+                    localStorage.setItem(
+                        'newsData',
+                        JSON.stringify(updatedNewsData)
+                    );
 
-  const aiNewsFetch = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${backendUrl}/ai-fetch-news`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          uid: uid,
-          dbName: process.env.REACT_APP_DB_NAME,
+                    return updatedNewsData;
+                });
+            } catch (error) {
+                console.error(error);
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
+            } finally {
+                setIsLoading(false);
+            }
         },
-      });
+        [backendUrl, showSnackbar, uid]
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    const aiNewsFetch = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${backendUrl}/ai-fetch-news`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+            });
 
-      const data = await response.json();
-      setAllNewsData((currentNewsData) => {
-        const updatedNewsData = [...data, ...currentNewsData];
-        localStorage.setItem("newsData", JSON.stringify(updatedNewsData));
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        return updatedNewsData;
-      });
-      setDisplayedNewsData((currentNewsData) => {
-        const updatedNewsData = [...data, ...currentNewsData];
-        return updatedNewsData;
-      });
-    } catch (error) {
-      console.error(error);
-      showSnackbar(`Network or fetch error: ${error.message}`, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [backendUrl, showSnackbar, uid]);
+            const data = await response.json();
+            setNewsDataArray((currentNewsData) => {
+                const updatedNewsData = [...data, ...currentNewsData];
+                localStorage.setItem(
+                    'newsData',
+                    JSON.stringify(updatedNewsData)
+                );
 
-  useEffect(() => {
-    if (!uid) {
-      return;
-    }
-    loadNewsData();
-  }, [uid]);
+                return updatedNewsData;
+            });
+        } catch (error) {
+            console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [backendUrl, showSnackbar, uid]);
 
-  return {
-    fetchNewsData,
-    aiNewsFetch,
-    displayedNewsData,
-    slideIndex,
-    setSlideIndex,
-    isLoading,
-    deleteNewsArticle,
-    markNewsAsRead,
-    toggleReadFilter,
-    readFilter,
-    allNewsData,
-  };
+    useEffect(() => {
+        if (!uid) {
+            return;
+        }
+        loadNewsData();
+    }, [loadNewsData, uid]);
+
+    return {
+        fetchNewsData,
+        aiNewsFetch,
+        newsDataArray,
+        slideIndex,
+        setSlideIndex,
+        isLoading,
+        deleteNewsArticle,
+        markNewsAsRead,
+        toggleReadFilter,
+        readFilter,
+    };
 };

@@ -25,8 +25,9 @@ const GraphComponent = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '100%',
-                width: '100%',
+                width: '80%',
+                minHeight: '90vh',
+                height: '87%',
                 position: 'relative',
             }}
         >

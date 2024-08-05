@@ -2,14 +2,12 @@ import { useContext, useState } from 'react';
 import { styled } from '@mui/system';
 import Carousel from 'react-spring-3d-carousel';
 import { NewsContext } from '../../../../contexts/NewsContext';
-import { SnackbarContext } from '../../../../contexts/SnackbarContext';
 import NewsCard from './NewsCard';
 import {
     SearchContainer,
     SearchField,
     CarouselContainer,
 } from '../styledNewsComponents';
-import MySnackbar from '../../../../SnackBar';
 import SearchIcon from '@mui/icons-material/Search';
 import { CustomGridLoader } from '../../../main/customLoaders';
 import {
@@ -39,7 +37,7 @@ StyledButton.defaultProps = {
 };
 const NewsCarousel = () => {
     const {
-        displayedNewsData,
+        newsDataArray,
         slideIndex,
         fetchNewsData,
         aiNewsFetch,
@@ -48,12 +46,10 @@ const NewsCarousel = () => {
         readFilter,
     } = useContext(NewsContext);
 
-    const { hideSnackbar, snackbarInfo } = useContext(SnackbarContext);
-
     const [query, setQuery] = useState('');
 
-    const newsSlides = displayedNewsData.map((news, index) => ({
-        key: news.id,
+    const newsSlides = newsDataArray.map((news, index) => ({
+        key: news._id,
         content: <NewsCard news={news} index={index} />,
     }));
 
@@ -104,7 +100,7 @@ const NewsCarousel = () => {
             <CarouselContainer id="carousel-container">
                 {isLoading ? (
                     <CustomGridLoader />
-                ) : displayedNewsData.length > 0 ? (
+                ) : newsDataArray.length > 0 ? (
                     <Carousel
                         id="carousel"
                         slides={newsSlides}

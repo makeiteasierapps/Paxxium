@@ -19,49 +19,6 @@ const NewsCard = ({ news, index }) => {
 
     const [openDialog, setOpenDialog] = useState(false);
 
-    const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
-
-    const markArticleRead = async () => {
-        try {
-            const response = await fetch(`${backendUrl}/news`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ articleId: news.id }),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-            markNewsAsRead(news.id);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleArticleDelete = async () => {
-        try {
-            const response = await fetch(`${backendUrl}/news`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ articleId: news.id }),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-            deleteNewsArticle(news.id);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.3 }}
@@ -69,7 +26,7 @@ const NewsCard = ({ news, index }) => {
             transition={{ duration: 0.9 }}
             style={{ height: '100%' }}
         >
-            <StyledCard key={news.id} onClick={() => setSlideIndex(index)}>
+            <StyledCard key={news._id} onClick={() => setSlideIndex(index)}>
                 <StyledCardMedia image={news.image}>
                     <Tooltip title="Mark read" placement="top-end">
                         <StyledIconButton
@@ -77,9 +34,7 @@ const NewsCard = ({ news, index }) => {
                             style={{ right: 0 }}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                if (!news.is_read) {
-                                    markArticleRead();
-                                }
+                                markNewsAsRead(news._id, !news.is_read);
                             }}
                         >
                             {news.is_read ? (
@@ -130,7 +85,7 @@ const NewsCard = ({ news, index }) => {
                 handleClose={() => setOpenDialog(false)}
                 handleConfirm={() => {
                     setOpenDialog(false);
-                    handleArticleDelete();
+                    deleteNewsArticle(news._id);
                 }}
             />
         </motion.div>
