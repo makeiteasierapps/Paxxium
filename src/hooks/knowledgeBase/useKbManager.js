@@ -1,12 +1,9 @@
-import { useState, useContext, useCallback, useEffect } from 'react';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useState, useCallback, useEffect } from 'react';
 
-export const useKbManager = (backendUrl) => {
+export const useKbManager = (backendUrl, uid, showSnackbar) => {
     const [kbArray, setKbArray] = useState([]);
     const [isNewKbOpen, setIsNewKbOpen] = useState(false);
-    const { showSnackbar } = useContext(SnackbarContext);
-    const { uid } = useContext(AuthContext);
+
 
     const addKnowledgeBase = (kb) => {
         setKbArray((prevKbArray) => {
@@ -21,6 +18,7 @@ export const useKbManager = (backendUrl) => {
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
+                    uid: uid,
                 },
                 body: JSON.stringify({ kbId }),
             });
@@ -36,6 +34,7 @@ export const useKbManager = (backendUrl) => {
             });
         } catch (error) {
             showSnackbar('Error deleting knowledge base', 'error');
+            throw error;
         }
     };
 
@@ -60,11 +59,11 @@ export const useKbManager = (backendUrl) => {
             }
             const data = await response.json();
             const newKnowledgeBase = data.new_kb;
-            console.log(newKnowledgeBase);
             addKnowledgeBase(newKnowledgeBase);
             setIsNewKbOpen(false);
         } catch (error) {
             showSnackbar('Error creating knowledge base', 'error');
+            throw error;
         }
     };
 
@@ -86,6 +85,7 @@ export const useKbManager = (backendUrl) => {
             setKbArray(data.kb_list);
         } catch (error) {
             showSnackbar('Error fetching knowledge base', 'error');
+            throw error;
         }
     }, [backendUrl, showSnackbar, uid]);
 

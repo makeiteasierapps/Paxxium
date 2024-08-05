@@ -41,7 +41,7 @@ export const KbProvider = ({ children }) => {
         quill
     );
 
-    const kbManager = useKbManager(backendUrl);
+    const kbManager = useKbManager(backendUrl, uid, showSnackbar);
 
     const extractionManager = useExtractionManager(
         backendUrl,
