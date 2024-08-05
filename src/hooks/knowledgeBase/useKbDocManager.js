@@ -1,5 +1,4 @@
 import { useState, useCallback, useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
 import TurndownService from 'turndown';
 import { useSnackbar } from '../../contexts/SnackbarContext';
 
@@ -7,13 +6,13 @@ const turndownService = new TurndownService();
 
 export const useKbDocManager = (
     backendUrl,
+    uid,
+    showSnackbar,
     selectedKb,
     editorContent,
     highlights
 ) => {
-    const { uid } = useContext(AuthContext);
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
-    const { showSnackbar } = useSnackbar();
     const [kbDocs, setKbDocs] = useState({});
     const [currentKbDoc, setCurrentKbDoc] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
@@ -160,7 +159,7 @@ export const useKbDocManager = (
             console.error(error);
             showSnackbar('Error saving text doc', 'error');
             setIsDocManagerLoading(false);
-            return null;
+            throw error;
         }
     };
 
@@ -190,6 +189,7 @@ export const useKbDocManager = (
             } catch (error) {
                 showSnackbar('Error fetching documents', 'error');
                 setIsDocManagerLoading(false);
+                throw error;
             }
         },
         [backendUrl, showSnackbar, uid]
@@ -234,6 +234,7 @@ export const useKbDocManager = (
         } catch (error) {
             showSnackbar('Error deleting document', 'error');
             setIsDocManagerLoading(false);
+            throw error;
         }
     };
 

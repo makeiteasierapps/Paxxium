@@ -4,7 +4,8 @@ import { useHighlightManager } from '../hooks/knowledgeBase/useHighlightManager'
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useKbDocManager } from '../hooks/knowledgeBase/useKbDocManager';
 import { useExtractionManager } from '../hooks/knowledgeBase/useExtractionManager';
-
+import { AuthContext } from './AuthContext';
+import { useSnackbar } from './SnackbarContext';
 export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
@@ -12,6 +13,8 @@ export const KbProvider = ({ children }) => {
     const [editorContent, setEditorContent] = useState('');
     const [highlights, setHighlights] = useState([]);
     const [quill, setQuill] = useState(null);
+    const { uid } = useContext(AuthContext);
+    const { showSnackbar } = useSnackbar();
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
@@ -19,6 +22,8 @@ export const KbProvider = ({ children }) => {
 
     const kbDocManager = useKbDocManager(
         backendUrl,
+        uid,
+        showSnackbar,
         selectedKb,
         editorContent,
         highlights,
@@ -40,6 +45,8 @@ export const KbProvider = ({ children }) => {
 
     const extractionManager = useExtractionManager(
         backendUrl,
+        uid,
+        showSnackbar,
         kbDocManager.setKbDocs
     );
 
