@@ -55,6 +55,7 @@ export const useMessageManager = (
     };
 
     const sendMessage = async (input, chatSettings, image = null) => {
+        console.log(chatSettings);
         let imageUrl = null;
         if (image) {
             try {
@@ -94,10 +95,10 @@ export const useMessageManager = (
                 userId: uid,
                 chatId: chatSettings.chatId,
                 dbName: 'paxxium',
-                imageUrl: imageUrl,
-                chatSettings: chatSettings,
-                chatHistory: chatHistory,
-                userMessage: userMessage,
+                imageUrl,
+                chatSettings,
+                chatHistory,
+                userMessage,
                 saveToDb: true,
                 createVectorPipeline: false,
             });
@@ -153,7 +154,6 @@ export const useMessageManager = (
         if (data.type === 'end_of_stream') {
             console.log('end of stream');
         } else {
-            console.log('data', data);
             // Possible candiate for useReducer
             setMessages((prevMessages) => {
                 const newMessageParts = processIncomingStream(

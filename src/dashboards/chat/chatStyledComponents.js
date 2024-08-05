@@ -130,7 +130,7 @@ export const ChatContainerStyled = styled(Box)(({ theme }) => ({
     marginBottom: theme.spacing(3),
     width: '80%',
     minHeight: '90vh',
-    height: '87%',
+    maxHeight: '90vh',
     borderRadius: '7px',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
     // TODO: Fix for small screens
