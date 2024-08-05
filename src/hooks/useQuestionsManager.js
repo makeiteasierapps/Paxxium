@@ -1,7 +1,6 @@
-import { useCallback, useState, useEffect, useContext } from 'react';
-import { SnackbarContext } from '../contexts/SnackbarContext';
+import { useCallback, useState, useEffect } from 'react';
 
-export const useQuestionsManager = (backendUrl, uid) => {
+export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
     const [treeData, setTreeData] = useState({
         name: 'Root',
         children: [],
@@ -9,7 +8,6 @@ export const useQuestionsManager = (backendUrl, uid) => {
     });
     const [newCategory, setNewCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const { showSnackbar } = useContext(SnackbarContext);
     const [isQuestionsFormOpen, setIsQuestionsFormOpen] = useState(false);
     const [isGraphOpen, setIsGraphOpen] = useState(false);
 
@@ -81,6 +79,7 @@ export const useQuestionsManager = (backendUrl, uid) => {
         }
     };
 
+    // might move this to an automated backend process.
     const analyzeAnsweredQuestions = async () => {
         try {
             const response = await fetch(`${backendUrl}/profile/analyze`, {
@@ -98,15 +97,6 @@ export const useQuestionsManager = (backendUrl, uid) => {
 
             const data = await response.json();
             console.log(data);
-            // const cachedProfileData = localStorage.getItem('profileData');
-            // if (cachedProfileData) {
-            //     const profileData = JSON.parse(cachedProfileData);
-            //     profileData.analysis = data.analysis;
-            //     localStorage.setItem(
-            //         'profileData',
-            //         JSON.stringify(profileData)
-            //     ); // Save back to local storage
-            // }
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);
@@ -158,8 +148,7 @@ export const useQuestionsManager = (backendUrl, uid) => {
             const cachedQuestions =
                 JSON.parse(localStorage.getItem('questionsData')) || {};
             newQuestions.forEach((question) => {
-                // Add each question to the cached questions
-                cachedQuestions.children.push(question); // Assuming the structure allows this
+                cachedQuestions.children.push(question);
             });
             localStorage.setItem(
                 'questionsData',
@@ -178,42 +167,31 @@ export const useQuestionsManager = (backendUrl, uid) => {
 
     const getQuestions = useCallback(async () => {
         try {
+            let data;
             const cachedQuestions = localStorage.getItem('questionsData');
+
             if (cachedQuestions) {
-                const data = JSON.parse(cachedQuestions);
-                setTreeData((prevTreeData) => {
-                    const newTreeData = addCategoryToTree(prevTreeData, data);
-                    if (newTreeData.children.length > 0) {
-                        setIsQuestionsFormOpen(false);
-                        setIsGraphOpen(true);
-                    } else {
-                        setIsQuestionsFormOpen(true);
-                        setIsGraphOpen(false);
+                data = JSON.parse(cachedQuestions);
+            } else {
+                const response = await fetch(
+                    `${backendUrl}/profile/questions`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            uid: uid,
+                            dbName: process.env.REACT_APP_DB_NAME,
+                        },
                     }
-                    return newTreeData;
-                });
-                return;
+                );
+                data = await response.json();
+                localStorage.setItem('questionsData', JSON.stringify(data));
             }
-            const response = await fetch(`${backendUrl}/profile/questions`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-            });
-            const data = await response.json();
-            localStorage.setItem('questionsData', JSON.stringify(data));
+
             setTreeData((prevTreeData) => {
                 const newTreeData = addCategoryToTree(prevTreeData, data);
-                // Determine which component to show based on the new data
-                if (newTreeData.children.length > 0) {
-                    setIsQuestionsFormOpen(false);
-                    setIsGraphOpen(true);
-                } else {
-                    setIsQuestionsFormOpen(true);
-                    setIsGraphOpen(false);
-                }
+                setIsQuestionsFormOpen(newTreeData.children.length === 0);
+                setIsGraphOpen(newTreeData.children.length > 0);
                 return newTreeData;
             });
         } catch (error) {
@@ -223,7 +201,7 @@ export const useQuestionsManager = (backendUrl, uid) => {
             setIsLoading(false);
         }
     }, [addCategoryToTree, backendUrl, showSnackbar, uid]);
-
+   
     useEffect(() => {
         if (!uid) return;
         setIsLoading(true);
