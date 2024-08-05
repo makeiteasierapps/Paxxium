@@ -62,7 +62,9 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
                     'newsData',
                     JSON.stringify(updatedDisplayedNews)
                 );
-                return updatedDisplayedNews;
+                return readFilter
+                    ? updatedDisplayedNews.filter((news) => !news.is_read)
+                    : updatedDisplayedNews;
             });
         } catch (error) {
             console.error(error);
@@ -73,12 +75,7 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
     };
 
     const toggleReadFilter = () => {
-        const newReadFilter = !readFilter;
-        setReadFilter(newReadFilter);
-        const updatedDisplayedNews = newReadFilter
-            ? newsDataArray.filter((news) => !news.is_read)
-            : newsDataArray;
-        setNewsDataArray(updatedDisplayedNews);
+        setReadFilter((prevReadFilter) => !prevReadFilter);
     };
 
     const loadNewsData = useCallback(async () => {

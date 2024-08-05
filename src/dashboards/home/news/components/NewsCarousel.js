@@ -35,6 +35,7 @@ StyledButton.defaultProps = {
     disableRipple: true,
     variant: 'outlined',
 };
+
 const NewsCarousel = () => {
     const {
         newsDataArray,
@@ -48,7 +49,11 @@ const NewsCarousel = () => {
 
     const [query, setQuery] = useState('');
 
-    const newsSlides = newsDataArray.map((news, index) => ({
+    const filteredNewsArray = readFilter
+        ? newsDataArray.filter((news) => !news.is_read)
+        : newsDataArray;
+
+    const newsSlides = filteredNewsArray.map((news, index) => ({
         key: news._id,
         content: <NewsCard news={news} index={index} />,
     }));
@@ -100,7 +105,7 @@ const NewsCarousel = () => {
             <CarouselContainer id="carousel-container">
                 {isLoading ? (
                     <CustomGridLoader />
-                ) : newsDataArray.length > 0 ? (
+                ) : filteredNewsArray.length > 0 ? (
                     <Carousel
                         id="carousel"
                         slides={newsSlides}
