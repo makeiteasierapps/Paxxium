@@ -160,13 +160,13 @@ const App = () => {
                         <Router>
                             <NewsProvider>
                                 <ImageProvider>
-                                    <ChatProvider>
-                                        <ProfileProvider>
-                                            <KbProvider>
+                                    <KbProvider>
+                                        <ChatProvider>
+                                            <ProfileProvider>
                                                 <AuthenticatedApp />
-                                            </KbProvider>
-                                        </ProfileProvider>
-                                    </ChatProvider>
+                                            </ProfileProvider>
+                                        </ChatProvider>
+                                    </KbProvider>
                                 </ImageProvider>
                             </NewsProvider>
                         </Router>

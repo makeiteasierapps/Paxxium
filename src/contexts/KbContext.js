@@ -63,7 +63,7 @@ export const KbProvider = ({ children }) => {
                 highlightsManager,
                 highlights,
                 setHighlights,
-                kbManager,
+                ...kbManager,
                 ...kbDocManager,
                 ...extractionManager,
             }}

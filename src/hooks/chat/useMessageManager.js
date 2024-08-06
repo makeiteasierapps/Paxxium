@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useContext } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
-
 import { useImageProcessing } from './useImageProcessing';
+import { KbContext } from '../../contexts/KbContext';
 
 export const useMessageManager = (
     backendUrl,
@@ -15,7 +15,7 @@ export const useMessageManager = (
     const selectedChatId = useRef(null);
 
     const imageManager = useImageProcessing();
-
+    const { kbArray } = useContext(KbContext);
     // Used to add a new user message to the messages state
     const addMessage = (chatId, newMessage) => {
         setMessages((prevMessageParts) => {
@@ -54,8 +54,25 @@ export const useMessageManager = (
         return messages[chatId] || [];
     };
 
+    const extractKbName = (input) => {
+        const regex = /@([\w-]+)/;
+        const match = input.match(regex);
+        if (match) {
+            return match[1].replace(/-/g, ' ');
+        }
+        return null;
+    };
+
+    const getKbId = (kbName) => {
+        const kb = kbArray.find((kb) => kb.name === kbName);
+        return kb ? kb.id : null;
+    };
+
     const sendMessage = async (input, chatSettings, image = null) => {
         let imageUrl = null;
+        const kbName = extractKbName(input);
+        const kbId = getKbId(kbName);
+
         if (image) {
             try {
                 const resizedImageBlob =
@@ -99,7 +116,7 @@ export const useMessageManager = (
                 chatHistory,
                 userMessage,
                 saveToDb: true,
-                useKb: false,
+                kbId,
             });
         }
     };
@@ -148,49 +165,52 @@ export const useMessageManager = (
         }
     };
 
-    const handleStreamingResponse = useCallback(async (data) => {
-        selectedChatId.current = data.room;
-        if (data.type === 'end_of_stream') {
-            console.log('end of stream');
-        } else {
-            // Possible candiate for useReducer
-            setMessages((prevMessages) => {
-                const newMessageParts = processIncomingStream(
-                    prevMessages,
-                    selectedChatId.current,
-                    data
-                );
+    const handleStreamingResponse = useCallback(
+        async (data) => {
+            selectedChatId.current = data.room;
+            if (data.type === 'end_of_stream') {
+                console.log('end of stream');
+            } else {
+                // Possible candiate for useReducer
+                setMessages((prevMessages) => {
+                    const newMessageParts = processIncomingStream(
+                        prevMessages,
+                        selectedChatId.current,
+                        data
+                    );
 
-                let updatedChatArray;
+                    let updatedChatArray;
 
-                // Update chatArray state to reflect the new messages
-                setChatArray((prevChatArray) => {
-                    updatedChatArray = prevChatArray.map((chat) => {
-                        if (chat.chatId === selectedChatId.current) {
-                            return {
-                                ...chat,
-                                messages:
-                                    newMessageParts[selectedChatId.current],
-                            };
-                        }
-                        return chat;
+                    // Update chatArray state to reflect the new messages
+                    setChatArray((prevChatArray) => {
+                        updatedChatArray = prevChatArray.map((chat) => {
+                            if (chat.chatId === selectedChatId.current) {
+                                return {
+                                    ...chat,
+                                    messages:
+                                        newMessageParts[selectedChatId.current],
+                                };
+                            }
+                            return chat;
+                        });
+
+                        return updatedChatArray;
                     });
 
-                    return updatedChatArray;
+                    // Schedule localStorage update after state updates
+                    setTimeout(() => {
+                        localStorage.setItem(
+                            'chatArray',
+                            JSON.stringify(updatedChatArray)
+                        );
+                    }, 0);
+
+                    return newMessageParts;
                 });
-
-                // Schedule localStorage update after state updates
-                setTimeout(() => {
-                    localStorage.setItem(
-                        'chatArray',
-                        JSON.stringify(updatedChatArray)
-                    );
-                }, 0);
-
-                return newMessageParts;
-            });
-        }
-    }, [setChatArray, setMessages]);
+            }
+        },
+        [setChatArray, setMessages]
+    );
 
     useEffect(() => {
         if (!socket.current) return;
