@@ -55,7 +55,6 @@ export const useMessageManager = (
     };
 
     const sendMessage = async (input, chatSettings, image = null) => {
-        console.log(chatSettings);
         let imageUrl = null;
         if (image) {
             try {
@@ -100,7 +99,7 @@ export const useMessageManager = (
                 chatHistory,
                 userMessage,
                 saveToDb: true,
-                createVectorPipeline: false,
+                useKb: false,
             });
         }
     };

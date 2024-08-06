@@ -1,106 +1,45 @@
-import {
-    useContext,
-    useState,
-    useRef,
-    useCallback,
-    forwardRef,
-    useEffect,
-} from 'react';
-import { TextField, InputAdornment, Box, InputLabel } from '@mui/material';
-import Tooltip from '@mui/material/Tooltip';
-import SendIcon from '@mui/icons-material/Send';
-import AddBox from '@mui/icons-material/AddBox';
+import { useContext, useState } from 'react';
+import { Box } from '@mui/material';
+
 import ClearIcon from '@mui/icons-material/Clear';
 import { ChatContext } from '../../../contexts/ChatContext';
-import { InputArea, StyledIconButton } from '../chatStyledComponents';
-import { styled } from '@mui/material/styles';
+import {
+    InputArea,
+    ImageOverlay,
+    StyledBox,
+    StyledInputTextField,
+    StyledInputLabel,
+} from '../chatStyledComponents';
+
 import { useDropzone } from 'react-dropzone';
-
-const StyledInputTextField = styled(TextField)(({ theme }) => ({
-    '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-            border: 'none',
-        },
-        '&:hover fieldset': {
-            border: 'none',
-        },
-        '&.Mui-focused fieldset': {
-            border: 'none',
-        },
-    },
-}));
-
-const RefWrapper = forwardRef(({ isDragActive, ...other }, ref) => (
-    <Box ref={ref} {...other} />
-));
-
-const StyledBox = styled(RefWrapper)(({ theme, isDragActive }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    position: 'relative',
-    border: isDragActive
-        ? '2px solid green'
-        : `2px solid ${theme.palette.secondary.light}`,
-    borderRadius: theme.shape.borderRadius,
-}));
-
-const StyledInputLabel = styled(
-    ({ hasImage, isFocused, userMessage, ...other }) => (
-        <InputLabel {...other} />
-    )
-)(({ theme, hasImage, isFocused, userMessage }) => ({
-    position: 'absolute',
-    top: '50%',
-    left: hasImage ? '120px' : '12px',
-    visibility: isFocused || userMessage ? 'hidden' : 'visible',
-    transform: 'translateY(-50%)',
-    backgroundColor: theme.palette.background.paper,
-    paddingLeft: '5px',
-    paddingRight: '5px',
-}));
-
-const ImageOverlay = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    display: 'flex',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: theme.palette.common.white,
-    cursor: 'pointer',
-    visibility: 'hidden',
-    '&:hover': {
-        visibility: 'visible',
-    },
-}));
+import MentionMenu from './MentionMenu';
+import { useImageHandling } from '../../../hooks/chat/useImageHandling';
+import { useMentionHandling } from '../../../hooks/chat/useMentionHandling';
+import EndAdornment from './EndAdornment';
 
 const MessageInput = ({ chatSettings }) => {
     const { sendMessage } = useContext(ChatContext);
-    const [input, setInput] = useState('');
-    const [image, setImage] = useState(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+
+    const {
+        image,
+        imagePreviewUrl,
+        showOverlay,
+        handleFileInput,
+        onDrop,
+        removeImage,
+        setShowOverlay,
+    } = useImageHandling();
+
+    const {
+        input,
+        setInput,
+        mentionAnchorEl,
+        mentionOptions,
+        handleInputChange,
+        handleMentionSelect,
+    } = useMentionHandling();
+
     const [isFocused, setIsFocused] = useState(false);
-    const [showOverlay, setShowOverlay] = useState(false);
-    const inputRef = useRef();
-
-    useEffect(() => {
-        if (image) {
-            const url = URL.createObjectURL(image);
-            setImagePreviewUrl(url);
-            return () => URL.revokeObjectURL(url);
-        }
-    }, [image]);
-
-    const handleFileInput = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setImage(file);
-        }
-    };
-
-    const onDrop = useCallback((acceptedFiles) => {
-        setImage(acceptedFiles[0]);
-    }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -109,11 +48,6 @@ const MessageInput = ({ chatSettings }) => {
             'image/*': ['.png', '.gif', '.jpeg', '.jpg'],
         },
     });
-
-    const removeImage = () => {
-        setImage(null);
-        setImagePreviewUrl(null);
-    };
 
     return (
         <InputArea>
@@ -154,7 +88,7 @@ const MessageInput = ({ chatSettings }) => {
                     fullWidth
                     multiline
                     value={input}
-                    onChange={(event) => setInput(event.target.value)}
+                    onChange={handleInputChange}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     onKeyDown={(event) => {
@@ -171,49 +105,22 @@ const MessageInput = ({ chatSettings }) => {
                     }}
                     InputProps={{
                         endAdornment: (
-                            <>
-                                <Tooltip title="add image" placement="top">
-                                    <InputAdornment position="end">
-                                        <StyledIconButton
-                                            disableRipple
-                                            aria-label="add image"
-                                            onClick={() =>
-                                                inputRef.current.click()
-                                            }
-                                        >
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                style={{ display: 'none' }}
-                                                ref={inputRef}
-                                                onChange={handleFileInput}
-                                            />
-                                            <AddBox />
-                                        </StyledIconButton>
-                                    </InputAdornment>
-                                </Tooltip>
-
-                                <InputAdornment position="end">
-                                    <StyledIconButton
-                                        disabled={!input}
-                                        disableRipple
-                                        aria-label="send message"
-                                        onClick={() => {
-                                            sendMessage(
-                                                input,
-                                                chatSettings,
-                                                image
-                                            );
-                                            setInput('');
-                                            removeImage();
-                                        }}
-                                    >
-                                        <SendIcon />
-                                    </StyledIconButton>
-                                </InputAdornment>
-                            </>
+                            <EndAdornment
+                                sendMessage={sendMessage}
+                                chatSettings={chatSettings}
+                                input={input}
+                                setInput={setInput}
+                                image={image}
+                                removeImage={removeImage}
+                                handleFileInput={handleFileInput}
+                            />
                         ),
                     }}
+                />
+                <MentionMenu
+                    anchorEl={mentionAnchorEl}
+                    options={mentionOptions}
+                    onSelect={handleMentionSelect}
                 />
             </StyledBox>
         </InputArea>

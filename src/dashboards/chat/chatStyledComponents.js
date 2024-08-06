@@ -1,4 +1,5 @@
 import { styled } from '@mui/system';
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import {
     Box,
@@ -7,6 +8,7 @@ import {
     Button,
     IconButton,
     TextField,
+    InputLabel,
 } from '@mui/material';
 import Markdown from 'react-markdown';
 
@@ -233,3 +235,63 @@ export const InputArea = styled(Box)({
     alignItems: 'center',
     justifyContent: 'space-between',
 });
+
+
+// MessageInput
+export const StyledInputTextField = styled(TextField)(({ theme }) => ({
+    '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+            border: 'none',
+        },
+        '&:hover fieldset': {
+            border: 'none',
+        },
+        '&.Mui-focused fieldset': {
+            border: 'none',
+        },
+    },
+}));
+
+const RefWrapper = forwardRef(({ isDragActive, ...other }, ref) => (
+    <Box ref={ref} {...other} />
+));
+
+export const StyledBox = styled(RefWrapper)(({ theme, isDragActive }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    position: 'relative',
+    border: isDragActive
+        ? '2px solid green'
+        : `2px solid ${theme.palette.secondary.light}`,
+    borderRadius: theme.shape.borderRadius,
+}));
+
+export const StyledInputLabel = styled(
+    ({ hasImage, isFocused, userMessage, ...other }) => (
+        <InputLabel {...other} />
+    )
+)(({ theme, hasImage, isFocused, userMessage }) => ({
+    position: 'absolute',
+    top: '50%',
+    left: hasImage ? '120px' : '12px',
+    visibility: isFocused || userMessage ? 'hidden' : 'visible',
+    transform: 'translateY(-50%)',
+    backgroundColor: theme.palette.background.paper,
+    paddingLeft: '5px',
+    paddingRight: '5px',
+}));
+
+export const ImageOverlay = styled(Box)(({ theme }) => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    display: 'flex',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    color: theme.palette.common.white,
+    cursor: 'pointer',
+    visibility: 'hidden',
+    '&:hover': {
+        visibility: 'visible',
+    },
+}));
