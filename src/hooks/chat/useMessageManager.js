@@ -2,20 +2,21 @@ import { useCallback, useEffect, useRef, useContext } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
 import { useImageProcessing } from './useImageProcessing';
 import { KbContext } from '../../contexts/KbContext';
-
-export const useMessageManager = (
+export const useMessageManager = ({
     backendUrl,
     uid,
     showSnackbar,
     setChatArray,
     setMessages,
     messages,
-    socket
-) => {
+    socket,
+    detectedUrls,
+}) => {
     const selectedChatId = useRef(null);
 
     const imageManager = useImageProcessing();
     const { kbArray } = useContext(KbContext);
+    console.log('detectedUrls', detectedUrls);
     // Used to add a new user message to the messages state
     const addMessage = (chatId, newMessage) => {
         setMessages((prevMessageParts) => {
@@ -117,6 +118,7 @@ export const useMessageManager = (
                 userMessage,
                 saveToDb: true,
                 kbId,
+                urls: detectedUrls,
             });
         }
     };

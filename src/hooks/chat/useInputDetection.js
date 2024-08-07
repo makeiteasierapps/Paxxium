@@ -1,11 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { KbContext } from '../../contexts/KbContext';
 
-export const useMentionHandling = () => {
+export const useInputDetection = () => {
     const [input, setInput] = useState('');
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
     const [mentionOptions, setMentionOptions] = useState([]);
-    const [mentionSearch, setMentionSearch] = useState('');
+    const [isWebsiteDetected, setIsWebsiteDetected] = useState(false);
+    const [detectedUrls, setDetectedUrls] = useState([]);
+
     const { kbArray } = useContext(KbContext);
 
     const handleInputChange = (event) => {
@@ -13,13 +15,17 @@ export const useMentionHandling = () => {
         setInput(newValue);
 
         const lastAtIndex = newValue.lastIndexOf('@');
+        const words = newValue.split(/\s+/);
+        const newDetectedUrls = words.filter(isValidUrl);
+        setDetectedUrls(newDetectedUrls);
+        setIsWebsiteDetected(newDetectedUrls.length > 0);
+
+        // Handle mention detection
         if (lastAtIndex !== -1 && lastAtIndex === newValue.length - 1) {
             setMentionAnchorEl(event.currentTarget);
-            setMentionSearch('');
             setMentionOptions(kbArray.map((kb) => kb.name));
         } else if (lastAtIndex !== -1) {
             const searchTerm = newValue.slice(lastAtIndex + 1);
-            setMentionSearch(searchTerm);
             setMentionOptions(
                 kbArray
                     .filter((kb) =>
@@ -41,11 +47,22 @@ export const useMentionHandling = () => {
         setMentionAnchorEl(null);
     };
 
+    const isValidUrl = (string) => {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    };
+
     return {
         input,
         setInput,
         mentionAnchorEl,
         mentionOptions,
+        isWebsiteDetected,
+        detectedUrls,
         handleInputChange,
         handleMentionSelect,
     };

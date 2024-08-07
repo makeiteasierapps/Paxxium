@@ -14,11 +14,19 @@ import {
 import { useDropzone } from 'react-dropzone';
 import MentionMenu from './MentionMenu';
 import { useImageHandling } from '../../../hooks/chat/useImageHandling';
-import { useMentionHandling } from '../../../hooks/chat/useMentionHandling';
+import { useInputDetection } from '../../../hooks/chat/useInputDetection';
 import EndAdornment from './EndAdornment';
 
 const MessageInput = ({ chatSettings }) => {
-    const { sendMessage } = useContext(ChatContext);
+    const {
+        sendMessage,
+        input,
+        setInput,
+        mentionAnchorEl,
+        mentionOptions,
+        handleInputChange,
+        handleMentionSelect,
+    } = useContext(ChatContext);
 
     const {
         image,
@@ -30,14 +38,7 @@ const MessageInput = ({ chatSettings }) => {
         setShowOverlay,
     } = useImageHandling();
 
-    const {
-        input,
-        setInput,
-        mentionAnchorEl,
-        mentionOptions,
-        handleInputChange,
-        handleMentionSelect,
-    } = useMentionHandling();
+    const {} = useInputDetection();
 
     const [isFocused, setIsFocused] = useState(false);
 

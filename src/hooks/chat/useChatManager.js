@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from 'react';
 
-export const useChatManager = (
+export const useChatManager = ({
     backendUrl,
     uid,
     showSnackbar,
     setChatArray,
     setMessages,
-    setLoading
-) => {
+    setLoading,
+}) => {
     const fetchChatsFromDB = useCallback(async () => {
         try {
             const response = await fetch(`${backendUrl}/chat`, {
@@ -80,7 +80,7 @@ export const useChatManager = (
         chatName
     ) => {
         try {
-            console.log(agentModel)
+            console.log(agentModel);
             const response = await fetch(`${backendUrl}/chat`, {
                 method: 'POST',
                 headers: {
@@ -100,7 +100,7 @@ export const useChatManager = (
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
-            console.log(data)
+            console.log(data);
             if (!response.ok) {
                 const errorBody = await response.text();
                 throw new Error(

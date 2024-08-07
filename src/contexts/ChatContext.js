@@ -4,6 +4,7 @@ import { useChatManager } from '../hooks/chat/useChatManager';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
 import { useChatSettings } from '../hooks/chat/useChatSettings';
 import { useSocketConnection } from '../hooks/useSocketConnection';
+import { useInputDetection } from '../hooks/chat/useInputDetection';
 import { useSnackbar } from './SnackbarContext';
 
 export const ChatContext = createContext();
@@ -20,13 +21,32 @@ export const ChatProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
+    const { socket, joinRoom } = useSocketConnection();
 
-    const {socket, joinRoom} = useSocketConnection();
+    const commonParams = {
+        backendUrl,
+        uid,
+        showSnackbar,
+        setChatArray,
+        setMessages,
+    };
 
-    const chatManager = useChatManager(backendUrl, uid, showSnackbar, setChatArray, setMessages, setLoading);
-    const messageManager = useMessageManager(backendUrl, uid, showSnackbar, setChatArray, setMessages, messages, socket);
-    const chatSettings = useChatSettings(backendUrl, showSnackbar, setChatArray);
-    
+    const inputDetection = useInputDetection();
+    const chatManager = useChatManager({ ...commonParams, setLoading });
+
+    const messageManager = useMessageManager({
+        ...commonParams,
+        messages,
+        socket,
+        detectedUrls: inputDetection.detectedUrls,
+    });
+
+    const chatSettings = useChatSettings(
+        backendUrl,
+        showSnackbar,
+        setChatArray
+    );
+
     return (
         <ChatContext.Provider
             value={{
@@ -39,6 +59,7 @@ export const ChatProvider = ({ children }) => {
                 ...chatManager,
                 ...messageManager,
                 ...chatSettings,
+                ...inputDetection,
             }}
         >
             {children}
