@@ -16,7 +16,6 @@ export const useMessageManager = ({
 
     const imageManager = useImageProcessing();
     const { kbArray } = useContext(KbContext);
-    console.log('detectedUrls', detectedUrls);
     // Used to add a new user message to the messages state
     const addMessage = (chatId, newMessage) => {
         setMessages((prevMessageParts) => {

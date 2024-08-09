@@ -225,10 +225,10 @@ const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
                         }}
                     >
                         <MenuItem
-                            value={'gpt-3.5'}
+                            value={'gpt-4o-mini'}
                             onClick={handleClose('model')}
                         >
-                            GPT-3.5
+                            GPT-4o-mini
                         </MenuItem>
                         <MenuItem
                             value={'gpt-4o'}
@@ -237,10 +237,10 @@ const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
                             GPT-4o
                         </MenuItem>
                         <MenuItem
-                            value={'gpt-4-turbo'}
+                            value={'claude-3-5-sonnet'}
                             onClick={handleClose('model')}
                         >
-                            GPT-4-turbo
+                            Claude 3.5 Sonnet
                         </MenuItem>
                     </Menu>
                 </Grid>

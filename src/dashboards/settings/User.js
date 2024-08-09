@@ -220,13 +220,13 @@ const User = () => {
                 </Box>
                 <ProfileTextField
                     size="small"
-                    label="Update Serpapi Key"
+                    label="Update Anthropic Key"
                     type="password"
                     variant="outlined"
                     onChange={(e) =>
                         setProfileData({
                             ...profileData,
-                            serp_key: e.target.value,
+                            anthropic_key: e.target.value,
                         })
                     }
                 />
