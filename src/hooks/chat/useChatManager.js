@@ -26,7 +26,6 @@ export const useChatManager = ({
             }
 
             const data = await response.json();
-
             setChatArray(data);
 
             setMessages((prevMessages) => {

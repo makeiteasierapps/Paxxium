@@ -237,7 +237,7 @@ const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
                             GPT-4o
                         </MenuItem>
                         <MenuItem
-                            value={'claude-3-5-sonnet'}
+                            value={'claude-3-5-sonnet-20240620'}
                             onClick={handleClose('model')}
                         >
                             Claude 3.5 Sonnet

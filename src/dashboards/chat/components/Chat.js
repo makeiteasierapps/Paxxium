@@ -26,7 +26,6 @@ const Chat = ({ agent, setIsChatOpen = null }) => {
         node.scroll(0, node.scrollHeight);
     }, [messages]);
 
-
     return (
         <ChatContainerStyled>
             <ChatBar
