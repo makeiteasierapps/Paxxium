@@ -5,7 +5,7 @@ import { PlaylistAdd } from '@mui/icons-material/';
 
 export default function KbSpeedDial() {
     const {
-        kbManager: { setIsNewKbOpen },
+        setIsNewKbOpen,
     } = useContext(KbContext);
     return (
         <Box

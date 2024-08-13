@@ -8,7 +8,7 @@ import { KbContext } from '../../../contexts/KbContext';
 const KbCard = ({ kb, onSelect }) => {
     const theme = useTheme();
     const {
-        kbManager: { deleteKnowledgeBase },
+       deleteKnowledgeBase,
     } = useContext(KbContext);
     
     const handleDeleteKnowledgeBase = () => {

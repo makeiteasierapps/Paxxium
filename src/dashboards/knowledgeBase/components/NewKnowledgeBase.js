@@ -10,13 +10,8 @@ import {
 import { KbContext } from '../../../contexts/KbContext';
 
 const NewKnowledgeBase = () => {
-    const {
-        kbManager: {
-            createKnowledgeBase,
-            isNewKbOpen,
-            setIsNewKbOpen,
-        },
-    } = useContext(KbContext);
+    const { createKnowledgeBase, isNewKbOpen, setIsNewKbOpen } =
+        useContext(KbContext);
     const [name, setName] = useState('');
     const [objective, setObjective] = useState('');
 
@@ -61,10 +56,7 @@ const NewKnowledgeBase = () => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button
-                    onClick={() => setIsNewKbOpen(false)}
-                    color="primary"
-                >
+                <Button onClick={() => setIsNewKbOpen(false)} color="primary">
                     Cancel
                 </Button>
                 <Button

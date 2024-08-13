@@ -9,7 +9,8 @@ import { useTheme } from '@mui/material/styles';
 
 const KbDash = () => {
     const {
-        kbManager: { kbArray, isNewKbOpen },
+        kbArray,
+        isNewKbOpen,
         selectedKb,
         setSelectedKb,
     } = useContext(KbContext);
