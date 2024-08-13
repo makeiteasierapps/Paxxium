@@ -13,6 +13,7 @@ export const ChatProvider = ({ children }) => {
     const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);
+    const [selectedChat, setSelectedChat] = useState(null);
     const [messages, setMessages] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -53,6 +54,8 @@ export const ChatProvider = ({ children }) => {
                 loading,
                 setLoading,
                 chatArray,
+                selectedChat,
+                setSelectedChat,
                 messages,
                 socket,
                 joinRoom,

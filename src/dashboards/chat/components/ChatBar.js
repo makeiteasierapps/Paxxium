@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
 import { Typography, Box } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
@@ -11,17 +10,10 @@ import {
     Bar,
     ClearAndTrashIcons,
     StyledIconButton,
-    CloseIconButton,
 } from '../chatStyledComponents';
 
-const ChatBar = ({
-    chatName,
-    chatId,
-    isSettingsOpen,
-    setIsSettingsOpen,
-    setIsChatOpen,
-}) => {
-    const { closeChat, clearChat, deleteChat } = useContext(ChatContext);
+const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
+    const { clearChat, deleteChat } = useContext(ChatContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
 
     const handleDeleteClick = () => {
@@ -37,24 +29,10 @@ const ChatBar = ({
 
     return (
         <Bar>
-            <Box display="flex" justifyContent="flex-start" width="33%">
-                <CloseIconButton
-                    disableRipple
-                    aria-label="close"
-                    onClick={() => {
-                        if (setIsChatOpen) {
-                            setIsChatOpen(false);
-                        }
-                        closeChat(chatId);
-                    }}
-                >
-                    <CloseIcon sx={{ fontSize: '1.1rem' }} />
-                </CloseIconButton>
-            </Box>
-            <Box display="flex" justifyContent="center" width="33%">
+            <Box display="flex" justifyContent="flex-start">
                 <Typography variant="h6">{chatName}</Typography>
             </Box>
-            <Box display="flex" justifyContent="flex-end" width="33%">
+            <Box display="flex" justifyContent="flex-end">
                 <ClearAndTrashIcons>
                     <Tooltip title={'Settings'} placement="top">
                         <StyledIconButton

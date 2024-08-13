@@ -1,14 +1,13 @@
 import { memo, useContext } from 'react';
 import Chat from './components/Chat';
-import ChatSettings from './components/ChatSettings';
 import { ChatContext } from '../../contexts/ChatContext';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { MainContainer } from '../styledComponents/DashStyledComponents';
 
 import { CustomGridLoader } from '../main/customLoaders';
 
 const ChatDash = () => {
-    const { chatArray, loading } = useContext(ChatContext);
+    const { loading, selectedChat } = useContext(ChatContext);
 
     return (
         <MainContainer id="chat-dash-main-container">
@@ -16,18 +15,12 @@ const ChatDash = () => {
                 <Box marginTop={30}>
                     <CustomGridLoader />
                 </Box>
+            ) : selectedChat ? (
+                <Chat agent={selectedChat} />
             ) : (
-                <>
-                    {chatArray.filter((agent) => agent.is_open).length > 0 ? (
-                        chatArray
-                            .filter((agent) => agent.is_open)
-                            .map((agent) => (
-                                <Chat key={agent.chatId} agent={agent} />
-                            ))
-                    ) : (
-                        <ChatSettings />
-                    )}
-                </>
+                <Box>
+                    <Typography>No chat selected</Typography>
+                </Box>
             )}
         </MainContainer>
     );

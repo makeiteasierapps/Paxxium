@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     Box,
     Drawer,
@@ -17,6 +17,8 @@ import {
     Logout as LogoutIcon,
     ExpandLess,
     ExpandMore,
+    Chat as ChatIcon,
+    Collections as CollectionsIcon,
 } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
@@ -24,9 +26,9 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import paxxiumLogo from '../../assets/images/paxxium-logo.png';
 import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
 import { signOut } from 'firebase/auth';
-import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext, auth } from '../../contexts/AuthContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import { HeaderIconButton } from './mainStyledComponents';
 
 const SideDrawer = ({
@@ -38,10 +40,12 @@ const SideDrawer = ({
     expandedDrawerWidth,
 }) => {
     const location = useLocation();
-    const [popOverAnchor, setPopOverAnchor] = useState(null);
-    const [agentsOpen, setAgentsOpen] = useState(false);
+    const [chatsOpen, setChatsOpen] = useState(false);
+    const [chatPopoverAnchor, setChatPopoverAnchor] = useState(null);
     const navigate = useNavigate();
+    const { chatArray, setSelectedChat } = useContext(ChatContext);
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
+
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -63,6 +67,22 @@ const SideDrawer = ({
         ) : (
             children
         );
+    };
+
+    const renderChats = () => {
+        return chatArray.map((agent) => (
+            <MenuItem
+                key={agent.chatId}
+                component={Link}
+                to={'/chat'}
+                onClick={() => {
+                    console.log(agent);
+                    setSelectedChat(agent);
+                }}
+            >
+                {agent.chat_name}
+            </MenuItem>
+        ));
     };
 
     const homeButton = (
@@ -102,7 +122,10 @@ const SideDrawer = ({
     );
 
     const KbButton = (
-        <ConditionalTooltip title="Knowledge Base" condition={!isDrawerExpanded}>
+        <ConditionalTooltip
+            title="Knowledge Base"
+            condition={!isDrawerExpanded}
+        >
             <HeaderIconButton
                 disableRipple
                 component={Link}
@@ -118,6 +141,7 @@ const SideDrawer = ({
             </HeaderIconButton>
         </ConditionalTooltip>
     );
+
     const settingsButton = (
         <ConditionalTooltip title="Settings" condition={!isDrawerExpanded}>
             <HeaderIconButton
@@ -153,23 +177,67 @@ const SideDrawer = ({
         </ConditionalTooltip>
     );
 
-    const AgentMenuItems = () => (
-        <>
-            <MenuItem
-                onClick={() => setPopOverAnchor(null)}
-                component={Link}
-                to="/agents"
+    const chatsButton = (
+        <ConditionalTooltip title="Chats" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                onClick={(event) => {
+                    if (isDrawerExpanded) {
+                        setChatsOpen(!chatsOpen);
+                    } else {
+                        setChatPopoverAnchor(event.currentTarget);
+                    }
+                }}
+                currentPath={location.pathname}
             >
-                Chat
-            </MenuItem>
-            <MenuItem
-                onClick={() => setPopOverAnchor(null)}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <ChatIcon sx={{ fontSize: '2rem' }} />
+                        {isDrawerExpanded && (
+                            <Typography paddingLeft={1}>Chats</Typography>
+                        )}
+                    </Box>
+                    {isDrawerExpanded &&
+                        (chatsOpen ? <ExpandLess /> : <ExpandMore />)}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+
+    const imageGalleryButton = (
+        <ConditionalTooltip title="Image Gallery" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
                 component={Link}
                 to="/dalle"
+                currentPath={location.pathname}
             >
-                Image
-            </MenuItem>
-        </>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        width: '100%',
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <CollectionsIcon sx={{ fontSize: '2rem' }} />
+                        {isDrawerExpanded && (
+                            <Typography paddingLeft={1}>
+                                Image Gallery
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
     );
 
     const drawer = (
@@ -177,7 +245,6 @@ const SideDrawer = ({
             sx={{
                 display: 'flex',
                 p: '5px',
-
                 width: {
                     sm: isDrawerExpanded ? expandedDrawerWidth : drawerWidth,
                 },
@@ -235,96 +302,27 @@ const SideDrawer = ({
                 )}
 
                 {/* Menu Items */}
-
                 {homeButton}
 
-                {!isDrawerExpanded ? (
-                    <>
-                        <Tooltip title="Agents" placement="right">
-                            <HeaderIconButton
-                                disableRipple
-                                onClick={(event) => {
-                                    setPopOverAnchor(event.currentTarget);
-                                }}
-                                currentPath={location.pathname}
-                                to="/agents"
-                            >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'flex-end',
-                                        justifyContent: 'space-between',
-                                    }}
-                                >
-                                    <AgentsIcon sx={{ fontSize: '2rem' }} />
-                                    {isDrawerExpanded && (
-                                        <Typography
-                                            paddingLeft={1}
-                                            paddingRight={1}
-                                        >
-                                            Agents
-                                        </Typography>
-                                    )}
-                                    {isDrawerExpanded &&
-                                        (agentsOpen ? (
-                                            <ExpandLess />
-                                        ) : (
-                                            <ExpandMore />
-                                        ))}
-                                </Box>
-                            </HeaderIconButton>
-                        </Tooltip>
-                        <Popover
-                            open={Boolean(popOverAnchor)}
-                            anchorEl={popOverAnchor}
-                            onClick={() => setPopOverAnchor(null)}
-                        >
-                            <AgentMenuItems />
-                        </Popover>
-                    </>
-                ) : (
-                    <>
-                        <HeaderIconButton
-                            disableRipple
-                            onClick={(event) => {
-                                setAgentsOpen(!agentsOpen);
-                            }}
-                            currentPath={location.pathname}
-                            to="/agents"
-                        >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'flex-end',
-                                    justifyContent: 'space-between',
-                                }}
-                            >
-                                <AgentsIcon sx={{ fontSize: '2rem' }} />
-                                {isDrawerExpanded && (
-                                    <Typography
-                                        paddingLeft={1}
-                                        paddingRight={1}
-                                    >
-                                        Agents
-                                    </Typography>
-                                )}
-                                {isDrawerExpanded &&
-                                    (agentsOpen ? (
-                                        <ExpandLess />
-                                    ) : (
-                                        <ExpandMore />
-                                    ))}
-                            </Box>
-                        </HeaderIconButton>
-                        <Collapse in={agentsOpen}>
-                            <AgentMenuItems />
-                        </Collapse>
-                    </>
-                )}
+                {imageGalleryButton}
 
                 {profileButton}
                 {KbButton}
                 {settingsButton}
+                {chatsButton}
+                {isDrawerExpanded && (
+                    <Collapse in={chatsOpen} timeout="auto" unmountOnExit>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: '100%',
+                            }}
+                        >
+                            {renderChats()}
+                        </Box>
+                    </Collapse>
+                )}
                 {logoutButton}
             </Box>
         </Box>
@@ -395,6 +393,24 @@ const SideDrawer = ({
                     </HeaderIconButton>
                 </Box>
             </Drawer>
+            <Popover
+                open={Boolean(chatPopoverAnchor)}
+                anchorEl={chatPopoverAnchor}
+                onClose={() => setChatPopoverAnchor(null)}
+                anchorOrigin={{
+                    vertical: 'center',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'center',
+                    horizontal: 'left',
+                }}
+            >
+                <Box sx={{ p: 2, maxWidth: 250 }}>
+                    <Typography variant="h6">Chats</Typography>
+                    {renderChats()}
+                </Box>
+            </Popover>
         </>
     );
 };

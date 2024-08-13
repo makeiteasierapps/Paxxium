@@ -12,7 +12,7 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = ({ agent, setIsChatOpen = null }) => {
+const Chat = ({ agent }) => {
     const nodeRef = useRef(null);
     const { messages, joinRoom } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -27,44 +27,45 @@ const Chat = ({ agent, setIsChatOpen = null }) => {
     }, [messages]);
 
     return (
-        <ChatContainerStyled>
+        <>
             <ChatBar
                 chatName={agent.chat_name}
                 chatId={agent.chatId}
                 isSettingsOpen={isSettingsOpen}
                 setIsSettingsOpen={setIsSettingsOpen}
-                setIsChatOpen={setIsChatOpen}
             />
-            <MessagesContainer xs={9} id="messages-container">
-                <MessageArea ref={nodeRef}>
-                    {messages[agent.chatId]?.map((message, index) => {
-                        if (message.message_from === 'user') {
+            <ChatContainerStyled>
+                <MessagesContainer xs={9} id="messages-container">
+                    <MessageArea ref={nodeRef}>
+                        {messages[agent.chatId]?.map((message, index) => {
+                            if (message.message_from === 'user') {
+                                return (
+                                    <UserMessage
+                                        key={`user${index}`}
+                                        message={message}
+                                    />
+                                );
+                            }
                             return (
-                                <UserMessage
-                                    key={`user${index}`}
+                                <AgentMessage
+                                    key={`stream${index}`}
                                     message={message}
                                 />
                             );
-                        }
-                        return (
-                            <AgentMessage
-                                key={`stream${index}`}
-                                message={message}
-                            />
-                        );
-                    })}
-                </MessageArea>
-                <MessageInput chatSettings={agent} />
-            </MessagesContainer>
-            <AnimatePresence>
-                {isSettingsOpen ? (
-                    <ChatSettings
-                        agent={agent}
-                        setIsSettingsOpen={setIsSettingsOpen}
-                    />
-                ) : null}
-            </AnimatePresence>
-        </ChatContainerStyled>
+                        })}
+                    </MessageArea>
+                    <MessageInput chatSettings={agent} />
+                </MessagesContainer>
+                <AnimatePresence>
+                    {isSettingsOpen ? (
+                        <ChatSettings
+                            agent={agent}
+                            setIsSettingsOpen={setIsSettingsOpen}
+                        />
+                    ) : null}
+                </AnimatePresence>
+            </ChatContainerStyled>
+        </>
     );
 };
 

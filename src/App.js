@@ -112,7 +112,7 @@ const AuthenticatedApp = () => {
                         component="main"
                         sx={{
                             flexGrow: 1,
-                            p: 3,
+                            p: 1,
                             ml: {
                                 sm: isDrawerExpanded
                                     ? `${expandedDrawerWidth}px`
@@ -128,7 +128,7 @@ const AuthenticatedApp = () => {
                                     key={i}
                                 />
                             ))}
-                            <Route path="/agents" element={<ChatDash />} />
+                            <Route path="/chat" element={<ChatDash />} />
                             <Route path="/dalle" element={<ImageDash />} />
                             <Route path="/profile" element={<ProfileDash />} />
                             <Route path="/kb" element={<KbDash />} />
