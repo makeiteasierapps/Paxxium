@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 
 export const useSocketConnection = () => {
@@ -9,41 +9,39 @@ export const useSocketConnection = () => {
 
     const socket = useRef(null);
 
-    useEffect(() => {
-        console.log('Attempting to connect to:', wsBackendUrl);
-        socket.current = io(wsBackendUrl);
+    const connect = useCallback(() => {
+        if (!socket.current) {
+            console.log('Attempting to connect to:', wsBackendUrl);
+            socket.current = io(wsBackendUrl);
 
-        socket.current.on('connect', () => {
-            console.log('Connected to WebSocket server');
-        });
+            socket.current.on('connect', () => {
+                console.log('Connected to WebSocket server');
+            });
 
-        socket.current.on('disconnect', (reason) => {
-            console.log('Disconnected from WebSocket server:', reason);
-        });
+            socket.current.on('disconnect', (reason) => {
+                console.log('Disconnected from WebSocket server:', reason);
+            });
 
-        socket.current.on('connect_error', (error) => {
-            console.error('Connect error:', error);
-            console.error('Error name:', error.name);
-            console.error('Error message:', error.message);
-            console.error('Error description:', error.description);
-        });
+            socket.current.on('connect_error', (error) => {
+                console.error('Connect error:', error);
+                console.error('Error name:', error.name);
+                console.error('Error message:', error.message);
+                console.error('Error description:', error.description);
+            });
 
-        socket.current.on('error', (error) => {
-            console.error('Socket error:', error);
-        });
-
-        return () => {
-            if (socket.current) {
-                socket.current.disconnect();
-            }
-        };
+            socket.current.on('error', (error) => {
+                console.error('Socket error:', error);
+            });
+        }
     }, [wsBackendUrl]);
 
-    const joinRoom = useCallback((chatId) => {
+    const disconnect = useCallback(() => {
         if (socket.current) {
-            socket.current.emit('join_room', { chatId });
+            socket.current.disconnect();
+            socket.current = null;
+            console.log('Disconnected from WebSocket server');
         }
     }, []);
 
-    return { socket, joinRoom };
+    return { socket, connect, disconnect };
 };

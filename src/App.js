@@ -26,6 +26,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
+import { useSocketConnection } from './hooks/useSocketConnection';
 
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
@@ -37,6 +38,17 @@ const AuthenticatedApp = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isDrawerExpanded, setDrawerExpanded] = useState(false);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
+
+    const { socket, connect, disconnect } = useSocketConnection();
+
+    // Connect or disconnect based on authorization status
+    useEffect(() => {
+        if (isAuthorized) {
+            connect();
+        } else {
+            disconnect();
+        }
+    }, [isAuthorized, connect, disconnect]);
 
     // Check local storage for persisted authorization state on component mount
     useEffect(() => {
@@ -95,49 +107,54 @@ const AuthenticatedApp = () => {
         <>
             {isAuthorized && (
                 <>
-                    <SideDrawer
-                        mobileOpen={mobileOpen}
-                        setMobileOpen={setMobileOpen}
-                        drawerWidth={drawerWidth}
-                        handleDrawerExpand={handleDrawerExpand}
-                        isDrawerExpanded={isDrawerExpanded}
-                        setDrawerExpanded={setDrawerExpanded}
-                        expandedDrawerWidth={expandedDrawerWidth}
-                    />
-                    <Header
-                        setMobileOpen={setMobileOpen}
-                        setDrawerExpanded={setDrawerExpanded}
-                    />
-                    <Box
-                        component="main"
-                        sx={{
-                            flexGrow: 1,
-                            p: 1,
-                            ml: {
-                                sm: isDrawerExpanded
-                                    ? `${expandedDrawerWidth}px`
-                                    : `${drawerWidth}px`,
-                            },
-                        }}
-                    >
-                        <Routes>
-                            {['/', '/home'].map((path, i) => (
+                    <ChatProvider socket={isAuthorized ? socket : null}>
+                        <SideDrawer
+                            mobileOpen={mobileOpen}
+                            setMobileOpen={setMobileOpen}
+                            drawerWidth={drawerWidth}
+                            handleDrawerExpand={handleDrawerExpand}
+                            isDrawerExpanded={isDrawerExpanded}
+                            setDrawerExpanded={setDrawerExpanded}
+                            expandedDrawerWidth={expandedDrawerWidth}
+                        />
+                        <Header
+                            setMobileOpen={setMobileOpen}
+                            setDrawerExpanded={setDrawerExpanded}
+                        />
+                        <Box
+                            component="main"
+                            sx={{
+                                flexGrow: 1,
+                                p: 1,
+                                ml: {
+                                    sm: isDrawerExpanded
+                                        ? `${expandedDrawerWidth}px`
+                                        : `${drawerWidth}px`,
+                                },
+                            }}
+                        >
+                            <Routes>
+                                {['/', '/home'].map((path, i) => (
+                                    <Route
+                                        path={path}
+                                        element={<HomeDash />}
+                                        key={i}
+                                    />
+                                ))}
+                                <Route path="/chat" element={<ChatDash />} />
+                                <Route path="/dalle" element={<ImageDash />} />
                                 <Route
-                                    path={path}
-                                    element={<HomeDash />}
-                                    key={i}
+                                    path="/profile"
+                                    element={<ProfileDash />}
                                 />
-                            ))}
-                            <Route path="/chat" element={<ChatDash />} />
-                            <Route path="/dalle" element={<ImageDash />} />
-                            <Route path="/profile" element={<ProfileDash />} />
-                            <Route path="/kb" element={<KbDash />} />
-                            <Route
-                                path="/settings"
-                                element={<SettingsDash />}
-                            />
-                        </Routes>
-                    </Box>
+                                <Route path="/kb" element={<KbDash />} />
+                                <Route
+                                    path="/settings"
+                                    element={<SettingsDash />}
+                                />
+                            </Routes>
+                        </Box>
+                    </ChatProvider>
                 </>
             )}
             {!isAuthorized && (
@@ -161,11 +178,9 @@ const App = () => {
                             <NewsProvider>
                                 <ImageProvider>
                                     <KbProvider>
-                                        <ChatProvider>
-                                            <ProfileProvider>
-                                                <AuthenticatedApp />
-                                            </ProfileProvider>
-                                        </ChatProvider>
+                                        <ProfileProvider>
+                                            <AuthenticatedApp />
+                                        </ProfileProvider>
                                     </KbProvider>
                                 </ImageProvider>
                             </NewsProvider>

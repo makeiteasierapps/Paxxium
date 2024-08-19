@@ -14,11 +14,9 @@ import {
 
 const Chat = ({ agent }) => {
     const nodeRef = useRef(null);
-    const { messages, joinRoom } = useContext(ChatContext);
+    const { messages } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    useEffect(() => {
-        joinRoom(agent.chatId);
-    }, [joinRoom, agent.chatId]);
+
 
     // scrolls chat window to the bottom
     useEffect(() => {
