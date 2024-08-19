@@ -4,8 +4,8 @@ import io from 'socket.io-client';
 export const useSocketConnection = () => {
     const wsBackendUrl =
         process.env.NODE_ENV === 'development'
-            ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+            ? `ws://${process.env.REACT_APP_BACKEND_URL}`
+            : `wss://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const socket = useRef(null);
 
