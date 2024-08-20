@@ -33,22 +33,24 @@ const settingsMenuVariants = {
     },
 };
 
-const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
-    const { createChat, updateSettings, chatArray, loadChat } =
+const ChatSettings = ({ setIsSettingsOpen = null }) => {
+    const { createChat, updateSettings, chatArray, loadChat, selectedChat } =
         useContext(ChatContext);
     const [agentModel, setAgentModel] = useState(
-        agent ? agent.agent_model : ''
+        selectedChat ? selectedChat.agent_model : ''
     );
     const [systemPrompt, setSystemPrompt] = useState(
-        agent ? agent.system_prompt : ''
+        selectedChat ? selectedChat.system_prompt : ''
     );
     const [chatConstants, setChatConstants] = useState(
-        agent ? agent.chat_constants : ''
+        selectedChat ? selectedChat.chat_constants : ''
     );
     const [useProfileData, setUseProfileData] = useState(
-        agent ? agent.use_profile_data : false
+        selectedChat ? selectedChat.use_profile_data : false
     );
-    const [chatName, setChatName] = useState(agent ? agent.chat_name : '');
+    const [chatName, setChatName] = useState(
+        selectedChat ? selectedChat.chat_name : ''
+    );
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEdit = (event) => {
@@ -102,7 +104,7 @@ const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
 
     const handleUpdateSettings = () => {
         const newAgentSettings = {
-            chatId: agent.chatId,
+            chatId: selectedChat.chatId,
             agent_model: agentModel,
             system_prompt: systemPrompt,
             chat_constants: chatConstants,
@@ -137,10 +139,12 @@ const ChatSettings = ({ agent = {}, setIsSettingsOpen = null }) => {
                     xs={12}
                     container
                     display="flex"
-                    justifyContent={agent.chatId ? 'space-between' : 'right'}
+                    justifyContent={
+                        selectedChat.chatId ? 'space-between' : 'right'
+                    }
                     alignItems="center"
                 >
-                    {agent.chatId && (
+                    {selectedChat.chatId && (
                         <IconButton
                             aria-label="close"
                             onClick={() => setIsSettingsOpen(false)}

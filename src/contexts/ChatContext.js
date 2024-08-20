@@ -42,7 +42,9 @@ export const ChatProvider = ({ children, socket }) => {
     const chatSettings = useChatSettings(
         backendUrl,
         showSnackbar,
-        setChatArray
+        setChatArray,
+        selectedChat,
+        setSelectedChat,
     );
 
     return (

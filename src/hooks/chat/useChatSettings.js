@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
-export const useChatSettings = (backendUrl, showSnackbar, setChatArray) => {
+export const useChatSettings = (backendUrl, showSnackbar, setChatArray, selectedChat, setSelectedChat) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const updateSettings = async (newAgentSettings) => {
+        console.log('newAgentSettings', newAgentSettings);
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PUT',
@@ -23,11 +24,21 @@ export const useChatSettings = (backendUrl, showSnackbar, setChatArray) => {
                         ? { ...agent, ...newAgentSettings }
                         : agent
                 );
-                // Update localStorage here, inside the setter function
+
+                // Update localStorage
                 localStorage.setItem(
                     'chatArray',
                     JSON.stringify(updatedChatArray)
                 );
+
+                // Update selectedChat if it's the one being modified
+                if (
+                    selectedChat &&
+                    selectedChat.chatId === newAgentSettings.chatId
+                ) {
+                    setSelectedChat({ ...selectedChat, ...newAgentSettings });
+                }
+
                 return updatedChatArray;
             });
 

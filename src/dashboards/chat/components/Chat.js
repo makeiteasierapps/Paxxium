@@ -12,7 +12,7 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = ({ agent }) => {
+const Chat = ({ selectedChat }) => {
     const nodeRef = useRef(null);
     const { messages } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -27,15 +27,15 @@ const Chat = ({ agent }) => {
     return (
         <>
             <ChatBar
-                chatName={agent.chat_name}
-                chatId={agent.chatId}
+                chatName={selectedChat.chat_name}
+                chatId={selectedChat.chatId}
                 isSettingsOpen={isSettingsOpen}
                 setIsSettingsOpen={setIsSettingsOpen}
             />
             <ChatContainerStyled>
                 <MessagesContainer xs={9} id="messages-container">
                     <MessageArea ref={nodeRef}>
-                        {messages[agent.chatId]?.map((message, index) => {
+                        {messages[selectedChat.chatId]?.map((message, index) => {
                             if (message.message_from === 'user') {
                                 return (
                                     <UserMessage
@@ -52,12 +52,12 @@ const Chat = ({ agent }) => {
                             );
                         })}
                     </MessageArea>
-                    <MessageInput chatSettings={agent} />
+                    <MessageInput chatSettings={selectedChat} />
                 </MessagesContainer>
                 <AnimatePresence>
                     {isSettingsOpen ? (
                         <ChatSettings
-                            agent={agent}
+                            selectedChat={selectedChat}
                             setIsSettingsOpen={setIsSettingsOpen}
                         />
                     ) : null}

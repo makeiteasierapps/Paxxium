@@ -43,7 +43,7 @@ const SideDrawer = ({
     const [chatsOpen, setChatsOpen] = useState(false);
     const [chatPopoverAnchor, setChatPopoverAnchor] = useState(null);
     const navigate = useNavigate();
-    const { chatArray, setSelectedChat } = useContext(ChatContext);
+    const { chatArray, selectedChat, setSelectedChat } = useContext(ChatContext);
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
 
     const handleLogout = async () => {
@@ -70,17 +70,18 @@ const SideDrawer = ({
     };
 
     const renderChats = () => {
-        return chatArray.map((agent) => (
+        return chatArray.map((chat) => (
             <MenuItem
-                key={agent.chatId}
+                key={chat.chatId}
                 component={Link}
                 to={'/chat'}
                 onClick={() => {
-                    console.log(agent);
-                    setSelectedChat(agent);
+                    console.log(chat);
+                    setSelectedChat(chat);
                 }}
+                selected={selectedChat && selectedChat.chatId === chat.chatId}
             >
-                {agent.chat_name}
+                {chat.chat_name}
             </MenuItem>
         ));
     };

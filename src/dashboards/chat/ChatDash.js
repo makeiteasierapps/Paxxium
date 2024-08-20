@@ -16,7 +16,7 @@ const ChatDash = () => {
                     <CustomGridLoader />
                 </Box>
             ) : selectedChat ? (
-                <Chat agent={selectedChat} />
+                <Chat selectedChat={selectedChat} />
             ) : (
                 <Box>
                     <Typography>No chat selected</Typography>

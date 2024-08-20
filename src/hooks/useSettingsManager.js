@@ -103,7 +103,7 @@ export const useSettingsManager = (backendUrl) => {
       return;
     }
     loadProfile();
-  }, [uid]);
+  }, [loadProfile, uid]);
 
   return {
     profileData,
