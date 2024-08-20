@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import io from 'socket.io-client';
 
 export const useSocketConnection = () => {
@@ -7,41 +7,47 @@ export const useSocketConnection = () => {
             ? `ws://${process.env.REACT_APP_BACKEND_URL}`
             : `wss://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const socket = useRef(null);
+    const [socket, setSocket] = useState(null);
 
     const connect = useCallback(() => {
-        if (!socket.current) {
+        if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
-            socket.current = io(wsBackendUrl);
+            const newSocket = io(wsBackendUrl);
+            setSocket(newSocket);
 
-            socket.current.on('connect', () => {
+            newSocket.on('connect', () => {
                 console.log('Connected to WebSocket server');
             });
 
-            socket.current.on('disconnect', (reason) => {
+            newSocket.on('disconnect', (reason) => {
                 console.log('Disconnected from WebSocket server:', reason);
             });
 
-            socket.current.on('connect_error', (error) => {
+            newSocket.on('connect_error', (error) => {
                 console.error('Connect error:', error);
-                console.error('Error name:', error.name);
-                console.error('Error message:', error.message);
-                console.error('Error description:', error.description);
             });
 
-            socket.current.on('error', (error) => {
+            newSocket.on('error', (error) => {
                 console.error('Socket error:', error);
             });
         }
-    }, [wsBackendUrl]);
+    }, [wsBackendUrl, socket]);
 
     const disconnect = useCallback(() => {
-        if (socket.current) {
-            socket.current.disconnect();
-            socket.current = null;
+        if (socket) {
+            socket.disconnect();
+            setSocket(null);
             console.log('Disconnected from WebSocket server');
         }
-    }, []);
+    }, [socket]);
+
+    useEffect(() => {
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
+    }, [socket]);
 
     return { socket, connect, disconnect };
 };
