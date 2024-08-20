@@ -12,9 +12,9 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = ({ selectedChat }) => {
+const Chat = () => {
     const nodeRef = useRef(null);
-    const { messages } = useContext(ChatContext);
+    const { messages, selectedChat } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
 
