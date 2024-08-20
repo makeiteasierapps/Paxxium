@@ -168,7 +168,6 @@ export const useMessageManager = ({
 
     const handleStreamingResponse = useCallback(
         async (data) => {
-            console.log('data', data);
             selectedChatId.current = data.room;
             if (data.type === 'end_of_stream') {
                 console.log('end of stream');
@@ -215,9 +214,7 @@ export const useMessageManager = ({
     );
 
     useEffect(() => {
-        console.log('socket', socket);
         if (!socket) return;
-        console.log('socket', socket);
 
         const currentSocket = socket;
         currentSocket.on('chat_response', handleStreamingResponse);
