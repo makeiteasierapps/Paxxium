@@ -71,6 +71,7 @@ const AuthenticatedApp = () => {
         if (isAuthorized) return;
         const fetchData = async () => {
             if (user) {
+                console.log('fetching data');
                 try {
                     const response = await fetch(`${backendUrl}/auth_check`, {
                         method: 'POST',

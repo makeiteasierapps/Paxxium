@@ -16,8 +16,10 @@ export const useInputDetection = () => {
 
         const lastAtIndex = newValue.lastIndexOf('@');
         const words = newValue.split(/\s+/);
-        const newDetectedUrls = words.filter(isValidUrl);
-        setDetectedUrls(newDetectedUrls);
+        const newDetectedUrls = words.filter(
+            (word) => word.startsWith('@') && isValidUrl(word.slice(1))
+        );
+        setDetectedUrls(newDetectedUrls.map((url) => url.slice(1)));
         setIsWebsiteDetected(newDetectedUrls.length > 0);
 
         // Handle mention detection

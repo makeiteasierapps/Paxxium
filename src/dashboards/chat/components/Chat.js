@@ -16,13 +16,21 @@ const Chat = () => {
     const nodeRef = useRef(null);
     const { messages, selectedChat } = useContext(ChatContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
+    const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
     // scrolls chat window to the bottom
     useEffect(() => {
+        if (shouldAutoScroll) {
+            const node = nodeRef.current;
+            node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+        }
+    }, [messages, shouldAutoScroll]);
+
+    const handleScroll = () => {
         const node = nodeRef.current;
-        node.scroll(0, node.scrollHeight);
-    }, [messages]);
+        const isScrolledToBottom = node.scrollHeight - node.clientHeight <= node.scrollTop + 1;
+        setShouldAutoScroll(isScrolledToBottom);
+    };
 
     return (
         <>
@@ -34,7 +42,7 @@ const Chat = () => {
             />
             <ChatContainerStyled>
                 <MessagesContainer xs={9} id="messages-container">
-                    <MessageArea ref={nodeRef}>
+                    <MessageArea ref={nodeRef} onScroll={handleScroll}>
                         {messages[selectedChat.chatId]?.map((message, index) => {
                             if (message.message_from === 'user') {
                                 return (
