@@ -18,7 +18,7 @@ export const useImageProcessing = (backendUrl, uid) => {
             const response = await fetch(`${backendUrl}/messages/utils`, {
                 method: 'POST',
                 headers: {
-                    userId: uid,
+                    uid: uid,
                 },
                 body: formData,
             });

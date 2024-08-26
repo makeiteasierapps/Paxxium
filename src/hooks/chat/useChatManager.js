@@ -13,7 +13,7 @@ export const useChatManager = ({
             const response = await fetch(`${backendUrl}/chat`, {
                 method: 'GET',
                 headers: {
-                    userId: uid,
+                    uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
             });
@@ -129,7 +129,7 @@ export const useChatManager = ({
                     headers: {
                         'Content-Type': 'application/json',
                         dbName: process.env.REACT_APP_DB_NAME,
-                        userId: uid,
+                        uid: uid,
                     },
                     body: JSON.stringify({ chatId, is_open: isOpen }),
                 }
@@ -180,7 +180,7 @@ export const useChatManager = ({
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
-                    userId: uid,
+                    uid: uid,
                 },
                 body: JSON.stringify({ chatId }),
             });
