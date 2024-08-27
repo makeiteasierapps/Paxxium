@@ -51,7 +51,7 @@ export const useMessageManager = ({
         },
         [setChatArray, setMessages]
     );
-    
+
     const addMessage = useCallback(
         (chatId, newMessage, isOptimistic = false) => {
             setMessages((prevMessages) => {
@@ -132,7 +132,7 @@ export const useMessageManager = ({
 
         if (socket) {
             socket.emit('chat_request', {
-                userId: uid,
+                uid,
                 chatId: chatSettings.chatId,
                 dbName: 'paxxium',
                 imageUrl,
