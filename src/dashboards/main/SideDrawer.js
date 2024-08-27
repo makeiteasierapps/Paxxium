@@ -43,7 +43,8 @@ const SideDrawer = ({
     const [chatsOpen, setChatsOpen] = useState(false);
     const [chatPopoverAnchor, setChatPopoverAnchor] = useState(null);
     const navigate = useNavigate();
-    const { chatArray, selectedChat, setSelectedChat } = useContext(ChatContext);
+    const { chatArray, selectedChat, setSelectedChat } =
+        useContext(ChatContext);
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
 
     const handleLogout = async () => {
@@ -76,7 +77,6 @@ const SideDrawer = ({
                 component={Link}
                 to={'/chat'}
                 onClick={() => {
-                    console.log(chat);
                     setSelectedChat(chat);
                 }}
                 selected={selectedChat && selectedChat.chatId === chat.chatId}
@@ -183,10 +183,16 @@ const SideDrawer = ({
             <HeaderIconButton
                 disableRipple
                 onClick={(event) => {
-                    if (isDrawerExpanded) {
-                        setChatsOpen(!chatsOpen);
+                    if (location.pathname !== '/chat') {
+                        // Navigate to ChatDashboard if not already there
+                        navigate('/chat');
                     } else {
-                        setChatPopoverAnchor(event.currentTarget);
+                        // Show popover or expand/collapse on ChatDashboard
+                        if (isDrawerExpanded) {
+                            setChatsOpen(!chatsOpen);
+                        } else {
+                            setChatPopoverAnchor(event.currentTarget);
+                        }
                     }
                 }}
                 currentPath={location.pathname}
