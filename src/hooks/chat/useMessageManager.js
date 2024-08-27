@@ -16,37 +16,62 @@ export const useMessageManager = ({
 
     const imageManager = useImageProcessing();
     const { kbArray } = useContext(KbContext);
-    // Used to add a new user message to the messages state
-    const addMessage = (chatId, newMessage) => {
-        setMessages((prevMessageParts) => {
-            const updatedMessages = {
-                ...prevMessageParts,
-                [chatId]: [...(prevMessageParts[chatId] || []), newMessage],
-            };
 
-            // Update chatArray with the new message
-            setChatArray((preyChatArray) => {
-                const updatedChatArray = preyChatArray.map((agent) => {
-                    if (agent.chatId === chatId) {
-                        return {
-                            ...agent,
-                            messages: updatedMessages[chatId],
-                        };
-                    }
-                    return agent;
-                });
+    const updateChatArrayAndMessages = useCallback(
+        (chatId, newMessages, isOptimistic = false) => {
+            setMessages((prevMessages) => ({
+                ...prevMessages,
+                [chatId]: newMessages,
+            }));
 
-                // Update local storage with the updated agent array
-                localStorage.setItem(
-                    'chatArray',
-                    JSON.stringify(updatedChatArray)
+            setChatArray((prevChatArray) => {
+                const updatedChatArray = prevChatArray.map((chat) =>
+                    chat.chatId === chatId
+                        ? {
+                              ...chat,
+                              messages: newMessages,
+                              updated_at: new Date().toISOString(),
+                          }
+                        : chat
                 );
-                return updatedChatArray;
-            });
 
-            return updatedMessages;
-        });
-    };
+                const sortedChatArray = updatedChatArray.sort(
+                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+                );
+
+                if (!isOptimistic) {
+                    localStorage.setItem(
+                        'chatArray',
+                        JSON.stringify(sortedChatArray)
+                    );
+                }
+
+                return sortedChatArray;
+            });
+        },
+        [setChatArray, setMessages]
+    );
+    
+    const addMessage = useCallback(
+        (chatId, newMessage, isOptimistic = false) => {
+            setMessages((prevMessages) => {
+                const updatedMessages = [
+                    ...(prevMessages[chatId] || []),
+                    newMessage,
+                ];
+                updateChatArrayAndMessages(
+                    chatId,
+                    updatedMessages,
+                    isOptimistic
+                );
+                return {
+                    ...prevMessages,
+                    [chatId]: updatedMessages,
+                };
+            });
+        },
+        [setMessages, updateChatArrayAndMessages]
+    );
 
     // Used to get the messages for a specific chat
     // Sent in as chat history
@@ -94,15 +119,14 @@ export const useMessageManager = ({
             }
         }
 
-        // Optimistic update
         const userMessage = {
             content: input,
             message_from: 'user',
-            time_stamp: new Date().toISOString(),
+            created_at: new Date().toISOString(),
             type: 'database',
             image_url: imageUrl,
         };
-        addMessage(chatSettings.chatId, userMessage);
+        addMessage(chatSettings.chatId, userMessage, true);
 
         const chatHistory = await getMessages(chatSettings.chatId);
 
@@ -172,45 +196,21 @@ export const useMessageManager = ({
             if (data.type === 'end_of_stream') {
                 console.log('end of stream');
             } else {
-                // Possible candiate for useReducer
                 setMessages((prevMessages) => {
                     const newMessageParts = processIncomingStream(
                         prevMessages,
                         selectedChatId.current,
                         data
                     );
-
-                    let updatedChatArray;
-
-                    // Update chatArray state to reflect the new messages
-                    setChatArray((prevChatArray) => {
-                        updatedChatArray = prevChatArray.map((chat) => {
-                            if (chat.chatId === selectedChatId.current) {
-                                return {
-                                    ...chat,
-                                    messages:
-                                        newMessageParts[selectedChatId.current],
-                                };
-                            }
-                            return chat;
-                        });
-
-                        return updatedChatArray;
-                    });
-
-                    // Schedule localStorage update after state updates
-                    setTimeout(() => {
-                        localStorage.setItem(
-                            'chatArray',
-                            JSON.stringify(updatedChatArray)
-                        );
-                    }, 0);
-
+                    updateChatArrayAndMessages(
+                        selectedChatId.current,
+                        newMessageParts[selectedChatId.current]
+                    );
                     return newMessageParts;
                 });
             }
         },
-        [setChatArray, setMessages]
+        [updateChatArrayAndMessages, setMessages]
     );
 
     useEffect(() => {

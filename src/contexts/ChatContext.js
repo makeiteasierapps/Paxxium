@@ -27,6 +27,8 @@ export const ChatProvider = ({ children, socket }) => {
         showSnackbar,
         setChatArray,
         setMessages,
+        selectedChat,
+        setSelectedChat,
     };
 
     const inputDetection = useInputDetection();
@@ -39,13 +41,7 @@ export const ChatProvider = ({ children, socket }) => {
         detectedUrls: inputDetection.detectedUrls,
     });
 
-    const chatSettings = useChatSettings(
-        backendUrl,
-        showSnackbar,
-        setChatArray,
-        selectedChat,
-        setSelectedChat,
-    );
+    const chatSettings = useChatSettings({ ...commonParams });
 
     return (
         <ChatContext.Provider

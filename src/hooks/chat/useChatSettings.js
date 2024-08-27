@@ -1,10 +1,15 @@
 import { useState } from 'react';
 
-export const useChatSettings = (backendUrl, showSnackbar, setChatArray, selectedChat, setSelectedChat) => {
+export const useChatSettings = ({
+    backendUrl,
+    showSnackbar,
+    setChatArray,
+    selectedChat,
+    setSelectedChat,
+}) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const updateSettings = async (newAgentSettings) => {
-        console.log('newAgentSettings', newAgentSettings);
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PUT',

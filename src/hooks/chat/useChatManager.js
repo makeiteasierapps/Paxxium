@@ -7,6 +7,7 @@ export const useChatManager = ({
     setChatArray,
     setMessages,
     setLoading,
+    setSelectedChat,
 }) => {
     const fetchChatsFromDB = useCallback(async () => {
         try {
@@ -26,7 +27,14 @@ export const useChatManager = ({
             }
 
             const data = await response.json();
-            setChatArray(data);
+            const sortedData = data.sort(
+                (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+            );
+            setChatArray(sortedData);
+            // Set the most recent chat as the selected chat
+            if (sortedData.length > 0) {
+                setSelectedChat(sortedData[0]);
+            }
 
             setMessages((prevMessages) => {
                 const messagesFromData = data.reduce((acc, chat) => {
@@ -38,21 +46,28 @@ export const useChatManager = ({
                 return messagesFromData;
             });
 
-            localStorage.setItem('chatArray', JSON.stringify(data));
-            return data;
+            localStorage.setItem('chatArray', JSON.stringify(sortedData));
+            return sortedData;
         } catch (error) {
             console.error('Error in fetchChatsFromDB:', error);
             showSnackbar(`Failed to fetch chats: ${error.message}`, 'error');
             throw error;
         }
-    }, [backendUrl, setChatArray, setMessages, uid, showSnackbar]);
+    }, [
+        backendUrl,
+        setChatArray,
+        setMessages,
+        uid,
+        showSnackbar,
+        setSelectedChat,
+    ]);
 
     const getChats = useCallback(async () => {
         try {
             const cachedChats = JSON.parse(localStorage.getItem('chatArray'));
             if (cachedChats && cachedChats.length > 0) {
                 setChatArray(cachedChats);
-
+                setSelectedChat(cachedChats[0]);
                 setMessages((prevMessages) => {
                     return cachedChats.reduce((acc, chat) => {
                         if (chat.messages) {
@@ -69,7 +84,13 @@ export const useChatManager = ({
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             throw error;
         }
-    }, [fetchChatsFromDB, setChatArray, setMessages, showSnackbar]);
+    }, [
+        fetchChatsFromDB,
+        setChatArray,
+        setMessages,
+        showSnackbar,
+        setSelectedChat,
+    ]);
 
     const createChat = async (
         agentModel,
@@ -79,7 +100,6 @@ export const useChatManager = ({
         chatName
     ) => {
         try {
-            console.log(agentModel);
             const response = await fetch(`${backendUrl}/chat`, {
                 method: 'POST',
                 headers: {
@@ -87,7 +107,7 @@ export const useChatManager = ({
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
-                    userId: uid,
+                    uid,
                     agentModel,
                     systemPrompt,
                     chatConstants,
@@ -99,7 +119,6 @@ export const useChatManager = ({
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
-            console.log(data);
             if (!response.ok) {
                 const errorBody = await response.text();
                 throw new Error(
@@ -108,7 +127,7 @@ export const useChatManager = ({
             }
 
             setChatArray((prevAgents) => [data, ...prevAgents]);
-
+            setSelectedChat(data);
             const updatedChatArray = [
                 data,
                 ...JSON.parse(localStorage.getItem('chatArray') || '[]'),
@@ -119,59 +138,6 @@ export const useChatManager = ({
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
-
-    const updateChatVisibility = async (chatId, isOpen) => {
-        try {
-            const response = await fetch(
-                `${backendUrl}/chat/update_visibility`,
-                {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        dbName: process.env.REACT_APP_DB_NAME,
-                        uid: uid,
-                    },
-                    body: JSON.stringify({ chatId, is_open: isOpen }),
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to update chat');
-
-            setChatArray((prevChatArray) => {
-                const updatedChatArray = prevChatArray.map((chatObj) =>
-                    chatObj.chatId === chatId
-                        ? { ...chatObj, is_open: isOpen }
-                        : chatObj
-                );
-
-                if (isOpen) {
-                    const updatedChatIndex = updatedChatArray.findIndex(
-                        (chat) => chat.chatId === chatId
-                    );
-                    if (updatedChatIndex !== -1) {
-                        const [updatedChat] = updatedChatArray.splice(
-                            updatedChatIndex,
-                            1
-                        );
-                        updatedChatArray.unshift(updatedChat);
-                    }
-                }
-
-                localStorage.setItem(
-                    'chatArray',
-                    JSON.stringify(updatedChatArray)
-                );
-                return updatedChatArray;
-            });
-        } catch (error) {
-            console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            if (isOpen) throw error;
-        }
-    };
-
-    const loadChat = (chatId) => updateChatVisibility(chatId, true);
-    const closeChat = (chatId) => updateChatVisibility(chatId, false);
 
     const deleteChat = async (chatId) => {
         try {
@@ -197,6 +163,7 @@ export const useChatManager = ({
                     JSON.stringify(updatedChatArray)
                 );
 
+                setSelectedChat(updatedChatArray[0]);
                 return updatedChatArray;
             });
         } catch (error) {
@@ -218,8 +185,6 @@ export const useChatManager = ({
         getChats,
         fetchChatsFromDB,
         createChat,
-        loadChat,
-        closeChat,
         deleteChat,
     };
 };
