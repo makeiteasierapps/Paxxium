@@ -1,9 +1,11 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
+import AddIcon from '@mui/icons-material/Add';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
+import ChatSettings from './ChatSettings';
 import { ChatContext } from '../../../contexts/ChatContext';
 
 import {
@@ -12,13 +14,34 @@ import {
     StyledIconButton,
 } from '../chatStyledComponents';
 
-const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
-    const { clearChat, deleteChat } = useContext(ChatContext);
+const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
+    const { clearChat, deleteChat, createChat, selectedChat } =
+        useContext(ChatContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
+    const [agentModel, setAgentModel] = useState();
+    const [chatConstants, setChatConstants] = useState();
+    const [useProfileData, setUseProfileData] = useState();
+    const [chatName, setChatName] = useState();
+
+    useEffect(() => {
+        if (selectedChat) {
+            console.log('selectedChat', selectedChat);
+            setAgentModel(selectedChat.agent_model);
+            setChatConstants(selectedChat.chat_constants);
+            setUseProfileData(selectedChat.use_profile_data);
+            setChatName(selectedChat.chat_name);
+        }
+    }, [selectedChat]);
+
+    const handleSubmit = () => {
+        createChat('gpt-4o-mini', '', false, 'New Chat');
+    };
+
+    
 
     const handleDeleteClick = () => {
         if (deleteClicked) {
-            deleteChat(chatId);
+            deleteChat(selectedChat.chatId);
         } else {
             setDeleteClicked(true);
             setTimeout(() => {
@@ -30,10 +53,30 @@ const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
     return (
         <Bar>
             <Box display="flex" justifyContent="flex-start">
-                <Typography variant="h6">{chatName}</Typography>
+                <Typography variant="h6">{selectedChat.chat_name}</Typography>
             </Box>
+            <ChatSettings
+                agentModel={agentModel}
+                setAgentModel={setAgentModel}
+                chatConstants={chatConstants}
+                setChatConstants={setChatConstants}
+                useProfileData={useProfileData}
+                setUseProfileData={setUseProfileData}
+                chatName={chatName}
+                setChatName={setChatName}
+            />
             <Box display="flex" justifyContent="flex-end">
                 <ClearAndTrashIcons>
+                    <Tooltip title={'Create New Chat'} placement="top">
+                        <StyledIconButton
+                            id="createButton"
+                            name="createButton"
+                            onClick={handleSubmit}
+                        >
+                            <AddIcon />
+                        </StyledIconButton>
+                    </Tooltip>
+
                     <Tooltip title={'Settings'} placement="top">
                         <StyledIconButton
                             disableRipple
@@ -47,7 +90,7 @@ const ChatBar = ({ chatName, chatId, isSettingsOpen, setIsSettingsOpen }) => {
                         <StyledIconButton
                             disableRipple
                             aria-label="clear_chat"
-                            onClick={() => clearChat(chatId)}
+                            onClick={() => clearChat(selectedChat.chatId)}
                         >
                             <CommentsDisabledIcon />
                         </StyledIconButton>

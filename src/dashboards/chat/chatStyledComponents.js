@@ -96,19 +96,9 @@ export const InvisibleInput = styled(TextField)({
     },
 });
 
-const MotionBox = motion(Box);
-
-export const SettingsMenuContainer = styled(MotionBox)(({ theme }) => ({
+export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
     width: '100%',
-    maxWidth: 600,
-    zIndex: 110,
-    top: 100,
-    left: 0,
-    right: 0,
-    margin: 'auto',
-    position: 'absolute',
-    backgroundColor: theme.palette.background.default,
-    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
 }));
 
 export const ChatContainerStyled = styled(Box)(({ theme }) => ({

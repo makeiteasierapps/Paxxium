@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import {
     Box,
     Drawer,
@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import {
     Home as HomeIcon,
-    People as AgentsIcon,
     Settings as SettingsIcon,
     AccountCircle as ProfileIcon,
     AccountTree as AccountTreeIcon,
@@ -41,7 +40,8 @@ const SideDrawer = ({
 }) => {
     const location = useLocation();
     const [chatsOpen, setChatsOpen] = useState(false);
-    const [chatPopoverAnchor, setChatPopoverAnchor] = useState(null);
+    const [isChatPopoverOpen, setIsChatPopoverOpen] = useState(null);
+    const chatButtonRef = useRef(null);
     const navigate = useNavigate();
     const { chatArray, selectedChat, setSelectedChat } =
         useContext(ChatContext);
@@ -182,20 +182,20 @@ const SideDrawer = ({
         <ConditionalTooltip title="Chats" condition={!isDrawerExpanded}>
             <HeaderIconButton
                 disableRipple
-                onClick={(event) => {
+                onClick={() => {
                     if (location.pathname !== '/chat') {
-                        // Navigate to ChatDashboard if not already there
                         navigate('/chat');
                     } else {
                         // Show popover or expand/collapse on ChatDashboard
                         if (isDrawerExpanded) {
                             setChatsOpen(!chatsOpen);
                         } else {
-                            setChatPopoverAnchor(event.currentTarget);
+                            setIsChatPopoverOpen(chatButtonRef.current);
                         }
                     }
                 }}
                 currentPath={location.pathname}
+                ref={chatButtonRef}
             >
                 <Box
                     sx={{
@@ -401,9 +401,9 @@ const SideDrawer = ({
                 </Box>
             </Drawer>
             <Popover
-                open={Boolean(chatPopoverAnchor)}
-                anchorEl={chatPopoverAnchor}
-                onClose={() => setChatPopoverAnchor(null)}
+                open={Boolean(isChatPopoverOpen)}
+                anchorEl={chatButtonRef.current}
+                onClose={() => setIsChatPopoverOpen(null)}
                 anchorOrigin={{
                     vertical: 'center',
                     horizontal: 'right',

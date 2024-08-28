@@ -28,7 +28,8 @@ const Chat = () => {
 
     const handleScroll = () => {
         const node = nodeRef.current;
-        const isScrolledToBottom = node.scrollHeight - node.clientHeight <= node.scrollTop + 1;
+        const isScrolledToBottom =
+            node.scrollHeight - node.clientHeight <= node.scrollTop + 1;
         setShouldAutoScroll(isScrolledToBottom);
     };
 
@@ -43,33 +44,27 @@ const Chat = () => {
             <ChatContainerStyled>
                 <MessagesContainer xs={9} id="messages-container">
                     <MessageArea ref={nodeRef} onScroll={handleScroll}>
-                        {messages[selectedChat.chatId]?.map((message, index) => {
-                            if (message.message_from === 'user') {
+                        {messages[selectedChat.chatId]?.map(
+                            (message, index) => {
+                                if (message.message_from === 'user') {
+                                    return (
+                                        <UserMessage
+                                            key={`user${index}`}
+                                            message={message}
+                                        />
+                                    );
+                                }
                                 return (
-                                    <UserMessage
-                                        key={`user${index}`}
+                                    <AgentMessage
+                                        key={`stream${index}`}
                                         message={message}
                                     />
                                 );
                             }
-                            return (
-                                <AgentMessage
-                                    key={`stream${index}`}
-                                    message={message}
-                                />
-                            );
-                        })}
+                        )}
                     </MessageArea>
                     <MessageInput chatSettings={selectedChat} />
                 </MessagesContainer>
-                <AnimatePresence>
-                    {isSettingsOpen ? (
-                        <ChatSettings
-                            selectedChat={selectedChat}
-                            setIsSettingsOpen={setIsSettingsOpen}
-                        />
-                    ) : null}
-                </AnimatePresence>
             </ChatContainerStyled>
         </>
     );

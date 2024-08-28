@@ -94,7 +94,6 @@ export const useChatManager = ({
 
     const createChat = async (
         agentModel,
-        systemPrompt,
         chatConstants,
         useProfileData,
         chatName
@@ -109,7 +108,6 @@ export const useChatManager = ({
                 body: JSON.stringify({
                     uid,
                     agentModel,
-                    systemPrompt,
                     chatConstants,
                     useProfileData,
                     chatName,
