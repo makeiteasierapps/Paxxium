@@ -94,7 +94,13 @@ const SideDrawer = ({
                 to="/home"
                 currentPath={location.pathname}
             >
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
                     <HomeIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Home</Typography>
@@ -112,7 +118,13 @@ const SideDrawer = ({
                 to="/profile"
                 currentPath={location.pathname}
             >
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
                     <ProfileIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Profile</Typography>
@@ -133,10 +145,28 @@ const SideDrawer = ({
                 to="/kb"
                 currentPath={location.pathname}
             >
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
                     <AccountTreeIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
-                        <Typography paddingLeft={1}>Knowledge Base</Typography>
+                        <Typography
+                            sx={{
+                                ml: 1,
+                                fontSize: '0.9rem',
+                                lineHeight: 1.2,
+                                whiteSpace: 'normal',
+                                wordWrap: 'break-word',
+                            }}
+                        >
+                            Knowledge
+                            <br />
+                            Base
+                        </Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -151,7 +181,13 @@ const SideDrawer = ({
                 to="/settings"
                 currentPath={location.pathname}
             >
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
                     <SettingsIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Settings</Typography>
@@ -168,7 +204,13 @@ const SideDrawer = ({
                 id="logout-button"
                 onClick={handleLogout}
             >
-                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
                     <LogoutIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Logout</Typography>
@@ -188,7 +230,6 @@ const SideDrawer = ({
                     if (location.pathname !== '/chat') {
                         navigate('/chat');
                     } else {
-                        // Show popover or expand/collapse on ChatDashboard
                         if (isDrawerExpanded) {
                             setChatsOpen(!chatsOpen);
                         } else {
@@ -203,16 +244,14 @@ const SideDrawer = ({
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
                         width: '100%',
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <ChatIcon sx={{ fontSize: '2rem' }} />
-                        {isDrawerExpanded && (
-                            <Typography paddingLeft={1}>Chats</Typography>
-                        )}
-                    </Box>
+                    <ChatIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>Chats</Typography>
+                    )}
+
                     {isDrawerExpanded &&
                         (chatsOpen ? <ExpandLess /> : <ExpandMore />)}
                 </Box>
@@ -232,15 +271,24 @@ const SideDrawer = ({
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
                         width: '100%',
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <CollectionsIcon sx={{ fontSize: '2rem' }} />
                         {isDrawerExpanded && (
-                            <Typography paddingLeft={1}>
-                                Image Gallery
+                            <Typography
+                                sx={{
+                                    ml: 1,
+                                    fontSize: '0.9rem',
+                                    lineHeight: 1.2,
+                                    whiteSpace: 'normal',
+                                    wordWrap: 'break-word',
+                                }}
+                            >
+                                Image
+                                <br />
+                                Gallery
                             </Typography>
                         )}
                     </Box>
