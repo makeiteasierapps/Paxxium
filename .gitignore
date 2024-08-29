@@ -30,6 +30,5 @@ myapp/**/__pycache__/
 
 app.yaml
 
-/.github
 /.firebase
 
