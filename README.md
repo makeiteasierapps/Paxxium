@@ -1,8 +1,6 @@
 # <span style="color:#78909c">Welcome to Paxxium!</span>
 
-I want Paxxium to be a tool that helps people create and manage custom knowledge bases. Those knowledge bases can be then used for a variet of purposes including chat bots, customized suggestions(news feature), and more. I also want Paxxium to be a playground for new Ai tech as it becomes available.
-
-For those who want to self host AI models and backend code Paxxium will start to offer that. The ultimate goal is to minimize calls to 3rd party APIs when possible. I just starting self the backend for Paxxium and it has inspired me to start building in local databases(vector as well).
+The goal of this project is to create an AI platform that helps the user solve their real world problems. I am moving towards everything being local and self hosting so the below instructions will become deprecated soon. 
 
 ## Setup Instructions
 
