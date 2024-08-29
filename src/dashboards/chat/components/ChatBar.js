@@ -25,7 +25,6 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
 
     useEffect(() => {
         if (selectedChat) {
-            console.log('selectedChat', selectedChat);
             setAgentModel(selectedChat.agent_model);
             setChatConstants(selectedChat.chat_constants);
             setUseProfileData(selectedChat.use_profile_data);
@@ -36,8 +35,6 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
     const handleSubmit = () => {
         createChat('gpt-4o-mini', '', false, 'New Chat');
     };
-
-    
 
     const handleDeleteClick = () => {
         if (deleteClicked) {

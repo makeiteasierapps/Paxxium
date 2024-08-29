@@ -1,7 +1,5 @@
 import {
     FormControlLabel,
-    Menu,
-    MenuItem,
     TextField,
     Box,
     Typography,
@@ -10,6 +8,7 @@ import {
 
 import { useContext, useState } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
+import ModelMenu from './ModelMenu';
 import {
     SettingsMenuContainer,
     SettingsMenuButton,
@@ -51,9 +50,6 @@ const ChatSettings = ({
         }));
     };
 
-    const handleClose = (menu) => () => {
-        setAnchorEl((prevState) => ({ ...prevState, [menu]: null }));
-    };
 
     const handleUpdateSettings = (newSettings) => {
         updateSettings({
@@ -80,46 +76,12 @@ const ChatSettings = ({
                     >
                         {agentModel ? agentModel : 'Select Model'}
                     </SettingsMenuButton>
-                    <Menu
-                        id="model-menu"
-                        anchorEl={anchorEl['model']}
-                        open={Boolean(anchorEl['model'])}
-                        onClose={handleClose('model')}
-                        onClick={(event) => {
-                            const value = event.target.getAttribute('value');
-                            if (value) {
-                                setAgentModel(value);
-                                handleUpdateSettings({ agent_model: value });
-                            }
-                        }}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                    >
-                        <MenuItem
-                            value={'gpt-4o-mini'}
-                            onClick={handleClose('model')}
-                        >
-                            GPT-4o-mini
-                        </MenuItem>
-                        <MenuItem
-                            value={'gpt-4o'}
-                            onClick={handleClose('model')}
-                        >
-                            GPT-4o
-                        </MenuItem>
-                        <MenuItem
-                            value={'claude-3-5-sonnet-20240620'}
-                            onClick={handleClose('model')}
-                        >
-                            Claude 3.5 Sonnet
-                        </MenuItem>
-                    </Menu>
+                    <ModelMenu
+                        anchorEl={anchorEl}
+                        setAnchorEl={setAnchorEl}
+                        setAgentModel={setAgentModel}
+                        handleUpdateSettings={handleUpdateSettings}
+                    />
 
                     {/* Chat Name */}
                     <SettingsMenuButton
@@ -149,23 +111,12 @@ const ChatSettings = ({
                     </SettingsMenuButton>
                 </Box>
 
-                <Box width="100%" marginBottom={2}>
-                    <Typography
-                        variant="subtitle1"
-                        color="textSecondary"
-                        align="center"
-                        fontWeight="bold"
-                        fontFamily={'Titillium Web, sans-serif'}
-                        marginBottom={1}
-                    >
-                        Things to Remember
-                    </Typography>
-
+                <Box width="100%" marginBottom={1}>
                     <TextField
                         id="chatConstants"
                         name="chatConstants"
                         multiline
-                        rows={4}
+                        rows={2}
                         fullWidth
                         variant="outlined"
                         value={chatConstants}
@@ -197,7 +148,7 @@ const ChatSettings = ({
                                 <Switch
                                     color="secondary"
                                     name="useProfileData"
-                                    checked={selectedChat.use_profile_data}
+                                    checked={useProfileData}
                                     onChange={(event) =>
                                         setUseProfileData(event.target.checked)
                                     }
