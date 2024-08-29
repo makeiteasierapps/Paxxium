@@ -182,6 +182,8 @@ const SideDrawer = ({
         <ConditionalTooltip title="Chats" condition={!isDrawerExpanded}>
             <HeaderIconButton
                 disableRipple
+                component={Link}
+                to="/chat"
                 onClick={() => {
                     if (location.pathname !== '/chat') {
                         navigate('/chat');
