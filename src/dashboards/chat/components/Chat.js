@@ -15,7 +15,6 @@ import {
 const Chat = () => {
     const nodeRef = useRef(null);
     const { messages, selectedChat } = useContext(ChatContext);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
     // scrolls chat window to the bottom
@@ -35,12 +34,7 @@ const Chat = () => {
 
     return (
         <>
-            <ChatBar
-                chatName={selectedChat.chat_name}
-                chatId={selectedChat.chatId}
-                isSettingsOpen={isSettingsOpen}
-                setIsSettingsOpen={setIsSettingsOpen}
-            />
+            <ChatBar />
             <ChatContainerStyled>
                 <MessagesContainer xs={9} id="messages-container">
                     <MessageArea ref={nodeRef} onScroll={handleScroll}>

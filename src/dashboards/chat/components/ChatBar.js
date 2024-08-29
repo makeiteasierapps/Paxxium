@@ -1,9 +1,11 @@
 import { useContext, useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AddIcon from '@mui/icons-material/Add';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import ChatSettings from './ChatSettings';
 import { ChatContext } from '../../../contexts/ChatContext';
@@ -14,15 +16,22 @@ import {
     StyledIconButton,
 } from '../chatStyledComponents';
 
-const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
-    const { clearChat, deleteChat, createChat, selectedChat } =
-        useContext(ChatContext);
+const ChatBar = () => {
+    const {
+        clearChat,
+        deleteChat,
+        createChat,
+        selectedChat,
+        isSettingsOpen,
+        setIsSettingsOpen,
+    } = useContext(ChatContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
     const [agentModel, setAgentModel] = useState();
     const [chatConstants, setChatConstants] = useState();
     const [useProfileData, setUseProfileData] = useState();
     const [chatName, setChatName] = useState();
 
+    const theme = useTheme();
     useEffect(() => {
         if (selectedChat) {
             setAgentModel(selectedChat.agent_model);
@@ -49,22 +58,29 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
 
     return (
         <Bar>
-            <Box display="flex" justifyContent="flex-start">
-                <Typography variant="h6">{selectedChat.chat_name}</Typography>
-            </Box>
-            <ChatSettings
-                agentModel={agentModel}
-                setAgentModel={setAgentModel}
-                chatConstants={chatConstants}
-                setChatConstants={setChatConstants}
-                useProfileData={useProfileData}
-                setUseProfileData={setUseProfileData}
-                chatName={chatName}
-                setChatName={setChatName}
-            />
+            {!isSettingsOpen && (
+                <Box display="flex" justifyContent="flex-start">
+                    <Typography variant="h6">{chatName}</Typography>
+                </Box>
+            )}
+            {isSettingsOpen && (
+                <ChatSettings
+                    agentModel={agentModel}
+                    setAgentModel={setAgentModel}
+                    chatConstants={chatConstants}
+                    setChatConstants={setChatConstants}
+                    chatName={chatName}
+                    setChatName={setChatName}
+                />
+            )}
             <Box display="flex" justifyContent="flex-end">
-                <ClearAndTrashIcons>
-                    <Tooltip title={'Create New Chat'} placement="top">
+                <ClearAndTrashIcons
+                    sx={{ flexDirection: isSettingsOpen ? 'column' : 'row' }}
+                >
+                    <Tooltip
+                        title={'Create New Chat'}
+                        placement={isSettingsOpen ? 'left' : 'top'}
+                    >
                         <StyledIconButton
                             id="createButton"
                             name="createButton"
@@ -74,7 +90,29 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
                         </StyledIconButton>
                     </Tooltip>
 
-                    <Tooltip title={'Settings'} placement="top">
+                    <Tooltip
+                        title="AI Insight"
+                        placement={isSettingsOpen ? 'left' : 'top'}
+                    >
+                        <StyledIconButton
+                            disableRipple
+                            aria-label="AI Insight"
+                            onClick={() => setUseProfileData(!useProfileData)}
+                        >
+                            <TipsAndUpdatesIcon
+                                sx={{
+                                    color: useProfileData
+                                        ? theme.palette.text.secondary
+                                        : 'inherit',
+                                }}
+                            />
+                        </StyledIconButton>
+                    </Tooltip>
+
+                    <Tooltip
+                        title="Settings"
+                        placement={isSettingsOpen ? 'left' : 'top'}
+                    >
                         <StyledIconButton
                             disableRipple
                             aria-label="settings"
@@ -83,7 +121,10 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
                             <SettingsIcon />
                         </StyledIconButton>
                     </Tooltip>
-                    <Tooltip title="Clear Chat" placement="top">
+                    <Tooltip
+                        title="Clear Chat"
+                        placement={isSettingsOpen ? 'left' : 'top'}
+                    >
                         <StyledIconButton
                             disableRipple
                             aria-label="clear_chat"
@@ -95,7 +136,7 @@ const ChatBar = ({ isSettingsOpen, setIsSettingsOpen }) => {
                     <Tooltip
                         title={deleteClicked ? 'Click again to confirm' : ''}
                         open={deleteClicked}
-                        placement="top"
+                        placement={isSettingsOpen ? "left" : "top"}
                     >
                         <StyledIconButton
                             disableRipple

@@ -1,11 +1,5 @@
-import {
-    FormControlLabel,
-    TextField,
-    Box,
-    Typography,
-    Switch,
-} from '@mui/material';
-
+import { TextField, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { useContext, useState } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
 import ModelMenu from './ModelMenu';
@@ -15,6 +9,20 @@ import {
     InvisibleInput,
 } from '../chatStyledComponents';
 
+const ResizableTextField = styled(TextField)({
+    '& .MuiInputBase-root': {
+        height: '50px', 
+        padding: '3px 10px',
+        overflow: 'hidden', 
+        resize: 'vertical',
+    },
+    '& .MuiInputBase-input': {
+        height: '100% !important',
+        overflow: 'auto !important',
+        resize: 'none', // Disable resize on the inner input
+    },
+});
+
 const ChatSettings = ({
     setChatName,
     chatName,
@@ -22,8 +30,6 @@ const ChatSettings = ({
     agentModel,
     setChatConstants,
     chatConstants,
-    setUseProfileData,
-    useProfileData,
 }) => {
     const { selectedChat, updateSettings } = useContext(ChatContext);
 
@@ -49,7 +55,6 @@ const ChatSettings = ({
             [menu]: event.currentTarget,
         }));
     };
-
 
     const handleUpdateSettings = (newSettings) => {
         updateSettings({
@@ -112,11 +117,10 @@ const ChatSettings = ({
                 </Box>
 
                 <Box width="100%" marginBottom={1}>
-                    <TextField
+                    <ResizableTextField
                         id="chatConstants"
                         name="chatConstants"
                         multiline
-                        rows={2}
                         fullWidth
                         variant="outlined"
                         value={chatConstants}
@@ -128,44 +132,10 @@ const ChatSettings = ({
                                 chat_constants: chatConstants,
                             })
                         }
+                        InputProps={{
+                            style: { resize: 'vertical' },
+                        }}
                     />
-                </Box>
-
-                <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    width="100%"
-                >
-                    <Box
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
-                        marginBottom={2}
-                    >
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    color="secondary"
-                                    name="useProfileData"
-                                    checked={useProfileData}
-                                    onChange={(event) =>
-                                        setUseProfileData(event.target.checked)
-                                    }
-                                    size="large"
-                                />
-                            }
-                            label={
-                                <Typography
-                                    color="secondary"
-                                    fontWeight="bold"
-                                    fontFamily={'Titillium Web, sans-serif'}
-                                >
-                                    AI Insight
-                                </Typography>
-                            }
-                        />
-                    </Box>
                 </Box>
             </Box>
         </SettingsMenuContainer>
