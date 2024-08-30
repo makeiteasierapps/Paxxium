@@ -13,6 +13,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Create .env file
+        run: |
+          echo "REACT_APP_BACKEND_URL_PROD=${{ secrets.REACT_APP_BACKEND_URL_PROD }}" >> .env
+          echo "REACT_APP_DB_NAME=${{ secrets.REACT_APP_DB_NAME }}" >> .env
       - run: npm ci
       - run: CI=false npm run build
       - name: Deploy to Firebase
