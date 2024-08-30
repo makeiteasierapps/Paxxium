@@ -9,7 +9,7 @@ export const useInputDetection = () => {
     const [detectedUrls, setDetectedUrls] = useState([]);
 
     const { kbArray } = useContext(KbContext);
-
+    
     const handleInputChange = (event) => {
         const newValue = event.target.value;
         setInput(newValue);

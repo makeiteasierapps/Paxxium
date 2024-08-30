@@ -82,7 +82,7 @@ export const useKbManager = (backendUrl, uid, showSnackbar) => {
             }
 
             const data = await response.json();
-            setKbArray(data.kb_list);
+            setKbArray(data);
         } catch (error) {
             showSnackbar('Error fetching knowledge base', 'error');
             throw error;

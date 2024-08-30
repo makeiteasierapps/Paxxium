@@ -67,9 +67,8 @@ const NewsCard = ({ news, index }) => {
                     >
                         {news.title}
                     </Typography>
-                    <Typography variant="body2" color="text.primary">
-                        <ReactMarkdown>{news.summary}</ReactMarkdown>
-                    </Typography>
+
+                    <ReactMarkdown>{news.summary}</ReactMarkdown>
                 </CardContent>
                 <CardActions>
                     <StyledButton size="medium" href={news.url} target="_blank">

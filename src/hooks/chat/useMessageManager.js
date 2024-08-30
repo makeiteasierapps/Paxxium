@@ -95,9 +95,11 @@ export const useMessageManager = ({
 
     const sendMessage = async (input, chatSettings, image = null) => {
         let imageUrl = null;
-        const kbName = extractKbName(input);
-        const kbId = getKbId(kbName);
-
+        let kbId = null;
+        if (kbArray.length > 0) {
+            const kbName = extractKbName(input);
+            kbId = getKbId(kbName);
+        }
         if (image) {
             try {
                 const resizedImageBlob =
@@ -153,6 +155,7 @@ export const useMessageManager = ({
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
+                    uid: uid,
                 },
                 body: JSON.stringify({ chatId }),
             });
