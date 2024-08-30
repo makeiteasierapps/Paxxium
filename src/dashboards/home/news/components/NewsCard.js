@@ -1,4 +1,5 @@
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import ReactMarkdown from 'react-markdown';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Tooltip, Typography, CardActions, CardContent } from '@mui/material';
@@ -66,12 +67,8 @@ const NewsCard = ({ news, index }) => {
                     >
                         {news.title}
                     </Typography>
-                    <Typography
-                        variant="body2"
-                        color="text.primary"
-                        align="center"
-                    >
-                        {news.summary}
+                    <Typography variant="body2" color="text.primary">
+                        <ReactMarkdown>{news.summary}</ReactMarkdown>
                     </Typography>
                 </CardContent>
                 <CardActions>
