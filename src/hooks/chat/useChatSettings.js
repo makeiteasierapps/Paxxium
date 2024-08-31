@@ -12,10 +12,11 @@ export const useChatSettings = ({
     const updateSettings = async (newAgentSettings) => {
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
+                    uid: newAgentSettings.uid,
                 },
                 body: JSON.stringify(newAgentSettings),
             });

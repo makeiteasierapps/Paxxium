@@ -133,7 +133,7 @@ export const useMessageManager = ({
         const chatHistory = await getMessages(chatSettings.chatId);
 
         if (socket) {
-            socket.emit('chat_request', {
+            socket.emit('chat', {
                 uid,
                 chatId: chatSettings.chatId,
                 dbName: 'paxxium',

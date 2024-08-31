@@ -92,31 +92,22 @@ export const useChatManager = ({
         setSelectedChat,
     ]);
 
-    const createChat = async (
-        agentModel,
-        chatConstants,
-        useProfileData,
-        chatName
-    ) => {
+    const createChat = async () => {
         try {
             const response = await fetch(`${backendUrl}/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
+                    uid: uid,
                 },
-                body: JSON.stringify({
-                    uid,
-                    agentModel,
-                    chatConstants,
-                    useProfileData,
-                    chatName,
-                }),
+                body: JSON.stringify({ uid }),
             });
 
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
+            console.log(data);
             if (!response.ok) {
                 const errorBody = await response.text();
                 throw new Error(

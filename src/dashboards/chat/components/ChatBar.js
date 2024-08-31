@@ -42,7 +42,7 @@ const ChatBar = () => {
     }, [selectedChat]);
 
     const handleSubmit = () => {
-        createChat('gpt-4o-mini', '', false, 'New Chat');
+        createChat();
     };
 
     const handleDeleteClick = () => {
@@ -136,7 +136,7 @@ const ChatBar = () => {
                     <Tooltip
                         title={deleteClicked ? 'Click again to confirm' : ''}
                         open={deleteClicked}
-                        placement={isSettingsOpen ? "left" : "top"}
+                        placement={isSettingsOpen ? 'left' : 'top'}
                     >
                         <StyledIconButton
                             disableRipple

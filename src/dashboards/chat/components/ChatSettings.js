@@ -11,9 +11,9 @@ import {
 
 const ResizableTextField = styled(TextField)({
     '& .MuiInputBase-root': {
-        height: '50px', 
+        height: '50px',
         padding: '3px 10px',
-        overflow: 'hidden', 
+        overflow: 'hidden',
         resize: 'vertical',
     },
     '& .MuiInputBase-input': {
@@ -59,6 +59,7 @@ const ChatSettings = ({
     const handleUpdateSettings = (newSettings) => {
         updateSettings({
             chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
             ...newSettings,
         });
     };

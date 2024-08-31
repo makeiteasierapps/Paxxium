@@ -122,7 +122,6 @@ export const useKbDocManager = (
             }
 
             const data = await response.json();
-            console.log(data.kb_doc);
             showSnackbar('Document embedded successfully', 'success');
             setIsDocManagerLoading(false);
             return data.kb_doc;
