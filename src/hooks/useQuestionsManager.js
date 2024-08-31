@@ -2,52 +2,32 @@ import { useCallback, useState, useEffect } from 'react';
 
 export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
     const [treeData, setTreeData] = useState({
+        id: 'root',
         name: 'Root',
+        type: 'root',
         children: [],
-        parent: null,
     });
-    const [newCategory, setNewCategory] = useState(null);
+    const [activeNodeId, setActiveNodeId] = useState('root');
+    const [expandedNodes, setExpandedNodes] = useState(['root']);
+
     const [isLoading, setIsLoading] = useState(true);
     const [isQuestionsFormOpen, setIsQuestionsFormOpen] = useState(false);
     const [isGraphOpen, setIsGraphOpen] = useState(false);
 
-    const addCategoryToTree = useCallback((root, newCategory) => {
-        const newRoot = { ...root };
-        if (Array.isArray(newCategory)) {
-            newCategory.forEach((category) => {
-                addCategoryToTree(newRoot, category);
-            });
-            return newRoot;
-        }
-        const categoryNode = {
-            name: newCategory.category,
-            children: [],
-            parent: newRoot,
-        };
-
-        newCategory.questions.forEach((questionAnswerPair) => {
-            const questionNode = {
-                id: questionAnswerPair._id,
-                name: questionAnswerPair.question,
-                answer: questionAnswerPair.answer || '',
-                children: [],
-                parent: categoryNode,
+    const addNode = useCallback((parentId, newNode) => {
+        setTreeData((prevTree) => {
+            const updatedTree = { ...prevTree };
+            const addNodeRecursive = (node) => {
+                if (node.id === parentId) {
+                    node.children = [...(node.children || []), newNode];
+                    return true;
+                }
+                return node.children?.some(addNodeRecursive) || false;
             };
-            categoryNode.children.push(questionNode);
+            addNodeRecursive(updatedTree);
+            return updatedTree;
         });
-
-        newRoot.children.push(categoryNode);
-
-        return newRoot;
     }, []);
-
-    useEffect(() => {
-        if (newCategory) {
-            setTreeData((prevTreeData) =>
-                addCategoryToTree(prevTreeData, newCategory)
-            );
-        }
-    }, [addCategoryToTree, newCategory]);
 
     const updateAnswer = async (questionId, answer) => {
         try {
@@ -64,42 +44,55 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             if (!response.ok) {
                 throw new Error('Failed to update answers');
             }
-            const updateNodeAnswer = (node) => {
-                if (node.id === questionId) {
-                    node.answer = answer;
-                }
-                node.children.forEach(updateNodeAnswer); // Recursively update children
-            };
 
-            treeData.children.forEach(updateNodeAnswer);
-            localStorage.setItem('questionsData', JSON.stringify(treeData));
+            setTreeData((prevTreeData) => {
+                const updatedTreeData = { ...prevTreeData };
+                let parentCategoryId = null;
+
+                const updateNodeRecursive = (node) => {
+                    if (node.id === questionId) {
+                        node.answer = answer;
+                        return true;
+                    }
+                    if (node.children?.some(updateNodeRecursive)) {
+                        parentCategoryId = node.id;
+                        return true;
+                    }
+                    return false;
+                };
+                updateNodeRecursive(updatedTreeData);
+
+                // Update expandedNodes
+                if (parentCategoryId) {
+                    setExpandedNodes((prev) =>
+                        prev.includes(parentCategoryId)
+                            ? prev
+                            : [...prev, parentCategoryId]
+                    );
+                }
+
+                // Prepare the data structure for local storage
+                const dataToSave = updatedTreeData.children.map((category) => ({
+                    _id: category.id,
+                    category: category.name,
+                    questions: category.children.map((question) => ({
+                        _id: question.id,
+                        question: question.name,
+                        answer: question.answer,
+                    })),
+                }));
+
+                // Save the correct structure to local storage
+                localStorage.setItem(
+                    'questionsData',
+                    JSON.stringify(dataToSave)
+                );
+
+                return updatedTreeData;
+            });
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
-        }
-    };
-
-    // might move this to an automated backend process.
-    const analyzeAnsweredQuestions = async () => {
-        try {
-            const response = await fetch(`${backendUrl}/profile/analyze`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to analyze profile');
-            }
-
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-            console.error(error);
         }
     };
 
@@ -128,7 +121,6 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            const newQuestions = [];
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -140,20 +132,23 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
                 for (const line of lines) {
                     if (line.trim()) {
                         const result = JSON.parse(line);
-                        setNewCategory(result);
-                        newQuestions.push(result);
+                        const categoryNode = {
+                            id: result._id,
+                            name: result.category,
+                            type: 'category',
+                            children: result.questions.map((q) => ({
+                                id: q._id,
+                                name: q.question,
+                                type: 'question',
+                                answer: q.answer || null,
+                            })),
+                        };
+                        addNode('root', categoryNode);
                     }
                 }
             }
-            const cachedQuestions =
-                JSON.parse(localStorage.getItem('questionsData')) || {};
-            newQuestions.forEach((question) => {
-                cachedQuestions.children.push(question);
-            });
-            localStorage.setItem(
-                'questionsData',
-                JSON.stringify(cachedQuestions)
-            );
+
+            localStorage.setItem('questionsData', JSON.stringify(treeData));
         } catch (error) {
             console.error('Error generating follow-up questions:', error);
             showSnackbar(
@@ -171,8 +166,11 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             const cachedQuestions = localStorage.getItem('questionsData');
 
             if (cachedQuestions) {
+                console.log('using cached questions');
                 data = JSON.parse(cachedQuestions);
+                console.log('data', data);
             } else {
+                console.log('fetching questions');
                 const response = await fetch(
                     `${backendUrl}/profile/questions`,
                     {
@@ -189,7 +187,20 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             }
 
             setTreeData((prevTreeData) => {
-                const newTreeData = addCategoryToTree(prevTreeData, data);
+                const newTreeData = {
+                    ...prevTreeData,
+                    children: data.map((category) => ({
+                        id: category._id,
+                        name: category.category,
+                        type: 'category',
+                        children: category.questions.map((q) => ({
+                            id: q._id,
+                            name: q.question,
+                            type: 'question',
+                            answer: q.answer || null,
+                        })),
+                    })),
+                };
                 setIsQuestionsFormOpen(newTreeData.children.length === 0);
                 setIsGraphOpen(newTreeData.children.length > 0);
                 return newTreeData;
@@ -200,8 +211,8 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
         } finally {
             setIsLoading(false);
         }
-    }, [addCategoryToTree, backendUrl, showSnackbar, uid]);
-   
+    }, [backendUrl, showSnackbar, uid]);
+
     useEffect(() => {
         if (!uid) return;
         setIsLoading(true);
@@ -209,12 +220,15 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
     }, [getQuestions, uid]);
 
     return {
+        treeData,
         updateAnswer,
-        analyzeAnsweredQuestions,
         generateBaseQuestions,
         isLoading,
-        treeData,
         isQuestionsFormOpen,
         isGraphOpen,
+        activeNodeId,
+        setActiveNodeId,
+        expandedNodes,
+        setExpandedNodes,
     };
 };

@@ -7,7 +7,6 @@ import {
     InputAdornment,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { AnimatePresence, motion } from 'framer-motion';
 import SendIcon from '@mui/icons-material/Send';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import {
@@ -40,6 +39,7 @@ const RootNode = ({ node, onClick }) => {
 };
 
 const QuestionNode = ({ node, onClick }) => {
+    console.log('question node', node);
     return (
         <StyledShadowWrapper>
             <StyledQuestionNode
@@ -80,7 +80,7 @@ const CategoryNode = ({ node, onClick }) => {
 const QaNode = ({ node, onClick }) => {
     const [answer, setAnswer] = useState('');
     const { updateAnswer } = useContext(ProfileContext);
-
+    console.log('qa node', node);
     const handleSaveAnswer = (e, node) => {
         updateAnswer(node.id, answer);
     };
@@ -171,7 +171,7 @@ const Node = ({
     setExpandedNodes,
     activeNode,
 }) => {
-    const isExpanded = expandedNodes.includes(node) || !node.parent;
+    const isExpanded = expandedNodes.includes(node.id) || node.type === 'root';
     const [isHovered, setIsHovered] = useState(false);
     const nodeRef = useRef(null);
 
@@ -184,15 +184,8 @@ const Node = ({
     }, [isHovered, depth]);
 
     const handleClick = () => {
-        setExpandedNodes((prev) =>
-            isExpanded ? prev.filter((n) => n !== node) : [...prev, node]
-        );
-        onClick(node);
+        onClick(node.id);
     };
-
-    const isRoot =
-        node.name === 'Root' || node.name === 'Personalized Questions';
-    if (isRoot) node.name = 'Personalized Questions';
 
     let angle, x, y;
     const radius = 150 * (depth + 1);
@@ -200,8 +193,22 @@ const Node = ({
     x = radius * Math.cos(angle);
     y = radius * Math.sin(angle);
 
-    const isQuestion = 'answer' in node && node !== activeNode;
-    const isQa = 'answer' in node;
+    const renderNode = () => {
+        switch (node.type) {
+            case 'root':
+                return <RootNode node={node} onClick={handleClick} />;
+            case 'category':
+                return <CategoryNode node={node} onClick={handleClick} />;
+            case 'question':
+                return node === activeNode ? (
+                    <QaNode node={node} onClick={handleClick} />
+                ) : (
+                    <QuestionNode node={node} onClick={handleClick} />
+                );
+            default:
+                return null;
+        }
+    };
 
     return (
         <Box
@@ -221,32 +228,24 @@ const Node = ({
                 transform: 'translate(-50%, -50%)',
             }}
         >
-            {isRoot ? (
-                <RootNode node={node} onClick={handleClick} />
-            ) : isQuestion ? (
-                <QuestionNode node={node} onClick={handleClick} />
-            ) : isQa ? (
-                <QaNode node={node} onClick={handleClick} />
-            ) : (
-                <CategoryNode node={node} onClick={handleClick} />
-            )}
+            {renderNode()}
 
             {isExpanded &&
-                (node.children.length > 0
-                    ? node.children.map((child, idx) => (
-                          <Node
-                              key={`${node.id}-${idx}`}
-                              node={child}
-                              onClick={onClick}
-                              depth={depth + 1}
-                              index={idx}
-                              total={node.children.length}
-                              expandedNodes={expandedNodes}
-                              setExpandedNodes={setExpandedNodes}
-                              activeNode={activeNode}
-                          />
-                      ))
-                    : null)}
+                node.children &&
+                node.children.length > 0 &&
+                node.children.map((child, idx) => (
+                    <Node
+                        key={`${node.id}-${idx}`}
+                        node={child}
+                        onClick={onClick}
+                        depth={depth + 1}
+                        index={idx}
+                        total={node.children.length}
+                        expandedNodes={expandedNodes}
+                        setExpandedNodes={setExpandedNodes}
+                        activeNode={activeNode}
+                    />
+                ))}
         </Box>
     );
 };
