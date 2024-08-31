@@ -113,7 +113,7 @@ const User = () => {
         // create a FormData object
         const formData = new FormData();
         // append the cropped image blob to the FormData object
-        formData.append('avatar', blob);
+        formData.append('file', blob);
         updateAvatar(formData);
     }
 

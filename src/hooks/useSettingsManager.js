@@ -68,7 +68,6 @@ export const useSettingsManager = (backendUrl) => {
 
     const updateAvatar = useCallback(
         async (formData) => {
-            // send the FormData object to the server
             try {
                 const response = await fetch(
                     `${backendUrl}/profile/update_avatar`,
