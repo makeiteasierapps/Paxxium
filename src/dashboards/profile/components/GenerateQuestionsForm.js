@@ -7,8 +7,8 @@ import { ProfileContext } from '../../../contexts/ProfileContext';
 import {
     StyledButton,
     CustomTextField,
-    InputContainer,
 } from '../styledProfileComponents';
+import { StyledContainer } from '../../styledComponents/DashStyledComponents';
 const GenerateQuestionsForm = () => {
     const [userInput, setUserInput] = useState('');
     const { generateBaseQuestions, isLoading } = useContext(ProfileContext);
@@ -16,7 +16,7 @@ const GenerateQuestionsForm = () => {
         await generateBaseQuestions(userInput);
     };
     return (
-        <InputContainer>
+        <StyledContainer>
             <Typography variant="h6" gutterBottom>
                 Tell Paxx about yourself
             </Typography>
@@ -40,7 +40,7 @@ const GenerateQuestionsForm = () => {
             >
                 {isLoading ? <CircularProgress size={24} /> : 'Get Started'}
             </StyledButton>
-        </InputContainer>
+        </StyledContainer>
     );
 };
 

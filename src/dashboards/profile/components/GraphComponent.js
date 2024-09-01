@@ -4,13 +4,9 @@ import Node from './Node';
 import { ProfileContext } from '../../../contexts/ProfileContext';
 
 const GraphComponent = () => {
-    const {
-        treeData,
-        activeNodeId,
-        setActiveNodeId,
-        expandedNodes,
-        setExpandedNodes,
-    } = useContext(ProfileContext);
+    const { treeData, activeNodeId, setActiveNodeId } =
+        useContext(ProfileContext);
+
     const findNodeById = (tree, id) => {
         if (tree.id === id) return tree;
         if (tree.children) {
@@ -43,14 +39,19 @@ const GraphComponent = () => {
             }
             return nodeId;
         });
-
-        setExpandedNodes((prev) => {
-            if (prev.includes(nodeId)) {
-                return prev.filter((id) => id !== nodeId);
+    };
+    const handleNavigate = (direction) => {
+        const parentNode = findParentNode(treeData, activeNodeId);
+        if (parentNode && parentNode.children) {
+            const currentIndex = parentNode.children.findIndex(child => child.id === activeNodeId);
+            let newIndex;
+            if (direction === 'next') {
+                newIndex = (currentIndex + 1) % parentNode.children.length;
             } else {
-                return [...prev, nodeId];
+                newIndex = (currentIndex - 1 + parentNode.children.length) % parentNode.children.length;
             }
-        });
+            setActiveNodeId(parentNode.children[newIndex].id);
+        }
     };
 
     const activeNode = findNodeById(treeData, activeNodeId);
@@ -67,22 +68,19 @@ const GraphComponent = () => {
                 position: 'relative',
             }}
         >
-            <Box
-                sx={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                }}
-            >
-                <Node
-                    node={activeNode}
-                    onClick={handleNodeClick}
-                    expandedNodes={expandedNodes}
-                    setExpandedNodes={setExpandedNodes}
-                    activeNode={activeNode}
-                />
-            </Box>
+            <Node node={activeNode} onClick={handleNodeClick} isActive={true} onNavigate={handleNavigate} />
+            {activeNode.children &&
+                activeNode.children.map((child, index) => (
+                    <Node
+                        key={child.id}
+                        node={child}
+                        onClick={handleNodeClick}
+                        onNavigate={handleNavigate}
+                        isChild={true}
+                        index={index}
+                        total={activeNode.children.length}
+                    />
+                ))}
         </Box>
     );
 };

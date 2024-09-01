@@ -15,6 +15,10 @@ const commonStyles = {
     textAlign: 'center',
 };
 
+export const StyledShadowWrapper = styled('div')(({ theme }) => ({
+    filter: `drop-shadow(0px 0px 10px ${theme.palette.primary.main})`,
+}));
+
 export const StyledRootNode = styled(motion.div)(({ theme }) => ({
     ...commonStyles,
     borderRadius: '0',
@@ -62,16 +66,6 @@ export const CustomTextField = styled(TextField)(({ theme }) => ({
     },
 }));
 
-export const InputContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '9px',
-    width: '70vw',
-    height: '40vh',
-    boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
-}));
 
 export const UserContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
