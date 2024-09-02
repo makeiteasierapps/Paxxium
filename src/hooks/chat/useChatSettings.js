@@ -10,6 +10,7 @@ export const useChatSettings = ({
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const updateSettings = async (newAgentSettings) => {
+        console.log(newAgentSettings);
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PATCH',
