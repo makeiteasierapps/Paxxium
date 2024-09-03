@@ -166,11 +166,8 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             const cachedQuestions = localStorage.getItem('questionsData');
 
             if (cachedQuestions) {
-                console.log('using cached questions');
                 data = JSON.parse(cachedQuestions);
-                console.log('data', data);
             } else {
-                console.log('fetching questions');
                 const response = await fetch(
                     `${backendUrl}/profile/questions`,
                     {

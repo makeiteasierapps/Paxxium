@@ -1,13 +1,9 @@
-import { useCallback, useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
-import { SnackbarContext } from '../contexts/SnackbarContext';
+import { useCallback, useState, useEffect } from 'react';
 
-export const useSettingsManager = (backendUrl) => {
+export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [profileData, setProfileData] = useState({});
     const [avatar, setAvatar] = useState();
     const [isLoading, setIsLoading] = useState(false);
-    const { uid } = useContext(AuthContext);
-    const { showSnackbar } = useContext(SnackbarContext);
 
     const loadProfile = useCallback(async () => {
         try {
@@ -68,7 +64,6 @@ export const useSettingsManager = (backendUrl) => {
 
     const updateAvatar = useCallback(
         async (formData) => {
-            console.log(uid)
             try {
                 const response = await fetch(
                     `${backendUrl}/profile/update_avatar`,

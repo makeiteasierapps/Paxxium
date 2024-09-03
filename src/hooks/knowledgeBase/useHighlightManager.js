@@ -18,7 +18,6 @@ export const useHighlightManager = (highlights, setHighlights, quill) => {
 
     const removeHighlight = () => {
         if (selectedChunk && quill) {
-            console.log(selectedChunk);
             const updatedChunks = highlights.filter(
                 (chunk) => chunk.id !== selectedChunk.id
             );

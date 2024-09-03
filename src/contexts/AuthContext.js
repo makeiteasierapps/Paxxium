@@ -84,7 +84,6 @@ export const AuthProvider = ({ children }) => {
                         );
                     }
                 } else {
-                    console.log('No user is signed in.');
                     setIdToken(null);
                     setUid(null);
                     setUser(null);
