@@ -63,7 +63,7 @@ export const useImageManager = () => {
         );
       }
 
-      const firebaseUrl = await response.text();
+      const firebaseUrl = await response.json();
       const downloadedImage = {
         url: firebaseUrl,
       };
@@ -128,7 +128,7 @@ export const useImageManager = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const imageUrl = await response.text();
+      const imageUrl = await response.json();
 
       if (imageUrl) {
         setImageUrl(imageUrl);

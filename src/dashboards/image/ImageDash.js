@@ -5,8 +5,9 @@ import ImagePreview from './ImagePreview';
 import ImageGallery from './ImageGallery';
 
 import { Box } from '@mui/material';
+
 const ImageDash = () => {
-    const { imageRequest, imageUrl } = useContext(ImageContext);
+    const { imageRequest } = useContext(ImageContext);
     return (
         <Box
             sx={{
@@ -18,11 +19,7 @@ const ImageDash = () => {
             gap={2}
         >
             <DalleSettings />
-            {imageRequest && (
-                <ImagePreview>
-                    <img src={imageUrl} alt={imageRequest.prompt} />
-                </ImagePreview>
-            )}
+            {imageRequest && <ImagePreview />}
             <ImageGallery />
         </Box>
     );

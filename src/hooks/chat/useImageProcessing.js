@@ -28,7 +28,7 @@ export const useImageProcessing = (backendUrl, uid) => {
             }
 
             const data = await response.json();
-            return data.fileUrl; // Return the image URL
+            return data.fileUrl;
         } catch (error) {
             throw new Error(`Image upload error: ${error.message}`);
         }

@@ -1,10 +1,10 @@
-import { useState, useContext } from 'react';
-import { IconButton, Tooltip, Paper, CircularProgress } from '@mui/material';
+import React, { useContext, useState, useEffect } from 'react';
+import { ImageContext } from '../../contexts/ImageContext';
+import { Paper, CircularProgress, IconButton, Tooltip } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ImageContext } from '../../contexts/ImageContext';
 
-const ImagePreview = ({ children }) => {
+const ImagePreview = () => {
     const {
         imageRequest,
         setImageRequest,
@@ -14,15 +14,20 @@ const ImagePreview = ({ children }) => {
         setUserPrompt,
         isLoading,
     } = useContext(ImageContext);
-    
-    const [width, height] = imageRequest.size.split('x').map(Number);
-    const aspectRatio = width / height;
+
     const [hover, setHover] = useState(false);
+
+    const [width, height] = imageRequest?.size.split('x').map(Number) || [1, 1];
+    const aspectRatio = width / height;
 
     const handleMouseEnter = () => {
         if (imageUrl) {
             setHover(true);
         }
+    };
+
+    const handleMouseLeave = () => {
+        setHover(false);
     };
 
     const handleDelete = () => {
@@ -32,19 +37,17 @@ const ImagePreview = ({ children }) => {
     };
 
     const handleSave = () => {
-        saveImage({ url: imageUrl })
-            .then(() => {
-                setUserPrompt('');
-                setImageRequest(null);
-                setImageUrl(null);
-            })
-            .catch((error) => {
-                console.error("Error saving image:", error);
-            });
-    };
-
-    const handleMouseLeave = () => {
-        setHover(false);
+        if (imageUrl) {
+            saveImage({ url: imageUrl })
+                .then(() => {
+                    setUserPrompt('');
+                    setImageRequest(null);
+                    setImageUrl(null);
+                })
+                .catch((error) => {
+                    console.error('Error saving image:', error);
+                });
+        }
     };
 
     return (
@@ -76,8 +79,28 @@ const ImagePreview = ({ children }) => {
                     <CircularProgress size={50} />
                 </div>
             )}
-            {!isLoading && children}
-            {hover && !isLoading && (
+            {!isLoading && imageUrl && (
+                <img
+                    src={imageUrl}
+                    alt={imageRequest.prompt}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                    }}
+                    onLoad={() => console.log('Image loaded successfully')}
+                    onError={(e) => {
+                        console.error('Error loading image:', {
+                            src: e.target.src,
+                            error: e.target.error,
+                            type: e.target.type,
+                            message: e.target.message,
+                            // Add any other properties of the error event that might be useful
+                        });
+                    }}
+                />
+            )}
+            {hover && !isLoading && imageUrl && (
                 <div
                     style={{
                         position: 'absolute',
@@ -104,4 +127,5 @@ const ImagePreview = ({ children }) => {
         </Paper>
     );
 };
+
 export default ImagePreview;
