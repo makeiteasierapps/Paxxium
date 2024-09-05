@@ -10,9 +10,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { ImageContext } from '../../contexts/ImageContext';
 
 const ImageGallery = () => {
-    const { imageList, deleteImage } = useContext(ImageContext);
+    const { imageList, deleteImage, backendUrl } = useContext(ImageContext);
     const [hoverIndex, setHoverIndex] = useState(false);
-
     return (
         <Box sx={{ width: '90%', height: '40%', overflowY: 'scroll' }}>
             <ImageList variant="masonry" cols={3} gap={8}>
@@ -24,7 +23,7 @@ const ImageGallery = () => {
                     >
                         <img
                             srcSet={image.url}
-                            src={image.url}
+                            src={`${backendUrl}/images/${image.path}`}
                             alt={'Dalle'}
                             loading="lazy"
                         />
