@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useContext } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
-import { useImageProcessing } from './useImageProcessing';
 import { KbContext } from '../../contexts/KbContext';
 export const useMessageManager = ({
     backendUrl,
@@ -13,8 +12,6 @@ export const useMessageManager = ({
     detectedUrls,
 }) => {
     const selectedChatId = useRef(null);
-
-    const imageManager = useImageProcessing();
     const { kbArray } = useContext(KbContext);
 
     const updateChatArrayAndMessages = useCallback(
@@ -94,27 +91,21 @@ export const useMessageManager = ({
     };
 
     const sendMessage = async (input, chatSettings, image = null) => {
-        let imageUrl = null;
         let kbId = null;
+        let imageBlob = null;
+
         if (kbArray.length > 0) {
             const kbName = extractKbName(input);
             kbId = getKbId(kbName);
         }
+
         if (image) {
             try {
-                const resizedImageBlob =
-                    await imageManager.resizeAndConvertImageToBlob(
-                        image,
-                        400,
-                        400
-                    );
-                imageUrl = await imageManager.uploadImageAndGetUrl(
-                    resizedImageBlob
-                );
+                imageBlob = image;
             } catch (error) {
                 console.error(error);
                 showSnackbar(
-                    `Image processing or upload error: ${error.message}`,
+                    `Image processing error: ${error.message}`,
                     'error'
                 );
                 return;
@@ -126,25 +117,28 @@ export const useMessageManager = ({
             message_from: 'user',
             created_at: new Date().toISOString(),
             type: 'database',
-            image_url: imageUrl,
+            image_path: imageBlob,
         };
         addMessage(chatSettings.chatId, userMessage, true);
-
         const chatHistory = await getMessages(chatSettings.chatId);
-
-        if (socket) {
-            socket.emit('chat', {
+        try {
+            if (socket) {
+                socket.emit('chat', {
                 uid,
                 chatId: chatSettings.chatId,
                 dbName: 'paxxium',
-                imageUrl,
+                imageBlob,
                 chatSettings,
                 chatHistory,
                 userMessage,
                 saveToDb: true,
                 kbId,
                 urls: detectedUrls,
-            });
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
 

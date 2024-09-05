@@ -67,7 +67,6 @@ export const useImageManager = () => {
 
             const data = await response.json();
             const savedImage = { path: data.path };
-            console.log(savedImage);
             setImageList((prevImageList) => {
                 const updatedImageList = [...prevImageList, savedImage];
                 localStorage.setItem(

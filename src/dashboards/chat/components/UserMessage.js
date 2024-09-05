@@ -1,10 +1,22 @@
 import { Avatar } from '@mui/material';
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { ProfileContext } from '../../../contexts/ProfileContext';
 import { MessageContainer, MessageContent } from '../chatStyledComponents';
 
 const UserMessage = ({ message }) => {
-    const { avatar } = useContext(ProfileContext);
+    console.log(message);
+    const { avatar, backendUrl } = useContext(ProfileContext);
+    const [imageSrc, setImageSrc] = useState(null);
+
+    useEffect(() => {
+        if (message.image_path instanceof Blob) {
+            const objectUrl = URL.createObjectURL(message.image_path);
+            setImageSrc(objectUrl);
+            return () => URL.revokeObjectURL(objectUrl);
+        } else if (typeof message.image_path === 'string') {
+            setImageSrc(`${backendUrl}/images/${message.image_path}`);
+        }
+    }, [message.image_path, backendUrl]);
 
     return (
         <MessageContainer messageFrom="user">
@@ -16,18 +28,16 @@ const UserMessage = ({ message }) => {
                     width: '33px',
                     height: '33px',
                     backgroundColor: 'transparent',
-                }}
-                imgProps={{
-                    style: { objectFit: 'contain' },
+                    objectFit: 'contain',
                 }}
             />
-            {message.image_url && (
+            {imageSrc && (
                 <img
                     style={{
                         width: '90px',
                         height: 'auto',
                     }}
-                    src={message.image_url}
+                    src={imageSrc}
                     alt="message content"
                 />
             )}

@@ -14,7 +14,6 @@ import {
 import { useDropzone } from 'react-dropzone';
 import MentionMenu from './MentionMenu';
 import { useImageHandling } from '../../../hooks/chat/useImageHandling';
-import { useInputDetection } from '../../../hooks/chat/useInputDetection';
 import EndAdornment from './EndAdornment';
 
 const MessageInput = ({ chatSettings }) => {
@@ -37,8 +36,6 @@ const MessageInput = ({ chatSettings }) => {
         removeImage,
         setShowOverlay,
     } = useImageHandling();
-
-    const {} = useInputDetection();
 
     const [isFocused, setIsFocused] = useState(false);
 

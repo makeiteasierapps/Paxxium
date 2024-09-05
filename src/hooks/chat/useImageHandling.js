@@ -16,6 +16,7 @@ export const useImageHandling = () => {
     const handleFileInput = (event) => {
         const file = event.target.files[0];
         if (file) {
+            console.log(file);
             setImage(file);
         }
     };

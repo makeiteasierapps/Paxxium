@@ -20,6 +20,7 @@ export const ProfileProvider = ({ children }) => {
         <ProfileContext.Provider
             value={{
                 ...questionsManager,
+                backendUrl,
             }}
         >
             {children}
