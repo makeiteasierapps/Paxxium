@@ -124,16 +124,16 @@ export const useMessageManager = ({
         try {
             if (socket) {
                 socket.emit('chat', {
-                uid,
-                chatId: chatSettings.chatId,
-                dbName: 'paxxium',
-                imageBlob,
-                chatSettings,
-                chatHistory,
-                userMessage,
-                saveToDb: true,
-                kbId,
-                urls: detectedUrls,
+                    uid,
+                    chatId: chatSettings.chatId,
+                    dbName: 'paxxium',
+                    imageBlob,
+                    chatSettings,
+                    chatHistory,
+                    userMessage,
+                    saveToDb: true,
+                    kbId,
+                    urls: detectedUrls,
                 });
             }
         } catch (error) {
@@ -191,23 +191,38 @@ export const useMessageManager = ({
         async (data) => {
             selectedChatId.current = data.room;
             if (data.type === 'end_of_stream') {
-                console.log('end of stream');
-            } else {
-                setMessages((prevMessages) => {
-                    const newMessageParts = processIncomingStream(
-                        prevMessages,
-                        selectedChatId.current,
-                        data
-                    );
+                console.log('end of stream', data);
+                // Update the most recent user message with the image path
+                const chatMessages = messages[selectedChatId.current];
+                const lastUserMessageIndex = chatMessages
+                    .map((m) => m.message_from)
+                    .lastIndexOf('user');
+
+                if (lastUserMessageIndex !== -1) {
+                    const updatedMessages = [...chatMessages];
+                    updatedMessages[lastUserMessageIndex] = {
+                        ...updatedMessages[lastUserMessageIndex],
+                        image_path: data.image_path,
+                    };
+
                     updateChatArrayAndMessages(
                         selectedChatId.current,
-                        newMessageParts[selectedChatId.current]
+                        updatedMessages
                     );
-                    return newMessageParts;
-                });
+                }
+            } else {
+                const newMessageParts = processIncomingStream(
+                    messages,
+                    selectedChatId.current,
+                    data
+                );
+                updateChatArrayAndMessages(
+                    selectedChatId.current,
+                    newMessageParts[selectedChatId.current]
+                );
             }
         },
-        [updateChatArrayAndMessages, setMessages]
+        [updateChatArrayAndMessages, messages]
     );
 
     useEffect(() => {

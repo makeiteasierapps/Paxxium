@@ -4,7 +4,6 @@ import { ProfileContext } from '../../../contexts/ProfileContext';
 import { MessageContainer, MessageContent } from '../chatStyledComponents';
 
 const UserMessage = ({ message }) => {
-    console.log(message);
     const { avatar, backendUrl } = useContext(ProfileContext);
     const [imageSrc, setImageSrc] = useState(null);
 
