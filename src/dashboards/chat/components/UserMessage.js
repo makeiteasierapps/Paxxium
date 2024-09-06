@@ -4,7 +4,7 @@ import { ProfileContext } from '../../../contexts/ProfileContext';
 import { MessageContainer, MessageContent } from '../chatStyledComponents';
 
 const UserMessage = ({ message }) => {
-    const { avatar, backendUrl } = useContext(ProfileContext);
+    const { avatarImgPath, backendUrl } = useContext(ProfileContext);
     const [imageSrc, setImageSrc] = useState(null);
 
     useEffect(() => {
@@ -21,7 +21,7 @@ const UserMessage = ({ message }) => {
         <MessageContainer messageFrom="user">
             <Avatar
                 variant="rounded"
-                src={avatar}
+                src={`${backendUrl}/images/${avatarImgPath}`}
                 sx={{
                     margin: '0px 13px 0px 0px',
                     width: '33px',

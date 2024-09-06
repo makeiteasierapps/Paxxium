@@ -7,6 +7,7 @@ export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
+    
     const { showSnackbar } = useSnackbar();
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -19,6 +20,7 @@ export const SettingsProvider = ({ children }) => {
         <SettingsContext.Provider
             value={{
                 ...settingsManager,
+                backendUrl,
             }}
         >
             {children}

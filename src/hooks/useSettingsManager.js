@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 
 export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [profileData, setProfileData] = useState({});
-    const [avatar, setAvatar] = useState();
+    const [avatarImgPath, setAvatarImgPath] = useState();
     const [isLoading, setIsLoading] = useState(false);
 
     const loadProfile = useCallback(async () => {
@@ -14,7 +14,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             if (data) {
                 setProfileData(data);
-                setAvatar(data.avatar_url);
+                setAvatarImgPath(data.avatar_path);
                 return;
             }
 
@@ -27,7 +27,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             const profileData = await response.json();
             setProfileData(profileData);
-            setAvatar(profileData.avatar_url);
+            setAvatarImgPath(profileData.avatar_path);
             localStorage.setItem('profileData', JSON.stringify(profileData));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -65,6 +65,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const updateAvatar = useCallback(
         async (formData) => {
             try {
+                console.log(uid);
                 const response = await fetch(
                     `${backendUrl}/profile/update_avatar`,
                     {
@@ -82,12 +83,12 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 }
 
                 const data = await response.json();
-                setAvatar(data.avatar_url);
+                setAvatarImgPath(data.path);
 
                 const cachedProfileData = localStorage.getItem('profileData');
                 if (cachedProfileData) {
                     const profileData = JSON.parse(cachedProfileData);
-                    profileData.avatar_url = data.avatar_url;
+                    profileData.avatar_path = data.path;
                     localStorage.setItem(
                         'profileData',
                         JSON.stringify(profileData)
@@ -101,7 +102,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 console.error(error);
             }
         },
-        [backendUrl, showSnackbar]
+        [backendUrl, showSnackbar, uid]
     );
 
     useEffect(() => {
@@ -115,7 +116,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         profileData,
         setProfileData,
         isLoading,
-        avatar,
+        avatarImgPath,
         updateUserProfile,
         updateAvatar,
     };

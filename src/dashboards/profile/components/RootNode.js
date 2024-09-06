@@ -5,7 +5,7 @@ import {
     StyledShadowWrapper,
 } from '../styledProfileComponents';
 const RootNode = ({ node, onClick }) => {
-    const { avatar } = useContext(SettingsContext);
+    const { avatarImgPath, backendUrl } = useContext(SettingsContext);
     return (
         <StyledShadowWrapper>
             <StyledRootNode
@@ -13,7 +13,7 @@ const RootNode = ({ node, onClick }) => {
                 whileTap={{ scale: 0.9 }}
                 onClick={onClick}
                 sx={{
-                    backgroundImage: `url(${avatar})`,
+                    backgroundImage: `url(${backendUrl}/images/${avatarImgPath})`,
                 }}
             />
         </StyledShadowWrapper>

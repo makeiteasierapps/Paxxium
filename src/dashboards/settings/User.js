@@ -46,9 +46,9 @@ const User = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const { profileData, setProfileData, avatar, updateAvatar, isLoading, updateUserProfile } =
+    const { profileData, setProfileData, avatarImgPath, updateAvatar, isLoading, updateUserProfile, backendUrl } =
         useContext(SettingsContext);
-
+    
     const handleClose = () => {
         setOpen(false);
     };
@@ -141,8 +141,8 @@ const User = () => {
                     }}
                 />
                 <label htmlFor="avatar-input">
-                    {avatar ? (
-                        <StyledAvatar alt="User Avatar" src={avatar} />
+                    {avatarImgPath ? (
+                        <StyledAvatar alt="User Avatar" src={`${backendUrl}/images/${avatarImgPath}`} />
                     ) : (
                         <StyledAvatarPlaceholder>
                             Select an Image
