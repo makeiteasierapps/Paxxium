@@ -55,7 +55,7 @@ export const useImageManager = () => {
                     uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
-                body: JSON.stringify({ image: image.url }),
+                body: JSON.stringify({ image: image.url, prompt: userPrompt }),
             });
 
             if (!response.ok) {

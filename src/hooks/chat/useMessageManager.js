@@ -111,7 +111,7 @@ export const useMessageManager = ({
                 return;
             }
         }
-
+        
         const userMessage = {
             content: input,
             message_from: 'user',
@@ -128,6 +128,7 @@ export const useMessageManager = ({
                     chatId: chatSettings.chatId,
                     dbName: 'paxxium',
                     imageBlob,
+                    fileName: imageBlob.name,
                     chatSettings,
                     chatHistory,
                     userMessage,
