@@ -32,7 +32,9 @@ export const useExtractionManager = (
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
+                console.log(value);
                 const data = JSON.parse(decoder.decode(value));
+                console.log(data);
                 if (data.status === 'completed') {
                     setKbDocs((prevDocs) => ({
                         ...prevDocs,

@@ -128,7 +128,7 @@ export const useMessageManager = ({
                     chatId: chatSettings.chatId,
                     dbName: 'paxxium',
                     imageBlob,
-                    fileName: imageBlob.name,
+                    fileName: imageBlob ? imageBlob.name : null,
                     chatSettings,
                     chatHistory,
                     userMessage,
