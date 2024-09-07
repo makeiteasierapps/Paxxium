@@ -46,9 +46,17 @@ const User = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const { profileData, setProfileData, avatarImgPath, updateAvatar, isLoading, updateUserProfile, backendUrl } =
-        useContext(SettingsContext);
-    
+    const {
+        profileData,
+        setProfileData,
+        selectedImage,
+        setSelectedImage,
+        updateAvatar,
+        isLoading,
+        updateUserProfile,
+        backendUrl,
+    } = useContext(SettingsContext);
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -59,7 +67,6 @@ const User = () => {
         }
         setOpen(false);
     };
-
 
     function onImageLoad(e) {
         if (aspect) {
@@ -101,6 +108,7 @@ const User = () => {
             type: 'image/png',
         });
 
+        setSelectedImage(URL.createObjectURL(blob));
         if (blobUrlRef.current) {
             URL.revokeObjectURL(blobUrlRef.current);
         }
@@ -110,9 +118,7 @@ const User = () => {
             hiddenAnchorRef.current.click();
         }
 
-        // create a FormData object
         const formData = new FormData();
-        // append the cropped image blob to the FormData object
         formData.append('file', blob, 'avatar.png');
         updateAvatar(formData);
     }
@@ -141,8 +147,16 @@ const User = () => {
                     }}
                 />
                 <label htmlFor="avatar-input">
-                    {avatarImgPath ? (
-                        <StyledAvatar alt="User Avatar" src={`${backendUrl}/images/${avatarImgPath}`} />
+                    {selectedImage ? (
+                        <StyledAvatar
+                            key={Date.now()}
+                            alt="User Avatar"
+                            src={
+                                selectedImage.startsWith('blob:')
+                                    ? selectedImage
+                                    : `${backendUrl}/images/${selectedImage}?t=${Date.now()}`
+                            }
+                        />
                     ) : (
                         <StyledAvatarPlaceholder>
                             Select an Image

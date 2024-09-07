@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 
 export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [profileData, setProfileData] = useState({});
-    const [avatarImgPath, setAvatarImgPath] = useState();
+    const [selectedImage, setSelectedImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const loadProfile = useCallback(async () => {
@@ -14,7 +14,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             if (data) {
                 setProfileData(data);
-                setAvatarImgPath(data.avatar_path);
+                setSelectedImage(data.avatar_path);
                 return;
             }
 
@@ -27,7 +27,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             const profileData = await response.json();
             setProfileData(profileData);
-            setAvatarImgPath(profileData.avatar_path);
+            setSelectedImage(profileData.avatar_path);
             localStorage.setItem('profileData', JSON.stringify(profileData));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -65,7 +65,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const updateAvatar = useCallback(
         async (formData) => {
             try {
-                console.log(uid);
                 const response = await fetch(
                     `${backendUrl}/profile/update_avatar`,
                     {
@@ -83,17 +82,10 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 }
 
                 const data = await response.json();
-                setAvatarImgPath(data.path);
+                console.log(data.path);
 
-                const cachedProfileData = localStorage.getItem('profileData');
-                if (cachedProfileData) {
-                    const profileData = JSON.parse(cachedProfileData);
-                    profileData.avatar_path = data.path;
-                    localStorage.setItem(
-                        'profileData',
-                        JSON.stringify(profileData)
-                    );
-                }
+                // Update the selectedImage state
+                setSelectedImage(data.path);
             } catch (error) {
                 showSnackbar(
                     `Network or fetch error: ${error.message}`,
@@ -104,7 +96,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         },
         [backendUrl, showSnackbar, uid]
     );
-
+    
     useEffect(() => {
         if (!uid) {
             return;
@@ -116,7 +108,8 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         profileData,
         setProfileData,
         isLoading,
-        avatarImgPath,
+        selectedImage,
+        setSelectedImage,
         updateUserProfile,
         updateAvatar,
     };
