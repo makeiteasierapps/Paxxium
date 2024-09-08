@@ -1,4 +1,4 @@
-name: Deploy to Firebase
+name: Deploy to Server
 
 on:
   push:
@@ -19,10 +19,17 @@ jobs:
           echo "REACT_APP_DB_NAME=${{ secrets.REACT_APP_DB_NAME }}" >> .env
       - run: npm ci
       - run: CI=false npm run build
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
         with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          host: paxxium.com
+          username: gravitaskillis
+          port: 22
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # Create a directory for the built client files
+            mkdir -p ~/projects/paxxium
+            # Copy the built files to the server
+            scp -r build/* gravitaskillis@paxxium.com:~/projects/paxxium/
+            # Restart nginx to apply any changes
+            sudo /bin/systemctl restart nginx
