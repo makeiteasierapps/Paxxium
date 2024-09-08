@@ -13,7 +13,7 @@ import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 
-const KbUtility = ({ kbId }) => {
+const KbUtility = () => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -30,7 +30,7 @@ const KbUtility = ({ kbId }) => {
             trimmedUrl.startsWith('https://')
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
-        const scrapedKbDoc = await scrapeUrl(kbId, formattedUrl, crawl);
+        const scrapedKbDoc = await scrapeUrl(selectedKb.id, formattedUrl, crawl);
         setKbDoc(scrapedKbDoc);
         setUrl('');
         setIsEditorOpen(true);
@@ -42,10 +42,9 @@ const KbUtility = ({ kbId }) => {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('kbName', selectedKb.name);
         formData.append('kbId', selectedKb.id);
 
-        const extractedKbDoc = await extractFile(formData, kbId);
+        const extractedKbDoc = await extractFile(formData, selectedKb.id);
         setKbDoc(extractedKbDoc);
         setIsEditorOpen(true);
     };

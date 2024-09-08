@@ -10,6 +10,7 @@ import { Close } from '@mui/icons-material';
 
 const KbMain = ({ onClose }) => {
     const { selectedKb, kbDocs, fetchKbDocs } = useContext(KbContext);
+    console.log(selectedKb);
 
     const theme = useTheme();
 
@@ -69,7 +70,7 @@ const KbMain = ({ onClose }) => {
                 </Typography>
             </Box>
             <Box sx={{ width: '100%', height: '100px', mb: 3, px: 2 }}>
-                <KbUtility kbName={selectedKb.name} kbId={selectedKb.id} />
+                <KbUtility />
             </Box>
             <Box sx={{ padding: '0 20px', flexGrow: 1, overflowY: 'auto' }}>
                 <Grid container spacing={2}>
