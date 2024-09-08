@@ -26,23 +26,16 @@ export const useExtractionManager = (
                 throw new Error('Failed to scrape and add document');
             }
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
+            const data = await response.json();
+            console.log('Received data:', data);
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                console.log(value);
-                const data = JSON.parse(decoder.decode(value));
-                console.log(data);
-                if (data.status === 'completed') {
-                    setKbDocs((prevDocs) => ({
-                        ...prevDocs,
-                        [kbId]: [...prevDocs[kbId], data.content],
-                    }));
-                    return data.content;
-                }
-            }
+            // Update the state with the new document
+            setKbDocs((prevDocs) => ({
+                ...prevDocs,
+                [kbId]: [...(prevDocs[kbId] || []), data],
+            }));
+
+            return data;
         } catch (error) {
             console.error('Scraping failed:', error);
             throw error;
