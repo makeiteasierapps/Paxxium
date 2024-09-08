@@ -146,6 +146,7 @@ const User = () => {
                         setOpen(true);
                     }}
                 />
+                {console.log(selectedImage)}
                 <label htmlFor="avatar-input">
                     {selectedImage ? (
                         <StyledAvatar

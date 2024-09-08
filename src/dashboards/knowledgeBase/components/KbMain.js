@@ -1,6 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
-import { styled } from '@mui/system';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useContext, useEffect } from 'react';
 import { KbContext } from '../../../contexts/KbContext';
 import KbUtility from './KbUtlity';
 import KbDocCard from './KbDocCard';

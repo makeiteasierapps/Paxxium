@@ -5,6 +5,10 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [selectedImage, setSelectedImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+        setSelectedImage(`users/${uid}/profile_images/avatar.png`);
+    }, [uid, backendUrl]);
+
     const loadProfile = useCallback(async () => {
         try {
             const cachedProfileData = localStorage.getItem('profileData');
@@ -14,7 +18,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             if (data) {
                 setProfileData(data);
-                setSelectedImage(data.avatar_path);
                 return;
             }
 
@@ -27,7 +30,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             const profileData = await response.json();
             setProfileData(profileData);
-            setSelectedImage(profileData.avatar_path);
             localStorage.setItem('profileData', JSON.stringify(profileData));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -96,7 +98,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         },
         [backendUrl, showSnackbar, uid]
     );
-    
+
     useEffect(() => {
         if (!uid) {
             return;
