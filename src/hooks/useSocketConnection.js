@@ -12,7 +12,9 @@ export const useSocketConnection = () => {
     const connect = useCallback(() => {
         if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
-            const newSocket = io(wsBackendUrl);
+            const newSocket = io(wsBackendUrl, {
+                path: '/api/socket.io',
+            });
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
