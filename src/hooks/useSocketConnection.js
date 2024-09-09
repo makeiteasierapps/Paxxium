@@ -16,7 +16,7 @@ export const useSocketConnection = () => {
                 process.env.NODE_ENV === 'development'
                     ? io(wsBackendUrl)
                     : io(wsBackendUrl, {
-                          path: '/api/socket.io',
+                          path: '/api',
                       });
             setSocket(newSocket);
 
