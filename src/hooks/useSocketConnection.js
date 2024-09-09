@@ -17,6 +17,8 @@ export const useSocketConnection = () => {
                     ? io(wsBackendUrl)
                     : io(wsBackendUrl, {
                           path: '/api/socket.io',
+                          transports: ['websocket'],
+                          debug: true,
                       });
             setSocket(newSocket);
 
