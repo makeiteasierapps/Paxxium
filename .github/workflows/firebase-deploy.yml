@@ -31,6 +31,4 @@ jobs:
             # Create a directory for the built client files
             mkdir -p ~/projects/paxxium
             # Copy the built files to the server
-            scp -r build/* gravitaskillis@paxxium.com:~/projects/paxxium/
-            # Restart nginx to apply any changes
-            sudo /bin/systemctl restart nginx
+            rsync -avz --delete ${{ github.workspace }}/build/ ~/projects/paxxium/
