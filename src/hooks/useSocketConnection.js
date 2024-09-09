@@ -4,17 +4,20 @@ import io from 'socket.io-client';
 export const useSocketConnection = () => {
     const wsBackendUrl =
         process.env.NODE_ENV === 'development'
-            ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+            ? `ws://${process.env.REACT_APP_BACKEND_URL}`
+            : `wss://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const [socket, setSocket] = useState(null);
 
     const connect = useCallback(() => {
         if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
-            const newSocket = io(wsBackendUrl, {
-                path: '/api/socket.io',
-            });
+            const newSocket =
+                process.env.NODE_ENV === 'development'
+                    ? io(wsBackendUrl)
+                    : io(wsBackendUrl, {
+                          path: '/api/socket.io',
+                      });
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
