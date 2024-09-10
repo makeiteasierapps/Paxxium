@@ -5,21 +5,14 @@ export const useSocketConnection = () => {
     const wsBackendUrl =
         process.env.NODE_ENV === 'development'
             ? `ws://${process.env.REACT_APP_BACKEND_URL}`
-            : `wss://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+            : 'wss://paxxium.com';
 
     const [socket, setSocket] = useState(null);
 
     const connect = useCallback(() => {
         if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
-            const newSocket =
-                process.env.NODE_ENV === 'development'
-                    ? io(wsBackendUrl)
-                    : io(wsBackendUrl, {
-                          path: '/api/socket.io',
-                          transports: ['websocket'],
-                          debug: true,
-                      });
+            const newSocket = io(wsBackendUrl);
             setSocket(newSocket);
 
             newSocket.on('connect', () => {
