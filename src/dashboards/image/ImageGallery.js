@@ -23,7 +23,7 @@ const ImageGallery = () => {
                     >
                         <img
                             srcSet={image.url}
-                            src={`${backendUrl}/images/${image.path}`}
+                            src={`${backendUrl}/images/${image.thumbnail}`}
                             alt={'Dalle'}
                             loading="lazy"
                         />
