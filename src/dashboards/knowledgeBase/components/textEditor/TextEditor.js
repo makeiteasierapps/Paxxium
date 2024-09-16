@@ -1,23 +1,17 @@
-import { useEffect, useContext, useCallback } from 'react';
+import { useEffect, useContext } from 'react';
 import {
     Modal,
     DialogActions,
     Button,
     Box,
-    Typography,
-    Slider,
 } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { StyledIconButton } from '../../../chat/chatStyledComponents';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
-import { getEncoding } from 'js-tiktoken';
-
-const encoding = getEncoding('cl100k_base');
 
 const ModalOverlay = styled('div')(({ theme }) => ({
     position: 'fixed',
@@ -80,7 +74,6 @@ const TextEditor = ({
 
     const theme = useTheme();
     const {
-        quill,
         setQuill,
         editorContent,
         setEditorContent,
@@ -89,8 +82,6 @@ const TextEditor = ({
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
-    console.log('currentUrlIndex', currentUrlIndex);
-    console.log('urls', urls);
     if (!currentUrlIndex && urls) {
         currentUrlIndex = urls.length - 1;
     }
