@@ -8,22 +8,21 @@ export const useTextEditorManager = (
 ) => {
     const setDocumentDetails = useCallback(
         (doc, currentUrlIndex) => {
-
             setCurrentKbDoc(doc);
-            if (doc.content) {
-                setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
-            }
 
-            if (doc.urls) {
+            if (Array.isArray(doc.content)) {
                 setEditorContent(
                     marked(
-                        doc.urls[currentUrlIndex].content.replace(
+                        doc.content[currentUrlIndex].content.replace(
                             /\n/g,
                             '<br/>'
                         )
                     )
                 );
+            } else if (typeof doc.content === 'string') {
+                setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
             }
+
             setHighlights(doc.highlights || []);
         },
         [setCurrentKbDoc, setEditorContent, setHighlights]

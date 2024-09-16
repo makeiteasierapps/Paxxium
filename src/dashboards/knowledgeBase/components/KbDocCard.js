@@ -25,11 +25,11 @@ const KbDocCard = ({ document }) => {
     const { deleteKbDoc } = useContext(KbContext);
 
     const [currentUrlIndex, setCurrentUrlIndex] = useState(
-        () => (document.urls?.length ?? 1) - 1
+        () => (Array.isArray(document.content) ? document.content.length : 1) - 1
     );
 
-    const urls = useMemo(() => document.urls || [], [document]);
-    const source = urls.length > 0 ? urls[currentUrlIndex].metadata.sourceURL : document.source
+    const urls = useMemo(() => (Array.isArray(document.content) ? document.content : []), [document]);
+    const source = urls.length > 0 ? urls[currentUrlIndex].metadata.sourceURL : document.source;
     
     const currentContent = useMemo(() => {
         if (urls.length === 0) return document.content;
@@ -190,5 +190,4 @@ const KbDocCard = ({ document }) => {
         </Card>
     );
 };
-
 export default KbDocCard;

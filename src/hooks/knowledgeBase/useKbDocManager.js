@@ -179,6 +179,7 @@ export const useKbDocManager = (
                 }
 
                 const data = await response.json();
+                console.log('data', data);
                 setIsDocManagerLoading(false);
                 setKbDocs((prevDocuments) => ({
                     ...prevDocuments,
