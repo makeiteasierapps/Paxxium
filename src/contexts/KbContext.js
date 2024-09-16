@@ -1,6 +1,5 @@
 import { useState, createContext, useContext } from 'react';
 import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
-import { useHighlightManager } from '../hooks/knowledgeBase/useHighlightManager';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useKbDocManager } from '../hooks/knowledgeBase/useKbDocManager';
 import { useExtractionManager } from '../hooks/knowledgeBase/useExtractionManager';
@@ -11,7 +10,6 @@ export const KbContext = createContext();
 export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
     const [editorContent, setEditorContent] = useState('');
-    const [highlights, setHighlights] = useState([]);
     const [quill, setQuill] = useState(null);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
@@ -26,19 +24,11 @@ export const KbProvider = ({ children }) => {
         showSnackbar,
         selectedKb,
         editorContent,
-        highlights,
     );
 
     const textEditorManager = useTextEditorManager(
         setEditorContent,
-        setHighlights,
         kbDocManager.setCurrentKbDoc
-    );
-
-    const highlightsManager = useHighlightManager(
-        highlights,
-        setHighlights,
-        quill
     );
 
     const kbManager = useKbManager(backendUrl, uid, showSnackbar);
@@ -60,9 +50,6 @@ export const KbProvider = ({ children }) => {
                 editorContent,
                 setEditorContent,
                 textEditorManager,
-                highlightsManager,
-                highlights,
-                setHighlights,
                 ...kbManager,
                 ...kbDocManager,
                 ...extractionManager,

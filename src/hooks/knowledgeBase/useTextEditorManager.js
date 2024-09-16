@@ -3,14 +3,12 @@ import { marked } from 'marked';
 
 export const useTextEditorManager = (
     setEditorContent,
-    setHighlights,
     setCurrentKbDoc
 ) => {
     const setDocumentDetails = useCallback(
         (doc, currentUrlIndex) => {
             setCurrentKbDoc(doc);
-
-            if (Array.isArray(doc.content)) {
+            if (doc.content && Array.isArray(doc.content)) {
                 setEditorContent(
                     marked(
                         doc.content[currentUrlIndex].content.replace(
@@ -23,15 +21,13 @@ export const useTextEditorManager = (
                 setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
             }
 
-            setHighlights(doc.highlights || []);
         },
-        [setCurrentKbDoc, setEditorContent, setHighlights]
+        [setCurrentKbDoc, setEditorContent]
     );
 
     const removeDocumentDetails = () => {
         setCurrentKbDoc({});
         setEditorContent('');
-        setHighlights([]);
     };
 
     return {

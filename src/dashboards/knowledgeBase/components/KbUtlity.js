@@ -115,7 +115,7 @@ const KbUtility = () => {
                     open={isEditorOpen}
                     onClose={toggleEditor}
                     doc={kbDoc}
-                    urls={kbDoc.urls}
+                    urls={kbDoc.content}
                     source={kbDoc.source}
                 />
             )}

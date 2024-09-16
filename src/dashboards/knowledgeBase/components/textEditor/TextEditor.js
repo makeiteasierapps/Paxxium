@@ -82,47 +82,18 @@ const TextEditor = ({
     const {
         quill,
         setQuill,
-        highlights,
-        setHighlights,
         editorContent,
         setEditorContent,
         handleSave,
         handleEmbed,
-        highlightsManager: {
-            handleChunkClick,
-            applyHighlights,
-            handleHighlight,
-            selectedChunk,
-            handleColorChange,
-            removeHighlight,
-        },
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
 
-
+    console.log('currentUrlIndex', currentUrlIndex);
+    console.log('urls', urls);
     if (!currentUrlIndex && urls) {
         currentUrlIndex = urls.length - 1;
     }
-
-    const handleClick = useCallback(
-        (event) => {
-            if (!quill) return;
-            const selection = quill.getSelection();
-            if (selection) {
-                const clickedIndex = selection.index;
-                const clickedChunk = highlights.find(
-                    (chunk) =>
-                        clickedIndex >= chunk.start && clickedIndex < chunk.end
-                );
-                if (clickedChunk) {
-                    handleChunkClick(clickedChunk);
-                } else {
-                    handleChunkClick(null);
-                }
-            }
-        },
-        [quill, highlights, handleChunkClick]
-    );
 
     useEffect(() => {
         if (doc) {
@@ -130,32 +101,12 @@ const TextEditor = ({
         }
     }, [doc, setDocumentDetails, currentUrlIndex]);
 
-    useEffect(() => {
-        if (quill) {
-            applyHighlights();
-            quill.root.addEventListener('click', handleClick);
-
-            return () => {
-                quill.root.removeEventListener('click', handleClick);
-            };
-        }
-    }, [quill, applyHighlights, handleClick]);
-
-    const handleMouseUp = () => {
-        if (!quill) return;
-        const selection = quill.getSelection();
-        if (selection && selection.length > 0) {
-            handleHighlight(selection);
-        }
-    };
-
     return (
         <Modal open={open} onClose={onClose}>
             <ModalOverlay>
                 <ModalContent>
                     <TextInputUtilityBar
                         onClose={onClose}
-                        setHighlights={setHighlights}
                         currentUrlIndex={currentUrlIndex}
                         setCurrentUrlIndex={setCurrentUrlIndex}
                         urls={urls}
@@ -172,7 +123,6 @@ const TextEditor = ({
                             theme="snow"
                             value={editorContent}
                             onChange={setEditorContent}
-                            onChangeSelection={handleMouseUp}
                             modules={{
                                 toolbar: false,
                             }}
@@ -186,70 +136,6 @@ const TextEditor = ({
                             padding: 2,
                         }}
                     >
-                        {selectedChunk ? (
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2,
-                                    flexGrow: 1,
-                                    maxWidth: '60%',
-                                }}
-                            >
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                    }}
-                                >
-                                    <Typography variant="body2">
-                                        Token Count:
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        fontWeight="bold"
-                                    >
-                                        {
-                                            encoding.encode(
-                                                selectedChunk?.text || ''
-                                            ).length
-                                        }
-                                    </Typography>
-                                </Box>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: 1,
-                                        flexGrow: 1,
-                                    }}
-                                >
-                                    <Typography variant="body2">
-                                        Color:
-                                    </Typography>
-                                    <Slider
-                                        value={parseInt(
-                                            selectedChunk.color.slice(1),
-                                            16
-                                        )}
-                                        onChange={handleColorChange}
-                                        min={0}
-                                        max={0xffffff}
-                                        step={1}
-                                        sx={{ flexGrow: 1, maxWidth: 200 }}
-                                    />
-                                </Box>
-                                <StyledIconButton
-                                    onClick={removeHighlight}
-                                    size="small"
-                                >
-                                    <Delete fontSize="small" />
-                                </StyledIconButton>
-                            </Box>
-                        ) : (
-                            <Box sx={{ flexGrow: 1 }} />
-                        )}
                         <StyledDialogActions sx={{ padding: 0 }}>
                             <Button
                                 variant="outlined"

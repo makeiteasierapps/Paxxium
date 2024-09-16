@@ -9,7 +9,6 @@ export const useKbDocManager = (
     showSnackbar,
     selectedKb,
     editorContent,
-    highlights
 ) => {
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const [kbDocs, setKbDocs] = useState({});
@@ -57,7 +56,7 @@ export const useKbDocManager = (
             docData = {
                 ...currentKbDoc,
                 kbId,
-                content: currentKbDoc.urls.map((url, index) =>
+                content: currentKbDoc.content.map((url, index) =>
                     index === currentUrlIndex
                         ? {
                               ...url,
@@ -65,7 +64,6 @@ export const useKbDocManager = (
                           }
                         : url
                 ),
-                highlights,
             };
         } else {
             // PDF type
@@ -73,7 +71,6 @@ export const useKbDocManager = (
                 ...currentKbDoc,
                 kbId,
                 content: convertHTMLtoMarkdown(editorContent),
-                highlights,
             };
         }
 
@@ -179,7 +176,6 @@ export const useKbDocManager = (
                 }
 
                 const data = await response.json();
-                console.log('data', data);
                 setIsDocManagerLoading(false);
                 setKbDocs((prevDocuments) => ({
                     ...prevDocuments,
