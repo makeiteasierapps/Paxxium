@@ -10,7 +10,6 @@ import { Close } from '@mui/icons-material';
 
 const KbMain = ({ onClose }) => {
     const { selectedKb, kbDocs, fetchKbDocs } = useContext(KbContext);
-    console.log(selectedKb);
 
     const theme = useTheme();
 

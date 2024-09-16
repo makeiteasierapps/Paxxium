@@ -1,6 +1,5 @@
-import { useState, useCallback, useContext } from 'react';
+import { useState, useCallback } from 'react';
 import TurndownService from 'turndown';
-import { useSnackbar } from '../../contexts/SnackbarContext';
 
 const turndownService = new TurndownService();
 
@@ -58,7 +57,7 @@ export const useKbDocManager = (
             docData = {
                 ...currentKbDoc,
                 kbId,
-                urls: currentKbDoc.urls.map((url, index) =>
+                content: currentKbDoc.urls.map((url, index) =>
                     index === currentUrlIndex
                         ? {
                               ...url,
@@ -246,5 +245,6 @@ export const useKbDocManager = (
         handleEmbed,
         currentKbDoc,
         setCurrentKbDoc,
+        isDocManagerLoading,
     };
 };
