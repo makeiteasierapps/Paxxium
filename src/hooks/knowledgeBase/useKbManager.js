@@ -4,7 +4,6 @@ export const useKbManager = (backendUrl, uid, showSnackbar) => {
     const [kbArray, setKbArray] = useState([]);
     const [isNewKbOpen, setIsNewKbOpen] = useState(false);
 
-
     const addKnowledgeBase = (kb) => {
         setKbArray((prevKbArray) => {
             return [...prevKbArray, kb];
@@ -13,14 +12,13 @@ export const useKbManager = (backendUrl, uid, showSnackbar) => {
 
     const deleteKnowledgeBase = async (kbId) => {
         try {
-            const response = await fetch(`${backendUrl}/kb`, {
+            const response = await fetch(`${backendUrl}/kb/${kbId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     dbName: process.env.REACT_APP_DB_NAME,
                     uid: uid,
                 },
-                body: JSON.stringify({ kbId }),
             });
 
             if (!response.ok) {
@@ -28,9 +26,7 @@ export const useKbManager = (backendUrl, uid, showSnackbar) => {
             }
 
             setKbArray((prevKbArray) => {
-                return prevKbArray.filter(
-                    (kb) => kb.id !== kbId
-                );
+                return prevKbArray.filter((kb) => kb.id !== kbId);
             });
         } catch (error) {
             showSnackbar('Error deleting knowledge base', 'error');
@@ -41,18 +37,15 @@ export const useKbManager = (backendUrl, uid, showSnackbar) => {
     const createKnowledgeBase = async (name, objective) => {
         const formData = JSON.stringify({ name, objective });
         try {
-            const response = await fetch(
-                `${backendUrl}/kb`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        uid: uid,
-                        dbName: process.env.REACT_APP_DB_NAME,
-                    },
-                    body: formData,
-                }
-            );
+            const response = await fetch(`${backendUrl}/kb`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+                body: formData,
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to create knowledge base');

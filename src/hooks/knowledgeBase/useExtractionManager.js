@@ -7,7 +7,7 @@ export const useExtractionManager = (
     const scrapeUrl = async (kbId, url, crawl) => {
         const endpoint = crawl ? 'crawl' : 'scrape';
         try {
-            const response = await fetch(`${backendUrl}/kb/extract`, {
+            const response = await fetch(`${backendUrl}/kb/${kbId}/extract`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -15,7 +15,6 @@ export const useExtractionManager = (
                     dbName: process.env.REACT_APP_DB_NAME,
                 },
                 body: JSON.stringify({
-                    kbId,
                     url,
                     endpoint,
                     type: 'url',
@@ -44,7 +43,7 @@ export const useExtractionManager = (
 
     const extractFile = async (formData, kbId) => {
         try {
-            const response = await fetch(`${backendUrl}/kb/extract`, {
+            const response = await fetch(`${backendUrl}/kb/${kbId}/extract`, {
                 method: 'POST',
                 body: formData,
                 headers: {

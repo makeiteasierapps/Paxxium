@@ -8,7 +8,7 @@ export const useKbDocManager = (
     uid,
     showSnackbar,
     selectedKb,
-    editorContent,
+    editorContent
 ) => {
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const [kbDocs, setKbDocs] = useState({});
@@ -103,7 +103,7 @@ export const useKbDocManager = (
     const embedKbDoc = async (docData) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(`${backendUrl}/kb/embed`, {
+            const response = await fetch(`${backendUrl}/kb/${kbId}/embed`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export const useKbDocManager = (
     const saveKbDoc = async (docData) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(`${backendUrl}/kb/save_doc`, {
+            const response = await fetch(`${backendUrl}/kb/${kbId}/save_doc`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -162,14 +162,16 @@ export const useKbDocManager = (
         async (kbId) => {
             try {
                 setIsDocManagerLoading(true);
-                const response = await fetch(`${backendUrl}/kb/documents`, {
-                    method: 'GET',
-                    headers: {
-                        'Kb-ID': kbId,
-                        uid: uid,
-                        dbName: process.env.REACT_APP_DB_NAME,
-                    },
-                });
+                const response = await fetch(
+                    `${backendUrl}/kb/${kbId}/documents`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            uid: uid,
+                            dbName: process.env.REACT_APP_DB_NAME,
+                        },
+                    }
+                );
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch documents');
@@ -193,9 +195,11 @@ export const useKbDocManager = (
     const deleteKbDoc = async (kbId, docId) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(`${backendUrl}/kb/documents`, {
-                method: 'DELETE',
-                headers: {
+            const response = await fetch(
+                `${backendUrl}/kb/${kbId}/documents`,
+                {
+                    method: 'DELETE',
+                    headers: {
                     'Content-Type': 'application/json',
                     uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,
