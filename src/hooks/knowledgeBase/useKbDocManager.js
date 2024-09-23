@@ -46,7 +46,7 @@ export const useKbDocManager = (
         );
         savedData[kbId] = [...updatedDocs, newDoc];
         localStorage.setItem('documents', JSON.stringify(savedData));
-
+        console.log('Document updated:', newDoc);
         setCurrentKbDoc(newDoc);
     };
 
@@ -85,7 +85,8 @@ export const useKbDocManager = (
 
         if (updatedDoc) {
             if (updatedDoc.type === 'url') {
-                updatedDoc.urls[currentUrlIndex].content = editorContent;
+                console.log(updatedDoc);
+                updatedDoc.content[currentUrlIndex].content = editorContent;
             } else {
                 updatedDoc.content = editorContent;
             }
@@ -178,6 +179,7 @@ export const useKbDocManager = (
                 }
 
                 const data = await response.json();
+                console.log(data);
                 setIsDocManagerLoading(false);
                 setKbDocs((prevDocuments) => ({
                     ...prevDocuments,

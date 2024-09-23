@@ -26,7 +26,6 @@ export const useExtractionManager = (
             }
 
             const data = await response.json();
-            console.log('Received data:', data);
 
             // Update the state with the new document
             setKbDocs((prevDocs) => ({
