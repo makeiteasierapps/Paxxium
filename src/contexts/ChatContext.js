@@ -5,10 +5,11 @@ import { useMessageManager } from '../hooks/chat/useMessageManager';
 import { useChatSettings } from '../hooks/chat/useChatSettings';
 import { useInputDetection } from '../hooks/chat/useInputDetection';
 import { useSnackbar } from './SnackbarContext';
-
+import { useSocket } from './SocketProvider';
 export const ChatContext = createContext();
 
-export const ChatProvider = ({ children, socket }) => {
+export const ChatProvider = ({ children }) => {
+    const { socket } = useSocket();
     const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);

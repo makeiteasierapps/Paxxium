@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useSocket } from '../../contexts/SocketProvider';
 import TurndownService from 'turndown';
 
 const turndownService = new TurndownService();
@@ -10,6 +11,7 @@ export const useKbDocManager = (
     selectedKb,
     editorContent
 ) => {
+    const { socket } = useSocket();
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const [kbDocs, setKbDocs] = useState({});
     const [currentKbDoc, setCurrentKbDoc] = useState({});
@@ -104,24 +106,43 @@ export const useKbDocManager = (
     const embedKbDoc = async (docData) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(`${backendUrl}/kb/${kbId}/embed`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-                body: JSON.stringify(docData),
+            socket.emit('process_document', {
+                ...docData,
+                dbName: 'paxxium',
+                operation: 'embed',
+            });
+            // const response = await fetch(`${backendUrl}/kb/${kbId}/embed`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         uid: uid,
+            //         dbName: process.env.REACT_APP_DB_NAME,
+            //     },
+            //     body: JSON.stringify(docData),
+            // });
+
+            // if (!response.ok) {
+            //     throw new Error('Failed to embed text doc');
+            // }
+
+            socket.on('process_started', (data) => {
+                console.log('Processing started with ID:', data.process_id);
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to embed text doc');
-            }
+            socket.on('process_update', (data) => {
+                console.log('Process update:', data.status);
+            });
 
-            const data = await response.json();
-            showSnackbar('Document embedded successfully', 'success');
-            setIsDocManagerLoading(false);
-            return data.kb_doc;
+            socket.on('process_complete', (data) => {
+                showSnackbar('Document embedded successfully', 'success');
+                setIsDocManagerLoading(false);
+                console.log('Processing completed:', data.kb_doc);
+                return data.kb_doc;
+            });
+
+            socket.on('process_error', (data) => {
+                console.error('Processing error:', data.message);
+            });
         } catch (error) {
             console.error('Error embedding text doc:', error);
             showSnackbar('Error embedding text doc', 'error');
@@ -133,24 +154,13 @@ export const useKbDocManager = (
     const saveKbDoc = async (docData) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(`${backendUrl}/kb/${kbId}/save_doc`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                    dbName: process.env.REACT_APP_DB_NAME,
-                },
-                body: JSON.stringify(docData),
+            socket.emit('process_document', {
+                ...docData,
+                dbName: 'paxxium',
+                operation: 'save',
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to save document');
-            }
-
-            const data = await response.json();
             showSnackbar('Document saved successfully', 'success');
             setIsDocManagerLoading(false);
-            return data.kb_doc;
         } catch (error) {
             console.error(error);
             showSnackbar('Error saving text doc', 'error');
@@ -179,7 +189,6 @@ export const useKbDocManager = (
                 }
 
                 const data = await response.json();
-                console.log(data);
                 setIsDocManagerLoading(false);
                 setKbDocs((prevDocuments) => ({
                     ...prevDocuments,
@@ -197,11 +206,9 @@ export const useKbDocManager = (
     const deleteKbDoc = async (kbId, docId) => {
         try {
             setIsDocManagerLoading(true);
-            const response = await fetch(
-                `${backendUrl}/kb/${kbId}/documents`,
-                {
-                    method: 'DELETE',
-                    headers: {
+            const response = await fetch(`${backendUrl}/kb/${kbId}/documents`, {
+                method: 'DELETE',
+                headers: {
                     'Content-Type': 'application/json',
                     uid: uid,
                     dbName: process.env.REACT_APP_DB_NAME,

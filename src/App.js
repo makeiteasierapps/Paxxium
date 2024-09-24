@@ -21,12 +21,12 @@ import { ImageProvider } from './contexts/ImageContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
+import { SocketProvider } from './contexts/SocketProvider';
 import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
-import { useSocketConnection } from './hooks/useSocketConnection';
 
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
@@ -38,17 +38,6 @@ const AuthenticatedApp = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isDrawerExpanded, setDrawerExpanded] = useState(false);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
-
-    const { socket, connect, disconnect } = useSocketConnection();
-
-    // Connect or disconnect based on authorization status
-    useEffect(() => {
-        if (isAuthorized) {
-            connect();
-        } else {
-            disconnect();
-        }
-    }, [isAuthorized, connect, disconnect]);
 
     // Check local storage for persisted authorization state on component mount
     useEffect(() => {
@@ -107,7 +96,7 @@ const AuthenticatedApp = () => {
         <>
             {isAuthorized && (
                 <>
-                    <ChatProvider socket={isAuthorized ? socket : null}>
+                    <ChatProvider>
                         <SideDrawer
                             mobileOpen={mobileOpen}
                             setMobileOpen={setMobileOpen}
@@ -175,15 +164,17 @@ const App = () => {
                 <AuthProvider>
                     <SettingsProvider>
                         <Router>
-                            <NewsProvider>
-                                <ImageProvider>
-                                    <KbProvider>
-                                        <ProfileProvider>
-                                            <AuthenticatedApp />
-                                        </ProfileProvider>
-                                    </KbProvider>
-                                </ImageProvider>
-                            </NewsProvider>
+                            <SocketProvider>
+                                <NewsProvider>
+                                    <ImageProvider>
+                                        <KbProvider>
+                                            <ProfileProvider>
+                                                <AuthenticatedApp />
+                                            </ProfileProvider>
+                                        </KbProvider>
+                                    </ImageProvider>
+                                </NewsProvider>
+                            </SocketProvider>
                         </Router>
                     </SettingsProvider>
                 </AuthProvider>
