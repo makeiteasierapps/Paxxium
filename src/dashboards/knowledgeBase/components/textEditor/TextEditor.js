@@ -1,17 +1,16 @@
-import { useEffect, useContext } from 'react';
-import {
-    Modal,
-    DialogActions,
-    Button,
-    Box,
-} from '@mui/material';
-
+import { useEffect, useContext, useState, useCallback } from 'react';
+import { Modal, DialogActions, Button, Box } from '@mui/material';
+import TurndownService from 'turndown';
+import { diffWords } from 'diff';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
+import { isEqual } from 'lodash';
+
+const turndownService = new TurndownService();
 
 const ModalOverlay = styled('div')(({ theme }) => ({
     position: 'fixed',
@@ -71,7 +70,6 @@ const TextEditor = ({
     doc = null,
     source = null,
 }) => {
-
     const theme = useTheme();
     const {
         setQuill,
@@ -81,6 +79,80 @@ const TextEditor = ({
         handleEmbed,
         textEditorManager: { setDocumentDetails },
     } = useContext(KbContext);
+
+    const [changedPages, setChangedPages] = useState({});
+
+    useEffect(() => {
+        if (doc && currentUrlIndex !== null) {
+            setDocumentDetails(doc, currentUrlIndex);
+            const content = Array.isArray(doc.content)
+                ? doc.content[currentUrlIndex].content
+                : doc.content;
+            setEditorContent(content);
+        }
+    }, [doc, setDocumentDetails, currentUrlIndex, setEditorContent]);
+
+    useEffect(() => {
+        console.log(changedPages);
+    }, [changedPages]);
+
+    const hasContentChanged = useCallback(
+        (index, newContent) => {
+            if (
+                index === null ||
+                index === undefined ||
+                !doc ||
+                !doc.content ||
+                !doc.content[index]
+            ) {
+                console.error(
+                    'Invalid index or document structure:',
+                    index,
+                    doc
+                );
+                return false;
+            }
+            const originalContent = doc.content[index].content;
+            const differences = diffWords(originalContent, newContent);
+            return differences.some((part) => part.added || part.removed);
+        },
+        [doc]
+    );
+
+    const handleEditorChange = (content) => {
+        setEditorContent(content);
+        const markdownContent = turndownService.turndown(content);
+
+        if (
+            currentUrlIndex !== null &&
+            hasContentChanged(currentUrlIndex, markdownContent)
+        ) {
+            setChangedPages((prev) => ({
+                ...prev,
+                [currentUrlIndex]: markdownContent,
+            }));
+        } else if (currentUrlIndex !== null) {
+            setChangedPages((prev) => {
+                const newChangedPages = { ...prev };
+                delete newChangedPages[currentUrlIndex];
+                return newChangedPages;
+            });
+        }
+    };
+
+    const handleSaveWrapper = () => {
+        const pagesToUpdate = Object.entries(changedPages).map(
+            ([index, content]) => ({
+                index: parseInt(index),
+                content,
+            })
+        );
+
+        if (pagesToUpdate.length > 0) {
+            handleSave(pagesToUpdate);
+            setChangedPages({});
+        }
+    };
 
     if (!currentUrlIndex && urls) {
         currentUrlIndex = urls.length - 1;
@@ -113,7 +185,7 @@ const TextEditor = ({
                             muiTheme={theme}
                             theme="snow"
                             value={editorContent}
-                            onChange={setEditorContent}
+                            onChange={handleEditorChange}
                             modules={{
                                 toolbar: false,
                             }}
@@ -131,7 +203,10 @@ const TextEditor = ({
                             <Button
                                 variant="outlined"
                                 color="primary"
-                                onClick={() => handleSave(currentUrlIndex)}
+                                onClick={handleSaveWrapper}
+                                disabled={
+                                    Object.keys(changedPages).length === 0
+                                }
                             >
                                 Save
                             </Button>

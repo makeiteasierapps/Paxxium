@@ -9,6 +9,7 @@
     "@mui/material": "^5.15.1",
     "@mui/system": "^5.13.5",
     "@testing-library/jest-dom": "^5.16.5",
+    "diff": "^7.0.0",
     "firebase": "^9.22.2",
     "framer-motion": "^10.18.0",
     "install": "^0.13.0",

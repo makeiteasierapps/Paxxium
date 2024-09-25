@@ -78,6 +78,9 @@ export const useKbDocManager = (
 
         let updatedDoc;
         if (operation === 'save') {
+            // This currently updates the entire set of documents if multiple pages are included.
+            // it would be better to update the specific document that was changed. That can be tracked
+            // with the sourceURL located kbDoc.content[currentUrlIndex].metaData
             updatedDoc = await saveKbDoc(docData);
         } else if (operation === 'embed') {
             updatedDoc = await embedKbDoc(docData);
@@ -111,20 +114,7 @@ export const useKbDocManager = (
                 dbName: 'paxxium',
                 operation: 'embed',
             });
-            // const response = await fetch(`${backendUrl}/kb/${kbId}/embed`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //         uid: uid,
-            //         dbName: process.env.REACT_APP_DB_NAME,
-            //     },
-            //     body: JSON.stringify(docData),
-            // });
-
-            // if (!response.ok) {
-            //     throw new Error('Failed to embed text doc');
-            // }
-
+            
             socket.on('process_started', (data) => {
                 console.log('Processing started with ID:', data.process_id);
             });
