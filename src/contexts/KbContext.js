@@ -9,7 +9,6 @@ export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
-    const [quill, setQuill] = useState(null);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
     const backendUrl =
@@ -37,8 +36,6 @@ export const KbProvider = ({ children }) => {
         <KbContext.Provider
             value={{
                 selectedKb,
-                quill,
-                setQuill,
                 setSelectedKb,
                 ...kbManager,
                 ...kbDocManager,

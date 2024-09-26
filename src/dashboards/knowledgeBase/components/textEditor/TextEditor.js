@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState, useCallback } from 'react';
+import { useEffect, useContext, useState, useCallback, useRef } from 'react';
 import { Modal, DialogActions, Button, Box } from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -65,10 +65,11 @@ const TextEditor = ({
     isEditorOpen,
     toggleEditor,
     editorContent,
+    convertHTMLtoMarkdown,
 }) => {
     const theme = useTheme();
-    const { quill, setQuill, handleSave, handleEmbed, convertHTMLtoMarkdown } = useContext(KbContext);
-
+    const { handleSave, handleEmbed } = useContext(KbContext);
+    const quillRef = useRef(null);
     const [changedPages, setChangedPages] = useState({});
 
     useEffect(() => {
@@ -82,7 +83,8 @@ const TextEditor = ({
     }, [changedPages]);
 
     useEffect(() => {
-        if (quill) {
+        if (quillRef.current) {
+            const quill = quillRef.current.getEditor();
             const handleTextChange = (delta, oldDelta, source) => {
                 if (source === 'user') {
                     const content = quill.root.innerHTML;
@@ -99,7 +101,7 @@ const TextEditor = ({
                 quill.off('text-change', handleTextChange);
             };
         }
-    }, [quill, currentDocIndex, convertHTMLtoMarkdown]);
+    }, [currentDocIndex, convertHTMLtoMarkdown]);
 
     const handleEditorChange = useCallback(
         (content) => {
@@ -139,11 +141,7 @@ const TextEditor = ({
                     <EditorContainer>
                         <StyledReactQuill
                             key={currentDocIndex}
-                            ref={(el) => {
-                                if (el) {
-                                    setQuill(el.getEditor());
-                                }
-                            }}
+                            ref={quillRef}
                             muiTheme={theme}
                             theme="snow"
                             value={editorContent}

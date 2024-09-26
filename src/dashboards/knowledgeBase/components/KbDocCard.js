@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo } from 'react';
+import { useContext } from 'react';
 import {
     Box,
     Card,
@@ -31,6 +31,7 @@ const KbDocCard = ({ document }) => {
         setCurrentDocIndex,
         setEditorContent,
         editorContent,
+        convertHTMLtoMarkdown,
     } = useTextEditorManager(document);
 
     const { deleteKbDoc } = useContext(KbContext);
@@ -166,6 +167,7 @@ const KbDocCard = ({ document }) => {
                     currentDocIndex={currentDocIndex}
                     setCurrentDocIndex={setCurrentDocIndex}
                     setEditorContent={setEditorContent}
+                    convertHTMLtoMarkdown={convertHTMLtoMarkdown}
                     isEditorOpen={isEditorOpen}
                     toggleEditor={toggleEditor}
                     editorContent={editorContent}

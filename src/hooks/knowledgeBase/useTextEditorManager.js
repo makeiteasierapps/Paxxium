@@ -1,6 +1,8 @@
 import { useCallback, useState, useEffect } from 'react';
 import { marked } from 'marked';
+import TurndownService from 'turndown';
 
+const turndownService = new TurndownService();
 export const useTextEditorManager = (document) => {
     const [editorContent, setEditorContent] = useState('');
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -28,6 +30,23 @@ export const useTextEditorManager = (document) => {
         setIsEditorOpen((prev) => !prev);
     };
 
+    const convertHTMLtoMarkdown = (content) => {
+        content = content.trim();
+        let markdown = turndownService.turndown(content);
+
+        markdown = markdown
+            .replace(/\\{2,}n/g, '\n') // Replace double (or more) backslashes followed by 'n' with a single newline
+            .replace(/\\\n/g, '\n') // Remove single backslashes before newlines
+            .replace(/\n{3,}/g, '\n\n') // Replace 3 or more consecutive newlines with 2
+            .replace(/\\_/g, '_') // Remove backslashes before underscores
+            .replace(/\\\*/g, '*') // Remove backslashes before asterisks
+            .replace(/\\=/g, '=') // Remove backslashes before equal signs
+            .replace(/\s+$/gm, '') // Remove trailing spaces from each line
+            .trim(); // Trim any leading/trailing whitespace
+
+        return markdown;
+    };
+
     const setDocumentDetails = useCallback((doc, index) => {
         if (doc.content && Array.isArray(doc.content)) {
             setEditorContent(
@@ -53,5 +72,6 @@ export const useTextEditorManager = (document) => {
         editorContent,
         setEditorContent,
         setCurrentDocIndex,
+        convertHTMLtoMarkdown,
     };
 };

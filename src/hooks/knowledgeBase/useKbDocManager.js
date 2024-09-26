@@ -1,32 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useSocket } from '../../contexts/SocketProvider';
-import TurndownService from 'turndown';
-
-const turndownService = new TurndownService();
 
 export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
     const { socket } = useSocket();
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const [kbDocs, setKbDocs] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
-
-    const convertHTMLtoMarkdown = (content) => {
-        console.log('content', content);
-        content = content.trim();
-        let markdown = turndownService.turndown(content);
-
-        markdown = markdown
-            .replace(/\\{2,}n/g, '\n') // Replace double (or more) backslashes followed by 'n' with a single newline
-            .replace(/\\\n/g, '\n') // Remove single backslashes before newlines
-            .replace(/\n{3,}/g, '\n\n') // Replace 3 or more consecutive newlines with 2
-            .replace(/\\_/g, '_') // Remove backslashes before underscores
-            .replace(/\\\*/g, '*') // Remove backslashes before asterisks
-            .replace(/\\=/g, '=') // Remove backslashes before equal signs
-            .replace(/\s+$/gm, '') // Remove trailing spaces from each line
-            .trim(); // Trim any leading/trailing whitespace
-
-        return markdown;
-    };
 
     const updateDocumentState = (newDoc) => {
         setKbDocs((prevDocs) => {
@@ -245,6 +224,5 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         handleSave,
         handleEmbed,
         isDocManagerLoading,
-        convertHTMLtoMarkdown,
     };
 };
