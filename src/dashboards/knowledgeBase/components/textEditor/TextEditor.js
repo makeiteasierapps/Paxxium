@@ -81,64 +81,54 @@ const TextEditor = ({
     } = useContext(KbContext);
 
     const [changedPages, setChangedPages] = useState({});
+    const [originalContents, setOriginalContents] = useState({});
 
     useEffect(() => {
         if (doc && currentUrlIndex !== null) {
             setDocumentDetails(doc, currentUrlIndex);
-            const content = Array.isArray(doc.content)
-                ? doc.content[currentUrlIndex].content
-                : doc.content;
-            setEditorContent(content);
-        }
-    }, [doc, setDocumentDetails, currentUrlIndex, setEditorContent]);
 
-    useEffect(() => {
-        console.log(changedPages);
-    }, [changedPages]);
-
-    const hasContentChanged = useCallback(
-        (index, newContent) => {
-            if (
-                index === null ||
-                index === undefined ||
-                !doc ||
-                !doc.content ||
-                !doc.content[index]
-            ) {
-                console.error(
-                    'Invalid index or document structure:',
-                    index,
-                    doc
-                );
-                return false;
-            }
-            const originalContent = doc.content[index].content;
-            const differences = diffWords(originalContent, newContent);
-            return differences.some((part) => part.added || part.removed);
-        },
-        [doc]
-    );
-
-    const handleEditorChange = (content) => {
-        setEditorContent(content);
-        const markdownContent = turndownService.turndown(content);
-
-        if (
-            currentUrlIndex !== null &&
-            hasContentChanged(currentUrlIndex, markdownContent)
-        ) {
-            setChangedPages((prev) => ({
-                ...prev,
-                [currentUrlIndex]: markdownContent,
-            }));
-        } else if (currentUrlIndex !== null) {
-            setChangedPages((prev) => {
-                const newChangedPages = { ...prev };
-                delete newChangedPages[currentUrlIndex];
-                return newChangedPages;
+            // Only set original content if it doesn't exist for this page
+            setOriginalContents((prev) => {
+                if (!prev.hasOwnProperty(currentUrlIndex)) {
+                    return { ...prev, [currentUrlIndex]: editorContent };
+                }
+                return prev;
             });
         }
-    };
+    }, [doc, setDocumentDetails, currentUrlIndex]);
+
+    useEffect(() => {
+        console.log('changedPages', changedPages);
+    }, [changedPages]);
+
+    const hasContentChanged = useCallback((originalContent, newContent) => {
+        if (originalContent) {
+            return originalContent !== newContent;
+        }
+        return false;
+    }, []);
+
+    const handleEditorChange = useCallback(
+        (content) => {
+            setEditorContent(content);
+
+            if (currentUrlIndex !== null) {
+                const originalContent = originalContents[currentUrlIndex];
+                const hasChanged = hasContentChanged(originalContent, content);
+
+                setChangedPages((prev) => {
+                    if (hasChanged) {
+                        return { ...prev, [currentUrlIndex]: content };
+                    } else {
+                        const newChangedPages = { ...prev };
+                        delete newChangedPages[currentUrlIndex];
+                        return newChangedPages;
+                    }
+                });
+            }
+        },
+        [currentUrlIndex, originalContents, hasContentChanged, setEditorContent]
+    );
 
     const handleSaveWrapper = () => {
         const pagesToUpdate = Object.entries(changedPages).map(
@@ -177,6 +167,7 @@ const TextEditor = ({
                     />
                     <EditorContainer>
                         <StyledReactQuill
+                            key={currentUrlIndex}
                             ref={(el) => {
                                 if (el) {
                                     setQuill(el.getEditor());
@@ -185,7 +176,9 @@ const TextEditor = ({
                             muiTheme={theme}
                             theme="snow"
                             value={editorContent}
-                            onChange={handleEditorChange}
+                            onChange={(content) =>
+                                handleEditorChange(content, editorContent)
+                            }
                             modules={{
                                 toolbar: false,
                             }}
