@@ -4,26 +4,26 @@ import TurndownService from 'turndown';
 
 const turndownService = new TurndownService();
 
-export const useKbDocManager = (
-    backendUrl,
-    uid,
-    showSnackbar,
-    selectedKb,
-    editorContent
-) => {
+export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
     const { socket } = useSocket();
     const [isDocManagerLoading, setIsDocManagerLoading] = useState(true);
     const [kbDocs, setKbDocs] = useState({});
-    const [currentKbDoc, setCurrentKbDoc] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
 
     const convertHTMLtoMarkdown = (content) => {
+        console.log('content', content);
+        content = content.trim();
         let markdown = turndownService.turndown(content);
 
-        // Clean the Markdown content
         markdown = markdown
-            .replace(/\n\s*\n/g, '\n\n') // Reduce multiple newlines to maximum two
-            .trim(); // Remove leading and trailing whitespace
+            .replace(/\\{2,}n/g, '\n') // Replace double (or more) backslashes followed by 'n' with a single newline
+            .replace(/\\\n/g, '\n') // Remove single backslashes before newlines
+            .replace(/\n{3,}/g, '\n\n') // Replace 3 or more consecutive newlines with 2
+            .replace(/\\_/g, '_') // Remove backslashes before underscores
+            .replace(/\\\*/g, '*') // Remove backslashes before asterisks
+            .replace(/\\=/g, '=') // Remove backslashes before equal signs
+            .replace(/\s+$/gm, '') // Remove trailing spaces from each line
+            .trim(); // Trim any leading/trailing whitespace
 
         return markdown;
     };
@@ -49,60 +49,61 @@ export const useKbDocManager = (
         savedData[kbId] = [...updatedDocs, newDoc];
         localStorage.setItem('documents', JSON.stringify(savedData));
         console.log('Document updated:', newDoc);
-        setCurrentKbDoc(newDoc);
     };
 
-    const handleDocOperation = async (operation, currentUrlIndex) => {
+    const handleDocOperation = async (operation, dataToUpdate) => {
         let docData;
-        if (currentKbDoc.type === 'url') {
-            docData = {
-                ...currentKbDoc,
-                kbId,
-                content: currentKbDoc.content.map((url, index) =>
-                    index === currentUrlIndex
-                        ? {
-                              ...url,
-                              content: convertHTMLtoMarkdown(editorContent),
-                          }
-                        : url
-                ),
-            };
-        } else {
-            // PDF type
-            docData = {
-                ...currentKbDoc,
-                kbId,
-                content: convertHTMLtoMarkdown(editorContent),
-            };
-        }
 
-        let updatedDoc;
-        if (operation === 'save') {
-            // This currently updates the entire set of documents if multiple pages are included.
-            // it would be better to update the specific document that was changed. That can be tracked
-            // with the sourceURL located kbDoc.content[currentUrlIndex].metaData
-            updatedDoc = await saveKbDoc(docData);
-        } else if (operation === 'embed') {
-            updatedDoc = await embedKbDoc(docData);
-        } else {
-            throw new Error('Invalid operation');
-        }
+        // if (currentKbDoc.type === 'url') {
+        //     docData = {
+        //         ...currentKbDoc,
+        //         kbId,
+        //         content: currentKbDoc.content.map((url, index) =>
+        //             index === currentUrlIndex
+        //                 ? {
+        //                       ...url,
+        //                       content: convertHTMLtoMarkdown(editorContent),
+        //                   }
+        //                 : url
+        //         ),
+        //     };
+        // } else {
+        //     // PDF type
+        //     docData = {
+        //         ...currentKbDoc,
+        //         kbId,
+        //         content: convertHTMLtoMarkdown(editorContent),
+        //     };
+        // }
 
-        if (updatedDoc) {
-            if (updatedDoc.type === 'url') {
-                console.log(updatedDoc);
-                updatedDoc.content[currentUrlIndex].content = editorContent;
-            } else {
-                updatedDoc.content = editorContent;
-            }
-            updateDocumentState(updatedDoc);
-        }
+        // let updatedDoc;
+        // if (operation === 'save') {
+        //     // This currently updates the entire set of documents if multiple pages are included.
+        //     // it would be better to update the specific document that was changed. That can be tracked
+        //     // with the sourceURL located kbDoc.content[currentUrlIndex].metaData
+        //     updatedDoc = await saveKbDoc(docData);
+        // } else if (operation === 'embed') {
+        //     updatedDoc = await embedKbDoc(docData);
+        // } else {
+        //     throw new Error('Invalid operation');
+        // }
 
-        return updatedDoc.id;
+        // if (updatedDoc) {
+        //     if (updatedDoc.type === 'url') {
+        //         console.log(updatedDoc);
+        //         updatedDoc.content[currentUrlIndex].content = editorContent;
+        //     } else {
+        //         updatedDoc.content = editorContent;
+        //     }
+        //     updateDocumentState(updatedDoc);
+        // }
+
+        // return updatedDoc.id;
     };
 
-    const handleSave = (currentUrlIndex) =>
-        handleDocOperation('save', currentUrlIndex);
+    const handleSave = (dataToUpdate) =>
+        handleDocOperation('save', dataToUpdate);
+
     const handleEmbed = (currentUrlIndex) =>
         handleDocOperation('embed', currentUrlIndex);
 
@@ -114,7 +115,7 @@ export const useKbDocManager = (
                 dbName: 'paxxium',
                 operation: 'embed',
             });
-            
+
             socket.on('process_started', (data) => {
                 console.log('Processing started with ID:', data.process_id);
             });
@@ -243,8 +244,7 @@ export const useKbDocManager = (
         deleteKbDoc,
         handleSave,
         handleEmbed,
-        currentKbDoc,
-        setCurrentKbDoc,
         isDocManagerLoading,
+        convertHTMLtoMarkdown,
     };
 };

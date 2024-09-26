@@ -9,7 +9,6 @@ export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
-    const [editorContent, setEditorContent] = useState('');
     const [quill, setQuill] = useState(null);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
@@ -22,13 +21,7 @@ export const KbProvider = ({ children }) => {
         backendUrl,
         uid,
         showSnackbar,
-        selectedKb,
-        editorContent,
-    );
-
-    const textEditorManager = useTextEditorManager(
-        setEditorContent,
-        kbDocManager.setCurrentKbDoc
+        selectedKb
     );
 
     const kbManager = useKbManager(backendUrl, uid, showSnackbar);
@@ -47,9 +40,6 @@ export const KbProvider = ({ children }) => {
                 quill,
                 setQuill,
                 setSelectedKb,
-                editorContent,
-                setEditorContent,
-                textEditorManager,
                 ...kbManager,
                 ...kbDocManager,
                 ...extractionManager,

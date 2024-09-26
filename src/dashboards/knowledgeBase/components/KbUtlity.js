@@ -16,9 +16,14 @@ import TextEditor from './textEditor/TextEditor';
 const KbUtility = () => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
-    const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const [kbDoc, setKbDoc] = useState(null);
-    const { scrapeUrl, selectedKb, extractFile } = useContext(KbContext);
+    const {
+        scrapeUrl,
+        selectedKb,
+        extractFile,
+        isEditorOpen,
+        toggleEditor,
+        setKbDoc,
+    } = useContext(KbContext);
 
     const fileInputRef = useRef(null);
 
@@ -30,10 +35,14 @@ const KbUtility = () => {
             trimmedUrl.startsWith('https://')
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
-        const scrapedKbDoc = await scrapeUrl(selectedKb.id, formattedUrl, crawl);
+        const scrapedKbDoc = await scrapeUrl(
+            selectedKb.id,
+            formattedUrl,
+            crawl
+        );
         setKbDoc(scrapedKbDoc);
         setUrl('');
-        setIsEditorOpen(true);
+        toggleEditor();
     };
 
     const handleFileSelect = async (event) => {
@@ -46,14 +55,7 @@ const KbUtility = () => {
 
         const extractedKbDoc = await extractFile(formData, selectedKb.id);
         setKbDoc(extractedKbDoc);
-        setIsEditorOpen(true);
-    };
-
-    const toggleEditor = () => {
-        setIsEditorOpen(!isEditorOpen);
-        if (!isEditorOpen) {
-            setKbDoc(null);
-        }
+        toggleEditor();
     };
 
     return (
@@ -111,13 +113,7 @@ const KbUtility = () => {
                 <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
             {isEditorOpen && (
-                <TextEditor
-                    open={isEditorOpen}
-                    onClose={toggleEditor}
-                    doc={kbDoc}
-                    urls={kbDoc.content}
-                    source={kbDoc.source}
-                />
+                <TextEditor open={isEditorOpen} onClose={toggleEditor} />
             )}
         </Box>
     );

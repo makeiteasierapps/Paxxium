@@ -1,10 +1,7 @@
-import { useContext } from 'react';
 import { Typography, Tooltip } from '@mui/material';
 import { Close, ArrowBackIosNew, ArrowForwardIos } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { StyledIconButton } from '../../../chat/chatStyledComponents';
-
-import { KbContext } from '../../../../contexts/KbContext';
 
 const MainUtilityBox = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -28,54 +25,48 @@ const URLContainer = styled('div')({
 });
 
 const TextInputUtilityBar = ({
+    document,
     onClose,
-    currentUrlIndex,
-    setCurrentUrlIndex,
-    urls,
-    source,
+    currentDocIndex,
+    setCurrentDocIndex,
 }) => {
-    const {
-        textEditorManager: { removeDocumentDetails },
-    } = useContext(KbContext);
-
     const handlePrevUrl = () => {
-        setCurrentUrlIndex((prevIndex) =>
-            prevIndex < urls.length - 1 ? prevIndex + 1 : 0
+        setCurrentDocIndex((prevIndex) =>
+            prevIndex < document.content.length - 1 ? prevIndex + 1 : 0
         );
     };
 
     const handleNextUrl = () => {
-        setCurrentUrlIndex((prevIndex) =>
-            prevIndex > 0 ? prevIndex - 1 : urls.length - 1
+        setCurrentDocIndex((prevIndex) =>
+            prevIndex > 0 ? prevIndex - 1 : document.content.length - 1
         );
     };
 
     return (
         <MainUtilityBox>
-            <StyledIconButton
-                onClick={() => {
-                    removeDocumentDetails();
-                    onClose();
-                }}
-            >
+            <StyledIconButton onClick={onClose}>
                 <Close />
             </StyledIconButton>
 
             <URLContainer>
-                <Tooltip title={source}>
+                <Tooltip
+                    title={document.content[currentDocIndex].metadata.sourceURL}
+                >
                     <Typography variant="body2" noWrap>
-                        {source}
+                        {document.content[currentDocIndex].metadata.sourceURL}
                     </Typography>
                 </Tooltip>
             </URLContainer>
 
-            {urls && (
+            {document.content.length > 1 && (
                 <NavigationContainer>
                     <StyledIconButton onClick={handlePrevUrl}>
                         <ArrowBackIosNew />
                     </StyledIconButton>
                     <Typography variant="body2" sx={{ mx: 1 }}>
-                        {`${urls.length - currentUrlIndex} / ${urls.length}`}
+                        {`${document.content.length - currentDocIndex} / ${
+                            document.content.length
+                        }`}
                     </Typography>
                     <StyledIconButton onClick={handleNextUrl}>
                         <ArrowForwardIos />

@@ -1,4 +1,4 @@
-import { useContext, useState, useMemo, useEffect } from 'react';
+import { useContext, useState, useMemo } from 'react';
 import {
     Box,
     Card,
@@ -14,46 +14,29 @@ import {
     ArrowBackIos,
     ArrowForwardIos,
 } from '@mui/icons-material';
-
 import { KbContext } from '../../../contexts/KbContext';
+import { useTextEditorManager } from '../../../hooks/knowledgeBase/useTextEditorManager';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
 import TextEditor from './textEditor/TextEditor';
 import Markdown from 'react-markdown';
 
 const KbDocCard = ({ document }) => {
-    const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const {
+        isEditorOpen,
+        toggleEditor,
+        handlePrevUrl,
+        handleNextUrl,
+        currentDocIndex,
+        setDocumentDetails,
+        setCurrentDocIndex,
+        setEditorContent,
+        editorContent,
+    } = useTextEditorManager(document);
+
     const { deleteKbDoc } = useContext(KbContext);
-
-    const [currentUrlIndex, setCurrentUrlIndex] = useState(
-        () => (Array.isArray(document.content) ? document.content.length : 1) - 1
-    );
-
-    const urls = useMemo(() => (Array.isArray(document.content) ? document.content : []), [document]);
-    const source = urls.length > 0 ? urls[currentUrlIndex].metadata.sourceURL : document.source;
-    
-    const currentContent = useMemo(() => {
-        if (urls.length === 0) return document.content;
-        return urls[currentUrlIndex].content || '';
-    }, [urls, document.content, currentUrlIndex]);
-
-    const handlePrevUrl = () => {
-        setCurrentUrlIndex((prevIndex) =>
-            prevIndex < urls.length - 1 ? prevIndex + 1 : 0
-        );
-    };
-
-    const handleNextUrl = () => {
-        setCurrentUrlIndex((prevIndex) =>
-            prevIndex > 0 ? prevIndex - 1 : urls.length - 1
-        );
-    };
 
     const handleDelete = () => {
         deleteKbDoc(document.kb_id, document.id);
-    };
-
-    const toggleEditor = () => {
-        setIsEditorOpen(!isEditorOpen);
     };
 
     return (
@@ -80,16 +63,16 @@ const KbDocCard = ({ document }) => {
                                 whiteSpace: 'nowrap',
                             }}
                         >
-                            {source}
+                            {document.source}
                         </Typography>
-                        {urls.length > 1 && (
+                        {document.content.length > 1 && (
                             <Typography
                                 variant="caption"
                                 display="block"
                                 sx={{ mt: 0.5 }}
                             >
-                                Page {urls.length - currentUrlIndex} of{' '}
-                                {urls.length}
+                                Page {document.content.length - currentDocIndex}{' '}
+                                of {document.content.length}
                             </Typography>
                         )}
                     </>
@@ -152,7 +135,7 @@ const KbDocCard = ({ document }) => {
                             ),
                         }}
                     >
-                        {currentContent}
+                        {document.content[currentDocIndex].content || ''}
                     </Markdown>
                 </Box>
             </CardContent>
@@ -165,7 +148,7 @@ const KbDocCard = ({ document }) => {
                         <OpenInNew />
                     </StyledIconButton>
                 </Box>
-                {urls.length > 1 && (
+                {document.content.length > 1 && (
                     <Box>
                         <IconButton onClick={handlePrevUrl}>
                             <ArrowBackIos />
@@ -178,13 +161,14 @@ const KbDocCard = ({ document }) => {
             </CardActions>
             {isEditorOpen && (
                 <TextEditor
-                    open={isEditorOpen}
-                    onClose={toggleEditor}
-                    doc={document}
-                    currentUrlIndex={currentUrlIndex}
-                    setCurrentUrlIndex={setCurrentUrlIndex}
-                    urls={urls}
-                    source={source}
+                    document={document}
+                    setDocumentDetails={setDocumentDetails}
+                    currentDocIndex={currentDocIndex}
+                    setCurrentDocIndex={setCurrentDocIndex}
+                    setEditorContent={setEditorContent}
+                    isEditorOpen={isEditorOpen}
+                    toggleEditor={toggleEditor}
+                    editorContent={editorContent}
                 />
             )}
         </Card>

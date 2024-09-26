@@ -1,16 +1,11 @@
 import { useEffect, useContext, useState, useCallback } from 'react';
 import { Modal, DialogActions, Button, Box } from '@mui/material';
-import TurndownService from 'turndown';
-import { diffWords } from 'diff';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
-import { isEqual } from 'lodash';
-
-const turndownService = new TurndownService();
 
 const ModalOverlay = styled('div')(({ theme }) => ({
     position: 'fixed',
@@ -62,79 +57,62 @@ const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
 }));
 
 const TextEditor = ({
-    open,
-    onClose,
-    urls,
-    currentUrlIndex = null,
-    setCurrentUrlIndex = null,
-    doc = null,
-    source = null,
+    document,
+    setDocumentDetails,
+    currentDocIndex,
+    setCurrentDocIndex,
+    setEditorContent,
+    isEditorOpen,
+    toggleEditor,
+    editorContent,
 }) => {
     const theme = useTheme();
-    const {
-        setQuill,
-        editorContent,
-        setEditorContent,
-        handleSave,
-        handleEmbed,
-        textEditorManager: { setDocumentDetails },
-    } = useContext(KbContext);
+    const { quill, setQuill, handleSave, handleEmbed, convertHTMLtoMarkdown } = useContext(KbContext);
 
     const [changedPages, setChangedPages] = useState({});
-    const [originalContents, setOriginalContents] = useState({});
 
     useEffect(() => {
-        if (doc && currentUrlIndex !== null) {
-            setDocumentDetails(doc, currentUrlIndex);
-
-            // Only set original content if it doesn't exist for this page
-            setOriginalContents((prev) => {
-                if (!prev.hasOwnProperty(currentUrlIndex)) {
-                    return { ...prev, [currentUrlIndex]: editorContent };
-                }
-                return prev;
-            });
+        if (document) {
+            setDocumentDetails(document, currentDocIndex);
         }
-    }, [doc, setDocumentDetails, currentUrlIndex]);
+    }, [document, setDocumentDetails, currentDocIndex]);
 
     useEffect(() => {
         console.log('changedPages', changedPages);
     }, [changedPages]);
 
-    const hasContentChanged = useCallback((originalContent, newContent) => {
-        if (originalContent) {
-            return originalContent !== newContent;
+    useEffect(() => {
+        if (quill) {
+            const handleTextChange = (delta, oldDelta, source) => {
+                if (source === 'user') {
+                    const content = quill.root.innerHTML;
+                    setChangedPages((prev) => ({
+                        ...prev,
+                        [currentDocIndex]: convertHTMLtoMarkdown(content),
+                    }));
+                }
+            };
+
+            quill.on('text-change', handleTextChange);
+
+            return () => {
+                quill.off('text-change', handleTextChange);
+            };
         }
-        return false;
-    }, []);
+    }, [quill, currentDocIndex, convertHTMLtoMarkdown]);
 
     const handleEditorChange = useCallback(
         (content) => {
             setEditorContent(content);
-
-            if (currentUrlIndex !== null) {
-                const originalContent = originalContents[currentUrlIndex];
-                const hasChanged = hasContentChanged(originalContent, content);
-
-                setChangedPages((prev) => {
-                    if (hasChanged) {
-                        return { ...prev, [currentUrlIndex]: content };
-                    } else {
-                        const newChangedPages = { ...prev };
-                        delete newChangedPages[currentUrlIndex];
-                        return newChangedPages;
-                    }
-                });
-            }
         },
-        [currentUrlIndex, originalContents, hasContentChanged, setEditorContent]
+        [setEditorContent]
     );
 
     const handleSaveWrapper = () => {
         const pagesToUpdate = Object.entries(changedPages).map(
             ([index, content]) => ({
                 index: parseInt(index),
-                content,
+                content: content,
             })
         );
 
@@ -144,30 +122,23 @@ const TextEditor = ({
         }
     };
 
-    if (!currentUrlIndex && urls) {
-        currentUrlIndex = urls.length - 1;
+    if (!currentDocIndex && document.content.length) {
+        setCurrentDocIndex(document.content.length - 1);
     }
 
-    useEffect(() => {
-        if (doc) {
-            setDocumentDetails(doc, currentUrlIndex);
-        }
-    }, [doc, setDocumentDetails, currentUrlIndex]);
-
     return (
-        <Modal open={open} onClose={onClose}>
+        <Modal open={isEditorOpen} onClose={toggleEditor}>
             <ModalOverlay>
                 <ModalContent>
                     <TextInputUtilityBar
-                        onClose={onClose}
-                        currentUrlIndex={currentUrlIndex}
-                        setCurrentUrlIndex={setCurrentUrlIndex}
-                        urls={urls}
-                        source={source}
+                        document={document}
+                        onClose={toggleEditor}
+                        currentDocIndex={currentDocIndex}
+                        setCurrentDocIndex={setCurrentDocIndex}
                     />
                     <EditorContainer>
                         <StyledReactQuill
-                            key={currentUrlIndex}
+                            key={currentDocIndex}
                             ref={(el) => {
                                 if (el) {
                                     setQuill(el.getEditor());
@@ -176,9 +147,7 @@ const TextEditor = ({
                             muiTheme={theme}
                             theme="snow"
                             value={editorContent}
-                            onChange={(content) =>
-                                handleEditorChange(content, editorContent)
-                            }
+                            onChange={handleEditorChange}
                             modules={{
                                 toolbar: false,
                             }}
@@ -206,7 +175,7 @@ const TextEditor = ({
                             <Button
                                 variant="outlined"
                                 color="primary"
-                                onClick={() => handleEmbed(currentUrlIndex)}
+                                onClick={() => handleEmbed(currentDocIndex)}
                             >
                                 Embed
                             </Button>
