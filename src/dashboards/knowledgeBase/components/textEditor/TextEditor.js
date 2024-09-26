@@ -70,7 +70,7 @@ const TextEditor = ({
     const theme = useTheme();
     const { handleSave, handleEmbed } = useContext(KbContext);
     const quillRef = useRef(null);
-    const [changedPages, setChangedPages] = useState({});
+    const [changedPages, setChangedPages] = useState([]);
 
     useEffect(() => {
         if (document) {
@@ -88,10 +88,15 @@ const TextEditor = ({
             const handleTextChange = (delta, oldDelta, source) => {
                 if (source === 'user') {
                     const content = quill.root.innerHTML;
-                    setChangedPages((prev) => ({
+                    const source =
+                        document.content[currentDocIndex].metadata.sourceURL;
+                    setChangedPages((prev) => [
                         ...prev,
-                        [currentDocIndex]: convertHTMLtoMarkdown(content),
-                    }));
+                        {
+                            content: convertHTMLtoMarkdown(content),
+                            source,
+                        },
+                    ]);
                 }
             };
 
@@ -101,7 +106,7 @@ const TextEditor = ({
                 quill.off('text-change', handleTextChange);
             };
         }
-    }, [currentDocIndex, convertHTMLtoMarkdown]);
+    }, [currentDocIndex, convertHTMLtoMarkdown, document.content]);
 
     const handleEditorChange = useCallback(
         (content) => {

@@ -21,6 +21,7 @@ import TextEditor from './textEditor/TextEditor';
 import Markdown from 'react-markdown';
 
 const KbDocCard = ({ document }) => {
+    console.log(document);
     const {
         isEditorOpen,
         toggleEditor,
