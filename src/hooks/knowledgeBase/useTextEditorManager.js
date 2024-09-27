@@ -8,12 +8,7 @@ export const useTextEditorManager = (document) => {
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [currentDocIndex, setCurrentDocIndex] = useState(0);
 
-    useEffect(() => {
-        if (document && Array.isArray(document.content)) {
-            setCurrentDocIndex(document.content.length - 1);
-        }
-    }, [document]);
-
+    
     const handlePrevUrl = () => {
         setCurrentDocIndex((prevIndex) =>
             prevIndex < document.content.length - 1 ? prevIndex + 1 : 0
@@ -47,15 +42,15 @@ export const useTextEditorManager = (document) => {
         return markdown;
     };
 
-    const setDocumentDetails = useCallback((doc, index) => {
+    const setDocumentDetails = useCallback((doc) => {
         if (doc.content && Array.isArray(doc.content)) {
             setEditorContent(
-                marked(doc.content[index].content.replace(/\n/g, '<br/>'))
+                marked(doc.content[currentDocIndex].content.replace(/\n/g, '<br/>'))
             );
         } else if (typeof doc.content === 'string') {
             setEditorContent(marked(doc.content.replace(/\n/g, '<br/>')));
         }
-    }, []);
+    }, [currentDocIndex]);
 
     const removeDocumentDetails = () => {
         setEditorContent('');

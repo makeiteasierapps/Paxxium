@@ -54,25 +54,16 @@ const TextEditor = ({
     convertHTMLtoMarkdown,
 }) => {
     const theme = useTheme();
-    const { handleSave, handleEmbed } = useContext(KbContext);
+    const { handleSave, handleEmbed, updateDocumentState } =
+        useContext(KbContext);
     const quillRef = useRef(null);
-    const [changedPages, setChangedPages] = useState([]);
-
-    useEffect(() => {
-        if (currentDocIndex === undefined && document.content.length) {
-            setCurrentDocIndex(document.content.length - 1);
-        }
-    }, [currentDocIndex, document.content.length, setCurrentDocIndex]);
+    const [changedPages, setChangedPages] = useState({});
 
     useEffect(() => {
         if (document) {
-            setDocumentDetails(document, currentDocIndex);
+            setDocumentDetails(document);
         }
-    }, [document, setDocumentDetails, currentDocIndex]);
-
-    useEffect(() => {
-        console.log('changedPages', changedPages);
-    }, [changedPages]);
+    }, [document, setDocumentDetails]);
 
     useEffect(() => {
         if (quillRef.current) {
@@ -82,13 +73,18 @@ const TextEditor = ({
                     const content = quill.root.innerHTML;
                     const source =
                         document.content[currentDocIndex].metadata.sourceURL;
-                    setChangedPages((prev) => [
-                        ...prev,
-                        {
-                            content: convertHTMLtoMarkdown(content),
-                            source,
-                        },
-                    ]);
+                    const newChangedPages = {
+                        kbId: document.kb_id,
+                        id: document.id,
+                        pagesToChange: [
+                            {
+                                content: convertHTMLtoMarkdown(content),
+                                source,
+                            },
+                        ],
+                    };
+                    setChangedPages(newChangedPages);
+                    updateDocumentState(newChangedPages);
                 }
             };
 
@@ -98,7 +94,14 @@ const TextEditor = ({
                 quill.off('text-change', handleTextChange);
             };
         }
-    }, [currentDocIndex, convertHTMLtoMarkdown, document.content]);
+    }, [
+        currentDocIndex,
+        convertHTMLtoMarkdown,
+        document.content,
+        document.id,
+        document.kb_id,
+        updateDocumentState,
+    ]);
 
     const handleEditorChange = useCallback(
         (content) => {
@@ -106,20 +109,6 @@ const TextEditor = ({
         },
         [setEditorContent]
     );
-
-    const handleSaveWrapper = () => {
-        const pagesToUpdate = Object.entries(changedPages).map(
-            ([index, content]) => ({
-                index: parseInt(index),
-                content: content,
-            })
-        );
-
-        if (pagesToUpdate.length > 0) {
-            handleSave(pagesToUpdate);
-            setChangedPages({});
-        }
-    };
 
     return (
         <Modal open={isEditorOpen} onClose={toggleEditor}>
@@ -156,7 +145,7 @@ const TextEditor = ({
                             <Button
                                 variant="outlined"
                                 color="primary"
-                                onClick={handleSaveWrapper}
+                                onClick={() => handleSave(changedPages)}
                                 disabled={
                                     Object.keys(changedPages).length === 0
                                 }

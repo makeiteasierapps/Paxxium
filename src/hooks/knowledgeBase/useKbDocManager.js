@@ -7,84 +7,84 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
     const [kbDocs, setKbDocs] = useState({});
     const kbId = selectedKb ? selectedKb.id : null;
 
-    const updateDocumentState = (newDoc) => {
-        setKbDocs((prevDocs) => {
-            const existingDocs = prevDocs[kbId] || [];
-            const updatedDocs = existingDocs.filter(
-                (doc) => doc.id !== newDoc.id
-            );
-            return {
-                ...prevDocs,
-                [kbId]: [...updatedDocs, newDoc],
-            };
-        });
+    const updateDocumentState = useCallback(
+        (dataToUpdate) => {
+            if (!dataToUpdate) {
+                return;
+            }
+            const { id, pagesToChange } = dataToUpdate;
+            setKbDocs((prevDocs) => {
+                const existingDocs = prevDocs[kbId] || [];
+                const docToUpdate = existingDocs.find((doc) => doc.id === id);
 
-        // Update localStorage
+                if (!docToUpdate) {
+                    console.error('Document not found:', id);
+                    return prevDocs;
+                }
+
+                const updatedDoc = { ...docToUpdate };
+
+                pagesToChange.forEach((page) => {
+                    const existingPageIndex = updatedDoc.content.findIndex(
+                        (p) => p.metadata.sourceURL === page.source
+                    );
+
+                    if (existingPageIndex !== -1) {
+                        updatedDoc.content[existingPageIndex].content =
+                            page.content;
+                    }
+                });
+
+                const updatedDocs = existingDocs.map((doc) =>
+                    doc.id === id ? updatedDoc : doc
+                );
+
+                return {
+                    ...prevDocs,
+                    [kbId]: updatedDocs,
+                };
+            });
+        },
+        [kbId]
+    );
+
+    const updateLocalStorage = useCallback((dataToUpdate) => {
+        const { kbId, id, pagesToChange } = dataToUpdate;
         const savedData = JSON.parse(localStorage.getItem('documents')) || {};
         savedData[kbId] = savedData[kbId] || [];
-        const updatedDocs = savedData[kbId].filter(
-            (doc) => doc.id !== newDoc.id
-        );
-        savedData[kbId] = [...updatedDocs, newDoc];
+
+        const docIndex = savedData[kbId].findIndex((doc) => doc.id === id);
+        if (docIndex !== -1) {
+            const updatedDoc = { ...savedData[kbId][docIndex] };
+            pagesToChange.forEach((page) => {
+                const existingPageIndex = updatedDoc.content.findIndex(
+                    (p) => p.source === page.source
+                );
+                if (existingPageIndex !== -1) {
+                    updatedDoc.content[existingPageIndex] = page;
+                } else {
+                    updatedDoc.content.push(page);
+                }
+            });
+            savedData[kbId][docIndex] = updatedDoc;
+        } else {
+            console.error('Document not found in localStorage:', id);
+        }
+
         localStorage.setItem('documents', JSON.stringify(savedData));
-        console.log('Document updated:', newDoc);
-    };
+    }, []);
 
-    const handleDocOperation = async (operation, dataToUpdate) => {
-        let docData;
+    const saveDocumentChanges = useCallback(
+        (dataToUpdate) => {
+            updateDocumentState(dataToUpdate);
+            updateLocalStorage(dataToUpdate);
+            // Here you would also call your API to update the database
+            console.log('Document saved:', dataToUpdate.id);
+        },
+        [updateDocumentState, updateLocalStorage]
+    );
 
-        // if (currentKbDoc.type === 'url') {
-        //     docData = {
-        //         ...currentKbDoc,
-        //         kbId,
-        //         content: currentKbDoc.content.map((url, index) =>
-        //             index === currentUrlIndex
-        //                 ? {
-        //                       ...url,
-        //                       content: convertHTMLtoMarkdown(editorContent),
-        //                   }
-        //                 : url
-        //         ),
-        //     };
-        // } else {
-        //     // PDF type
-        //     docData = {
-        //         ...currentKbDoc,
-        //         kbId,
-        //         content: convertHTMLtoMarkdown(editorContent),
-        //     };
-        // }
-
-        // let updatedDoc;
-        // if (operation === 'save') {
-        //     // This currently updates the entire set of documents if multiple pages are included.
-        //     // it would be better to update the specific document that was changed. That can be tracked
-        //     // with the sourceURL located kbDoc.content[currentUrlIndex].metaData
-        //     updatedDoc = await saveKbDoc(docData);
-        // } else if (operation === 'embed') {
-        //     updatedDoc = await embedKbDoc(docData);
-        // } else {
-        //     throw new Error('Invalid operation');
-        // }
-
-        // if (updatedDoc) {
-        //     if (updatedDoc.type === 'url') {
-        //         console.log(updatedDoc);
-        //         updatedDoc.content[currentUrlIndex].content = editorContent;
-        //     } else {
-        //         updatedDoc.content = editorContent;
-        //     }
-        //     updateDocumentState(updatedDoc);
-        // }
-
-        // return updatedDoc.id;
-    };
-
-    const handleSave = (dataToUpdate) =>
-        handleDocOperation('save', dataToUpdate);
-
-    const handleEmbed = (currentUrlIndex) =>
-        handleDocOperation('embed', currentUrlIndex);
+    const handleSave = (dataToUpdate) => saveDocumentChanges(dataToUpdate);
 
     const embedKbDoc = async (docData) => {
         try {
@@ -222,7 +222,8 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         fetchKbDocs,
         deleteKbDoc,
         handleSave,
-        handleEmbed,
+        embedKbDoc,
         isDocManagerLoading,
+        updateDocumentState,
     };
 };
