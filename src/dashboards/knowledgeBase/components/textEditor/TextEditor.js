@@ -1,12 +1,11 @@
 import { useEffect, useContext, useState, useCallback, useRef } from 'react';
 import { Modal, DialogActions, Button, Box } from '@mui/material';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import TextInputUtilityBar from './TextInputUtilityBar';
 import { KbContext } from '../../../../contexts/KbContext';
 import { styled } from '@mui/system';
 import { useTheme } from '@mui/material/styles';
-
+import { QuillWrapper } from './QuillWrapper';
 const ModalOverlay = styled('div')(({ theme }) => ({
     position: 'fixed',
     top: 0,
@@ -39,19 +38,6 @@ const EditorContainer = styled('div')({
     flexDirection: 'column',
 });
 
-const StyledReactQuill = styled(ReactQuill)(({ muiTheme }) => ({
-    flex: 1,
-    minHeight: '50%',
-    border: 'none',
-    '& .ql-container': {
-        height: 'auto',
-        minHeight: '300px',
-        maxHeight: 'calc(90vh - 200px)',
-        overflowY: 'auto',
-        border: 'none',
-    },
-}));
-
 const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
     padding: theme.spacing(2),
 }));
@@ -71,6 +57,12 @@ const TextEditor = ({
     const { handleSave, handleEmbed } = useContext(KbContext);
     const quillRef = useRef(null);
     const [changedPages, setChangedPages] = useState([]);
+
+    useEffect(() => {
+        if (currentDocIndex === undefined && document.content.length) {
+            setCurrentDocIndex(document.content.length - 1);
+        }
+    }, [currentDocIndex, document.content.length, setCurrentDocIndex]);
 
     useEffect(() => {
         if (document) {
@@ -129,10 +121,6 @@ const TextEditor = ({
         }
     };
 
-    if (!currentDocIndex && document.content.length) {
-        setCurrentDocIndex(document.content.length - 1);
-    }
-
     return (
         <Modal open={isEditorOpen} onClose={toggleEditor}>
             <ModalOverlay>
@@ -144,7 +132,7 @@ const TextEditor = ({
                         setCurrentDocIndex={setCurrentDocIndex}
                     />
                     <EditorContainer>
-                        <StyledReactQuill
+                        <QuillWrapper
                             key={currentDocIndex}
                             ref={quillRef}
                             muiTheme={theme}
