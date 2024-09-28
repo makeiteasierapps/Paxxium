@@ -74,7 +74,6 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         localStorage.setItem('documents', JSON.stringify(savedData));
     }, []);
 
-
     const handleSave = (dataToUpdate) => {
         saveKbDoc(dataToUpdate);
         updateLocalStorage(dataToUpdate);

@@ -6,24 +6,15 @@ import {
     Box,
     Checkbox,
     FormControlLabel,
-    Button,
     InputAdornment,
 } from '@mui/material';
 import { KbContext } from '../../../contexts/KbContext';
 import { StyledIconButton } from '../../chat/chatStyledComponents';
-import TextEditor from './textEditor/TextEditor';
 
 const KbUtility = () => {
     const [url, setUrl] = useState('');
     const [crawl, setCrawl] = useState(false);
-    const {
-        scrapeUrl,
-        selectedKb,
-        extractFile,
-        isEditorOpen,
-        toggleEditor,
-        setKbDoc,
-    } = useContext(KbContext);
+    const { scrapeUrl, selectedKb, extractFile } = useContext(KbContext);
 
     const fileInputRef = useRef(null);
 
@@ -35,14 +26,9 @@ const KbUtility = () => {
             trimmedUrl.startsWith('https://')
                 ? trimmedUrl
                 : 'https://' + trimmedUrl;
-        const scrapedKbDoc = await scrapeUrl(
-            selectedKb.id,
-            formattedUrl,
-            crawl
-        );
-        setKbDoc(scrapedKbDoc);
+
+        await scrapeUrl(selectedKb.id, formattedUrl, crawl);
         setUrl('');
-        toggleEditor();
     };
 
     const handleFileSelect = async (event) => {
@@ -53,9 +39,7 @@ const KbUtility = () => {
         formData.append('file', file);
         formData.append('kbId', selectedKb.id);
 
-        const extractedKbDoc = await extractFile(formData, selectedKb.id);
-        setKbDoc(extractedKbDoc);
-        toggleEditor();
+        await extractFile(formData, selectedKb.id);
     };
 
     return (
@@ -110,11 +94,7 @@ const KbUtility = () => {
                     }
                     label="Crawl Site"
                 />
-                <Button onClick={toggleEditor}>Open Editor</Button>
             </Box>
-            {isEditorOpen && (
-                <TextEditor open={isEditorOpen} onClose={toggleEditor} />
-            )}
         </Box>
     );
 };
