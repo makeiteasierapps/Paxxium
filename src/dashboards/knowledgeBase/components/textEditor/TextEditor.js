@@ -54,10 +54,10 @@ const TextEditor = ({
     convertHTMLtoMarkdown,
 }) => {
     const theme = useTheme();
-    const { handleSave, handleEmbed, updateDocumentState } =
-        useContext(KbContext);
     const quillRef = useRef(null);
     const [changedPages, setChangedPages] = useState({});
+    const { handleSave, handleEmbed, updateDocumentState } =
+        useContext(KbContext);
 
     useEffect(() => {
         if (document) {
@@ -73,18 +73,39 @@ const TextEditor = ({
                     const content = quill.root.innerHTML;
                     const source =
                         document.content[currentDocIndex].metadata.sourceURL;
-                    const newChangedPages = {
-                        kbId: document.kb_id,
-                        id: document.id,
-                        pagesToChange: [
-                            {
+
+                    setChangedPages((prevChangedPages) => {
+                        const updatedDocumentsToChange = [
+                            ...(prevChangedPages.documentsToChange || []),
+                        ];
+                        const existingDocIndex =
+                            updatedDocumentsToChange.findIndex(
+                                (doc) => doc.source === source
+                            );
+
+                        if (existingDocIndex !== -1) {
+                            // Update existing document
+                            updatedDocumentsToChange[existingDocIndex] = {
+                                ...updatedDocumentsToChange[existingDocIndex],
+                                content: convertHTMLtoMarkdown(content),
+                            };
+                        } else {
+                            // Add new document
+                            updatedDocumentsToChange.push({
                                 content: convertHTMLtoMarkdown(content),
                                 source,
-                            },
-                        ],
-                    };
-                    setChangedPages(newChangedPages);
-                    updateDocumentState(newChangedPages);
+                            });
+                        }
+
+                        const newChangedPages = {
+                            kbId: document.kb_id,
+                            id: document.id,
+                            documentsToChange: updatedDocumentsToChange,
+                        };
+
+                        updateDocumentState(newChangedPages);
+                        return newChangedPages;
+                    });
                 }
             };
 
@@ -102,7 +123,6 @@ const TextEditor = ({
         document.kb_id,
         updateDocumentState,
     ]);
-
     const handleEditorChange = useCallback(
         (content) => {
             setEditorContent(content);

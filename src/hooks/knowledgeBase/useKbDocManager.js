@@ -12,7 +12,7 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
             if (!dataToUpdate) {
                 return;
             }
-            const { id, pagesToChange } = dataToUpdate;
+            const { id, documentsToChange } = dataToUpdate;
             setKbDocs((prevDocs) => {
                 const existingDocs = prevDocs[kbId] || [];
                 const docToUpdate = existingDocs.find((doc) => doc.id === id);
@@ -24,7 +24,7 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
 
                 const updatedDoc = { ...docToUpdate };
 
-                pagesToChange.forEach((page) => {
+                documentsToChange.forEach((page) => {
                     const existingPageIndex = updatedDoc.content.findIndex(
                         (p) => p.metadata.sourceURL === page.source
                     );
@@ -74,17 +74,11 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         localStorage.setItem('documents', JSON.stringify(savedData));
     }, []);
 
-    const saveDocumentChanges = useCallback(
-        (dataToUpdate) => {
-            updateDocumentState(dataToUpdate);
-            updateLocalStorage(dataToUpdate);
-            // Here you would also call your API to update the database
-            console.log('Document saved:', dataToUpdate.id);
-        },
-        [updateDocumentState, updateLocalStorage]
-    );
 
-    const handleSave = (dataToUpdate) => saveDocumentChanges(dataToUpdate);
+    const handleSave = (dataToUpdate) => {
+        saveKbDoc(dataToUpdate);
+        updateLocalStorage(dataToUpdate);
+    };
 
     const embedKbDoc = async (docData) => {
         try {
