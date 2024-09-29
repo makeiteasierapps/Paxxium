@@ -56,7 +56,7 @@ const TextEditor = ({
     const theme = useTheme();
     const quillRef = useRef(null);
     const [changedPages, setChangedPages] = useState({});
-    const { handleSave, handleEmbed, updateDocumentState } =
+    const { handleSave, embedKbDoc, updateDocumentState } =
         useContext(KbContext);
 
     useEffect(() => {
@@ -123,6 +123,7 @@ const TextEditor = ({
         document.kb_id,
         updateDocumentState,
     ]);
+
     const handleEditorChange = useCallback(
         (content) => {
             setEditorContent(content);
@@ -175,7 +176,7 @@ const TextEditor = ({
                             <Button
                                 variant="outlined"
                                 color="primary"
-                                onClick={() => handleEmbed(currentDocIndex)}
+                                onClick={() => embedKbDoc(document.id)}
                             >
                                 Embed
                             </Button>

@@ -79,12 +79,14 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         updateLocalStorage(dataToUpdate);
     };
 
-    const embedKbDoc = async (docData) => {
+    const embedKbDoc = async (docId) => {
         try {
             setIsDocManagerLoading(true);
             socket.emit('process_document', {
-                ...docData,
-                dbName: 'paxxium',
+                uid: uid,
+                id: docId,
+                kbId: kbId,
+                dbName: process.env.REACT_APP_DB_NAME,
                 operation: 'embed',
             });
 
