@@ -47,7 +47,7 @@ const KbDocCard = ({ document }) => {
   const { deleteKbDoc, deleteKbDocPage } = useContext(KbContext);
 
   const handleDeleteClick = () => {
-    setIsFullDocDelete(false);
+    setIsFullDocDelete(document.content.length === 1);
     setIsDeleteDialogOpen(true);
   };
 
@@ -55,7 +55,7 @@ const KbDocCard = ({ document }) => {
     longPressTimer.current = setTimeout(() => {
       setIsFullDocDelete(true);
       setIsDeleteDialogOpen(true);
-    }, 1000); // 1 second long press
+    }, 1000);
   };
 
   const handleDeleteMouseUp = () => {
@@ -63,7 +63,8 @@ const KbDocCard = ({ document }) => {
   };
 
   const handleConfirmDelete = () => {
-    if (isFullDocDelete) {
+    if (isFullDocDelete || document.content.length === 1) {
+      console.log("Deleting entire document");
       deleteKbDoc(document.kb_id, document.id);
     } else {
       const pageSource = document.content[currentDocIndex].metadata.sourceURL;
