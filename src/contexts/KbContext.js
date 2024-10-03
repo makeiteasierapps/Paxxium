@@ -1,5 +1,4 @@
 import { useState, createContext, useContext } from 'react';
-import { useTextEditorManager } from '../hooks/knowledgeBase/useTextEditorManager';
 import { useKbManager } from '../hooks/knowledgeBase/useKbManager';
 import { useKbDocManager } from '../hooks/knowledgeBase/useKbDocManager';
 import { useExtractionManager } from '../hooks/knowledgeBase/useExtractionManager';
@@ -9,6 +8,7 @@ export const KbContext = createContext();
 
 export const KbProvider = ({ children }) => {
     const [selectedKb, setSelectedKb] = useState(null);
+    const [isKbLoading, setIsKbLoading] = useState(false);
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
     const backendUrl =
@@ -37,6 +37,8 @@ export const KbProvider = ({ children }) => {
             value={{
                 selectedKb,
                 setSelectedKb,
+                isKbLoading,
+                setIsKbLoading,
                 ...kbManager,
                 ...kbDocManager,
                 ...extractionManager,
