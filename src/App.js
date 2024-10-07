@@ -22,6 +22,8 @@ import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { SocketProvider } from './contexts/SocketProvider';
+import { MainProvider } from './contexts/MainContext';
+import MainContent from './dashboards/main/MainContent';
 import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
@@ -36,7 +38,6 @@ const AuthenticatedApp = () => {
         useContext(AuthContext);
 
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [isDrawerExpanded, setDrawerExpanded] = useState(false);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
 
     // Check local storage for persisted authorization state on component mount
@@ -46,10 +47,6 @@ const AuthenticatedApp = () => {
         setIsAuthorized(persistedIsAuthorized);
         setInitialCheckDone(true);
     }, [setIsAuthorized]);
-
-    const handleDrawerExpand = () => {
-        setDrawerExpanded(!isDrawerExpanded);
-    };
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -96,54 +93,50 @@ const AuthenticatedApp = () => {
         <>
             {isAuthorized && (
                 <>
-                    <ChatProvider>
-                        <SideDrawer
-                            mobileOpen={mobileOpen}
-                            setMobileOpen={setMobileOpen}
-                            drawerWidth={drawerWidth}
-                            handleDrawerExpand={handleDrawerExpand}
-                            isDrawerExpanded={isDrawerExpanded}
-                            setDrawerExpanded={setDrawerExpanded}
-                            expandedDrawerWidth={expandedDrawerWidth}
-                        />
-                        <Header
-                            setMobileOpen={setMobileOpen}
-                            setDrawerExpanded={setDrawerExpanded}
-                        />
-                        <Box
-                            component="main"
-                            sx={{
-                                flexGrow: 1,
-                                p: 1,
-                                ml: {
-                                    sm: isDrawerExpanded
-                                        ? `${expandedDrawerWidth}px`
-                                        : `${drawerWidth}px`,
-                                },
-                            }}
-                        >
-                            <Routes>
-                                {['/', '/home'].map((path, i) => (
+                    <MainProvider>
+                        <ChatProvider>
+                            <SideDrawer
+                                mobileOpen={mobileOpen}
+                                setMobileOpen={setMobileOpen}
+                                drawerWidth={drawerWidth}
+                                expandedDrawerWidth={expandedDrawerWidth}
+                            />
+                            <Header
+                                setMobileOpen={setMobileOpen}
+                            />
+                            <MainContent
+                                drawerWidth={drawerWidth}
+                                expandedDrawerWidth={expandedDrawerWidth}
+                            >
+                                <Routes>
+                                    {['/', '/home'].map((path, i) => (
+                                        <Route
+                                            path={path}
+                                            element={<HomeDash />}
+                                            key={i}
+                                        />
+                                    ))}
                                     <Route
-                                        path={path}
-                                        element={<HomeDash />}
-                                        key={i}
+                                        path="/chat"
+                                        element={<ChatDash />}
                                     />
-                                ))}
-                                <Route path="/chat" element={<ChatDash />} />
-                                <Route path="/dalle" element={<ImageDash />} />
-                                <Route
-                                    path="/profile"
-                                    element={<ProfileDash />}
-                                />
-                                <Route path="/kb" element={<KbDash />} />
-                                <Route
-                                    path="/settings"
-                                    element={<SettingsDash />}
-                                />
-                            </Routes>
-                        </Box>
-                    </ChatProvider>
+                                    <Route
+                                        path="/dalle"
+                                        element={<ImageDash />}
+                                    />
+                                    <Route
+                                        path="/profile"
+                                        element={<ProfileDash />}
+                                    />
+                                    <Route path="/kb" element={<KbDash />} />
+                                    <Route
+                                        path="/settings"
+                                        element={<SettingsDash />}
+                                    />
+                                </Routes>
+                            </MainContent>
+                        </ChatProvider>
+                    </MainProvider>
                 </>
             )}
             {!isAuthorized && (

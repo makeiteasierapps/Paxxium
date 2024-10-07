@@ -5,7 +5,6 @@ import {
     Typography,
     MenuItem,
     Tooltip,
-    Popover,
     Collapse,
 } from '@mui/material';
 import {
@@ -28,19 +27,21 @@ import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext, auth } from '../../contexts/AuthContext';
 import { ChatContext } from '../../contexts/ChatContext';
+import { MainContext } from '../../contexts/MainContext';
 import { HeaderIconButton } from './mainStyledComponents';
 
 const SideDrawer = ({
     mobileOpen,
     setMobileOpen,
     drawerWidth,
-    handleDrawerExpand,
-    isDrawerExpanded,
     expandedDrawerWidth,
 }) => {
+    const { isDrawerExpanded, setIsDrawerExpanded } = useContext(MainContext);
+    const handleDrawerExpand = () => {
+        setIsDrawerExpanded(!isDrawerExpanded);
+    };
     const location = useLocation();
     const [chatsOpen, setChatsOpen] = useState(false);
-    const [isChatPopoverOpen, setIsChatPopoverOpen] = useState(null);
     const chatButtonRef = useRef(null);
     const navigate = useNavigate();
     const { chatArray, selectedChat, setSelectedChat } =
@@ -233,7 +234,8 @@ const SideDrawer = ({
                         if (isDrawerExpanded) {
                             setChatsOpen(!chatsOpen);
                         } else {
-                            setIsChatPopoverOpen(chatButtonRef.current);
+                            setIsDrawerExpanded(!isDrawerExpanded);
+                            setChatsOpen(true);
                         }
                     }
                 }}
@@ -450,24 +452,6 @@ const SideDrawer = ({
                     </HeaderIconButton>
                 </Box>
             </Drawer>
-            <Popover
-                open={Boolean(isChatPopoverOpen)}
-                anchorEl={chatButtonRef.current}
-                onClose={() => setIsChatPopoverOpen(null)}
-                anchorOrigin={{
-                    vertical: 'center',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'center',
-                    horizontal: 'left',
-                }}
-            >
-                <Box sx={{ p: 2, maxWidth: 250 }}>
-                    <Typography variant="h6">Chats</Typography>
-                    {renderChats()}
-                </Box>
-            </Popover>
         </>
     );
 };

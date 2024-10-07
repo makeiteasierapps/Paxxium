@@ -1,20 +1,20 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useContext } from 'react';
 import { HeaderContainer } from './mainStyledComponents';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-
-const Header = ({ setMobileOpen, setDrawerExpanded }) => {
+import { MainContext } from '../../contexts/MainContext';
+const Header = ({ setMobileOpen }) => {
     const theme = useTheme();
     const permanentDrawerOpen = useMediaQuery(theme.breakpoints.up('sm'));
-
+    const { setIsDrawerExpanded } = useContext(MainContext);
     useLayoutEffect(() => {
         if (permanentDrawerOpen) {
-            setDrawerExpanded(false);
+            setIsDrawerExpanded(false);
             setMobileOpen(false);
         }
-    }, [permanentDrawerOpen, setDrawerExpanded, setMobileOpen]);
+    }, [permanentDrawerOpen, setIsDrawerExpanded, setMobileOpen]);
 
     return (
         <HeaderContainer permanentDrawerOpen={permanentDrawerOpen} id="header">
@@ -24,7 +24,7 @@ const Header = ({ setMobileOpen, setDrawerExpanded }) => {
                 edge="start"
                 onClick={() => {
                     setMobileOpen(true);
-                    setDrawerExpanded(true);
+                    setIsDrawerExpanded(true);
                 }}
                 sx={{ marginLeft: '1px', display: { sm: 'none' } }}
             >
