@@ -186,17 +186,21 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             setTreeData((prevTreeData) => {
                 const newTreeData = {
                     ...prevTreeData,
-                    children: data.map((category) => ({
-                        id: category._id,
-                        name: category.category,
-                        type: 'category',
-                        children: category.questions.map((q) => ({
-                            id: q._id,
-                            name: q.question,
-                            type: 'question',
-                            answer: q.answer || null,
-                        })),
-                    })),
+                    children: Array.isArray(data)
+                        ? data.map((category) => ({
+                              id: category._id,
+                              name: category.category,
+                              type: 'category',
+                              children: Array.isArray(category.questions)
+                                  ? category.questions.map((q) => ({
+                                        id: q._id,
+                                        name: q.question,
+                                        type: 'question',
+                                        answer: q.answer || null,
+                                    }))
+                                  : [],
+                          }))
+                        : [],
                 };
                 setIsQuestionsFormOpen(newTreeData.children.length === 0);
                 setIsGraphOpen(newTreeData.children.length > 0);
