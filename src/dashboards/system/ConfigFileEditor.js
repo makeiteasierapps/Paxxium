@@ -8,7 +8,11 @@ const ConfigFileEditor = ({ uid }) => {
     const { selectedFile, saveFileContent } = useConfig();
     const handleSave = () => {
         if (selectedFile) {
-            saveFileContent(uid, selectedFile.filename, selectedFile.content);
+            saveFileContent(
+                uid,
+                selectedFile.filename.replace(/^\/+/, ''),
+                selectedFile.content
+            );
         }
     };
 
@@ -28,7 +32,6 @@ const ConfigFileEditor = ({ uid }) => {
                 }}
                 name="config-editor"
                 editorProps={{ $blockScrolling: true }}
-                
                 width="100%"
                 height="400px"
             />
