@@ -23,13 +23,14 @@ import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { SocketProvider } from './contexts/SocketProvider';
 import { MainProvider } from './contexts/MainContext';
+import { ConfigProvider } from './contexts/ConfigContext';
 import MainContent from './dashboards/main/MainContent';
 import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
-
+import SystemSettingsDash from './dashboards/system/SystemSettingsDash';
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
 
@@ -101,9 +102,7 @@ const AuthenticatedApp = () => {
                                 drawerWidth={drawerWidth}
                                 expandedDrawerWidth={expandedDrawerWidth}
                             />
-                            <Header
-                                setMobileOpen={setMobileOpen}
-                            />
+                            <Header setMobileOpen={setMobileOpen} />
                             <MainContent
                                 drawerWidth={drawerWidth}
                                 expandedDrawerWidth={expandedDrawerWidth}
@@ -133,6 +132,10 @@ const AuthenticatedApp = () => {
                                         path="/settings"
                                         element={<SettingsDash />}
                                     />
+                                    <Route
+                                        path="/settings/system"
+                                        element={<SystemSettingsDash />}
+                                    />
                                 </Routes>
                             </MainContent>
                         </ChatProvider>
@@ -157,17 +160,19 @@ const App = () => {
                 <AuthProvider>
                     <SettingsProvider>
                         <Router>
-                            <SocketProvider>
-                                <NewsProvider>
-                                    <ImageProvider>
-                                        <KbProvider>
-                                            <ProfileProvider>
-                                                <AuthenticatedApp />
-                                            </ProfileProvider>
-                                        </KbProvider>
-                                    </ImageProvider>
-                                </NewsProvider>
-                            </SocketProvider>
+                            <ConfigProvider>
+                                <SocketProvider>
+                                    <NewsProvider>
+                                        <ImageProvider>
+                                            <KbProvider>
+                                                <ProfileProvider>
+                                                    <AuthenticatedApp />
+                                                </ProfileProvider>
+                                            </KbProvider>
+                                        </ImageProvider>
+                                    </NewsProvider>
+                                </SocketProvider>
+                            </ConfigProvider>
                         </Router>
                     </SettingsProvider>
                 </AuthProvider>

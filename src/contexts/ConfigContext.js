@@ -7,53 +7,59 @@ export const ConfigProvider = ({ children }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileContent, setFileContent] = useState('');
 
-    const fetchConfigFiles = useCallback(async (uid) => {
-        try {
-            const response = await fetch(`/api/config-files?uid=${uid}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch config files');
-            }
-            const data = await response.json();
-            setConfigFiles(data);
-        } catch (error) {
-            console.error('Error fetching config files:', error);
-        }
-    }, []);
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const fetchFileContent = useCallback(async (uid, filename) => {
-        try {
-            const response = await fetch(
-                `/api/config-files/${filename}?uid=${uid}`
-            );
-            if (!response.ok) {
-                throw new Error('Failed to fetch file content');
+    const fetchConfigFiles = useCallback(
+        async (uid) => {
+            if (!uid) {
+                return;
             }
-            const data = await response.json();
-            setFileContent(data.content);
-        } catch (error) {
-            console.error('Error fetching file content:', error);
-        }
-    }, []);
-
-    const saveFileContent = useCallback(async (uid, filename, content) => {
-        try {
-            const response = await fetch(
-                `/api/config-files/${filename}?uid=${uid}`,
-                {
-                    method: 'PUT',
+            try {
+                const response = await fetch(`${backendUrl}/config-files`, {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
+                        uid: uid,
                     },
-                    body: JSON.stringify({ content }),
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch config files');
                 }
-            );
-            if (!response.ok) {
-                throw new Error('Failed to save file content');
+                const data = await response.json();
+                console.log(data);
+                setConfigFiles(data);
+            } catch (error) {
+                console.error('Error fetching config files:', error);
             }
-        } catch (error) {
-            console.error('Error saving file content:', error);
-        }
-    }, []);
+        },
+        [backendUrl]
+    );
+
+    const saveFileContent = useCallback(
+        async (uid, filename, content) => {
+            try {
+                const response = await fetch(
+                    `${backendUrl}/config-files/${filename}`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            uid: uid,
+                        },
+                        body: JSON.stringify({ content }),
+                    }
+                );
+                if (!response.ok) {
+                    throw new Error('Failed to save file content');
+                }
+            } catch (error) {
+                console.error('Error saving file content:', error);
+            }
+        },
+        [backendUrl]
+    );
 
     const value = {
         configFiles,
@@ -62,7 +68,6 @@ export const ConfigProvider = ({ children }) => {
         setSelectedFile,
         setFileContent,
         fetchConfigFiles,
-        fetchFileContent,
         saveFileContent,
     };
 

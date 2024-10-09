@@ -9,7 +9,8 @@ import {
 } from '@mui/material';
 import {
     Home as HomeIcon,
-    Settings as SettingsIcon,
+    SettingsApplications as SettingsIcon,
+    Psychology as PsychologyIcon,
     AccountCircle as ProfileIcon,
     AccountTree as AccountTreeIcon,
     Logout as LogoutIcon,
@@ -111,6 +112,30 @@ const SideDrawer = ({
         </ConditionalTooltip>
     );
 
+    const systemSettingsButton = (
+        <ConditionalTooltip title="System Settings" condition={!isDrawerExpanded}>
+            <HeaderIconButton
+                disableRipple
+                component={Link}
+                to="/settings/system"
+                currentPath={location.pathname}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}
+                >
+                    <SettingsIcon sx={{ fontSize: '2rem' }} />
+                    {isDrawerExpanded && (
+                        <Typography paddingLeft={1}>System Settings</Typography>
+                    )}
+                </Box>
+            </HeaderIconButton>
+        </ConditionalTooltip>
+    );
+
     const profileButton = (
         <ConditionalTooltip title="Profile" condition={!isDrawerExpanded}>
             <HeaderIconButton
@@ -189,7 +214,7 @@ const SideDrawer = ({
                         width: '100%',
                     }}
                 >
-                    <SettingsIcon sx={{ fontSize: '2rem' }} />
+                    <PsychologyIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Settings</Typography>
                     )}
@@ -382,6 +407,7 @@ const SideDrawer = ({
                         </Box>
                     </Collapse>
                 )}
+                {systemSettingsButton}
                 {logoutButton}
             </Box>
         </Box>
