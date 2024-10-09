@@ -41,7 +41,7 @@ export const ConfigProvider = ({ children }) => {
         async (uid, filename, content) => {
             try {
                 const response = await fetch(
-                    `${backendUrl}/config-files/`,
+                    `${backendUrl}/config-files`,
                     {
                         method: 'PUT',
                         headers: {
