@@ -38,7 +38,7 @@ export const ConfigProvider = ({ children }) => {
     );
 
     const saveFileContent = useCallback(
-        async (uid, filename, content) => {
+        async (uid, filename, content, category) => {
             try {
                 const response = await fetch(
                     `${backendUrl}/config-files`,
@@ -48,7 +48,7 @@ export const ConfigProvider = ({ children }) => {
                             'Content-Type': 'application/json',
                             uid: uid,
                         },
-                        body: JSON.stringify({ filename, content }),
+                        body: JSON.stringify({ filename, content, category }),
                     }
                 );
                 if (!response.ok) {

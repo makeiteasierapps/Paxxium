@@ -10,8 +10,9 @@ const ConfigFileEditor = ({ uid }) => {
         if (selectedFile) {
             saveFileContent(
                 uid,
-                selectedFile.filename.replace(/^\/+/, ''),
-                selectedFile.content
+                selectedFile.path.replace(/^\/+/, ''),
+                selectedFile.content,
+                selectedFile.category
             );
         }
     };
@@ -22,7 +23,7 @@ const ConfigFileEditor = ({ uid }) => {
 
     return (
         <div className="config-file-editor">
-            <h3>Editing: {selectedFile.filename}</h3>
+            <h3>Editing: {selectedFile.path}</h3>
             <AceEditor
                 mode="ini"
                 theme="solarized_dark"
