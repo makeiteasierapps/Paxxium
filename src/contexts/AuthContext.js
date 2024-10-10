@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
                 await initializeFirebase();
                 setIsInitialized(true);
             } catch (error) {
+                console.error('Error initializing Firebase:', error);
                 showSnackbar(
                     `Failed to initialize Firebase: ${error.message}`,
                     'error'
@@ -93,6 +94,30 @@ export const AuthProvider = ({ children }) => {
         }
     }, [isInitialized, showSnackbar]);
 
+    const updatePassword = async (newPassword) => {
+        try {
+            const response = await fetch(`${backendUrl}/update_password`, {
+                method: 'POST',
+                body: JSON.stringify({ newPassword, uid }),
+            });
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(
+                    `Failed to change password: ${response.status} ${response.statusText}. ${errorBody}`
+                );
+            }
+            showSnackbar('Password changed successfully', 'success');
+            return true;
+        } catch (error) {
+            console.error('Error changing password:', error);
+            showSnackbar(
+                `Failed to change password: ${error.message}`,
+                'error'
+            );
+            return false;
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -104,6 +129,7 @@ export const AuthProvider = ({ children }) => {
                 user,
                 isAuthorized,
                 setIsAuthorized,
+                updatePassword,
             }}
         >
             {children}

@@ -1,6 +1,6 @@
 import { Box, styled } from '@mui/material';
 import User from './User';
-
+import NewPassword from './NewPassword';
 const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
@@ -17,6 +17,7 @@ const SettingsDash = () => {
     return (
         <MainContainer id="main-container">
             <User />
+            <NewPassword />
         </MainContainer>
     );
 };

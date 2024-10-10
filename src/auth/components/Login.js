@@ -115,13 +115,13 @@ const Login = ({ setIsLogin }) => {
                 >
                     Sign In
                 </StyledButton>
-                <Link
+                {/* <Link
                     onClick={() => setIsLogin(false)}
                     variant="body2"
                     sx={{ cursor: 'pointer' }}
                 >
                     {"Don't have an account? Sign Up"}
-                </Link>
+                </Link> */}
             </Box>
         </>
     );
