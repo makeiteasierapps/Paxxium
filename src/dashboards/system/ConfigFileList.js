@@ -26,6 +26,7 @@ const ConfigFileList = () => {
 
   // Group files by category
   const categories = [...new Set(configFiles.map((file) => file.category))];
+  console.log(categories);
   const filesByCategory = configFiles.reduce((acc, file) => {
     if (!acc[file.category]) acc[file.category] = [];
     acc[file.category].push(file);
