@@ -4,8 +4,8 @@ import NewFileMenu from './NewFileMenu';
 const ConfigEditor = ({ uid }) => {
     return (
         <div className="config-editor">
-            <NewFileMenu />
             <ConfigFileList />
+            <NewFileMenu />
             <ConfigFileEditor uid={uid} />
         </div>
     );

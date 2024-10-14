@@ -1,14 +1,16 @@
 import React, { createContext, useState, useCallback, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import { useSnackbar } from './SnackbarContext';
+import { useSocket } from './SocketProvider';
+
 export const ConfigContext = createContext();
 
 export const ConfigProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
+    const { socket } = useSocket();
     const { showSnackbar } = useSnackbar();
     const [configFiles, setConfigFiles] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [fileContent, setFileContent] = useState('');
 
     const backendUrl =
         process.env.NODE_ENV === 'development'
@@ -57,38 +59,14 @@ export const ConfigProvider = ({ children }) => {
         }
     };
 
-    const checkFileExists = async (filename) => {
-        try {
-            const response = await fetch(`${backendUrl}/config-files/check`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    uid: uid,
-                },
-                body: JSON.stringify({ filename }),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to check if file exists');
-            }
-            const data = await response.json();
-            if (data.exists) {
-                console.log(data.content);
-            }
-        } catch (error) {
-            console.error('Error checking if file exists:', error);
-            showSnackbar('Error checking if file exists', 'error');
-        }
-    };
-
     const value = {
         configFiles,
         selectedFile,
-        fileContent,
         setSelectedFile,
-        setFileContent,
         fetchConfigFiles,
         saveFileContent,
-        checkFileExists,
+        showSnackbar,
+        socket,
     };
 
     return (

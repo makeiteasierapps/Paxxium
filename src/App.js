@@ -160,8 +160,8 @@ const App = () => {
                 <AuthProvider>
                     <SettingsProvider>
                         <Router>
-                            <ConfigProvider>
-                                <SocketProvider>
+                            <SocketProvider>
+                                <ConfigProvider>
                                     <NewsProvider>
                                         <ImageProvider>
                                             <KbProvider>
@@ -171,8 +171,8 @@ const App = () => {
                                             </KbProvider>
                                         </ImageProvider>
                                     </NewsProvider>
-                                </SocketProvider>
-                            </ConfigProvider>
+                                </ConfigProvider>
+                            </SocketProvider>
                         </Router>
                     </SettingsProvider>
                 </AuthProvider>

@@ -11,7 +11,6 @@ const ConfigFileEditor = ({ uid }) => {
     const handleSave = () => {
         if (selectedFile) {
             saveFileContent(
-                uid,
                 selectedFile.path?.replace(/^\/+/, '') || '',
                 selectedFile.content || '',
                 selectedFile.category
