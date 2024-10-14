@@ -1,22 +1,11 @@
-import React, { useEffect } from 'react';
 import { Box, Button } from '@mui/material';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-ini';
 import 'ace-builds/src-noconflict/theme-solarized_dark';
 import { useConfig } from '../../hooks/useConfigManager';
 
-const ConfigFileEditor = ({ uid }) => {
+const ConfigFileEditor = () => {
     const { selectedFile, saveFileContent } = useConfig();
-
-    const handleSave = () => {
-        if (selectedFile) {
-            saveFileContent(
-                selectedFile.path?.replace(/^\/+/, '') || '',
-                selectedFile.content || '',
-                selectedFile.category
-            );
-        }
-    };
 
     return (
         <Box className="config-file-editor">
@@ -39,7 +28,7 @@ const ConfigFileEditor = ({ uid }) => {
                         height="60vh"
                     />
                     <Button
-                        onClick={handleSave}
+                        onClick={saveFileContent}
                         disabled={!selectedFile}
                         variant="outlined"
                         sx={{

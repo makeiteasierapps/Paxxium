@@ -31,9 +31,9 @@ const MessageBox = styled(Box)(({ theme }) => ({
 const NewFileMenu = () => {
     const { socket } = useSocket();
     const { uid } = useContext(AuthContext);
-    const { setSelectedFile, showSnackbar } = useContext(ConfigContext);
+    const { setSelectedFile, showSnackbar,  newCategoryRef} = useContext(ConfigContext);
     const [expanded, setExpanded] = useState(false);
-    const [filename, setFilename] = useState('');
+    const [filePath, setFilePath] = useState('');
     const [progressMessage, setProgressMessage] = useState('');
 
     const handleClick = () => {
@@ -50,7 +50,10 @@ const NewFileMenu = () => {
 
     useEffect(() => {
         const handleUpdate = (data) => {
-            console.log('File check update:', data);
+            if (data.message === 'Creating new category...') {
+                console.log('Creating new category...', data.category);
+                newCategoryRef.current = data.category;
+            }
             setProgressMessage(data.message);
         };
 
@@ -58,15 +61,15 @@ const NewFileMenu = () => {
             console.log('File check result:', response);
             if (response.exists) {
                 setSelectedFile({
-                    filename,
+                    path: filePath,
                     content: response.content,
                     category: response.category,
                 });
                 setProgressMessage(
-                    `File "${filename}" exists and has been loaded.`
+                    `File "${filePath}" exists and has been loaded.`
                 );
             } else {
-                setProgressMessage(`File "${filename}" does not exist.`);
+                setProgressMessage(`File "${filePath}" does not exist.`);
             }
         };
 
@@ -85,10 +88,15 @@ const NewFileMenu = () => {
             socket.off('file_check_result', handleResult);
             socket.off('file_check_error', handleError);
         };
-    }, [socket, filename, setSelectedFile, showSnackbar]);
+    }, [socket, filePath, setSelectedFile, showSnackbar]);
 
     return (
-        <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+        <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+        >
             <AnimatedContainer expanded={expanded}>
                 {expanded ? (
                     <TextField
@@ -100,7 +108,7 @@ const NewFileMenu = () => {
                                 <InputAdornment position="end">
                                     <IconButton
                                         onClick={() =>
-                                            checkFileExists(filename)
+                                            checkFileExists(filePath)
                                         }
                                     >
                                         <SendIcon color="primary" />
@@ -109,7 +117,7 @@ const NewFileMenu = () => {
                             ),
                         }}
                         autoFocus
-                        onChange={(e) => setFilename(e.target.value)}
+                        onChange={(e) => setFilePath(e.target.value)}
                     />
                 ) : (
                     <Button variant="outlined" onClick={handleClick}>
