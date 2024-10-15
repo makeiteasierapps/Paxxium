@@ -8,6 +8,7 @@ import {
     ListItemButton,
     ListItemText,
 } from '@mui/material';
+
 import { styled } from '@mui/system';
 
 const AnimatedBox = styled(Box)(({ theme }) => ({
@@ -26,8 +27,30 @@ const ConfigFileList = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     return (
-        <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Box
+            sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
+            <Box
+                sx={{
+                    mb: 2,
+                    pb: 1,
+                    width: '100%',
+                    overflowX: 'auto',
+                    display: 'flex',
+                    '&::-webkit-scrollbar': {
+                        height: '6px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: 'primary.light',
+                        borderRadius: '3px',
+                    },
+                }}
+            >
                 {categories.map((category) => (
                     <Button
                         key={category}
@@ -39,6 +62,9 @@ const ConfigFileList = () => {
                         onClick={() => setSelectedCategory(category)}
                         sx={{
                             mx: 1,
+                            minWidth: 'max-content',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0,
                             backgroundColor:
                                 selectedCategory === category
                                     ? 'primary.main'
@@ -60,7 +86,10 @@ const ConfigFileList = () => {
                 ))}
             </Box>
 
-            <AnimatedBox className={selectedCategory ? 'visible' : ''}>
+            <AnimatedBox
+                className={selectedCategory ? 'visible' : ''}
+                sx={{ width: '100%' }}
+            >
                 {selectedCategory && (
                     <>
                         <Typography variant="h6" sx={{ mb: 1 }}>

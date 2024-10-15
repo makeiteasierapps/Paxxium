@@ -3,7 +3,6 @@ import React, {
     useState,
     useCallback,
     useContext,
-    useRef,
     useEffect,
 } from 'react';
 import { AuthContext } from './AuthContext';
@@ -16,7 +15,6 @@ export const ConfigProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const { socket } = useSocket();
     const { showSnackbar } = useSnackbar();
-    const newCategoryRef = useRef(null);
     const [configFiles, setConfigFiles] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [categories, setCategories] = useState([]);
@@ -76,16 +74,32 @@ export const ConfigProvider = ({ children }) => {
             if (!response.ok) {
                 throw new Error('Failed to save file content');
             }
-            if (newCategoryRef.current) {
+
+            setConfigFiles((prevFiles) => {
+                const fileIndex = prevFiles.findIndex(
+                    (file) => file.path === selectedFile.path
+                );
+                if (fileIndex !== -1) {
+                    // Update existing file
+                    const updatedFiles = [...prevFiles];
+                    updatedFiles[fileIndex] = { ...selectedFile };
+                    return updatedFiles;
+                } else {
+                    // Add new file
+                    return [...prevFiles, { ...selectedFile }];
+                }
+            });
+
+            if (
+                selectedFile.category &&
+                !categories.includes(selectedFile.category)
+            ) {
                 setCategories((prevCategories) => [
                     ...prevCategories,
-                    newCategoryRef.current,
-                ]);
-                setConfigFiles((prevFiles) => [
-                    ...prevFiles,
-                    { ...selectedFile, category: newCategoryRef.current },
+                    selectedFile.category,
                 ]);
             }
+
             showSnackbar('File saved successfully', 'success');
         } catch (error) {
             console.error('Error saving file content:', error);
@@ -101,7 +115,6 @@ export const ConfigProvider = ({ children }) => {
         saveFileContent,
         showSnackbar,
         socket,
-        newCategoryRef,
         categories,
         filesByCategory,
     };
