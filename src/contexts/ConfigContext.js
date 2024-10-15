@@ -75,6 +75,8 @@ export const ConfigProvider = ({ children }) => {
                 throw new Error('Failed to save file content');
             }
 
+            const data = await response.json();
+            console.log(data);
             setConfigFiles((prevFiles) => {
                 const fileIndex = prevFiles.findIndex(
                     (file) => file.path === selectedFile.path
