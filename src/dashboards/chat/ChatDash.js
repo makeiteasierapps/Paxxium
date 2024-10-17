@@ -1,5 +1,6 @@
 import { memo, useContext } from 'react';
 import Chat from './components/Chat';
+import ChatBar from './components/ChatBar';
 import { ChatContext } from '../../contexts/ChatContext';
 import { Box, Typography } from '@mui/material';
 import { MainContainer } from '../styledComponents/DashStyledComponents';
@@ -7,7 +8,7 @@ import { MainContainer } from '../styledComponents/DashStyledComponents';
 import { CustomGridLoader } from '../main/customLoaders';
 
 const ChatDash = () => {
-    const { loading, selectedChat } = useContext(ChatContext);
+    const { loading, selectedChat, sendMessage, messages } = useContext(ChatContext);
 
     return (
         <MainContainer id="chat-dash-main-container">
@@ -16,7 +17,10 @@ const ChatDash = () => {
                     <CustomGridLoader />
                 </Box>
             ) : selectedChat ? (
-                <Chat selectedChat={selectedChat} />
+                <>
+                    <ChatBar />
+                    <Chat messages={messages[selectedChat.chatId]} onSendMessage={sendMessage} />
+                </>
             ) : (
                 <Box>
                     <Typography>No chat selected</Typography>

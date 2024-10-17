@@ -1,7 +1,8 @@
-import { useContext, useEffect } from 'react';
-import { Box } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
+import { Box, Tabs, Tab } from '@mui/material';
 import ConfigFileList from './ConfigFileList';
 import ConfigFileEditor from './ConfigFileEditor';
+import Chat from '../chat/components/Chat';
 import NewFileMenu from './NewFileMenu';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useConfig } from '../../hooks/useConfigManager';
@@ -9,6 +10,7 @@ import { useConfig } from '../../hooks/useConfigManager';
 const SystemSettingsDash = () => {
     const { fetchConfigFiles } = useConfig();
     const { uid } = useContext(AuthContext);
+    const [tabValue, setTabValue] = useState(0);
 
     useEffect(() => {
         fetchConfigFiles(uid);
@@ -17,6 +19,10 @@ const SystemSettingsDash = () => {
     if (!uid) {
         return null;
     }
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
 
     return (
         <Box
@@ -32,9 +38,18 @@ const SystemSettingsDash = () => {
                 gap: '24px',
             }}
         >
-            <ConfigFileList />
-            <NewFileMenu />
-            <ConfigFileEditor uid={uid} />
+            <Tabs value={tabValue} onChange={handleTabChange}>
+                <Tab label="Files" />
+                <Tab label="Chat" />
+            </Tabs>
+            {tabValue === 0 && (
+                <>
+                    <ConfigFileList />
+                    <NewFileMenu />
+                    <ConfigFileEditor uid={uid} />
+                </>
+            )}
+            {tabValue === 1 && <Chat />}
         </Box>
     );
 };

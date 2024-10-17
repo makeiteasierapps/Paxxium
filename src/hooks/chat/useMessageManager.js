@@ -5,6 +5,7 @@ export const useMessageManager = ({
     backendUrl,
     uid,
     showSnackbar,
+    selectedChat,
     setChatArray,
     setMessages,
     messages,
@@ -90,7 +91,7 @@ export const useMessageManager = ({
         return kb ? kb.id : null;
     };
 
-    const sendMessage = async (input, chatSettings, image = null) => {
+    const sendMessage = async (input, image = null) => {
         let kbId = null;
         let imageBlob = null;
 
@@ -119,17 +120,17 @@ export const useMessageManager = ({
             type: 'database',
             image_path: imageBlob,
         };
-        addMessage(chatSettings.chatId, userMessage, true);
-        const chatHistory = await getMessages(chatSettings.chatId);
+        addMessage(selectedChat.chatId, userMessage, true);
+        const chatHistory = await getMessages(selectedChat.chatId);
         try {
             if (socket) {
                 socket.emit('chat', {
                     uid,
-                    chatId: chatSettings.chatId,
+                    chatId: selectedChat.chatId,
                     dbName: 'paxxium',
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
-                    chatSettings,
+                    chatSettings: selectedChat,
                     chatHistory,
                     userMessage,
                     saveToDb: true,

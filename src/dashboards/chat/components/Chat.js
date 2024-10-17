@@ -1,9 +1,5 @@
-import { memo, useContext, useEffect, useRef, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { ChatContext } from '../../../contexts/ChatContext';
+import { memo, useEffect, useRef, useState } from 'react';
 import AgentMessage from './AgentMessage';
-import ChatSettings from './ChatSettings';
-import ChatBar from './ChatBar';
 import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
 import {
@@ -12,9 +8,8 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = () => {
+const Chat = ({messages, onSendMessage}) => {
     const nodeRef = useRef(null);
-    const { messages, selectedChat } = useContext(ChatContext);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
     // scrolls chat window to the bottom
@@ -34,11 +29,10 @@ const Chat = () => {
 
     return (
         <>
-            <ChatBar />
             <ChatContainerStyled>
                 <MessagesContainer xs={9} id="messages-container">
                     <MessageArea ref={nodeRef} onScroll={handleScroll}>
-                        {messages[selectedChat.chatId]?.map(
+                        {messages?.map(
                             (message, index) => {
                                 if (message.message_from === 'user') {
                                     return (
@@ -57,7 +51,7 @@ const Chat = () => {
                             }
                         )}
                     </MessageArea>
-                    <MessageInput chatSettings={selectedChat} />
+                    <MessageInput onSendMessage={onSendMessage} />
                 </MessagesContainer>
             </ChatContainerStyled>
         </>

@@ -5,8 +5,7 @@ import SendIcon from '@mui/icons-material/Send';
 import AddBox from '@mui/icons-material/AddBox';
 
 const EndAdornment = ({
-    sendMessage,
-    chatSettings,
+    onSendMessage,
     input,
     setInput,
     image,
@@ -41,7 +40,7 @@ const EndAdornment = ({
                     disableRipple
                     aria-label="send message"
                     onClick={() => {
-                        sendMessage(input, chatSettings, image);
+                        onSendMessage(input, image);
                         setInput('');
                         removeImage();
                     }}
