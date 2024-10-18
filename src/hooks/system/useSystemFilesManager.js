@@ -1,29 +1,12 @@
-import React, {
-    createContext,
-    useState,
-    useCallback,
-    useContext,
-    useEffect,
-} from 'react';
-import { AuthContext } from './AuthContext';
-import { useSnackbar } from './SnackbarContext';
-import { useSocket } from './SocketProvider';
+import { useState, useCallback, useEffect } from 'react';
+import { useSnackbar } from '../../contexts/SnackbarContext';
 
-export const ConfigContext = createContext();
-
-export const ConfigProvider = ({ children }) => {
-    const { uid } = useContext(AuthContext);
-    const { socket } = useSocket();
-    const { showSnackbar } = useSnackbar();
+export const useSystemFileManager = (uid, backendUrl) => {
     const [configFiles, setConfigFiles] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [categories, setCategories] = useState([]);
     const [filesByCategory, setFilesByCategory] = useState({});
-
-    const backendUrl =
-        process.env.NODE_ENV === 'development'
-            ? `http://${process.env.REACT_APP_BACKEND_URL}`
-            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+    const { showSnackbar } = useSnackbar();
 
     useEffect(() => {
         const newFilesByCategory = configFiles.reduce((acc, file) => {
@@ -109,21 +92,13 @@ export const ConfigProvider = ({ children }) => {
         }
     };
 
-    const value = {
+    return {
         configFiles,
         selectedFile,
         setSelectedFile,
         fetchConfigFiles,
         saveFileContent,
-        showSnackbar,
-        socket,
         categories,
         filesByCategory,
     };
-
-    return (
-        <ConfigContext.Provider value={value}>
-            {children}
-        </ConfigContext.Provider>
-    );
 };

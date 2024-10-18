@@ -5,10 +5,10 @@ import ConfigFileEditor from './ConfigFileEditor';
 import Chat from '../chat/components/Chat';
 import NewFileMenu from './NewFileMenu';
 import { AuthContext } from '../../contexts/AuthContext';
-import { useConfig } from '../../hooks/useConfigManager';
+import { SystemContext } from '../../contexts/SystemContext';
 
 const SystemSettingsDash = () => {
-    const { fetchConfigFiles } = useConfig();
+    const { fetchConfigFiles } = useContext(SystemContext);
     const { uid } = useContext(AuthContext);
     const [tabValue, setTabValue] = useState(0);
 
@@ -27,6 +27,7 @@ const SystemSettingsDash = () => {
     return (
         <Box
             className="system-settings-dash"
+            gap={2}
             sx={{
                 width: '100%',
                 maxWidth: '1200px',
@@ -35,7 +36,6 @@ const SystemSettingsDash = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '24px',
             }}
         >
             <Tabs value={tabValue} onChange={handleTabChange}>

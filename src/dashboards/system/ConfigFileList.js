@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useConfig } from '../../hooks/useConfigManager';
+import React, { useState, useContext } from 'react';
+import { SystemContext } from '../../contexts/SystemContext';
 import {
     Button,
     Box,
@@ -23,7 +23,7 @@ const AnimatedBox = styled(Box)(({ theme }) => ({
 
 const ConfigFileList = () => {
     const { selectedFile, setSelectedFile, categories, filesByCategory } =
-        useConfig();
+        useContext(SystemContext);
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     return (

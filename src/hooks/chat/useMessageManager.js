@@ -127,13 +127,11 @@ export const useMessageManager = ({
                 socket.emit('chat', {
                     uid,
                     chatId: selectedChat.chatId,
-                    dbName: 'paxxium',
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
                     chatSettings: selectedChat,
                     chatHistory,
                     userMessage,
-                    saveToDb: true,
                     kbId,
                     urls: detectedUrls,
                 });

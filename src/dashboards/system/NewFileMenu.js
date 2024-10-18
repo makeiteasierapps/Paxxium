@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/system';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketProvider';
-import { ConfigContext } from '../../contexts/ConfigContext';
+import { SystemContext } from '../../contexts/SystemContext';
 import ExpandableInput from './ExpandableInput';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -22,7 +22,7 @@ const NewFileMenu = () => {
     const { socket } = useSocket();
     const { uid } = useContext(AuthContext);
     const { setSelectedFile, selectedFile, showSnackbar, newCategoryRef } =
-        useContext(ConfigContext);
+        useContext(SystemContext);
     const [expanded, setExpanded] = useState(false);
     const [expandedCategory, setExpandedCategory] = useState(false);
     const [pendingFile, setPendingFile] = useState(null);

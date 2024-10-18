@@ -1,6 +1,5 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { Box } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import {
     Navigate,
@@ -23,7 +22,7 @@ import { NewsProvider } from './contexts/NewsContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { SocketProvider } from './contexts/SocketProvider';
 import { MainProvider } from './contexts/MainContext';
-import { ConfigProvider } from './contexts/ConfigContext';
+import { SystemProvider } from './contexts/SystemContext';
 import MainContent from './dashboards/main/MainContent';
 import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -161,7 +160,7 @@ const App = () => {
                     <SettingsProvider>
                         <Router>
                             <SocketProvider>
-                                <ConfigProvider>
+                                <SystemProvider>
                                     <NewsProvider>
                                         <ImageProvider>
                                             <KbProvider>
@@ -171,7 +170,7 @@ const App = () => {
                                             </KbProvider>
                                         </ImageProvider>
                                     </NewsProvider>
-                                </ConfigProvider>
+                                </SystemProvider>
                             </SocketProvider>
                         </Router>
                     </SettingsProvider>
