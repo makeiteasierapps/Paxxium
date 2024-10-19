@@ -2,7 +2,8 @@ import React, { createContext, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import { useSocket } from './SocketProvider';
 import { useSystemFileManager } from '../hooks/system/useSystemFilesManager';
-
+import { useSystemAgent } from '../hooks/system/useSystemAgent';
+import { useSnackbar } from './SnackbarContext';
 export const SystemContext = createContext();
 
 export const SystemProvider = ({ children }) => {
@@ -11,12 +12,15 @@ export const SystemProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
+    const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const { socket } = useSocket();
     const systemFileManager = useSystemFileManager(uid, backendUrl);
+    const systemAgent = useSystemAgent(uid, socket, showSnackbar);
 
     const value = {
         ...systemFileManager,
+        ...systemAgent,
         socket,
     };
 

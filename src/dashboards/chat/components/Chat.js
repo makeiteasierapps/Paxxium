@@ -8,7 +8,7 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
-const Chat = ({messages, onSendMessage}) => {
+const Chat = ({ messages, onSendMessage, sx }) => {
     const nodeRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
@@ -29,27 +29,25 @@ const Chat = ({messages, onSendMessage}) => {
 
     return (
         <>
-            <ChatContainerStyled>
+            <ChatContainerStyled sx={sx}>
                 <MessagesContainer xs={9} id="messages-container">
                     <MessageArea ref={nodeRef} onScroll={handleScroll}>
-                        {messages?.map(
-                            (message, index) => {
-                                if (message.message_from === 'user') {
-                                    return (
-                                        <UserMessage
-                                            key={`user${index}`}
-                                            message={message}
-                                        />
-                                    );
-                                }
+                        {messages?.map((message, index) => {
+                            if (message.message_from === 'user') {
                                 return (
-                                    <AgentMessage
-                                        key={`stream${index}`}
+                                    <UserMessage
+                                        key={`user${index}`}
                                         message={message}
                                     />
                                 );
                             }
-                        )}
+                            return (
+                                <AgentMessage
+                                    key={`stream${index}`}
+                                    message={message}
+                                />
+                            );
+                        })}
                     </MessageArea>
                     <MessageInput onSendMessage={onSendMessage} />
                 </MessagesContainer>

@@ -101,21 +101,19 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
     width: '100%',
 }));
 
-export const ChatContainerStyled = styled(Box)(({ theme }) => ({
+export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
-    width: '80%',
-    minHeight: '95vh',
-    maxHeight: '95vh',
+    width: '90%',
+    height: '95vh',
     borderRadius: '7px',
     [theme.breakpoints.down('sm')]: {
-        minWidth: '100vw',
-        maxWidth: '100vw',
-        minHeight: '95vh',
-        maxHeight: '95vh',
+        width: '100vw',
+        height: '95vh',
         borderRadius: '0px',
     },
+    ...(sx || {}),
 }));
 
 export const MessageArea = styled(List)({

@@ -8,7 +8,8 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { SystemContext } from '../../contexts/SystemContext';
 
 const SystemSettingsDash = () => {
-    const { fetchConfigFiles } = useContext(SystemContext);
+    const { fetchConfigFiles, systemAgentMessages, messageSystemAgent } =
+        useContext(SystemContext);
     const { uid } = useContext(AuthContext);
     const [tabValue, setTabValue] = useState(0);
 
@@ -25,32 +26,45 @@ const SystemSettingsDash = () => {
     };
 
     return (
-        <Box
-            className="system-settings-dash"
-            gap={2}
-            sx={{
-                width: '100%',
-                maxWidth: '1200px',
-                margin: '0 auto',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-        >
+        <>
             <Tabs value={tabValue} onChange={handleTabChange}>
                 <Tab label="Files" />
                 <Tab label="Chat" />
             </Tabs>
-            {tabValue === 0 && (
-                <>
-                    <ConfigFileList />
-                    <NewFileMenu />
-                    <ConfigFileEditor uid={uid} />
-                </>
-            )}
-            {tabValue === 1 && <Chat />}
-        </Box>
+            <Box
+                className="system-settings-dash"
+                gap={2}
+                sx={{
+                    width: '100%',
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    padding: '24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                {tabValue === 0 && (
+                    <>
+                        <ConfigFileList />
+                        <NewFileMenu />
+                        <ConfigFileEditor uid={uid} />
+                    </>
+                )}
+                {tabValue === 1 && (
+                    <Box width="100%">
+                        <Chat
+                            sx={{
+                                width: '100%',
+                                height: '90vh',
+                            }}
+                            messages={systemAgentMessages}
+                            onSendMessage={messageSystemAgent}
+                        />
+                    </Box>
+                )}
+            </Box>
+        </>
     );
 };
 

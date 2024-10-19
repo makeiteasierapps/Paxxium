@@ -1,25 +1,18 @@
-export const useSystemAgent = ({backendUrl, uid, socket, showSnackbar, addMessage, getMessages, selectedChat, kbArray, detectedUrls}) => {
-    const sendMessage = async (input, image = null) => {
+import { useState } from 'react';
 
+export const useSystemAgent = (uid, socket, showSnackbar) => {
+    const [systemAgentMessages, setSystemAgentMessages] = useState([]);
+    const messageSystemAgent = async (input) => {
         const userMessage = {
             content: input,
             message_from: 'user',
             created_at: new Date().toISOString(),
-            type: 'database',
-            image_path: imageBlob,
         };
-        addMessage(selectedChat.chatId, userMessage, true);
-        const chatHistory = await getMessages(selectedChat.chatId);
+
         try {
             if (socket) {
-                socket.emit('chat', {
+                socket.emit('system_agent', {
                     uid,
-                    chatId: selectedChat.chatId,
-                    dbName: 'paxxium',
-                    imageBlob,
-                    fileName: imageBlob ? imageBlob.name : null,
-                    chatSettings: selectedChat,
-                    chatHistory,
                     userMessage,
                 });
             }
@@ -28,8 +21,9 @@ export const useSystemAgent = ({backendUrl, uid, socket, showSnackbar, addMessag
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
         }
     };
-}
 
-
-
-
+    return {
+        systemAgentMessages,
+        messageSystemAgent,
+    };
+};
