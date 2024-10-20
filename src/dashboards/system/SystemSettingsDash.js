@@ -6,7 +6,7 @@ import Chat from '../chat/components/Chat';
 import NewFileMenu from './NewFileMenu';
 import { AuthContext } from '../../contexts/AuthContext';
 import { SystemContext } from '../../contexts/SystemContext';
-
+import ContextResearch from './ContextResearch';
 const SystemSettingsDash = () => {
     const { fetchConfigFiles, systemAgentMessages, messageSystemAgent } =
         useContext(SystemContext);
@@ -53,6 +53,7 @@ const SystemSettingsDash = () => {
                 )}
                 {tabValue === 1 && (
                     <Box width="100%">
+                        <ContextResearch />
                         <Chat
                             sx={{
                                 width: '100%',
