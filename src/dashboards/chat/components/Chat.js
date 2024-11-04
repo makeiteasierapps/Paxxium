@@ -29,26 +29,24 @@ const Chat = ({ messages, onSendMessage, sx }) => {
         setShouldAutoScroll(isAtBottom);
     };
 
-    const renderMessage = (message, index) => {
-        const MessageComponent =
-            message.message_from === 'user' ? UserMessage : AgentMessage;
-
-        return (
-            <MessageComponent
-                key={`${message.message_from}-${index}`}
-                message={message}
-            />
-        );
-    };
-
     return (
         <ChatContainerStyled sx={sx}>
-            <MessagesContainer>
-                <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
-                    {messages?.map(renderMessage)}
-                </MessageArea>
-                <MessageInput onSendMessage={onSendMessage} />
-            </MessagesContainer>
+            <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
+                {messages?.map((message, index) => {
+                    const MessageComponent =
+                        message.message_from === 'user'
+                            ? UserMessage
+                            : AgentMessage;
+                    return (
+                        <MessageComponent
+                            className="message-item"
+                            key={`${message.message_from}-${index}`}
+                            message={message}
+                        />
+                    );
+                })}
+            </MessageArea>
+            <MessageInput onSendMessage={onSendMessage} />
         </ChatContainerStyled>
     );
 };

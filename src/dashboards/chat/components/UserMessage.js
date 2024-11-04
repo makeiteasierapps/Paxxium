@@ -1,13 +1,14 @@
-import { Avatar } from '@mui/material';
+import { Avatar, ListItem } from '@mui/material';
 import { useContext } from 'react';
 import { SettingsContext } from '../../../contexts/SettingsContext';
-import { MessageContainer, MessageContent } from '../chatStyledComponents';
+import { MessageContent } from '../chatStyledComponents';
 
-const UserMessage = ({ message }) => {
+const UserMessage = ({ message, className }) => {
+    // Add className prop
     const { userAvatarImg, backendUrl } = useContext(SettingsContext);
 
     return (
-        <MessageContainer messageFrom="user">
+        <ListItem className={className} messageFrom="user">
             <Avatar
                 variant="rounded"
                 src={`${backendUrl}/images/${userAvatarImg}`}
@@ -20,7 +21,7 @@ const UserMessage = ({ message }) => {
                 }}
             />
             <MessageContent>{message.content}</MessageContent>
-        </MessageContainer>
+        </ListItem>
     );
 };
 

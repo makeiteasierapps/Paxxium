@@ -43,7 +43,7 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
         listStylePosition: 'inside',
     },
     '& li': {
-        lineHeight: '1.2',
+        lineHeight: '1.4',
     },
 
     '& pre': {
@@ -120,12 +120,12 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
 export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    position: 'relative',
     width: '100%',
     maxWidth: '1000px',
     height: '95vh',
     borderRadius: '10px',
+    overflow: 'hidden', // Moved from MessagesContainer
+    whiteSpace: 'pre-line', // Moved from MessagesContainer
     [theme.breakpoints.down('sm')]: {
         width: '100vw',
         borderRadius: 0,
@@ -133,34 +133,24 @@ export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     ...(sx || {}),
 }));
 
-export const MessagesContainer = styled(Box)({
-    flexGrow: 1,
-    display: 'flex',
-    width: '100%',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    whiteSpace: 'pre-line',
-});
-
-// Message components
+// Combine MessageArea and MessageContainer styles
 export const MessageArea = styled(List)(({ theme }) => ({
     flexGrow: 1,
     overflowY: 'auto',
     width: '100%',
     padding: theme.spacing(1),
     scrollBehavior: 'smooth',
-}));
-
-export const MessageContainer = styled(ListItem, {
-    shouldForwardProp: (prop) => prop !== 'messageFrom',
-})(({ theme, messageFrom }) => ({
-    backgroundColor: theme.palette.background[messageFrom],
-    wordBreak: 'break-word',
-    alignItems: 'flex-start',
-    padding: theme.spacing(1),
-    margin: `${theme.spacing(2)} 0`,
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[3],
+    '& .message-item': {
+        // Style for ListItem
+        backgroundColor: ({ messageFrom }) =>
+            theme.palette.background[messageFrom],
+        wordBreak: 'break-word',
+        alignItems: 'flex-start',
+        padding: theme.spacing(1),
+        margin: `${theme.spacing(2)} 0`,
+        borderRadius: theme.shape.borderRadius,
+        boxShadow: theme.shadows[3],
+    },
 }));
 
 export const MessageContent = styled(Box)({

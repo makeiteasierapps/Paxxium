@@ -1,15 +1,12 @@
 import { Icon } from '@iconify/react';
-import {
-    MessageContainer,
-    MessageContent,
-    StyledMarkdown,
-} from '../chatStyledComponents';
+import { ListItem } from '@mui/material';
+import { MessageContent, StyledMarkdown } from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
-import { useTheme } from '@mui/material/styles';    
+import { useTheme } from '@mui/material/styles';
 
-const AgentMessage = ({ message }) => {
+const AgentMessage = ({ message, className }) => {
     const theme = useTheme();
     const components = {
         code({ node, inline, className, children, ...props }) {
@@ -32,7 +29,7 @@ const AgentMessage = ({ message }) => {
     };
 
     return (
-        <MessageContainer messageFrom={message.message_from}>
+        <ListItem className={className} messageFrom={message.message_from}>
             <Icon
                 icon="mdi:robot"
                 style={{
@@ -57,7 +54,6 @@ const AgentMessage = ({ message }) => {
                                   </StyledMarkdown>
                               );
                           } else if (msg.type === 'code') {
-                              console.log(msg.type);
                               return (
                                   <SyntaxHighlighter
                                       key={`code${index}`}
@@ -72,7 +68,7 @@ const AgentMessage = ({ message }) => {
                       })
                     : null}
             </MessageContent>
-        </MessageContainer>
+        </ListItem>
     );
 };
 
