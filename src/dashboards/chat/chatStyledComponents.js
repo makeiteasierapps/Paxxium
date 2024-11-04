@@ -116,63 +116,58 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
     width: '100%',
 }));
 
+// Container components
 export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     display: 'flex',
     flexDirection: 'column',
+    alignItems: 'center',
     position: 'relative',
-    width: '90%',
+    width: '100%',
+    maxWidth: '1000px',
     height: '95vh',
-    borderRadius: '7px',
+    borderRadius: '10px',
     [theme.breakpoints.down('sm')]: {
         width: '100vw',
-        height: '95vh',
-        borderRadius: '0px',
+        borderRadius: 0,
     },
     ...(sx || {}),
 }));
 
-export const MessageArea = styled(List)({
-    flexGrow: 1,
-    overflowY: 'auto',
-    width: '100%',
-    padding: '0px',
-});
-
 export const MessagesContainer = styled(Box)({
     flexGrow: 1,
     display: 'flex',
+    width: '100%',
     flexDirection: 'column',
     overflow: 'hidden',
     whiteSpace: 'pre-line',
 });
 
-// Used for Chat, and User
+// Message components
+export const MessageArea = styled(List)(({ theme }) => ({
+    flexGrow: 1,
+    overflowY: 'auto',
+    width: '100%',
+    padding: theme.spacing(1),
+    scrollBehavior: 'smooth',
+}));
+
 export const MessageContainer = styled(ListItem, {
     shouldForwardProp: (prop) => prop !== 'messageFrom',
 })(({ theme, messageFrom }) => ({
-    backgroundColor:
-        messageFrom === 'user'
-            ? theme.palette.background.user
-            : theme.palette.background.agent,
+    backgroundColor: theme.palette.background[messageFrom],
     wordBreak: 'break-word',
-    flexDirection: 'row',
-    display: 'flex',
     alignItems: 'flex-start',
-    paddingRight: '50px',
-    paddingTop: '20px',
-    paddingBottom: '20px',
+    padding: theme.spacing(1),
+    margin: `${theme.spacing(2)} 0`,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[3],
 }));
 
-export const MessageContent = styled(({ imageUrl, ...other }) => (
-    <Box {...other} />
-))(({ theme, imageUrl }) => ({
-    maxHeight: '100%',
+export const MessageContent = styled(Box)({
     overflowX: 'hidden',
-    width: '100%',
-    whiteSpace: 'pre-wrap',
-    alignSelf: imageUrl ? 'center' : 'flex-start',
-    marginLeft: imageUrl ? '10px' : '0px',
-}));
+    width: '80%',
+    borderRadius: 'inherit',
+});
 
 // Chatbar
 export const Bar = styled(Box)(({ theme }) => ({

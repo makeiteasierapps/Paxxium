@@ -49,8 +49,8 @@ const User = () => {
     const {
         profileData,
         setProfileData,
-        selectedImage,
-        setSelectedImage,
+        userAvatarImg,
+        setUserAvatarImg,
         updateAvatar,
         isLoading,
         updateUserProfile,
@@ -108,7 +108,7 @@ const User = () => {
             type: 'image/png',
         });
 
-        setSelectedImage(URL.createObjectURL(blob));
+        setUserAvatarImg(URL.createObjectURL(blob));
         if (blobUrlRef.current) {
             URL.revokeObjectURL(blobUrlRef.current);
         }
@@ -146,16 +146,16 @@ const User = () => {
                         setOpen(true);
                     }}
                 />
-                {console.log(selectedImage)}
+                {console.log(userAvatarImg)}
                 <label htmlFor="avatar-input">
-                    {selectedImage ? (
+                    {userAvatarImg ? (
                         <StyledAvatar
                             key={Date.now()}
                             alt="User Avatar"
                             src={
-                                selectedImage.startsWith('blob:')
-                                    ? selectedImage
-                                    : `${backendUrl}/images/${selectedImage}?t=${Date.now()}`
+                                userAvatarImg.startsWith('blob:')
+                                    ? userAvatarImg
+                                    : `${backendUrl}/images/${userAvatarImg}?t=${Date.now()}`
                             }
                         />
                     ) : (

@@ -7,17 +7,17 @@ import {
 } from '../styledProfileComponents';
 
 const RootNode = ({ onClick }) => {
-    const { selectedImage, backendUrl } = useContext(SettingsContext);
+    const { userAvatarImg, backendUrl } = useContext(SettingsContext);
     const [imageUrl, setImageUrl] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const latestImageUrlRef = useRef('');
 
     useEffect(() => {
-        if (selectedImage) {
+        if (userAvatarImg) {
             setIsLoading(true);
-            const newImageUrl = selectedImage.startsWith('blob:')
-                ? selectedImage
-                : `${backendUrl}/images/${selectedImage}`;
+            const newImageUrl = userAvatarImg.startsWith('blob:')
+                ? userAvatarImg
+                : `${backendUrl}/images/${userAvatarImg}`;
 
             if (newImageUrl !== latestImageUrlRef.current) {
                 const img = new Image();
@@ -35,7 +35,7 @@ const RootNode = ({ onClick }) => {
                 setIsLoading(false);
             }
         }
-    }, [selectedImage, backendUrl]);
+    }, [userAvatarImg, backendUrl]);
 
     return (
         <StyledShadowWrapper>

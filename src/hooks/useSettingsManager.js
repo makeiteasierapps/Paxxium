@@ -2,12 +2,12 @@ import { useCallback, useState, useEffect } from 'react';
 
 export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [profileData, setProfileData] = useState({});
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [userAvatarImg, setUserAvatarImg] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        setSelectedImage(`users/${uid}/profile_images/avatar.png`);
-    }, [uid, backendUrl]);
+        setUserAvatarImg(`users/${uid}/profile_images/avatar.png`);
+    }, [uid]);
 
     const loadProfile = useCallback(async () => {
         try {
@@ -84,10 +84,9 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 }
 
                 const data = await response.json();
-                console.log(data.path);
 
-                // Update the selectedImage state
-                setSelectedImage(data.path);
+                // Update the userAvatarImg state
+                setUserAvatarImg(data.path);
             } catch (error) {
                 showSnackbar(
                     `Network or fetch error: ${error.message}`,
@@ -110,8 +109,8 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         profileData,
         setProfileData,
         isLoading,
-        selectedImage,
-        setSelectedImage,
+        userAvatarImg,
+        setUserAvatarImg,
         updateUserProfile,
         updateAvatar,
     };

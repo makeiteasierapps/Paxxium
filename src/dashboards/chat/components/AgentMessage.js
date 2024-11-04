@@ -7,8 +7,10 @@ import {
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
+import { useTheme } from '@mui/material/styles';    
 
 const AgentMessage = ({ message }) => {
+    const theme = useTheme();
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -37,7 +39,7 @@ const AgentMessage = ({ message }) => {
                     fontSize: '36px',
                     position: 'relative',
                     marginRight: '13px',
-                    color: 'gray',
+                    color: theme.palette.primary.dark,
                 }}
             />
 
@@ -45,7 +47,6 @@ const AgentMessage = ({ message }) => {
                 {Array.isArray(message.content)
                     ? message.content.map((msg, index) => {
                           if (msg.type === 'text') {
-                              console.log(msg);
                               return (
                                   <StyledMarkdown
                                       key={`text${index}`}

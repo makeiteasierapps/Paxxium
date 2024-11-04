@@ -8,51 +8,48 @@ import {
     ChatContainerStyled,
 } from '../chatStyledComponents';
 
+// ... existing imports ...
+
 const Chat = ({ messages, onSendMessage, sx }) => {
-    const nodeRef = useRef(null);
+    const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
-    // scrolls chat window to the bottom
     useEffect(() => {
-        if (shouldAutoScroll) {
-            const node = nodeRef.current;
+        if (shouldAutoScroll && messageAreaRef.current) {
+            const node = messageAreaRef.current;
             node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
         }
     }, [messages, shouldAutoScroll]);
 
     const handleScroll = () => {
-        const node = nodeRef.current;
-        const isScrolledToBottom =
-            node.scrollHeight - node.clientHeight <= node.scrollTop + 1;
-        setShouldAutoScroll(isScrolledToBottom);
+        const node = messageAreaRef.current;
+        const isAtBottom =
+            Math.abs(node.scrollHeight - node.clientHeight - node.scrollTop) <=
+            1;
+        setShouldAutoScroll(isAtBottom);
+    };
+
+    const renderMessage = (message, index) => {
+        const MessageComponent =
+            message.message_from === 'user' ? UserMessage : AgentMessage;
+
+        return (
+            <MessageComponent
+                key={`${message.message_from}-${index}`}
+                message={message}
+            />
+        );
     };
 
     return (
-        <>
-            <ChatContainerStyled sx={sx}>
-                <MessagesContainer xs={9} id="messages-container">
-                    <MessageArea ref={nodeRef} onScroll={handleScroll}>
-                        {messages?.map((message, index) => {
-                            if (message.message_from === 'user') {
-                                return (
-                                    <UserMessage
-                                        key={`user${index}`}
-                                        message={message}
-                                    />
-                                );
-                            }
-                            return (
-                                <AgentMessage
-                                    key={`stream${index}`}
-                                    message={message}
-                                />
-                            );
-                        })}
-                    </MessageArea>
-                    <MessageInput onSendMessage={onSendMessage} />
-                </MessagesContainer>
-            </ChatContainerStyled>
-        </>
+        <ChatContainerStyled sx={sx}>
+            <MessagesContainer>
+                <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
+                    {messages?.map(renderMessage)}
+                </MessageArea>
+                <MessageInput onSendMessage={onSendMessage} />
+            </MessagesContainer>
+        </ChatContainerStyled>
     );
 };
 
