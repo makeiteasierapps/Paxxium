@@ -5,24 +5,24 @@ let theme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: '#66CCCC', // primary elements like buttons, icons
-            dark: '#66CCCC', // darker shade for contrast
+            main: '#64B5F6', // A softer blue
+            dark: '#1E88E5',
         },
         secondary: {
-            main: '#66CCCC', // secondary elements
-            light: '#66CCCC', // lighter shade for hover states
-            dark: '#66CCCC', // darker shade for contrast
+            main: '#81C784', // A pleasant green
+            light: '#A5D6A7',
+            dark: '#66BB6A',
         },
         background: {
-            default: '#000', // main background
-            paper: '#000', // backgrounds of elements like cards, modals
-            agent: '#000',
-            user: '#660099',
+            default: '#1A1A2E', // Deep navy blue
+            paper: '#1A1A2E',
+            agent: '#1A1A2E',
+            user: '#2C394B', // Slate blue-grey
         },
         text: {
-            primary: '#ffffff', // white text for readability
-            secondary: '#66CCCC', // secondary text, lighter for contrast
-            disabled: grey, // dark grey
+            primary: 'rgba(255, 255, 255, 0.87)',
+            secondary: '#90CAF9', // Light blue
+            disabled: 'rgba(158, 158, 158, 0.6)',
         },
     },
     components: {
@@ -31,9 +31,9 @@ let theme = createTheme({
                 root: {
                     variant: 'outlined',
                     textTransform: 'none',
-                    backgroundColor: 'transparent', // Button background
+                    backgroundColor: 'transparent',
                     '&:hover': {
-                        backgroundColor: '#3891a6', // Button hover state
+                        backgroundColor: 'rgba(100, 181, 246, 0.12)', // Subtle hover effect
                     },
                 },
             },

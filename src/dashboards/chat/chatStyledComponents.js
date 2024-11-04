@@ -33,6 +33,21 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
     '& h1, & h2, & h3, & h4, & h5, & h6, & p': {
         margin: '0',
         padding: '0',
+        display: 'inline',
+        lineHeight: '1.2',
+    },
+    '& ul, & ol': {
+        margin: '0',
+        paddingLeft: '.6em',
+        lineHeight: '0.6',
+        listStylePosition: 'inside',
+    },
+    '& li': {
+        lineHeight: '1.2',
+    },
+
+    '& pre': {
+        margin: '0',
     },
     '& table': {
         borderCollapse: 'collapse',

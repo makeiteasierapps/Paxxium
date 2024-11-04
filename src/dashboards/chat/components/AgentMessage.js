@@ -17,6 +17,7 @@ const AgentMessage = ({ message }) => {
                     style={duotoneDark}
                     language={match[1]}
                     PreTag="div"
+                    className="syntax-highlighter"
                     children={String(children).replace(/\n$/, '')}
                     {...props}
                 />
@@ -44,16 +45,18 @@ const AgentMessage = ({ message }) => {
                 {Array.isArray(message.content)
                     ? message.content.map((msg, index) => {
                           if (msg.type === 'text') {
+                              console.log(msg);
                               return (
                                   <StyledMarkdown
                                       key={`text${index}`}
                                       components={components}
                                       remarkPlugins={[remarkGfm]}
                                   >
-                                      {msg.content}
+                                      {msg.content.replace(/\n\s*\n/g, ' \n')}
                                   </StyledMarkdown>
                               );
                           } else if (msg.type === 'code') {
+                              console.log(msg.type);
                               return (
                                   <SyntaxHighlighter
                                       key={`code${index}`}
