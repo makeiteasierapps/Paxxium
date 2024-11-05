@@ -4,9 +4,12 @@ import {
     StyledShadowWrapper,
 } from '../styledProfileComponents';
 
-const CategoryNode = ({ node, onClick }) => {
-    const totalQuestions = node.children ? node.children.length : 0;
-    const answeredQuestions = node.children ? node.children.filter(child => child.answer).length : 0;
+const CategoryNode = ({ category, onClick }) => {
+    const totalQuestions = category.questions ? category.questions.length : 0;
+    const answeredQuestions =
+        category.questions ?
+            category.questions.filter((question) => question.answer).length
+        : 0;
 
     return (
         <Box position="relative">
@@ -28,13 +31,13 @@ const CategoryNode = ({ node, onClick }) => {
                 <StyledCategoryNode
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={onClick}
+                    onClick={() => onClick(category)}
                 >
                     <Typography
                         variant="body2"
                         sx={{ textAlign: 'center', padding: '5px' }}
                     >
-                        {node.name}
+                        {category.category}
                     </Typography>
                 </StyledCategoryNode>
             </StyledShadowWrapper>

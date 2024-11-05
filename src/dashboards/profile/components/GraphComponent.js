@@ -1,88 +1,93 @@
-import { useContext } from 'react';
-import { Box } from '@mui/material';
-import Node from './Node';
-import { ProfileContext } from '../../../contexts/ProfileContext';
+import { useContext } from "react";
+import { Box } from "@mui/material";
+import CategoryNode from "./CategoryNode";
+import QaNode from "./QaNode";
+import QuestionNode from "./QuestionNode";
+import { ProfileContext } from "../../../contexts/ProfileContext";
 
 const GraphComponent = () => {
-    const { treeData, activeNodeId, setActiveNodeId } =
-        useContext(ProfileContext);
+  const {
+    questionsData,
+    setActiveCategory,
+    activeCategory,
+    setActiveQuestion,
+    activeQuestion,
+  } = useContext(ProfileContext);
 
-    const findNodeById = (tree, id) => {
-        if (tree.id === id) return tree;
-        if (tree.children) {
-            for (const child of tree.children) {
-                const result = findNodeById(child, id);
-                if (result) return result;
-            }
-        }
-        return null;
-    };
+  const handleQuestionClick = (question) => {
+    setActiveCategory(null);
+    setActiveQuestion(question);
+  };
 
-    const findParentNode = (tree, targetId) => {
-        if (tree.children) {
-            for (const child of tree.children) {
-                if (child.id === targetId) {
-                    return tree;
-                }
-                const result = findParentNode(child, targetId);
-                if (result) return result;
-            }
-        }
-        return null;
-    };
+  console.log(questionsData);
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        minHeight: "90vh",
+        padding: "2rem",
+        gap: "2rem",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          gap: "1.5rem",
+          overflowX: "auto",
+          padding: "0.5rem",
+          // Improve scroll behavior
+          scrollBehavior: "smooth",
+          // Hide scrollbar but keep functionality
+          msOverflowStyle: "none", // IE and Edge
+          scrollbarWidth: "none", // Firefox
+          "&::-webkit-scrollbar": {
+            // Chrome, Safari, newer versions of Opera
+            display: "none",
+          },
+          // Add padding to account for overflow shadows
+          paddingBottom: "1rem",
+        }}
+      >
+        {questionsData &&
+          questionsData.length > 0 &&
+          questionsData.map((category) => (
+            <CategoryNode
+              key={category.id}
+              category={category}
+              onClick={() => setActiveCategory(category)}
+              isActive={activeCategory?.id === category.id}
+              sx={{ flexShrink: 0 }} // Prevent categories from shrinking
+            />
+          ))}
+      </Box>
 
-    const handleNodeClick = (nodeId) => {
-        setActiveNodeId((prevActiveNodeId) => {
-            if (nodeId === prevActiveNodeId) {
-                const parentNode = findParentNode(treeData, nodeId);
-                return parentNode ? parentNode.id : treeData.id;
-            }
-            return nodeId;
-        });
-    };
-    const handleNavigate = (direction) => {
-        const parentNode = findParentNode(treeData, activeNodeId);
-        if (parentNode && parentNode.children) {
-            const currentIndex = parentNode.children.findIndex(child => child.id === activeNodeId);
-            let newIndex;
-            if (direction === 'next') {
-                newIndex = (currentIndex + 1) % parentNode.children.length;
-            } else {
-                newIndex = (currentIndex - 1 + parentNode.children.length) % parentNode.children.length;
-            }
-            setActiveNodeId(parentNode.children[newIndex].id);
-        }
-    };
-
-    const activeNode = findNodeById(treeData, activeNodeId);
-
-    return (
+      {activeCategory && (
         <Box
-            sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '80%',
-                minHeight: '90vh',
-                height: '87%',
-                position: 'relative',
-            }}
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: "1rem",
+            padding: "2rem",
+            backgroundColor: "rgba(0,0,0,0.05)",
+            borderRadius: "1rem",
+            flex: 1, // Take remaining space
+          }}
         >
-            <Node node={activeNode} onClick={handleNodeClick} isActive={true} onNavigate={handleNavigate} />
-            {activeNode.children &&
-                activeNode.children.map((child, index) => (
-                    <Node
-                        key={child.id}
-                        node={child}
-                        onClick={handleNodeClick}
-                        onNavigate={handleNavigate}
-                        isChild={true}
-                        index={index}
-                        total={activeNode.children.length}
-                    />
-                ))}
+          {activeCategory.questions?.map((question) => (
+            <QuestionNode
+              key={question.id}
+              questionData={question}
+              onClick={handleQuestionClick}
+            />
+          ))}
         </Box>
-    );
+      )}
+      {activeQuestion && <QaNode questionData={activeQuestion} />}
+    </Box>
+  );
 };
 
 export default GraphComponent;
