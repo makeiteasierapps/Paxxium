@@ -133,24 +133,26 @@ export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     ...(sx || {}),
 }));
 
-// Combine MessageArea and MessageContainer styles
+
 export const MessageArea = styled(List)(({ theme }) => ({
     flexGrow: 1,
     overflowY: 'auto',
     width: '100%',
     padding: theme.spacing(1),
     scrollBehavior: 'smooth',
-    '& .message-item': {
-        // Style for ListItem
-        backgroundColor: ({ messageFrom }) =>
-            theme.palette.background[messageFrom],
-        wordBreak: 'break-word',
-        alignItems: 'flex-start',
-        padding: theme.spacing(1),
-        margin: `${theme.spacing(2)} 0`,
-        borderRadius: theme.shape.borderRadius,
-        boxShadow: theme.shadows[3],
-    },
+}));
+
+
+export const MessageListItem = styled(ListItem, {
+    shouldForwardProp: (prop) => prop !== 'messageFrom',
+})(({ theme, messageFrom }) => ({
+    backgroundColor: theme.palette.background[messageFrom],
+    wordBreak: 'break-word',
+    alignItems: 'flex-start',
+    padding: theme.spacing(1),
+    margin: `${theme.spacing(2)} 0`,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[3],
 }));
 
 export const MessageContent = styled(Box)({

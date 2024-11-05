@@ -29,7 +29,7 @@ const AgentMessage = ({ message, className }) => {
     };
 
     return (
-        <ListItem className={className} messageFrom={message.message_from}>
+        <ListItem messageFrom={message.message_from}>
             <Icon
                 icon="mdi:robot"
                 style={{
