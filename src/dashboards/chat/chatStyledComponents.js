@@ -119,20 +119,17 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
 // Container components
 export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'column',
     width: '100%',
     maxWidth: '1000px',
     height: '95vh',
     borderRadius: '10px',
-    overflow: 'hidden', // Moved from MessagesContainer
-    whiteSpace: 'pre-line', // Moved from MessagesContainer
-    [theme.breakpoints.down('sm')]: {
-        width: '100vw',
-        borderRadius: 0,
-    },
+    overflow: 'hidden',
+    whiteSpace: 'pre-line',
     ...(sx || {}),
 }));
-
 
 export const MessageArea = styled(List)(({ theme }) => ({
     flexGrow: 1,
@@ -142,22 +139,26 @@ export const MessageArea = styled(List)(({ theme }) => ({
     scrollBehavior: 'smooth',
 }));
 
-
 export const MessageListItem = styled(ListItem, {
     shouldForwardProp: (prop) => prop !== 'messageFrom',
 })(({ theme, messageFrom }) => ({
     backgroundColor: theme.palette.background[messageFrom],
+    width: messageFrom === 'user' ? '60%' : '80%',
+    height: 'auto',
     wordBreak: 'break-word',
     alignItems: 'flex-start',
     padding: theme.spacing(1),
-    margin: `${theme.spacing(2)} 0`,
+    margin: `${theme.spacing(2)} auto`,
     borderRadius: theme.shape.borderRadius,
     boxShadow: theme.shadows[3],
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
+    },
 }));
 
 export const MessageContent = styled(Box)({
     overflowX: 'hidden',
-    width: '80%',
+
     borderRadius: 'inherit',
 });
 
@@ -205,6 +206,7 @@ export const InputArea = styled(Box)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     paddingTop: '10px',
+    width: '80%',
     justifyContent: 'space-between',
     [theme.breakpoints.down('sm')]: {
         paddingBottom: '20px',

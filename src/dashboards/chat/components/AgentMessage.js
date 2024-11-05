@@ -1,12 +1,15 @@
 import { Icon } from '@iconify/react';
-import { ListItem } from '@mui/material';
-import { MessageContent, StyledMarkdown } from '../chatStyledComponents';
+import {
+    MessageListItem,
+    MessageContent,
+    StyledMarkdown,
+} from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import { useTheme } from '@mui/material/styles';
 
-const AgentMessage = ({ message, className }) => {
+const AgentMessage = ({ message }) => {
     const theme = useTheme();
     const components = {
         code({ node, inline, className, children, ...props }) {
@@ -29,14 +32,15 @@ const AgentMessage = ({ message, className }) => {
     };
 
     return (
-        <ListItem messageFrom={message.message_from}>
+        <MessageListItem messageFrom={message.message_from}>
             <Icon
                 icon="mdi:robot"
                 style={{
-                    fontSize: '36px',
+                    fontSize: theme.spacing(4.5),
                     position: 'relative',
-                    marginRight: '13px',
+                    marginRight: theme.spacing(1.5),
                     color: theme.palette.primary.dark,
+                    flexShrink: 0,
                 }}
             />
 
@@ -68,7 +72,7 @@ const AgentMessage = ({ message, className }) => {
                       })
                     : null}
             </MessageContent>
-        </ListItem>
+        </MessageListItem>
     );
 };
 

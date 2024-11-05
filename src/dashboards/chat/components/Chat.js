@@ -2,13 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import AgentMessage from './AgentMessage';
 import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
-import {
-    MessagesContainer,
-    MessageArea,
-    ChatContainerStyled,
-} from '../chatStyledComponents';
-
-// ... existing imports ...
+import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 
 const Chat = ({ messages, onSendMessage, sx }) => {
     const messageAreaRef = useRef(null);
@@ -30,7 +24,7 @@ const Chat = ({ messages, onSendMessage, sx }) => {
     };
 
     return (
-        <ChatContainerStyled sx={sx}>
+        <ChatContainerStyled id="chat-container" sx={sx}>
             <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
                 {messages?.map((message, index) => {
                     const MessageComponent =
