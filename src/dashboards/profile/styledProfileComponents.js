@@ -19,18 +19,6 @@ export const StyledShadowWrapper = styled('div')(({ theme }) => ({
     filter: `drop-shadow(0px 0px 10px ${theme.palette.primary.main})`,
 }));
 
-export const StyledRootNode = styled(motion.div)(({ theme }) => ({
-    ...commonStyles,
-    borderRadius: '0',
-    width: 200,
-    height: 200,
-    clipPath:
-        'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
-    backgroundSize: '100% 100%',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-}));
-
 export const StyledQuestionNode = styled(motion.div)(({ theme }) => ({
     ...commonStyles,
     borderRadius: '10px',
@@ -48,10 +36,7 @@ export const StyledCategoryNode = styled(motion.div)(({ theme }) => ({
 
 export const CustomTextField = styled(TextField)(({ theme }) => ({
     width: '80%',
-    textAlign: 'center',
-    '& .MuiInputBase-input': {
-        textAlign: 'center',
-    },
+
     '& .MuiInputBase-root': {
         border: 'none',
     },
@@ -65,7 +50,6 @@ export const CustomTextField = styled(TextField)(({ theme }) => ({
         borderBottom: 'none',
     },
 }));
-
 
 export const UserContainer = styled(Box)(({ theme }) => ({
     display: 'flex',

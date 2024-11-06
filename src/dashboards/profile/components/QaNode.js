@@ -1,161 +1,166 @@
-import { useState, useContext } from "react";
-import { StyledContainer } from "../../styledComponents/DashStyledComponents";
-import { Box, Typography, TextField, InputAdornment } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import SendIcon from "@mui/icons-material/Send";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { ProfileContext } from "../../../contexts/ProfileContext";
-import { StyledIconButton } from "../../chat/chatStyledComponents";
+import { useState, useContext } from 'react';
+import { Box, Typography, Card, InputAdornment } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import SendIcon from '@mui/icons-material/Send';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ReactCardFlip from 'react-card-flip';
+import { ProfileContext } from '../../../contexts/ProfileContext';
+import { StyledIconButton } from '../../chat/chatStyledComponents';
+import { CustomTextField } from '../styledProfileComponents';
+
+const StyledCard = styled(Card)(({ theme }) => ({
+    flex: '1 1 calc(33.333% - 16px)',
+    maxWidth: 350,
+    minWidth: 200, 
+    height: 200,
+    backgroundColor: theme.palette.background.dark,
+    color: theme.palette.common.white,
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+    [theme.breakpoints.down('sm')]: {
+        flex: '1 1 100%',
+        height: 160,
+        maxWidth: '100%',
+    },
+    [theme.breakpoints.down('md')]: {
+      flex: '1 1 100%',
+      height: 160,
+      maxWidth: 500,
+  },
+}));
 
 const QaNode = ({ questionData }) => {
-  console.log(questionData);
-  const [answer, setAnswer] = useState("");
-  const { updateAnswer } = useContext(ProfileContext);
-  const handleSaveAnswer = (e, node) => {
-    updateAnswer(node.id, answer);
-  };
+    const [isFlipped, setIsFlipped] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [answer, setAnswer] = useState('');
+    const { updateAnswer } = useContext(ProfileContext);
 
-  return (
-    <StyledContainer
-      sx={{
-        height: "30vh",
-        width: "90vw",
-        maxWidth: "700px",
-        display: "flex",
-      }}
-    >
-      <StyledIconButton
-        sx={{
-          position: "absolute",
-          top: "1px",
-          left: "1px",
-          opacity: 0.5,
-        }}
-        aria-label="close"
-      >
-        <CloseIcon />
-      </StyledIconButton>
-      <StyledIconButton
-        aria-label="previous question"
-        sx={{
-          position: "absolute",
-          bottom: "3px",
-          left: "1px",
-          opacity: 0.5,
-        }}
-      >
-        <ArrowBackIosNewIcon />
-      </StyledIconButton>
-      <StyledIconButton
-        sx={{
-          position: "absolute",
-          bottom: "3px",
-          right: "1px",
-          opacity: 0.5,
-        }}
-        aria-label="next question"
-      >
-        <ArrowForwardIosIcon />
-      </StyledIconButton>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          alignItems: "center",
-          height: "100%",
-          width: "100%",
-        }}
-      >
-        <Box
-          sx={{
-            flex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              width: "80%",
-              textAlign: "center",
-              fontFamily: "Roboto, sans-serif",
-            }}
-          >
-            {questionData.question}
-          </Typography>
-        </Box>
+    const handleSaveAnswer = () => {
+        updateAnswer(questionData.id, answer);
+        setAnswer('');
+        setIsFlipped(false);
+    };
 
-        <Box
-          sx={{
-            flex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {questionData.answer ? (
-            <Typography
-              variant="body1"
-              sx={{
-                width: "80%",
-                textAlign: "center",
-                fontFamily: "Roboto, sans-serif",
-              }}
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setAnswer('');
+    };
+
+    const handleStartEditing = () => {
+        setAnswer(questionData.answer);
+        setIsEditing(true);
+    };
+
+    const hasAnswerChanged = questionData.answer !== answer;
+    return (
+        <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
+            {/* Front of card */}
+            <StyledCard
+                onClick={() => setIsFlipped(true)}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 3,
+                }}
             >
-              {questionData.answer}
-            </Typography>
-          ) : (
-            <Typography
-              variant="body1"
-              sx={{
-                width: "80%",
-                textAlign: "center",
-                fontFamily: "Roboto, sans-serif",
-                color: "text.secondary",
-              }}
-            >
-              Pleas provide an answer or mark for edit
-            </Typography>
-          )}
-        </Box>
-        <TextField
-          autoFocus
-          variant="outlined"
-          value={answer}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <StyledIconButton
-                  disabled={!answer}
-                  disableRipple
-                  aria-label="answer input field"
-                  onClick={() => {
-                    handleSaveAnswer(answer, questionData);
-                    setAnswer("");
-                  }}
+                {questionData.answer && (
+                    <CheckCircleIcon
+                        sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            color: 'success.main',
+                        }}
+                    />
+                )}
+                <Typography
+                    variant="h6"
+                    textAlign="center"
+                    sx={{
+                        fontSize: '1.1rem',
+                        lineHeight: 1.4,
+                        fontWeight: 500,
+                    }}
                 >
-                  <SendIcon />
-                </StyledIconButton>
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "40px",
-            },
-            marginBottom: "20px",
-            width: "90%",
-          }}
-          onChange={(e) => setAnswer(e.target.value)}
-        />
-      </Box>
-    </StyledContainer>
-  );
+                    {questionData.question}
+                </Typography>
+            </StyledCard>
+
+            {/* Back of card */}
+            <StyledCard onClick={() => setIsFlipped(false)}>
+                <Box
+                    sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: 2,
+                    }}
+                >
+                    <Typography
+                        variant="body1"
+                        gutterBottom
+                        sx={{
+                            fontSize: '0.9rem',
+                            opacity: 0.8,
+                            marginBottom: 2,
+                        }}
+                    >
+                        {questionData.question}
+                    </Typography>
+                    {questionData.answer && !isEditing ? (
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                fontSize: '1rem',
+                                marginBottom: 2,
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    opacity: 0.8,
+                                },
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartEditing();
+                            }}
+                        >
+                            {questionData.answer}
+                        </Typography>
+                    ) : (
+                        <CustomTextField
+                            sx={{ width: '100%' }}
+                            value={answer}
+                            onChange={(e) => setAnswer(e.target.value)}
+                            placeholder="Enter your answer..."
+                            onClick={(e) => e.stopPropagation()}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <StyledIconButton
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                hasAnswerChanged
+                                                    ? handleSaveAnswer()
+                                                    : handleCancelEdit();
+                                            }}
+                                            disabled={isEditing && !answer}
+                                        >
+                                            {hasAnswerChanged ? (
+                                                <SendIcon />
+                                            ) : (
+                                                <CloseIcon />
+                                            )}
+                                        </StyledIconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    )}
+                </Box>
+            </StyledCard>
+        </ReactCardFlip>
+    );
 };
 
 export default QaNode;

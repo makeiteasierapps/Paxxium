@@ -1,93 +1,104 @@
-import { useContext } from "react";
-import { Box } from "@mui/material";
-import CategoryNode from "./CategoryNode";
-import QaNode from "./QaNode";
-import QuestionNode from "./QuestionNode";
-import { ProfileContext } from "../../../contexts/ProfileContext";
+import { useContext } from 'react';
+import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import CategoryNode from './CategoryNode';
+import QaNode from './QaNode';
+import { ProfileContext } from '../../../contexts/ProfileContext';
+
+const ScrollContainer = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    width: '70%',
+    margin: '0 auto',
+
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        height: '100%',
+        width: '40px',
+        background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.default}00)`,
+        pointerEvents: 'none',
+    },
+    '&::before': {
+        content: '""',
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        height: '100%',
+        width: '40px',
+        background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.default}00)`,
+        pointerEvents: 'none',
+        zIndex: 1,
+    },
+}));
+
+const ScrollContent = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    justifyContent: 'flex-start',
+    width: '100%',
+    gap: '1.5rem',
+    overflowX: 'auto',
+    padding: '0.5rem',
+    scrollBehavior: 'smooth',
+    scrollPadding: '0 24px',
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+        display: 'none',
+    },
+    paddingBottom: '1rem',
+    paddingLeft: '24px',
+    paddingRight: '24px',
+}));
 
 const GraphComponent = () => {
-  const {
-    questionsData,
-    setActiveCategory,
-    activeCategory,
-    setActiveQuestion,
-    activeQuestion,
-  } = useContext(ProfileContext);
+    const { questionsData, setActiveCategory, activeCategory } =
+        useContext(ProfileContext);
 
-  const handleQuestionClick = (question) => {
-    setActiveCategory(null);
-    setActiveQuestion(question);
-  };
-
-  console.log(questionsData);
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        minHeight: "90vh",
-        padding: "2rem",
-        gap: "2rem",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          gap: "1.5rem",
-          overflowX: "auto",
-          padding: "0.5rem",
-          // Improve scroll behavior
-          scrollBehavior: "smooth",
-          // Hide scrollbar but keep functionality
-          msOverflowStyle: "none", // IE and Edge
-          scrollbarWidth: "none", // Firefox
-          "&::-webkit-scrollbar": {
-            // Chrome, Safari, newer versions of Opera
-            display: "none",
-          },
-          // Add padding to account for overflow shadows
-          paddingBottom: "1rem",
-        }}
-      >
-        {questionsData &&
-          questionsData.length > 0 &&
-          questionsData.map((category) => (
-            <CategoryNode
-              key={category.id}
-              category={category}
-              onClick={() => setActiveCategory(category)}
-              isActive={activeCategory?.id === category.id}
-              sx={{ flexShrink: 0 }} // Prevent categories from shrinking
-            />
-          ))}
-      </Box>
-
-      {activeCategory && (
+    return (
         <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "1rem",
-            padding: "2rem",
-            backgroundColor: "rgba(0,0,0,0.05)",
-            borderRadius: "1rem",
-            flex: 1, // Take remaining space
-          }}
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                minHeight: '90vh',
+                padding: '2rem',
+                gap: '2rem',
+            }}
         >
-          {activeCategory.questions?.map((question) => (
-            <QuestionNode
-              key={question.id}
-              questionData={question}
-              onClick={handleQuestionClick}
-            />
-          ))}
+            <ScrollContainer>
+                <ScrollContent>
+                    {questionsData &&
+                        questionsData.length > 0 &&
+                        questionsData.map((category) => (
+                            <CategoryNode
+                                key={category.id}
+                                category={category}
+                                onClick={() => setActiveCategory(category)}
+                            />
+                        ))}
+                </ScrollContent>
+            </ScrollContainer>
+            {activeCategory && (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        justifyContent: 'center',
+                        overflow: 'auto',
+                        maxHeight: '80vh',
+                        padding: '1rem',
+                    }}
+                >
+                    {activeCategory.questions?.map((question) => (
+                        <QaNode key={question.id} questionData={question} />
+                    ))}
+                </Box>
+            )}
         </Box>
-      )}
-      {activeQuestion && <QaNode questionData={activeQuestion} />}
-    </Box>
-  );
+    );
 };
 
 export default GraphComponent;
