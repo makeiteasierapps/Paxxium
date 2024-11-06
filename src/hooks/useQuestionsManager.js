@@ -4,7 +4,6 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
     const [questionsData, setQuestionsData] = useState([]);
     const [activeCategory, setActiveCategory] = useState({});
     const [activeQuestion, setActiveQuestion] = useState(null);
-
     const [isLoading, setIsLoading] = useState(true);
     const [isQuestionsFormOpen, setIsQuestionsFormOpen] = useState(false);
     const [isGraphOpen, setIsGraphOpen] = useState(false);
@@ -29,7 +28,18 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
                 throw new Error('Failed to update answers');
             }
 
+            console.log(response);
+            const data = await response.json();
+            console.log(data);
+
             // Update state, Local storage and backend
+            setQuestionsData((prev) =>
+                prev.map((question) =>
+                    question._id === questionId
+                        ? { ...question, answer }
+                        : question
+                )
+            );
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);

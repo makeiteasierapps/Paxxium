@@ -12,7 +12,7 @@ import { CustomTextField } from '../styledProfileComponents';
 const StyledCard = styled(Card)(({ theme }) => ({
     flex: '1 1 calc(33.333% - 16px)',
     maxWidth: 350,
-    minWidth: 200, 
+    minWidth: 200,
     height: 200,
     backgroundColor: theme.palette.background.dark,
     color: theme.palette.common.white,
@@ -24,10 +24,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
         maxWidth: '100%',
     },
     [theme.breakpoints.down('md')]: {
-      flex: '1 1 100%',
-      height: 160,
-      maxWidth: 500,
-  },
+        flex: '1 1 100%',
+        height: 160,
+        maxWidth: 500,
+    },
 }));
 
 const QaNode = ({ questionData }) => {
@@ -37,7 +37,8 @@ const QaNode = ({ questionData }) => {
     const { updateAnswer } = useContext(ProfileContext);
 
     const handleSaveAnswer = () => {
-        updateAnswer(questionData.id, answer);
+        console.log(questionData);
+        updateAnswer(questionData._id, answer);
         setAnswer('');
         setIsFlipped(false);
     };

@@ -1,37 +1,35 @@
 import { Box, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
-import { motion } from 'framer-motion';
-
-const commonStyles = {
-    background: 'black',
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    margin: 20,
-    position: 'relative',
-    padding: '10px',
-    textAlign: 'center',
-};
 
 export const StyledShadowWrapper = styled('div')(({ theme }) => ({
     filter: `drop-shadow(0px 0px 10px ${theme.palette.primary.main})`,
 }));
 
-export const StyledQuestionNode = styled(motion.div)(({ theme }) => ({
-    ...commonStyles,
-    borderRadius: '10px',
-    width: 250,
+export const StyledCategoryNode = styled(Box)(({ theme, isSelected }) => ({
+    width: 280,
     height: 100,
-}));
+    background: isSelected
+        ? 'rgba(255, 255, 255, 0.08)'
+        : 'rgba(255, 255, 255, 0.03)',
+    backdropFilter: 'blur(8px)',
+    borderRadius: '20px',
+    border: `1px solid ${
+        isSelected ? theme.palette.primary.main : 'rgba(255, 255, 255, 0.08)'
+    }`,
+    padding: '20px 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+    position: 'relative',
 
-export const StyledCategoryNode = styled(motion.div)(({ theme }) => ({
-    ...commonStyles,
-    width: 110,
-    height: 110,
-    clipPath:
-        'polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%)',
+    '& .MuiTypography-h6': {
+        display: 'block',
+        transformOrigin: 'left top',
+        transform: 'scale(var(--scale, 1))',
+        width: 'fit-content',
+        maxWidth: '100%',
+    },
 }));
 
 export const CustomTextField = styled(TextField)(({ theme }) => ({

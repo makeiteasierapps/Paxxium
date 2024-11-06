@@ -1,46 +1,89 @@
+import { useContext } from 'react';
 import { Typography, Box } from '@mui/material';
-import {
-    StyledCategoryNode,
-    StyledShadowWrapper,
-} from '../styledProfileComponents';
+import { StyledCategoryNode } from '../styledProfileComponents';
+import { ProfileContext } from '../../../contexts/ProfileContext';
+
+// New component for the progress indicator
+const ProgressIndicator = ({ answered, total }) => (
+    <Box
+        sx={{
+            position: 'relative',
+            width: '100%',
+            height: '32px',
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            overflow: 'hidden',
+        }}
+    >
+        <Box
+            sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                height: '100%',
+                width: `${(answered / total) * 100}%`,
+                background:
+                    'linear-gradient(90deg, rgba(0, 153, 255, 0.3) 0%, rgba(0, 153, 255, 0.6) 100%)',
+                transition: 'width 0.3s ease-in-out',
+            }}
+        />
+        <Typography
+            variant="caption"
+            sx={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'rgba(255, 255, 255, 0.7)',
+                zIndex: 1,
+            }}
+        >
+            {`${answered}/${total}`}
+        </Typography>
+    </Box>
+);
 
 const CategoryNode = ({ category, onClick }) => {
+    const { activeCategory } = useContext(ProfileContext);
     const totalQuestions = category.questions ? category.questions.length : 0;
-    const answeredQuestions =
-        category.questions ?
-            category.questions.filter((question) => question.answer).length
+    const answeredQuestions = category.questions
+        ? category.questions.filter((question) => question.answer).length
         : 0;
 
     return (
-        <Box position="relative">
-            <Typography
-                variant="caption"
-                sx={{
-                    position: 'absolute',
-                    top: -5,
-                    right: 20,
-                    zIndex: 1,
-                    color: 'white',
-                    padding: '2px 5px',
-                    borderRadius: '4px',
+        <Box position="relative" sx={{ margin: '10px' }}>
+            <StyledCategoryNode
+                whileHover={{
+                    scale: 1.02,
+                    background: 'rgba(255, 255, 255, 0.06)',
                 }}
+                progress={answeredQuestions / totalQuestions}
+                isSelected={activeCategory === category}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onClick(category)}
             >
-                {`${answeredQuestions}/${totalQuestions}`}
-            </Typography>
-            <StyledShadowWrapper>
-                <StyledCategoryNode
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => onClick(category)}
+                <Typography
+                    sx={{
+                        fontWeight: 500,
+                        color: 'white',
+                        lineHeight: 1.2,
+                        marginBottom: '8px',
+                        width: '100%',
+                        wordWrap: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
                 >
-                    <Typography
-                        variant="body2"
-                        sx={{ textAlign: 'center', padding: '5px' }}
-                    >
-                        {category.category}
-                    </Typography>
-                </StyledCategoryNode>
-            </StyledShadowWrapper>
+                    {category.category}
+                </Typography>
+
+                <ProgressIndicator
+                    answered={answeredQuestions}
+                    total={totalQuestions}
+                />
+            </StyledCategoryNode>
         </Box>
     );
 };
