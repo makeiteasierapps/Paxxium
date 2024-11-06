@@ -31,6 +31,9 @@ const ScrollContainer = styled(Box)(({ theme }) => ({
         pointerEvents: 'none',
         zIndex: 1,
     },
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    },
 }));
 
 const ScrollContent = styled(Box)(({ theme }) => ({
@@ -48,8 +51,8 @@ const ScrollContent = styled(Box)(({ theme }) => ({
         display: 'none',
     },
     paddingBottom: '1rem',
-    paddingLeft: '24px',
-    paddingRight: '24px',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
 }));
 
 const GraphComponent = () => {
@@ -63,7 +66,7 @@ const GraphComponent = () => {
                 flexDirection: 'column',
                 width: '100%',
                 minHeight: '90vh',
-                padding: '2rem',
+
                 gap: '2rem',
             }}
         >
@@ -89,7 +92,7 @@ const GraphComponent = () => {
                         justifyContent: 'center',
                         overflow: 'auto',
                         maxHeight: '80vh',
-                        padding: '1rem',
+                        
                     }}
                 >
                     {activeCategory.questions?.map((question) => (
