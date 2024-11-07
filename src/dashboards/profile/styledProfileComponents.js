@@ -1,20 +1,18 @@
 import { Box, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const StyledShadowWrapper = styled('div')(({ theme }) => ({
-    filter: `drop-shadow(0px 0px 10px ${theme.palette.primary.main})`,
-}));
-
-export const StyledCategoryNode = styled(Box)(({ theme, isSelected }) => ({
+export const StyledCategoryNode = styled(Box)(({ theme, selected }) => ({
     width: 280,
     height: 100,
-    background: isSelected
+    background: selected
         ? 'rgba(255, 255, 255, 0.08)'
         : 'rgba(255, 255, 255, 0.03)',
     backdropFilter: 'blur(8px)',
     borderRadius: '20px',
     border: `1px solid ${
-        isSelected ? theme.palette.primary.main : 'rgba(255, 255, 255, 0.08)'
+        selected
+            ? theme.palette.primary.main
+            : 'rgba(255, 255, 255, 0.08)'
     }`,
     padding: '20px 24px',
     display: 'flex',

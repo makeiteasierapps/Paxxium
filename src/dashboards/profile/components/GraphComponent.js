@@ -76,7 +76,7 @@ const GraphComponent = () => {
                         questionsData.length > 0 &&
                         questionsData.map((category) => (
                             <CategoryNode
-                                key={category.id}
+                                key={category._id}
                                 category={category}
                                 onClick={() => setActiveCategory(category)}
                             />
@@ -96,7 +96,7 @@ const GraphComponent = () => {
                     }}
                 >
                     {activeCategory.questions?.map((question) => (
-                        <QaNode key={question.id} questionData={question} />
+                        <QaNode key={question._id} questionData={question} />
                     ))}
                 </Box>
             )}
