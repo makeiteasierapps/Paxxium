@@ -37,9 +37,7 @@ const QaNode = ({ questionData }) => {
   const { updateAnswer } = useContext(ProfileContext);
 
   const handleSaveAnswer = async () => {
-    console.log("Before update:", questionData);
     await updateAnswer(questionData._id, answer);
-    console.log("After update:", questionData);
     setAnswer("");
     setIsEditing(false);
   };

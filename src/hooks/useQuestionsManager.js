@@ -128,6 +128,7 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
         localStorage.setItem("questionsData", JSON.stringify(data));
       }
       setQuestionsData(data);
+      setActiveCategory(data[0]);
       setIsGraphOpen(data.length > 0);
       setIsQuestionsFormOpen(data.length === 0);
     } catch (error) {
