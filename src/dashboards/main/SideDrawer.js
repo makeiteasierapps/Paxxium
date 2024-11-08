@@ -19,6 +19,7 @@ import {
     Chat as ChatIcon,
     Collections as CollectionsIcon,
 } from '@mui/icons-material';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import { Link, useLocation } from 'react-router-dom';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
@@ -136,12 +137,12 @@ const SideDrawer = ({
         </ConditionalTooltip>
     );
 
-    const profileButton = (
-        <ConditionalTooltip title="Profile" condition={!isDrawerExpanded}>
+    const insightButton = (
+        <ConditionalTooltip title="InsightDash" condition={!isDrawerExpanded}>
             <HeaderIconButton
                 disableRipple
                 component={Link}
-                to="/profile"
+                to="/insight"
                 currentPath={location.pathname}
             >
                 <Box
@@ -151,9 +152,9 @@ const SideDrawer = ({
                         width: '100%',
                     }}
                 >
-                    <ProfileIcon sx={{ fontSize: '2rem' }} />
+                    <TipsAndUpdatesIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
-                        <Typography paddingLeft={1}>Profile</Typography>
+                        <Typography paddingLeft={1}>InsightDash</Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -199,12 +200,12 @@ const SideDrawer = ({
         </ConditionalTooltip>
     );
 
-    const settingsButton = (
-        <ConditionalTooltip title="Settings" condition={!isDrawerExpanded}>
+    const userAccountButton = (
+        <ConditionalTooltip title="Account" condition={!isDrawerExpanded}>
             <HeaderIconButton
                 disableRipple
                 component={Link}
-                to="/settings"
+                to="/account"
                 currentPath={location.pathname}
             >
                 <Box
@@ -216,7 +217,7 @@ const SideDrawer = ({
                 >
                     <PsychologyIcon sx={{ fontSize: '2rem' }} />
                     {isDrawerExpanded && (
-                        <Typography paddingLeft={1}>Settings</Typography>
+                        <Typography paddingLeft={1}>Account</Typography>
                     )}
                 </Box>
             </HeaderIconButton>
@@ -390,9 +391,9 @@ const SideDrawer = ({
 
                 {imageGalleryButton}
 
-                {profileButton}
+                {insightButton}
                 {KbButton}
-                {settingsButton}
+                {userAccountButton}
                 {chatsButton}
                 {isDrawerExpanded && (
                     <Collapse in={chatsOpen} timeout="auto" unmountOnExit>

@@ -1,52 +1,6 @@
 import { Box, TextField, Typography, Button } from '@mui/material';
 import { styled } from '@mui/system';
 
-export const StyledCategoryNode = styled(Box)(({ theme, selected }) => ({
-    width: 280,
-    height: 100,
-    background: selected
-        ? 'rgba(255, 255, 255, 0.08)'
-        : 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(8px)',
-    borderRadius: '20px',
-    border: `1px solid ${
-        selected
-            ? theme.palette.primary.main
-            : 'rgba(255, 255, 255, 0.08)'
-    }`,
-    padding: '20px 24px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    position: 'relative',
-
-    '& .MuiTypography-h6': {
-        display: 'block',
-        transformOrigin: 'left top',
-        transform: 'scale(var(--scale, 1))',
-        width: 'fit-content',
-        maxWidth: '100%',
-    },
-}));
-
-export const CustomTextField = styled(TextField)(({ theme }) => ({
-    width: '80%',
-
-    '& .MuiInputBase-root': {
-        border: 'none',
-    },
-    '& .MuiInput-underline:before': {
-        borderBottom: 'none',
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-        borderBottom: 'none',
-    },
-    '& .MuiInput-underline:after': {
-        borderBottom: 'none',
-    },
-}));
-
 export const UserContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',

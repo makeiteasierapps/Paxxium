@@ -7,7 +7,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ReactCardFlip from "react-card-flip";
 import { ProfileContext } from "../../../contexts/ProfileContext";
 import { StyledIconButton } from "../../chat/chatStyledComponents";
-import { CustomTextField } from "../styledProfileComponents";
+import { ProfileTextField } from "../../userAccount/styledUserAccountComponents";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   flex: "1 1 calc(33.333% - 16px)",
@@ -30,7 +30,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const QaNode = ({ questionData }) => {
+const QACard = ({ questionData }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [answer, setAnswer] = useState("");
@@ -41,7 +41,6 @@ const QaNode = ({ questionData }) => {
     setAnswer("");
     setIsEditing(false);
   };
-
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -54,6 +53,7 @@ const QaNode = ({ questionData }) => {
   };
 
   const hasAnswerChanged = questionData.answer !== answer;
+
   return (
     <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
       {/* Front of card */}
@@ -129,7 +129,7 @@ const QaNode = ({ questionData }) => {
               {questionData.answer}
             </Typography>
           ) : (
-            <CustomTextField
+            <ProfileTextField
               sx={{ width: "100%" }}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
@@ -161,4 +161,4 @@ const QaNode = ({ questionData }) => {
   );
 };
 
-export default QaNode;
+export default QACard;
