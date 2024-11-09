@@ -7,7 +7,7 @@ export const HeaderContainer = styled(Box, {
 })(({ theme, permanentDrawerOpen }) => ({
     display: 'flex',
     alignItems: 'center',
-    justifyContent: permanentDrawerOpen ? 'flex-end' : 'space-between',
+    justifyContent: 'space-between',
     position: 'sticky',
     backgroundColor: theme.palette.background.default,
     zIndex: 1000,

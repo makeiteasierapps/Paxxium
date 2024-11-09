@@ -34,17 +34,6 @@ const KbDash = () => {
                 gap: 4,
             }}
         >
-            <Typography
-                variant="h1"
-                sx={{ textAlign: 'center', marginBottom: 4 }}
-                fontFamily={
-                    theme.typography.applyFontFamily('title').fontFamily
-                }
-                fontWeight="bold"
-            >
-                Knowledge Base
-            </Typography>
-
             <Grid container spacing={2} justifyContent="center">
                 {kbArray &&
                     kbArray.map((kb) => (

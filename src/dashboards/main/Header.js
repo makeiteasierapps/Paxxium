@@ -1,11 +1,11 @@
 import { useLayoutEffect, useContext } from 'react';
 import { HeaderContainer } from './mainStyledComponents';
 import MenuIcon from '@mui/icons-material/Menu';
-import { IconButton } from '@mui/material';
+import { IconButton, Box, Typography } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { MainContext } from '../../contexts/MainContext';
-const Header = ({ setMobileOpen }) => {
+const Header = ({ setMobileOpen, title, tools }) => {
     const theme = useTheme();
     const permanentDrawerOpen = useMediaQuery(theme.breakpoints.up('sm'));
     const { setIsDrawerExpanded } = useContext(MainContext);
@@ -26,10 +26,37 @@ const Header = ({ setMobileOpen }) => {
                     setMobileOpen(true);
                     setIsDrawerExpanded(true);
                 }}
-                sx={{ marginLeft: '1px', display: { sm: 'none' } }}
+                sx={{
+                    display: { sm: 'none' },
+                    marginRight: 1,
+                    alignSelf: 'center',
+                }}
             >
                 <MenuIcon />
             </IconButton>
+
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                    px: 2,
+                }}
+            >
+                <Typography variant="h4">{title}</Typography>
+                {tools && (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                        }}
+                    >
+                        {tools}
+                    </Box>
+                )}
+            </Box>
         </HeaderContainer>
     );
 };

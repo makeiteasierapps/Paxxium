@@ -1,5 +1,16 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import {
+    Box,
+    Typography,
+    Tooltip,
+    IconButton,
+    TextField,
+    InputAdornment,
+    Collapse,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import SendIcon from '@mui/icons-material/Send';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketProvider';
 import { SystemContext } from '../../contexts/SystemContext';
@@ -7,6 +18,20 @@ import ExpandableInput from './ExpandableInput';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { MessageBox } from './systemStyledComponents';
+import { StyledIconButton } from '../chat/chatStyledComponents';
+
+const ExpandableBox = styled(Box)(({ theme, expanded }) => ({
+    position: 'absolute',
+    top: 2, // Match SystemHealthCheck's top position
+    right: 120, // Adjust this value to position relative to SystemHealthCheck
+    width: expanded ? '300px' : '25px',
+    height: expanded ? '250px' : '25px',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[4],
+    borderRadius: '20px',
+    zIndex: 1000,
+    transition: 'all 0.3s ease',
+}));
 
 const NewFileMenu = () => {
     const { socket } = useSocket();
@@ -14,11 +39,12 @@ const NewFileMenu = () => {
     const { setSelectedFile, selectedFile, showSnackbar, newCategoryRef } =
         useContext(SystemContext);
     const [expanded, setExpanded] = useState(false);
+    const [inputValue, setInputValue] = useState('');
     const [expandedCategory, setExpandedCategory] = useState(false);
     const [pendingFile, setPendingFile] = useState(null);
     const [progressMessage, setProgressMessage] = useState('');
     const [messageTimeout, setMessageTimeout] = useState(null);
-
+    const [showCollapse, setShowCollapse] = useState(false);
     const checkFileExists = useCallback(
         (filename) => {
             setProgressMessage('');
@@ -111,10 +137,19 @@ const NewFileMenu = () => {
     };
 
     const handleExpandNewFile = () => {
-        setExpanded(!expanded);
+        if (!expanded) {
+            setExpanded(true);
+            setTimeout(() => setShowCollapse(true), 50);
+        } else {
+            setShowCollapse(false);
+            setTimeout(() => setExpanded(false), 10);
+        }
         setProgressMessage('');
-        setSelectedFile(null);
         setPendingFile(null);
+    };
+
+    const handleChange = (e) => {
+        setInputValue(e.target.value);
     };
 
     const handleExpandCategory = () => {
@@ -141,14 +176,62 @@ const NewFileMenu = () => {
     };
 
     return (
-        <>
-            <ExpandableInput
-                expanded={expanded}
-                onExpand={handleExpandNewFile}
-                onSubmit={handleSubmit}
-                placeholder="Enter file name"
-                iconOnly
-            />
+        <ExpandableBox expanded={expanded}>
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '25px',
+                    height: '25px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <StyledIconButton onClick={handleExpandNewFile}>
+                    <AddIcon
+                        sx={{
+                            transform: expanded ? 'rotate(45deg)' : 'none',
+                            transition: 'transform 0.3s ease',
+                        }}
+                    />
+                </StyledIconButton>
+            </Box>
+
+            <Collapse in={showCollapse} timeout="auto">
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '80%',
+                    }}
+                >
+                    <TextField
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        placeholder="Enter file path"
+                        value={inputValue}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => handleSubmit(inputValue)}
+                                    >
+                                        <SendIcon color="primary" />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                        autoFocus
+                        onChange={handleChange}
+                    />
+                </Box>
+            </Collapse>
+
             {pendingFile ? (
                 <ExpandableInput
                     expanded={expandedCategory}
@@ -192,7 +275,7 @@ const NewFileMenu = () => {
                     </>
                 )}
             </MessageBox>
-        </>
+        </ExpandableBox>
     );
 };
 

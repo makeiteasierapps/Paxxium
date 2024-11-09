@@ -40,7 +40,6 @@ const ConfigFileMenu = () => {
             }}
             id="config-file-menu"
         >
-            <NewFileMenu />
             <ScrollContainer>
                 <ScrollContent alignItems="center">
                     {categories.map((category) => (
