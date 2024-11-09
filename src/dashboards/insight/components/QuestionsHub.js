@@ -13,11 +13,11 @@ const QuestionHub = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        minHeight: "90vh",
-
-        gap: "2rem",
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        minHeight: '90vh',
+        gap: '2rem',
       }}
     >
       <ScrollContainer>

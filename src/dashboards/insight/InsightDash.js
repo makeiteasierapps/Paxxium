@@ -58,7 +58,6 @@ const InsightDash = () => {
             </Typography>
           )}
 
-          {/* Preserve original component rendering without extra wrappers */}
           {isQuestionsFormOpen && <GenerateQuestionsForm />}
           {isGraphOpen && <QuestionHub />}
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Button,
@@ -7,12 +7,25 @@ import {
     IconButton,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/system';
 
 const AnimatedContainer = styled(Box)(({ theme, expanded }) => ({
-    width: expanded ? '300px' : 'auto',
+    width: expanded ? '250px' : 'auto',
     transition: 'width 0.3s ease-in-out',
     overflow: 'hidden',
+    '& .MuiOutlinedInput-root': {
+        borderRadius: '20px',
+        height: '40px',
+    },
+    '& .MuiButton-root': {
+        borderRadius: '20px',
+        padding: '4px 12px',
+        minWidth: '32px', 
+    },
+    '& .MuiIconButton-root': {
+        padding: '6px',
+    },
 }));
 
 const ExpandableInput = ({
@@ -22,8 +35,27 @@ const ExpandableInput = ({
     placeholder = 'Enter value',
     buttonText = 'Expand',
     initialValue = '',
+    iconOnly = false,
 }) => {
     const [inputValue, setInputValue] = useState(initialValue);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (inputRef.current && !inputRef.current.contains(event.target)) {
+                setInputValue('');
+                onExpand(false); // Collapse the input
+            }
+        };
+
+        if (expanded) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [expanded, onExpand]);
 
     const handleChange = (e) => {
         setInputValue(e.target.value);
@@ -35,10 +67,11 @@ const ExpandableInput = ({
     };
 
     return (
-        <AnimatedContainer expanded={expanded}>
+        <AnimatedContainer expanded={expanded} ref={inputRef}>
             {expanded ? (
                 <TextField
                     fullWidth
+                    size="small"
                     variant="outlined"
                     placeholder={placeholder}
                     value={inputValue}
@@ -54,8 +87,12 @@ const ExpandableInput = ({
                     autoFocus
                     onChange={handleChange}
                 />
+            ) : iconOnly ? (
+                <IconButton onClick={() => onExpand(true)} title="Add new file">
+                    <AddIcon />
+                </IconButton>
             ) : (
-                <Button variant="outlined" onClick={onExpand}>
+                <Button variant="outlined" onClick={() => onExpand(true)}>
                     {buttonText}
                 </Button>
             )}

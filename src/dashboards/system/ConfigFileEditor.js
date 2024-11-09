@@ -10,7 +10,6 @@ const ConfigFileEditor = () => {
 
     return (
         <Box className="config-file-editor">
-            <h3>{selectedFile?.path}</h3>
             {selectedFile && (
                 <>
                     <AceEditor

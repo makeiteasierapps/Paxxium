@@ -1,71 +1,70 @@
-import { useContext, useEffect, useState } from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
-import ConfigFileList from './ConfigFileList';
+import { useContext, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import ConfigFileMenu from './ConfigFileMenu';
 import ConfigFileEditor from './ConfigFileEditor';
-import Chat from '../chat/components/Chat';
-import NewFileMenu from './NewFileMenu';
 import { AuthContext } from '../../contexts/AuthContext';
 import { SystemContext } from '../../contexts/SystemContext';
+import { MainContainer } from '../../dashboards/styledComponents/DashStyledComponents';
 import ContextResearch from './ContextResearch';
+import SystemHealthCheck from './SystemHealthCheck';
 const SystemSettingsDash = () => {
-    const { fetchConfigFiles, systemAgentMessages, messageSystemAgent } =
-        useContext(SystemContext);
+    const {
+        fetchConfigFiles,
+        systemAgentMessages,
+        messageSystemAgent,
+        checkSystemHealth,
+    } = useContext(SystemContext);
     const { uid } = useContext(AuthContext);
-    const [tabValue, setTabValue] = useState(0);
 
     useEffect(() => {
         fetchConfigFiles(uid);
-    }, [uid, fetchConfigFiles]);
+        checkSystemHealth();
+    }, [uid, fetchConfigFiles, checkSystemHealth]);
 
     if (!uid) {
         return null;
     }
 
-    const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
-    };
-
     return (
-        <>
-            <Tabs value={tabValue} onChange={handleTabChange}>
-                <Tab label="Files" />
-                <Tab label="Chat" />
-            </Tabs>
+        <MainContainer>
             <Box
-                className="system-settings-dash"
-                gap={2}
                 sx={{
-                    width: '100%',
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    padding: '24px',
+                    mb: 4,
                     display: 'flex',
-                    flexDirection: 'column',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
+                    width: '100%',
                 }}
             >
-                {tabValue === 0 && (
-                    <>
-                        <ConfigFileList />
-                        <NewFileMenu />
-                        <ConfigFileEditor uid={uid} />
-                    </>
-                )}
-                {tabValue === 1 && (
-                    <Box width="100%">
-                        <ContextResearch />
-                        <Chat
-                            sx={{
-                                width: '100%',
-                                height: '90vh',
-                            }}
-                            messages={systemAgentMessages}
-                            onSendMessage={messageSystemAgent}
-                        />
-                    </Box>
-                )}
+                <Typography variant="h4">SystemDash</Typography>
             </Box>
-        </>
+
+            
+
+            <Box
+                sx={{
+                    width: '100%',
+                }}
+            >
+                <ConfigFileMenu />
+                <SystemHealthCheck />
+            </Box>
+            <>
+                <ConfigFileEditor uid={uid} />
+            </>
+
+            <Box width="100%">
+                <ContextResearch />
+                {/* <Chat
+                    sx={{
+                        width: '100%',
+                        height: '90vh',
+                    }}
+                    messages={systemAgentMessages}
+                    onSendMessage={messageSystemAgent}
+                /> */}
+            </Box>
+        </MainContainer>
     );
 };
 

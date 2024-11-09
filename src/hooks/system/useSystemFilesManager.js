@@ -7,6 +7,13 @@ export const useSystemFileManager = (uid, backendUrl) => {
     const [categories, setCategories] = useState([]);
     const [filesByCategory, setFilesByCategory] = useState({});
     const { showSnackbar } = useSnackbar();
+    const [systemHealth, setSystemHealth] = useState({});
+
+    const getFileNames = (category) => {
+        return filesByCategory[category]?.map((file) =>
+            file.path.split('/').pop()
+        );
+    };
 
     useEffect(() => {
         const newFilesByCategory = configFiles.reduce((acc, file) => {
@@ -37,6 +44,29 @@ export const useSystemFileManager = (uid, backendUrl) => {
         } catch (error) {
             console.error('Error fetching config files:', error);
             showSnackbar('Error fetching config files', 'error');
+        }
+    }, [uid, backendUrl, showSnackbar]);
+
+    const checkSystemHealth = useCallback(async () => {
+        if (!uid) {
+            return;
+        }
+        try {
+            const response = await fetch(`${backendUrl}/system-health`, {
+                method: 'GET',
+                headers: {
+                    uid: uid,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch config files');
+            }
+            const data = await response.json();
+            console.log(data);
+            setSystemHealth(data);
+        } catch (error) {
+            console.error('Error checking system health:', error);
+            showSnackbar('Error checking system health', 'error');
         }
     }, [uid, backendUrl, showSnackbar]);
 
@@ -100,5 +130,8 @@ export const useSystemFileManager = (uid, backendUrl) => {
         saveFileContent,
         categories,
         filesByCategory,
+        checkSystemHealth,
+        getFileNames,
+        systemHealth,
     };
 };

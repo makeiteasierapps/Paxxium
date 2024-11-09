@@ -1,22 +1,12 @@
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { Box, Typography, IconButton, Tooltip } from '@mui/material';
-import { styled } from '@mui/system';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketProvider';
 import { SystemContext } from '../../contexts/SystemContext';
 import ExpandableInput from './ExpandableInput';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-
-const MessageBox = styled(Box)(({ theme }) => ({
-    marginLeft: theme.spacing(2),
-    color: theme.palette.text.secondary,
-    minWidth: '200px',
-    padding: theme.spacing(1),
-    borderRadius: theme.shape.borderRadius,
-    display: 'flex',
-    alignItems: 'center',
-}));
+import { MessageBox } from './systemStyledComponents';
 
 const NewFileMenu = () => {
     const { socket } = useSocket();
@@ -151,21 +141,15 @@ const NewFileMenu = () => {
     };
 
     return (
-        <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            gap={2}
-        >
+        <>
             <ExpandableInput
                 expanded={expanded}
                 onExpand={handleExpandNewFile}
                 onSubmit={handleSubmit}
                 placeholder="Enter file name"
-                buttonText="New File"
+                iconOnly
             />
-            {pendingFile || selectedFile ? (
+            {pendingFile ? (
                 <ExpandableInput
                     expanded={expandedCategory}
                     onExpand={handleExpandCategory}
@@ -208,7 +192,7 @@ const NewFileMenu = () => {
                     </>
                 )}
             </MessageBox>
-        </Box>
+        </>
     );
 };
 
