@@ -17,20 +17,42 @@ import { SystemContext } from '../../contexts/SystemContext';
 import ExpandableInput from './ExpandableInput';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
-import { MessageBox } from './systemStyledComponents';
 import { StyledIconButton } from '../chat/chatStyledComponents';
+import { set } from 'react-hook-form';
+
+// Update the MessageBox styling
+const MessageBox = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 2,
+    padding: theme.spacing(2),
+    '& .MuiTypography-root': {
+        fontSize: '1.1rem', // Larger text for better readability
+        textAlign: 'center',
+        color: theme.palette.text.primary,
+        marginBottom: theme.spacing(1),
+    },
+    '& .button-group': {
+        display: 'flex',
+        gap: theme.spacing(1),
+        marginTop: theme.spacing(1),
+    },
+}));
 
 const ExpandableBox = styled(Box)(({ theme, expanded }) => ({
     position: 'absolute',
-    top: 2, // Match SystemHealthCheck's top position
-    right: 120, // Adjust this value to position relative to SystemHealthCheck
+    top: 2,
+    right: 120,
     width: expanded ? '300px' : '25px',
-    height: expanded ? '250px' : '25px',
+    height: expanded ? '180px' : '25px', // Reduced from 250px
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[4],
     borderRadius: '20px',
     zIndex: 1000,
     transition: 'all 0.3s ease',
+    display: 'flex',
+    flexDirection: 'column',
 }));
 
 const NewFileMenu = () => {
@@ -45,6 +67,7 @@ const NewFileMenu = () => {
     const [progressMessage, setProgressMessage] = useState('');
     const [messageTimeout, setMessageTimeout] = useState(null);
     const [showCollapse, setShowCollapse] = useState(false);
+    const [showInput, setShowInput] = useState(true);
     const checkFileExists = useCallback(
         (filename) => {
             setProgressMessage('');
@@ -66,6 +89,7 @@ const NewFileMenu = () => {
                     category: response.category,
                 });
                 setProgressMessage('');
+                setShowInput(true);
             } else {
                 setProgressMessage(`File "${response.path}" does not exist.`);
                 setPendingFile({
@@ -74,7 +98,6 @@ const NewFileMenu = () => {
                     category: response.category,
                 });
             }
-            setExpanded(false);
         };
 
         const handleError = (error) => {
@@ -130,15 +153,21 @@ const NewFileMenu = () => {
         if (confirmed) {
             setSelectedFile(pendingFile);
             setTemporaryMessage(`File "${pendingFile.path}" created.`);
+            setPendingFile(null);
+            setTimeout(() => {
+                handleExpandNewFile();
+            }, 1500);
         } else {
-            setTemporaryMessage(`File creation cancelled.`);
+            setShowInput(true);
+            setPendingFile(null);
         }
-        setPendingFile(null);
+        setInputValue('');
     };
 
     const handleExpandNewFile = () => {
         if (!expanded) {
             setExpanded(true);
+            setShowInput(true); // Reset input visibility when expanding
             setTimeout(() => setShowCollapse(true), 50);
         } else {
             setShowCollapse(false);
@@ -173,6 +202,7 @@ const NewFileMenu = () => {
 
     const handleSubmit = (filePath) => {
         checkFileExists(filePath);
+        setShowInput(false);
     };
 
     return (
@@ -209,72 +239,83 @@ const NewFileMenu = () => {
                         width: '80%',
                     }}
                 >
-                    <TextField
-                        fullWidth
-                        size="small"
-                        variant="outlined"
-                        placeholder="Enter file path"
-                        value={inputValue}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        onClick={() => handleSubmit(inputValue)}
-                                    >
-                                        <SendIcon color="primary" />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }}
-                        autoFocus
-                        onChange={handleChange}
-                    />
+                    {showInput ? (
+                        <TextField
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            placeholder="Enter file path"
+                            value={inputValue}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() =>
+                                                handleSubmit(inputValue)
+                                            }
+                                        >
+                                            <SendIcon color="primary" />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            autoFocus
+                            onChange={handleChange}
+                        />
+                    ) : (
+                        <MessageBox>
+                            <Typography variant="subtitle2">
+                                {progressMessage}
+                            </Typography>
+                            {pendingFile && (
+                                <>
+                                    <Box>
+                                        <Tooltip title="Create file">
+                                            <IconButton
+                                                size="medium"
+                                                color="primary"
+                                                onClick={() =>
+                                                    handleConfirmation(true)
+                                                }
+                                                sx={{ ml: 1 }}
+                                            >
+                                                <CheckCircleOutlineIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Cancel">
+                                            <IconButton
+                                                size="medium"
+                                                color="error"
+                                                onClick={() =>
+                                                    handleConfirmation(false)
+                                                }
+                                            >
+                                                <CancelOutlinedIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
+
+                                    <ExpandableInput
+                                        expanded={expandedCategory}
+                                        onExpand={handleExpandCategory}
+                                        onSubmit={handleCategorySubmit}
+                                        placeholder="Enter category name"
+                                        buttonText={
+                                            pendingFile?.category ||
+                                            selectedFile?.category ||
+                                            'Add Category'
+                                        }
+                                        initialValue={
+                                            pendingFile?.category ||
+                                            selectedFile?.category
+                                        }
+                                    />
+                                </>
+                            )}
+                        </MessageBox>
+                    )}
                 </Box>
             </Collapse>
-
-            {pendingFile ? (
-                <ExpandableInput
-                    expanded={expandedCategory}
-                    onExpand={handleExpandCategory}
-                    onSubmit={handleCategorySubmit}
-                    placeholder="Enter category name"
-                    buttonText={
-                        pendingFile?.category ||
-                        selectedFile?.category ||
-                        'Add Category'
-                    }
-                    initialValue={
-                        pendingFile?.category || selectedFile?.category
-                    }
-                />
-            ) : null}
-
-            <MessageBox>
-                <Typography variant="subtitle2">{progressMessage}</Typography>
-                {pendingFile && (
-                    <>
-                        <Tooltip title="Create file">
-                            <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => handleConfirmation(true)}
-                                sx={{ ml: 1 }}
-                            >
-                                <CheckCircleOutlineIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Cancel">
-                            <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => handleConfirmation(false)}
-                            >
-                                <CancelOutlinedIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                    </>
-                )}
-            </MessageBox>
         </ExpandableBox>
     );
 };

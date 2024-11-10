@@ -1,13 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { SystemContext } from '../../contexts/SystemContext';
 import { Button, Box, Typography, Menu, MenuItem } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {
     ScrollContainer,
     ScrollContent,
 } from '../insight/styledInsightComponents';
-import NewFileMenu from './NewFileMenu';
-import { styled } from '@mui/system';
 
 const ConfigFileMenu = () => {
     const { selectedFile, setSelectedFile, categories, filesByCategory } =
