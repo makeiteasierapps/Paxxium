@@ -4,7 +4,6 @@ export const MainContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start',
     width: '100%',
     minHeight: '90vh',
 }));

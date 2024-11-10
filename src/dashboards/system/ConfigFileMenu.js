@@ -34,6 +34,7 @@ const ConfigFileMenu = () => {
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
+                justifyContent: 'center',
             }}
             id="config-file-menu"
         >
