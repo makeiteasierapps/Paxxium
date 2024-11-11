@@ -44,7 +44,7 @@ const ConfigFileEditor = () => {
                             width="100%"
                         >
                             <ExpandableInput
-                                initialValue={selectedFile?.test_command}
+                                value={selectedFile?.test_command}
                                 placeholder="Test command"
                                 buttonText="Test"
                                 expanded={expandedInput === 'test'}
@@ -58,7 +58,7 @@ const ConfigFileEditor = () => {
                                 }}
                             />
                             <ExpandableInput
-                                initialValue={selectedFile?.restart_command}
+                                value={selectedFile?.restart_command}
                                 placeholder="Restart command"
                                 buttonText="Restart"
                                 expanded={expandedInput === 'restart'}

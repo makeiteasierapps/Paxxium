@@ -21,7 +21,7 @@ const AnimatedContainer = styled(Box)(({ theme, expanded }) => ({
     '& .MuiButton-root': {
         borderRadius: '20px',
         padding: '4px 12px',
-        minWidth: '32px', 
+        minWidth: '32px',
     },
     '& .MuiIconButton-root': {
         padding: '6px',
@@ -34,11 +34,15 @@ const ExpandableInput = ({
     onSubmit,
     placeholder = 'Enter value',
     buttonText = 'Expand',
-    initialValue = '',
+    value = '',
     iconOnly = false,
 }) => {
-    const [inputValue, setInputValue] = useState(initialValue);
+    const [inputValue, setInputValue] = useState(value);
     const inputRef = useRef(null);
+
+    useEffect(() => {
+        setInputValue(value);
+    }, [value]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {

@@ -90,6 +90,7 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
             }
 
             showSnackbar('File commands updated successfully', 'success');
+            setSelectedFile(updatedFile);
         } catch (error) {
             console.error('Error updating file commands:', error);
             showSnackbar('Error updating file commands', 'error');
