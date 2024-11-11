@@ -18,7 +18,6 @@ import ExpandableInput from './ExpandableInput';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { StyledIconButton } from '../chat/chatStyledComponents';
-import { set } from 'react-hook-form';
 
 // Update the MessageBox styling
 const MessageBox = styled(Box)(({ theme }) => ({

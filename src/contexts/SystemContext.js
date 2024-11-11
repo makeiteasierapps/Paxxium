@@ -15,10 +15,15 @@ export const SystemProvider = ({ children }) => {
     const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const { socket } = useSocket();
-    const systemFileManager = useSystemFileManager(uid, backendUrl);
+    const systemFileManager = useSystemFileManager(
+        uid,
+        backendUrl,
+        showSnackbar
+    );
     const systemAgent = useSystemAgent(uid, socket, showSnackbar);
 
     const value = {
+        showSnackbar,
         ...systemFileManager,
         ...systemAgent,
         socket,

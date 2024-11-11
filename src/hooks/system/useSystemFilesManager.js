@@ -1,12 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useSnackbar } from '../../contexts/SnackbarContext';
-
-export const useSystemFileManager = (uid, backendUrl) => {
+export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
     const [configFiles, setConfigFiles] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [categories, setCategories] = useState([]);
     const [filesByCategory, setFilesByCategory] = useState({});
-    const { showSnackbar } = useSnackbar();
     const [systemHealth, setSystemHealth] = useState({});
 
     const getFileNames = (category) => {
