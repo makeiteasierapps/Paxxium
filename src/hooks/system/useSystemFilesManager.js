@@ -74,8 +74,8 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
             return;
         }
         const updatedFile = { ...selectedFile };
-        if (restartCommand) updatedFile.restartCommand = restartCommand;
-        if (testCommand) updatedFile.testCommand = testCommand;
+        if (restartCommand) updatedFile.restart_command = restartCommand;
+        if (testCommand) updatedFile.test_command = testCommand;
         try {
             const response = await fetch(`${backendUrl}/file-commands`, {
                 method: 'PUT',
@@ -99,17 +99,14 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
 
     const saveFileContent = async () => {
         try {
+            console.log(selectedFile);
             const response = await fetch(`${backendUrl}/config-files`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     uid: uid,
                 },
-                body: JSON.stringify({
-                    path: selectedFile.path,
-                    content: selectedFile.content,
-                    category: selectedFile.category,
-                }),
+                body: JSON.stringify(selectedFile),
             });
             if (!response.ok) {
                 throw new Error('Failed to save file content');
