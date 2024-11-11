@@ -59,13 +59,42 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
                 throw new Error('Failed to fetch config files');
             }
             const data = await response.json();
-            console.log(data);
             setSystemHealth(data);
         } catch (error) {
             console.error('Error checking system health:', error);
             showSnackbar('Error checking system health', 'error');
         }
     }, [uid, backendUrl, showSnackbar]);
+
+    const updateFileCommands = async (
+        restartCommand = null,
+        testCommand = null
+    ) => {
+        if (!selectedFile) {
+            return;
+        }
+        const updatedFile = { ...selectedFile };
+        if (restartCommand) updatedFile.restartCommand = restartCommand;
+        if (testCommand) updatedFile.testCommand = testCommand;
+        try {
+            const response = await fetch(`${backendUrl}/file-commands`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedFile),
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update file commands');
+            }
+
+            showSnackbar('File commands updated successfully', 'success');
+        } catch (error) {
+            console.error('Error updating file commands:', error);
+            showSnackbar('Error updating file commands', 'error');
+        }
+    };
 
     const saveFileContent = async () => {
         try {
@@ -130,5 +159,6 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
         checkSystemHealth,
         getFileNames,
         systemHealth,
+        updateFileCommands,
     };
 };

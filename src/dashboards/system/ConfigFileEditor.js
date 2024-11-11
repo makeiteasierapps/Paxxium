@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Box, Paper, IconButton } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AceEditor from 'react-ace';
@@ -8,7 +8,11 @@ import { SystemContext } from '../../contexts/SystemContext';
 import ExpandableInput from './ExpandableInput';
 
 const ConfigFileEditor = () => {
-    const { selectedFile, saveFileContent } = useContext(SystemContext);
+    const { selectedFile, saveFileContent, updateFileCommands } =
+        useContext(SystemContext);
+    console.log(selectedFile?.test_command);
+
+    const [expandedInput, setExpandedInput] = useState(null);
 
     return (
         <Box
@@ -40,10 +44,34 @@ const ConfigFileEditor = () => {
                             width="100%"
                         >
                             <ExpandableInput
-                                initialValue={selectedFile?.name}
-                                placeholder="File name"
+                                initialValue={selectedFile?.test_command}
+                                placeholder="Test command"
+                                buttonText="Test"
+                                expanded={expandedInput === 'test'}
+                                onExpand={(expanded) =>
+                                    setExpandedInput(expanded ? 'test' : null)
+                                }
                                 onSubmit={(value) => {
-                                    console.log(value);
+                                    console.log('Test command:', value);
+                                    setExpandedInput(null);
+                                    updateFileCommands(null, value);
+                                }}
+                            />
+                            <ExpandableInput
+                                initialValue={selectedFile?.restart_command}
+                                placeholder="Restart command"
+                                buttonText="Restart"
+                                expanded={expandedInput === 'restart'}
+                                onExpand={
+                                    (expanded) =>
+                                        setExpandedInput(
+                                            expanded ? 'restart' : null
+                                        ) // Update this line
+                                }
+                                onSubmit={(value) => {
+                                    console.log('Restart command:', value);
+                                    setExpandedInput(null);
+                                    updateFileCommands(value, null);
                                 }}
                             />
                             <IconButton

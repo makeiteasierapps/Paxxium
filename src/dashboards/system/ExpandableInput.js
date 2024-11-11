@@ -43,8 +43,7 @@ const ExpandableInput = ({
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (inputRef.current && !inputRef.current.contains(event.target)) {
-                setInputValue('');
-                onExpand(false); // Collapse the input
+                onExpand(false);
             }
         };
 
