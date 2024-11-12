@@ -57,8 +57,13 @@ const ExpandableBox = styled(Box)(({ theme, expanded }) => ({
 const NewFileMenu = () => {
     const { socket } = useSocket();
     const { uid } = useContext(AuthContext);
-    const { setSelectedFile, selectedFile, showSnackbar, newCategoryRef } =
-        useContext(SystemContext);
+    const {
+        setSelectedFile,
+        selectedFile,
+        showSnackbar,
+        newCategoryRef,
+        createFile,
+    } = useContext(SystemContext);
     const [expanded, setExpanded] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [expandedCategory, setExpandedCategory] = useState(false);
@@ -76,6 +81,7 @@ const NewFileMenu = () => {
     );
 
     useEffect(() => {
+        if (!socket) return;
         const handleUpdate = (data) => {
             setProgressMessage(data.message);
         };
@@ -152,6 +158,7 @@ const NewFileMenu = () => {
         if (confirmed) {
             setSelectedFile(pendingFile);
             setTemporaryMessage(`File "${pendingFile.path}" created.`);
+            createFile(pendingFile);
             setPendingFile(null);
             setTimeout(() => {
                 handleExpandNewFile();

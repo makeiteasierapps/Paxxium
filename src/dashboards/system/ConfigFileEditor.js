@@ -10,7 +10,6 @@ import ExpandableInput from './ExpandableInput';
 const ConfigFileEditor = () => {
     const { selectedFile, saveFileContent, updateFileCommands } =
         useContext(SystemContext);
-    console.log(selectedFile?.test_command);
     const filename = selectedFile?.path.split('/').pop();
 
     const [expandedInput, setExpandedInput] = useState(null);

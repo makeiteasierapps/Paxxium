@@ -146,8 +146,31 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
         }
     };
 
+    const createFile = async (file) => {
+        try {
+            const response = await fetch(`${backendUrl}/config-files`, {
+                method: 'POST',
+                body: JSON.stringify(file),
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Failed to create file');
+            }
+            const data = await response.json();
+            setConfigFiles((prevFiles) => [...prevFiles, data]);
+            showSnackbar('File created successfully', 'success');
+        } catch (error) {
+            console.error('Error creating file:', error);
+            showSnackbar('Error creating file', 'error');
+        }
+    };
+
     return {
         configFiles,
+        createFile,
         selectedFile,
         setSelectedFile,
         fetchConfigFiles,

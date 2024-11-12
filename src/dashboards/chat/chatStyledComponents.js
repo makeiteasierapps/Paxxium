@@ -157,8 +157,7 @@ export const MessageListItem = styled(ListItem, {
 }));
 
 export const MessageContent = styled(Box)({
-    overflowX: 'hidden',
-
+    overflow: 'auto',
     borderRadius: 'inherit',
 });
 
