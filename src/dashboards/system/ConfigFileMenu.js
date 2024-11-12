@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { SystemContext } from '../../contexts/SystemContext';
-import { Button, Box, Typography, Menu, MenuItem } from '@mui/material';
+import { Button, Typography, Menu, MenuItem } from '@mui/material';
 import {
     ScrollContainer,
     ScrollContent,
@@ -110,7 +110,7 @@ const ConfigFileMenu = () => {
                     ))}
                 </ScrollContent>
             </ScrollContainer>
-        </Box>
+        </>
     );
 };
 
