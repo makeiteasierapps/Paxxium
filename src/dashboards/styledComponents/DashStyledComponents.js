@@ -6,6 +6,7 @@ export const MainContainer = styled(Box)(({ theme }) => ({
     alignItems: 'center',
     width: '100%',
     minHeight: '90vh',
+    margin: '0 auto'
 }));
 
 export const StyledContainer = styled(Box)(({ theme }) => ({

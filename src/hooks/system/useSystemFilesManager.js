@@ -99,7 +99,6 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
 
     const saveFileContent = async () => {
         try {
-            console.log(selectedFile);
             const response = await fetch(`${backendUrl}/config-files`, {
                 method: 'PUT',
                 headers: {
@@ -112,8 +111,6 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
                 throw new Error('Failed to save file content');
             }
 
-            const data = await response.json();
-            console.log(data);
             setConfigFiles((prevFiles) => {
                 const fileIndex = prevFiles.findIndex(
                     (file) => file.path === selectedFile.path

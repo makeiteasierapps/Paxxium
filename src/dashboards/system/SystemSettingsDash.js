@@ -28,19 +28,10 @@ const SystemSettingsDash = () => {
   }
 
   return (
-    <MainContainer>
+    <MainContainer sx={{ maxWidth: '1200px' }}>
       <ConfigFileMenu />
       <ConfigFileEditor uid={uid} />
-
       <ContextResearch />
-      {/* <Chat
-                    sx={{
-                        width: '100%',
-                        height: '90vh',
-                    }}
-                    messages={systemAgentMessages}
-                    onSendMessage={messageSystemAgent}
-                /> */}
     </MainContainer>
   );
 };

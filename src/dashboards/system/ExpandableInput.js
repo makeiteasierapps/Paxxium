@@ -74,6 +74,10 @@ const ExpandableInput = ({
             {expanded ? (
                 <TextField
                     fullWidth
+                    onFocus={(e) => {
+                        e.target.setSelectionRange(0, 0);
+                        e.target.scrollLeft = 0;
+                    }}
                     size="small"
                     variant="outlined"
                     placeholder={placeholder}
