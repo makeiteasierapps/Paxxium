@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import SendIcon from '@mui/icons-material/Send';
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import {
     StyledInputTextField,
@@ -45,9 +45,15 @@ const ContextResearch = () => {
                 </StyledBox>
             </InputArea>
             {contextFiles?.map((file) => (
-                <StyledBox>
-                    <Typography>{file.path}</Typography>
-                </StyledBox>
+                <Box key={file.path} display="flex">
+                    <StyledBox
+                        display="grid"
+                        gridTemplateColumns="repeat(auto-fill, minmax(100px, 1fr))"
+                        justifyContent="center"
+                    >
+                        <Typography>{file.path.split('/').pop()}</Typography>
+                    </StyledBox>
+                </Box>
             ))}
         </>
     );

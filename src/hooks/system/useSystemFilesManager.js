@@ -36,6 +36,7 @@ export const useSystemFileManager = (uid, backendUrl, showSnackbar) => {
                 throw new Error('Failed to fetch config files');
             }
             const data = await response.json();
+            console.log(data);
             setCategories([...new Set(data.map((file) => file.category))]);
             setConfigFiles(data);
         } catch (error) {
