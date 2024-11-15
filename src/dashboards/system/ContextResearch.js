@@ -1,6 +1,7 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Grid, Checkbox } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import {
     StyledInputTextField,
@@ -9,9 +10,61 @@ import {
     StyledIconButton,
 } from '../chat/chatStyledComponents';
 
+const FileItem = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 4px 0 0',
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: theme.shape.borderRadius,
+    '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+    },
+}));
+
 const ContextResearch = () => {
-    const { generateContextFiles, contextFiles } = useContext(SystemContext);
+    const {
+        generateContextFiles,
+        contextFiles,
+        getAgentResponse,
+        agentResponse,
+    } = useContext(SystemContext);
     const [input, setInput] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState([]);
+
+    useEffect(() => {
+        if (contextFiles?.length) {
+            setSelectedFiles(contextFiles);
+        }
+    }, [contextFiles]);
+
+    const handleSubmit = () => {
+        if (selectedFiles.length > 0) {
+            const userMessage = {
+                query: input,
+                context: selectedFiles,
+            };
+            getAgentResponse(userMessage);
+        } else {
+            generateContextFiles(input);
+        }
+    };
+
+    const handleCheckboxChange = (file) => {
+        setSelectedFiles((prev) => {
+            const isSelected = prev.some(
+                (selectedFile) => selectedFile.path === file.path
+            );
+            if (isSelected) {
+                return prev.filter(
+                    (selectedFile) => selectedFile.path !== file.path
+                );
+            } else {
+                // Add the file to the selectedFiles array
+                return [...prev, file];
+            }
+        });
+    };
+
     return (
         <>
             <InputArea>
@@ -28,15 +81,13 @@ const ContextResearch = () => {
                                 input.trim() !== ''
                             ) {
                                 event.preventDefault();
-                                generateContextFiles(input);
+                                handleSubmit();
                                 setInput('');
                             }
                         }}
                         InputProps={{
                             endAdornment: (
-                                <StyledIconButton
-                                    onClick={() => generateContextFiles(input)}
-                                >
+                                <StyledIconButton onClick={handleSubmit}>
                                     <SendIcon />
                                 </StyledIconButton>
                             ),
@@ -44,17 +95,56 @@ const ContextResearch = () => {
                     />
                 </StyledBox>
             </InputArea>
-            {contextFiles?.map((file) => (
-                <Box key={file.path} display="flex">
-                    <StyledBox
-                        display="grid"
-                        gridTemplateColumns="repeat(auto-fill, minmax(100px, 1fr))"
-                        justifyContent="center"
+            <Grid
+                container
+                justifyContent="center"
+                spacing={1}
+                sx={{
+                    p: 1,
+                    width: 'auto',
+                    margin: '0 auto',
+                    maxWidth: '500px',
+                }}
+            >
+                {contextFiles?.map((file, index) => (
+                    <Grid
+                        item
+                        lg={4}
+                        key={file.path}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}
                     >
-                        <Typography>{file.path.split('/').pop()}</Typography>
-                    </StyledBox>
-                </Box>
-            ))}
+                        <FileItem>
+                            <Checkbox
+                                checked={selectedFiles.some(
+                                    (selectedFile) =>
+                                        selectedFile.path === file.path
+                                )}
+                                onChange={() => handleCheckboxChange(file)}
+                                sx={{
+                                    p: '0 4px',
+                                    '& .MuiSvgIcon-root': { fontSize: 14 },
+                                }}
+                            />
+                            <Typography noWrap>
+                                {file.path.split('/').pop()}
+                            </Typography>
+                        </FileItem>
+                    </Grid>
+                ))}
+            </Grid>
+            {agentResponse && (
+                <Typography
+                    sx={{
+                        whiteSpace: 'pre-wrap', // Preserves whitespace and line breaks
+                        fontFamily: 'monospace', // Optional: for code-like formatting
+                    }}
+                >
+                    {agentResponse.response}
+                </Typography>
+            )}
         </>
     );
 };
