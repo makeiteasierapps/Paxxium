@@ -35,7 +35,7 @@ const ModelMenu = ({ anchorEl, setAnchorEl, setAgentModel, handleUpdateSettings 
                 GPT-4o
             </MenuItem>
             <MenuItem
-                value={'claude-3-5-sonnet-20240620'}
+                value={'claude-3-5-sonnet-latest'}
                 onClick={handleClose('model')}
             >
                 Claude 3.5 Sonnet

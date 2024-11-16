@@ -1,7 +1,57 @@
-export const processIncomingStream = (prevMessage, id, tokenObj) => {
+export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
     // Ignore empty message_content
     if (tokenObj.content === '') {
         return prevMessage;
+    }
+
+    if (id === null) {
+        console.log(prevMessage);
+        if (
+            prevMessage.length === 0 ||
+            prevMessage[prevMessage.length - 1].message_from === 'user'
+        ) {
+
+            // Create new agent message
+            return [
+                ...prevMessage,
+                {
+                    message_from: 'agent',
+                    content: [
+                        {
+                            type: tokenObj.type,
+                            content: tokenObj.content,
+                        },
+                    ],
+                },
+            ];
+        } else {
+            console.log('appending to existing agent message');
+            // Append to existing agent message
+            const newMessages = [...prevMessage];
+            const lastMessageIndex = newMessages.length - 1;
+            let lastMessageObject = newMessages[lastMessageIndex];
+
+            // Ensure content array exists
+            if (!Array.isArray(lastMessageObject.content)) {
+                lastMessageObject.content = [];
+            }
+
+            const lastContent =
+                lastMessageObject.content[lastMessageObject.content.length - 1];
+
+            // If last content exists and has same type, append to it
+            if (lastContent && lastContent.type === tokenObj.type) {
+                lastContent.content += tokenObj.content;
+            } else {
+                // Otherwise add new content object
+                lastMessageObject.content.push({
+                    type: tokenObj.type,
+                    content: tokenObj.content,
+                });
+            }
+
+            return newMessages;
+        }
     }
 
     // If the message array for the chatId does not exist, create it

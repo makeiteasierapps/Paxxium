@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import { Typography, Box, Grid, Checkbox } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
+import Chat from '../chat/components/Chat';
 import {
     StyledInputTextField,
     InputArea,
@@ -26,7 +27,7 @@ const ContextResearch = () => {
         generateContextFiles,
         contextFiles,
         getAgentResponse,
-        agentResponse,
+        systemAgentMessages,
     } = useContext(SystemContext);
     const [input, setInput] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -135,16 +136,10 @@ const ContextResearch = () => {
                     </Grid>
                 ))}
             </Grid>
-            {agentResponse && (
-                <Typography
-                    sx={{
-                        whiteSpace: 'pre-wrap', // Preserves whitespace and line breaks
-                        fontFamily: 'monospace', // Optional: for code-like formatting
-                    }}
-                >
-                    {agentResponse.response}
-                </Typography>
-            )}
+            <Chat
+                messages={systemAgentMessages}
+                onSendMessage={getAgentResponse}
+            />
         </>
     );
 };
