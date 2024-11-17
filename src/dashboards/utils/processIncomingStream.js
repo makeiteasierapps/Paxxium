@@ -1,5 +1,4 @@
 export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
-    // Ignore empty message_content
     if (tokenObj.content === '') {
         return prevMessage;
     }
@@ -24,7 +23,6 @@ export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
                 },
             ];
         } else {
-            console.log('appending to existing agent message');
             // Append to existing agent message
             const newMessages = [...prevMessage];
             const lastMessageIndex = newMessages.length - 1;

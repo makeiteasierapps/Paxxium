@@ -1,27 +1,22 @@
 import { useContext, useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import SendIcon from '@mui/icons-material/Send';
-import {
-    Typography,
-    Box,
-    Grid,
-    Checkbox,
-    TextField,
-    CircularProgress,
-} from '@mui/material';
+import { Typography, Box, Grid } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
 import ExpandableInput from './ExpandableInput';
-import { StyledIconButton } from '../chat/chatStyledComponents';
 
-const FileItem = styled(Box)(({ theme }) => ({
+const FileItem = styled(Box)(({ theme, selected }) => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '0 4px 0 0',
+    padding: '0 3px',
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: theme.shape.borderRadius,
+    backgroundColor: selected ? theme.palette.background.user : 'transparent',
+    cursor: 'pointer',
     '&:hover': {
-        backgroundColor: theme.palette.action.hover,
+        backgroundColor: selected
+            ? theme.palette.action.selected
+            : theme.palette.action.hover,
     },
 }));
 
@@ -32,7 +27,10 @@ const ContextResearch = () => {
         getAgentResponse,
         systemAgentMessages,
         setSystemAgentMessages,
+        setSelectedFile,
     } = useContext(SystemContext);
+    const [longPressTimer, setLongPressTimer] = useState(null);
+    const [isLongPress, setIsLongPress] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [expanded, setExpanded] = useState(true);
 
@@ -47,36 +45,57 @@ const ContextResearch = () => {
         setSystemAgentMessages([]);
         getAgentResponse(query);
     };
+
+    const handleFilePress = (file) => {
+        if (!isLongPress) {
+            setSelectedFiles((prev) => {
+                const isSelected = prev.some(
+                    (selectedFile) => selectedFile.path === file.path
+                );
+                if (isSelected) {
+                    return prev.filter(
+                        (selectedFile) => selectedFile.path !== file.path
+                    );
+                } else {
+                    return [...prev, file];
+                }
+            });
+        }
+        setIsLongPress(false);
+    };
+
+    const handleMouseDown = (file) => {
+        const timer = setTimeout(() => {
+            setIsLongPress(true);
+            setSelectedFile(file);
+        }, 500); // 500ms for long press
+        setLongPressTimer(timer);
+    };
+
+    const handleMouseUp = () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            setLongPressTimer(null);
+        }
+    };
+
     useEffect(() => {
         if (systemAgentMessages.length > 0) {
             setExpanded(false);
         }
     }, [systemAgentMessages]);
 
-    const handleCheckboxChange = (file) => {
-        setSelectedFiles((prev) => {
-            const isSelected = prev.some(
-                (selectedFile) => selectedFile.path === file.path
-            );
-            if (isSelected) {
-                return prev.filter(
-                    (selectedFile) => selectedFile.path !== file.path
-                );
-            } else {
-                return [...prev, file];
-            }
-        });
-    };
-
     return (
         <>
-            <ExpandableInput
-                expanded={expanded}
-                onExpand={setExpanded}
-                onSubmit={handleSubmit}
-                placeholder="Ask the SystemAgent..."
-                buttonText="SystemAgent"
-            />
+            <Box width="100%" p={2}>
+                <ExpandableInput
+                    expanded={expanded}
+                    onExpand={setExpanded}
+                    onSubmit={handleSubmit}
+                    placeholder="Ask the SystemAgent..."
+                    buttonText="SystemAgent"
+                />
+            </Box>
             <Grid
                 container
                 justifyContent="center"
@@ -98,19 +117,17 @@ const ContextResearch = () => {
                             justifyContent: 'center',
                         }}
                     >
-                        <FileItem>
-                            <Checkbox
-                                checked={selectedFiles.some(
-                                    (selectedFile) =>
-                                        selectedFile.path === file.path
-                                )}
-                                onChange={() => handleCheckboxChange(file)}
-                                sx={{
-                                    p: '0 4px',
-                                    '& .MuiSvgIcon-root': { fontSize: 14 },
-                                }}
-                            />
-                            <Typography noWrap>
+                        <FileItem
+                            selected={selectedFiles.some(
+                                (selectedFile) =>
+                                    selectedFile.path === file.path
+                            )}
+                            onClick={() => handleFilePress(file)}
+                            onMouseDown={() => handleMouseDown(file)}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                        >
+                            <Typography noWrap fontSize="14px">
                                 {file.path.split('/').pop()}
                             </Typography>
                         </FileItem>

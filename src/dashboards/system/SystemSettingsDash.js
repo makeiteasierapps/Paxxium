@@ -8,8 +8,6 @@ import ContextResearch from "./ContextResearch";
 const SystemSettingsDash = () => {
   const {
     fetchConfigFiles,
-    systemAgentMessages,
-    messageSystemAgent,
     checkSystemHealth,
   } = useContext(SystemContext);
   const { uid } = useContext(AuthContext);
@@ -30,8 +28,8 @@ const SystemSettingsDash = () => {
   return (
     <MainContainer sx={{ maxWidth: '1200px' }}>
       <ConfigFileMenu />
-      <ConfigFileEditor uid={uid} />
       <ContextResearch />
+      <ConfigFileEditor uid={uid} />
     </MainContainer>
   );
 };

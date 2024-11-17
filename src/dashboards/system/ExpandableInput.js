@@ -14,6 +14,18 @@ const AnimatedContainer = styled(Box)(({ theme, expanded }) => ({
     width: expanded ? '250px' : 'auto',
     transition: 'width 0.3s ease-in-out',
     overflow: 'hidden',
+    '& .MuiOutlinedInput-root': {
+        borderRadius: '20px',
+        height: '40px',
+    },
+    '& .MuiButton-root': {
+        borderRadius: '20px',
+        padding: '4px 12px',
+        minWidth: '32px',
+    },
+    '& .MuiIconButton-root': {
+        padding: '6px',
+    },
 }));
 
 const ExpandableInput = ({
@@ -70,11 +82,20 @@ const ExpandableInput = ({
                     variant="outlined"
                     placeholder={placeholder}
                     value={inputValue}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter' && !event.shiftKey) {
+                            event.preventDefault();
+                            handleSubmit();
+                        }
+                    }}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <IconButton onClick={handleSubmit}>
-                                    <SendIcon color="primary" />
+                                <IconButton
+                                    onClick={handleSubmit}
+                                    disabled={!inputValue}
+                                >
+                                    <SendIcon color={!inputValue ? 'disabled' : 'primary'} />
                                 </IconButton>
                             </InputAdornment>
                         ),
