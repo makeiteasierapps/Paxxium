@@ -102,5 +102,6 @@ export const useSystemAgent = (uid, socket, showSnackbar) => {
         contextFiles,
         setContextFiles,
         getAgentResponse,
+        setSystemAgentMessages,
     };
 };

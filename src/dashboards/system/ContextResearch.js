@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
+import ExpandableInput from './ExpandableInput';
 import { StyledIconButton } from '../chat/chatStyledComponents';
 
 const FileItem = styled(Box)(({ theme }) => ({
@@ -27,11 +28,13 @@ const FileItem = styled(Box)(({ theme }) => ({
 const ContextResearch = () => {
     const {
         contextFiles,
+        setContextFiles,
         getAgentResponse,
         systemAgentMessages,
+        setSystemAgentMessages,
     } = useContext(SystemContext);
-    const [input, setInput] = useState('');
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [expanded, setExpanded] = useState(true);
 
     useEffect(() => {
         if (contextFiles?.length) {
@@ -39,9 +42,16 @@ const ContextResearch = () => {
         }
     }, [contextFiles]);
 
-    const handleSubmit = () => {
-        getAgentResponse(input);
+    const handleSubmit = (query) => {
+        setContextFiles([]);
+        setSystemAgentMessages([]);
+        getAgentResponse(query);
     };
+    useEffect(() => {
+        if (systemAgentMessages.length > 0) {
+            setExpanded(false);
+        }
+    }, [systemAgentMessages]);
 
     const handleCheckboxChange = (file) => {
         setSelectedFiles((prev) => {
@@ -60,41 +70,12 @@ const ContextResearch = () => {
 
     return (
         <>
-            <TextField
-                sx={{
-                    '& .MuiOutlinedInput-root': {
-                        borderRadius: '20px',
-                        height: '40px',
-                    },
-                    '& .MuiButton-root': {
-                        borderRadius: '20px',
-                        padding: '4px 12px',
-                        minWidth: '32px',
-                    },
-                    '& .MuiIconButton-root': {
-                        padding: '6px',
-                    },
-                }}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(event) => {
-                    if (
-                        event.key === 'Enter' &&
-                        !event.shiftKey &&
-                        input.trim() !== ''
-                    ) {
-                        event.preventDefault();
-                        handleSubmit();
-                        setInput('');
-                    }
-                }}
-                InputProps={{
-                    endAdornment: (
-                        <StyledIconButton onClick={handleSubmit}>
-                            <SendIcon />
-                        </StyledIconButton>
-                    ),
-                }}
+            <ExpandableInput
+                expanded={expanded}
+                onExpand={setExpanded}
+                onSubmit={handleSubmit}
+                placeholder="Ask the SystemAgent..."
+                buttonText="SystemAgent"
             />
             <Grid
                 container

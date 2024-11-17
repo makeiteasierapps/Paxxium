@@ -112,7 +112,7 @@ export const useMessageManager = ({
                 return;
             }
         }
-        
+
         const userMessage = {
             content: input,
             message_from: 'user',
@@ -189,9 +189,9 @@ export const useMessageManager = ({
 
     const handleStreamingResponse = useCallback(
         async (data) => {
+            console.log('streaming response', data);
             selectedChatId.current = data.room;
             if (data.type === 'end_of_stream') {
-                console.log('end of stream', data);
                 // Update the most recent user message with the image path
                 const chatMessages = messages[selectedChatId.current];
                 const lastUserMessageIndex = chatMessages
@@ -213,8 +213,8 @@ export const useMessageManager = ({
             } else {
                 const newMessageParts = processIncomingStream(
                     messages,
-                    selectedChatId.current,
-                    data
+                    data,
+                    selectedChatId.current
                 );
                 updateChatArrayAndMessages(
                     selectedChatId.current,
