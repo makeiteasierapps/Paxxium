@@ -1,15 +1,17 @@
 import { useContext, useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
-import { Typography, Box, Grid, Checkbox } from '@mui/material';
+import {
+    Typography,
+    Box,
+    Grid,
+    Checkbox,
+    TextField,
+    CircularProgress,
+} from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
-import {
-    StyledInputTextField,
-    InputArea,
-    StyledBox,
-    StyledIconButton,
-} from '../chat/chatStyledComponents';
+import { StyledIconButton } from '../chat/chatStyledComponents';
 
 const FileItem = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -24,7 +26,6 @@ const FileItem = styled(Box)(({ theme }) => ({
 
 const ContextResearch = () => {
     const {
-        generateContextFiles,
         contextFiles,
         getAgentResponse,
         systemAgentMessages,
@@ -39,15 +40,7 @@ const ContextResearch = () => {
     }, [contextFiles]);
 
     const handleSubmit = () => {
-        if (selectedFiles.length > 0) {
-            const userMessage = {
-                query: input,
-                context: selectedFiles,
-            };
-            getAgentResponse(userMessage);
-        } else {
-            generateContextFiles(input);
-        }
+        getAgentResponse(input);
     };
 
     const handleCheckboxChange = (file) => {
@@ -60,7 +53,6 @@ const ContextResearch = () => {
                     (selectedFile) => selectedFile.path !== file.path
                 );
             } else {
-                // Add the file to the selectedFiles array
                 return [...prev, file];
             }
         });
@@ -68,34 +60,42 @@ const ContextResearch = () => {
 
     return (
         <>
-            <InputArea>
-                <StyledBox>
-                    <StyledInputTextField
-                        fullWidth
-                        multiline
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(event) => {
-                            if (
-                                event.key === 'Enter' &&
-                                !event.shiftKey &&
-                                input.trim() !== ''
-                            ) {
-                                event.preventDefault();
-                                handleSubmit();
-                                setInput('');
-                            }
-                        }}
-                        InputProps={{
-                            endAdornment: (
-                                <StyledIconButton onClick={handleSubmit}>
-                                    <SendIcon />
-                                </StyledIconButton>
-                            ),
-                        }}
-                    />
-                </StyledBox>
-            </InputArea>
+            <TextField
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        borderRadius: '20px',
+                        height: '40px',
+                    },
+                    '& .MuiButton-root': {
+                        borderRadius: '20px',
+                        padding: '4px 12px',
+                        minWidth: '32px',
+                    },
+                    '& .MuiIconButton-root': {
+                        padding: '6px',
+                    },
+                }}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(event) => {
+                    if (
+                        event.key === 'Enter' &&
+                        !event.shiftKey &&
+                        input.trim() !== ''
+                    ) {
+                        event.preventDefault();
+                        handleSubmit();
+                        setInput('');
+                    }
+                }}
+                InputProps={{
+                    endAdornment: (
+                        <StyledIconButton onClick={handleSubmit}>
+                            <SendIcon />
+                        </StyledIconButton>
+                    ),
+                }}
+            />
             <Grid
                 container
                 justifyContent="center"
@@ -136,10 +136,9 @@ const ContextResearch = () => {
                     </Grid>
                 ))}
             </Grid>
-            <Chat
-                messages={systemAgentMessages}
-                onSendMessage={getAgentResponse}
-            />
+            {systemAgentMessages.length > 0 && (
+                <Chat messages={systemAgentMessages} />
+            )}
         </>
     );
 };

@@ -4,13 +4,18 @@ import SaveIcon from '@mui/icons-material/Save';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-ini';
 import 'ace-builds/src-noconflict/theme-solarized_dark';
+import CloseIcon from '@mui/icons-material/Close';
 import { SystemContext } from '../../contexts/SystemContext';
 import { StyledIconButton } from '../chat/chatStyledComponents';
 import ExpandableInput from './ExpandableInput';
 
 const ConfigFileEditor = () => {
-    const { selectedFile, saveFileContent, updateFileCommands } =
-        useContext(SystemContext);
+    const {
+        selectedFile,
+        saveFileContent,
+        updateFileCommands,
+        setSelectedFile,
+    } = useContext(SystemContext);
     const filename = selectedFile?.path.split('/').pop();
 
     const [expandedInput, setExpandedInput] = useState(null);
@@ -29,19 +34,42 @@ const ConfigFileEditor = () => {
                 <Paper
                     elevation={2}
                     sx={{
-                        p: 1.5,
+                        padding: '6px 16px 16px 16px',
                         display: 'flex',
                         flexDirection: 'column',
                         width: '100%',
-                        gap: 1.5, // Added gap between header and editor
+                        gap: 1.5,
+                        position: 'relative',
                     }}
                 >
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: -4,
+                            left: 0,
+                            zIndex: 1000,
+                        }}
+                    >
+                        <StyledIconButton
+                            onClick={() => setSelectedFile(null)}
+                            sx={{
+                                color: 'primary.main',
+                                opacity: 0.5,
+                                '& .MuiSvgIcon-root': { fontSize: 16 },
+                            }}
+                        >
+                            <CloseIcon />
+                        </StyledIconButton>
+                    </Box>
+
                     <Box
                         display="flex"
                         alignItems="center"
                         flexDirection={'row'}
                         justifyContent={'space-between'}
                         width="100%"
+                        pr={2}
+                        pl={2}
                     >
                         <Box display="flex">
                             <Typography
@@ -64,7 +92,6 @@ const ConfigFileEditor = () => {
                                     setExpandedInput(expanded ? 'test' : null)
                                 }
                                 onSubmit={(value) => {
-                                    console.log('Test command:', value);
                                     setExpandedInput(null);
                                     updateFileCommands(null, value);
                                 }}
@@ -74,11 +101,10 @@ const ConfigFileEditor = () => {
                                 placeholder="Restart command"
                                 buttonText="Restart"
                                 expanded={expandedInput === 'restart'}
-                                onExpand={
-                                    (expanded) =>
-                                        setExpandedInput(
-                                            expanded ? 'restart' : null
-                                        ) // Update this line
+                                onExpand={(expanded) =>
+                                    setExpandedInput(
+                                        expanded ? 'restart' : null
+                                    )
                                 }
                                 onSubmit={(value) => {
                                     console.log('Restart command:', value);

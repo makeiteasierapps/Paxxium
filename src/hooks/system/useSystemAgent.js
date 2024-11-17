@@ -3,6 +3,8 @@ import { processIncomingStream } from '../../dashboards/utils/processIncomingStr
 export const useSystemAgent = (uid, socket, showSnackbar) => {
     const [systemAgentMessages, setSystemAgentMessages] = useState([]);
     const [contextFiles, setContextFiles] = useState([]);
+    const [pendingMessage, setPendingMessage] = useState(null);
+
     const handleContextFiles = useCallback((data) => {
         setContextFiles(data.files);
     }, []);
@@ -15,6 +17,16 @@ export const useSystemAgent = (uid, socket, showSnackbar) => {
             });
         },
         [setSystemAgentMessages]
+    );
+
+    const handleDisplayMessage = useCallback(
+        (data) => {
+            if (data.should_display && pendingMessage) {
+                addMessage(pendingMessage);
+            }
+            setPendingMessage(null);
+        },
+        [addMessage, pendingMessage]
     );
 
     const handleSystemAgentResponse = useCallback(async (data) => {
@@ -48,35 +60,16 @@ export const useSystemAgent = (uid, socket, showSnackbar) => {
     const getAgentResponse = async (userMessage) => {
         try {
             const newMessage = {
-                content: userMessage.query,
+                content: userMessage,
+                uid,
                 message_from: 'user',
                 created_at: new Date().toISOString(),
             };
 
-            addMessage(newMessage);
+            setPendingMessage(newMessage);
 
             if (socket) {
-                socket.emit('get_agent_response', userMessage);
-            }
-        } catch (error) {
-            console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-        }
-    };
-
-    const generateContextFiles = async (input) => {
-        const userMessage = {
-            content: input,
-            message_from: 'user',
-            uid,
-            created_at: new Date().toISOString(),
-        };
-
-        try {
-            if (socket) {
-                socket.emit('file_router', {
-                    userMessage,
-                });
+                socket.emit('get_agent_response', newMessage);
             }
         } catch (error) {
             console.error(error);
@@ -90,17 +83,24 @@ export const useSystemAgent = (uid, socket, showSnackbar) => {
         const currentSocket = socket;
         currentSocket.on('context_files', handleContextFiles);
         currentSocket.on('system_response', handleSystemAgentResponse);
+        currentSocket.on('display_message', handleDisplayMessage);
+
         return () => {
             currentSocket.off('context_files', handleContextFiles);
             currentSocket.off('system_response', handleSystemAgentResponse);
+            currentSocket.off('display_message', handleDisplayMessage);
         };
-    }, [handleSystemAgentResponse, handleContextFiles, socket]);
+    }, [
+        handleSystemAgentResponse,
+        handleContextFiles,
+        handleDisplayMessage,
+        socket,
+    ]);
 
     return {
         systemAgentMessages,
         contextFiles,
         setContextFiles,
-        generateContextFiles,
         getAgentResponse,
     };
 };

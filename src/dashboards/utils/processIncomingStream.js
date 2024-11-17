@@ -5,7 +5,6 @@ export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
     }
 
     if (id === null) {
-        console.log(prevMessage);
         if (
             prevMessage.length === 0 ||
             prevMessage[prevMessage.length - 1].message_from === 'user'
