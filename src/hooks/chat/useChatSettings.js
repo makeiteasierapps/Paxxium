@@ -9,7 +9,16 @@ export const useChatSettings = ({
 }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+    const handleUpdateSettings = (newSettings) => {
+        updateSettings({
+            chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
+            ...newSettings,
+        });
+    };
+
     const updateSettings = async (newAgentSettings) => {
+        console.log('newAgentSettings', newAgentSettings);
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PATCH',
@@ -55,5 +64,5 @@ export const useChatSettings = ({
         }
     };
 
-    return { updateSettings, isSettingsOpen, setIsSettingsOpen };
+    return { isSettingsOpen, setIsSettingsOpen, handleUpdateSettings };
 };

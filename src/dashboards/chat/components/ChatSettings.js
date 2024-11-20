@@ -31,7 +31,7 @@ const ChatSettings = ({
     setChatConstants,
     chatConstants,
 }) => {
-    const { selectedChat, updateSettings } = useContext(ChatContext);
+    const { selectedChat, handleUpdateSettings } = useContext(ChatContext);
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -54,14 +54,6 @@ const ChatSettings = ({
             ...prevState,
             [menu]: event.currentTarget,
         }));
-    };
-
-    const handleUpdateSettings = (newSettings) => {
-        updateSettings({
-            chatId: selectedChat.chatId,
-            uid: selectedChat.uid,
-            ...newSettings,
-        });
     };
 
     return (
