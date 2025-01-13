@@ -4,7 +4,7 @@ import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
 import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 
-const Chat = ({ messages, onSendMessage, sx }) => {
+const Chat = ({ messages, sx }) => {
     const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
@@ -40,7 +40,7 @@ const Chat = ({ messages, onSendMessage, sx }) => {
                     );
                 })}
             </MessageArea>
-            <MessageInput onSendMessage={onSendMessage} />
+            <MessageInput />
         </ChatContainerStyled>
     );
 };

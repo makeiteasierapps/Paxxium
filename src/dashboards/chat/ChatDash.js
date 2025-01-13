@@ -8,7 +8,7 @@ import { MainContainer } from '../styledComponents/DashStyledComponents';
 import { CustomGridLoader } from '../main/customLoaders';
 
 const ChatDash = () => {
-    const { loading, selectedChat, sendMessage, messages } = useContext(ChatContext);
+    const { loading, selectedChat, messages } = useContext(ChatContext);
 
     return (
         <MainContainer id="chat-dash-main-container">
@@ -19,7 +19,7 @@ const ChatDash = () => {
             ) : selectedChat ? (
                 <>
                     <ChatBar />
-                    <Chat messages={messages[selectedChat.chatId]} onSendMessage={sendMessage} />
+                    <Chat messages={messages[selectedChat.chatId]} />
                 </>
             ) : (
                 <Box>

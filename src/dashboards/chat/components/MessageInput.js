@@ -16,7 +16,7 @@ import MentionMenu from './MentionMenu';
 import { useImageHandling } from '../../../hooks/chat/useImageHandling';
 import EndAdornment from './EndAdornment';
 
-const MessageInput = ({ onSendMessage }) => {
+const MessageInput = () => {
     const {
         input,
         setInput,
@@ -24,6 +24,7 @@ const MessageInput = ({ onSendMessage }) => {
         mentionOptions,
         handleInputChange,
         handleMentionSelect,
+        sendMessage,
     } = useContext(ChatContext);
 
     const {
@@ -95,7 +96,7 @@ const MessageInput = ({ onSendMessage }) => {
                             input.trim() !== ''
                         ) {
                             event.preventDefault();
-                            onSendMessage(input, image);
+                            sendMessage(input, image);
                             setInput('');
                             removeImage();
                         }
@@ -103,7 +104,7 @@ const MessageInput = ({ onSendMessage }) => {
                     InputProps={{
                         endAdornment: (
                             <EndAdornment
-                                onSendMessage={onSendMessage}
+                                onSendMessage={sendMessage}
                                 input={input}
                                 setInput={setInput}
                                 image={image}
