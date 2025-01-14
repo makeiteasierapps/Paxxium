@@ -1,0 +1,21 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Calculate deployment signature
+        run: |
+          echo "DEPLOY_SIGNATURE=$(echo -n '' | openssl dgst -sha256 -hmac '${{ secrets.DEPLOY_SECRET }}' | awk '{print $2}')" >> $GITHUB_ENV
+          
+      - name: Trigger deployment
+        run: |
+          curl -X POST \
+            -H "X-Deploy-Signature: ${{ env.DEPLOY_SIGNATURE }}" \
+            https://paxxium.com/deploy/paxxium
