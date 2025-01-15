@@ -11,6 +11,7 @@ export const useMessageManager = ({
     messages,
     socket,
     detectedUrls,
+    validateMentions,
 }) => {
     const selectedChatId = useRef(null);
     const { kbArray } = useContext(KbContext);
@@ -77,27 +78,23 @@ export const useMessageManager = ({
         return messages[chatId] || [];
     };
 
-    const extractKbName = (input) => {
-        const regex = /@([\w-]+)/;
-        const match = input.match(regex);
-        if (match) {
-            return match[1].replace(/-/g, ' ');
-        }
-        return null;
-    };
-
-    const getKbId = (kbName) => {
-        const kb = kbArray.find((kb) => kb.name === kbName);
-        return kb ? kb.id : null;
-    };
-
     const sendMessage = async (input, image = null) => {
-        let kbId = null;
+        let kbIds = [];
         let imageBlob = null;
 
         if (kbArray.length > 0) {
-            const kbName = extractKbName(input);
-            kbId = getKbId(kbName);
+            // Validate all mentions in the message
+            const mentions = validateMentions(input);
+
+            // Get all valid mentions and their corresponding KB IDs
+            const validMentions = mentions.filter((m) => m.isValid);
+            kbIds = validMentions
+                .map((mention) => {
+                    const kbName = mention.mention.replace(/-/g, ' ');
+                    const kb = kbArray.find((kb) => kb.name === kbName);
+                    return kb?.id;
+                })
+                .filter((id) => id != null);
         }
 
         if (image) {
@@ -132,7 +129,7 @@ export const useMessageManager = ({
                     chatSettings: selectedChat,
                     chatHistory,
                     userMessage,
-                    kbId,
+                    kbIds,
                     urls: detectedUrls,
                 });
             }

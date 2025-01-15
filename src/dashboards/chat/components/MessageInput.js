@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { Box } from '@mui/material';
-
 import ClearIcon from '@mui/icons-material/Clear';
 import { ChatContext } from '../../../contexts/ChatContext';
 import {
@@ -10,7 +9,7 @@ import {
     StyledInputTextField,
     StyledInputLabel,
 } from '../chatStyledComponents';
-
+import DetectedItems from './DetectedItems';
 import { useDropzone } from 'react-dropzone';
 import MentionMenu from './MentionMenu';
 import { useImageHandling } from '../../../hooks/chat/useImageHandling';
@@ -20,11 +19,19 @@ const MessageInput = () => {
     const {
         input,
         setInput,
+        detectedUrls,
+        setDetectedUrls,
+        selectedMentions,
+        setSelectedMentions,
         mentionAnchorEl,
+        setMentionAnchorEl,
         mentionOptions,
         handleInputChange,
         handleMentionSelect,
         sendMessage,
+        highlightedIndex,
+        setCursorPosition,
+        handleMenuKeyDown,
     } = useContext(ChatContext);
 
     const {
@@ -47,8 +54,35 @@ const MessageInput = () => {
         },
     });
 
+    const handleRemoveUrl = (urlToRemove) => {
+        // Remove from detectedUrls and from input text
+        const newUrls = detectedUrls.filter((url) => url !== urlToRemove);
+        setDetectedUrls(newUrls);
+
+        // Remove from input text (optional)
+        const newInput = input.replace(urlToRemove, '').trim();
+        setInput(newInput);
+    };
+
+    const handleRemoveMention = (mentionToRemove) => {
+        // Remove from selectedMentions
+        const newMentions = new Set(selectedMentions);
+        newMentions.delete(mentionToRemove);
+        setSelectedMentions(newMentions);
+
+        // Remove from input text (optional)
+        const newInput = input.replace(`@${mentionToRemove}`, '').trim();
+        setInput(newInput);
+    };
+
     return (
         <InputArea>
+            <DetectedItems
+                detectedUrls={detectedUrls}
+                selectedMentions={selectedMentions}
+                onRemoveUrl={handleRemoveUrl}
+                onRemoveMention={handleRemoveMention}
+            />
             <StyledBox {...getRootProps()} isDragActive={isDragActive}>
                 <input {...getInputProps()} />
                 {image && (
@@ -88,12 +122,52 @@ const MessageInput = () => {
                     value={input}
                     onChange={handleInputChange}
                     onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
+                    onBlur={(e) => {
+                        // Give menu click events time to fire before closing
+                        setTimeout(() => {
+                            if (
+                                !document.activeElement?.closest(
+                                    '.mention-menu'
+                                )
+                            ) {
+                                setIsFocused(false);
+                                setMentionAnchorEl(null);
+                            }
+                        }, 0);
+                    }}
+                    // Add cursor tracking
+                    onSelect={(e) => {
+                        setCursorPosition(e.target.selectionStart);
+                    }}
                     onKeyDown={(event) => {
+                        // Handle mention menu navigation when it's open
+                        if (mentionAnchorEl) {
+                            switch (event.key) {
+                                case 'ArrowDown':
+                                case 'ArrowUp':
+                                case 'Escape':
+                                    handleMenuKeyDown(event);
+                                    return; // Prevent further processing
+                                case 'Enter':
+                                    if (highlightedIndex >= 0) {
+                                        event.preventDefault();
+                                        handleMentionSelect(
+                                            mentionOptions[highlightedIndex]
+                                        );
+                                        return; // Prevent message from being sent
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        // Only handle message sending if we're not handling a mention
                         if (
                             event.key === 'Enter' &&
                             !event.shiftKey &&
-                            input.trim() !== ''
+                            input.trim() !== '' &&
+                            !mentionAnchorEl // Add this check
                         ) {
                             event.preventDefault();
                             sendMessage(input, image);
@@ -118,6 +192,8 @@ const MessageInput = () => {
                     anchorEl={mentionAnchorEl}
                     options={mentionOptions}
                     onSelect={handleMentionSelect}
+                    className="mention-menu"
+                    highlightedIndex={highlightedIndex}
                 />
             </StyledBox>
         </InputArea>

@@ -1,0 +1,12 @@
+Client Framework:
+    - React
+    - Java Script
+    - MUI 5
+
+Rules:
+- Use MUI 5 components for styling
+    - Use Styled Components when it makes sense
+
+State Management:
+    - Context API
+    - I feed custom hooks into my Context Providers and consume them through useContext.

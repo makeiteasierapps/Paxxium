@@ -40,6 +40,7 @@ export const ChatProvider = ({ children }) => {
         messages,
         socket,
         detectedUrls: inputDetection.detectedUrls,
+        validateMentions: inputDetection.validateMentions,
     });
 
     const chatSettings = useChatSettings({ ...commonParams });
