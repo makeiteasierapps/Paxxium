@@ -58,10 +58,6 @@ const MessageInput = () => {
         // Remove from detectedUrls and from input text
         const newUrls = detectedUrls.filter((url) => url !== urlToRemove);
         setDetectedUrls(newUrls);
-
-        // Remove from input text (optional)
-        const newInput = input.replace(urlToRemove, '').trim();
-        setInput(newInput);
     };
 
     const handleRemoveMention = (mentionToRemove) => {

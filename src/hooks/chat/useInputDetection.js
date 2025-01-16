@@ -82,26 +82,36 @@ export const useInputDetection = () => {
         if (!mention) return;
 
         const formattedOption = option.replace(/\s+/g, '-');
+        const beforeMention = input.slice(0, mention.startPosition);
+        const afterMention = input.slice(mention.endPosition);
+
+        // Add a space after the mention if there isn't one already
+        const newInput = `${beforeMention}@${option}${
+            afterMention.startsWith(' ') ? '' : ' '
+        }${afterMention}`;
 
         setSelectedMentions((prev) => new Set(prev).add(formattedOption));
+        setInput(newInput);
         setMentionAnchorEl(null);
         setHighlightedIndex(-1);
 
         // Calculate new cursor position after the inserted mention
-        const newPosition = mention.startPosition + formattedOption.length + 2; // +2 for @ and space
+        const newPosition = mention.startPosition + option.length + 2; // +2 for @ and space
         setCursorPosition(newPosition);
     };
 
-    // Validate mentions before sending
     const validateMentions = (text) => {
-        const mentionRegex = /@([\w-]+)/g;
+        // Updated regex to capture everything between @ and space/end
+        const mentionRegex = /@([^@]+?)(?=\s|$)/g;
         const matches = [...text.matchAll(mentionRegex)];
 
         return matches.map((match) => ({
-            mention: match[1],
+            mention: match[1].trim(),
             isValid:
-                selectedMentions.has(match[1]) ||
-                kbArray.some((kb) => kb.name.replace(/\s+/g, '-') === match[1]),
+                selectedMentions.has(match[1].replace(/\s+/g, '-')) ||
+                kbArray.some(
+                    (kb) => kb.name.toLowerCase() === match[1].toLowerCase()
+                ),
         }));
     };
 
@@ -110,13 +120,37 @@ export const useInputDetection = () => {
         const cursorPosition = event.target.selectionStart;
         setInput(newValue);
 
-        // Only detect URLs in completed words
+        // Check for completed mentions when space is typed
         if (newValue.endsWith(' ')) {
-            const urls = detectUrls(newValue);
-            setDetectedUrls((prev) => {
-                const newUrls = new Set([...prev, ...urls]);
-                return Array.from(newUrls);
-            });
+            const words = newValue.trim().split(' ');
+            const lastAtIndex = words.findLastIndex((word) =>
+                word.startsWith('@')
+            );
+
+            if (lastAtIndex !== -1) {
+                // Collect all words from @ until the end to handle multi-word mentions
+                const mentionText = words.slice(lastAtIndex).join(' ').slice(1); // Remove @ symbol
+
+                const matchingKb = kbArray.find(
+                    (kb) => kb.name.toLowerCase() === mentionText.toLowerCase()
+                );
+
+                if (matchingKb) {
+                    const formattedMention = matchingKb.name.replace(
+                        /\s+/g,
+                        '-'
+                    );
+                    setSelectedMentions((prev) =>
+                        new Set(prev).add(formattedMention)
+                    );
+                }
+
+                const urls = detectUrls(newValue);
+                setDetectedUrls((prev) => {
+                    const newUrls = new Set([...prev, ...urls]);
+                    return Array.from(newUrls);
+                });
+            }
         }
 
         // Remove URLs that are no longer in the input
@@ -132,17 +166,16 @@ export const useInputDetection = () => {
 
         // Update mention suggestions
         setMentionAnchorEl(event.currentTarget);
-        const filteredOptions =
-            mention.searchTerm === ''
-                ? kbArray.map((kb) => kb.name)
-                : kbArray
-                      .filter((kb) =>
-                          kb.name
-                              .toLowerCase()
-                              .includes(mention.searchTerm.toLowerCase())
-                      )
-                      .map((kb) => kb.name);
+        const filteredOptions = kbArray
+            .filter((kb) =>
+                kb.name.toLowerCase().includes(mention.searchTerm.toLowerCase())
+            )
+            .map((kb) => kb.name);
 
+        // Close menu if no matches found
+        if (filteredOptions.length === 0) {
+            setMentionAnchorEl(null);
+        }
         setMentionOptions(filteredOptions);
     };
 
@@ -186,6 +219,7 @@ export const useInputDetection = () => {
         mentionOptions,
         highlightedIndex,
         detectedUrls,
+        setDetectedUrls,
         handleInputChange,
         handleMentionSelect,
         handleMenuKeyDown,
