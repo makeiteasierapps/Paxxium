@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Chip, styled } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import PersonIcon from '@mui/icons-material/Person';
+import { useContext } from 'react';
+import { ChatContext } from '../../../contexts/ChatContext';
 
 const DetectedItemsContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -11,7 +13,9 @@ const DetectedItemsContainer = styled(Box)(({ theme }) => ({
     minHeight: '32px', // Maintains space even when empty
 }));
 
-const StyledChip = styled(Chip)(({ theme, itemtype }) => ({
+const StyledChip = styled(Chip, {
+    shouldForwardProp: (prop) => prop !== 'itemtype',
+})(({ theme, itemtype }) => ({
     backgroundColor:
         itemtype === 'url'
             ? theme.palette.info.light
@@ -21,21 +25,22 @@ const StyledChip = styled(Chip)(({ theme, itemtype }) => ({
     },
 }));
 
-const DetectedItems = ({
-    detectedUrls,
-    selectedMentions,
-    onRemoveUrl,
-    onRemoveMention,
-}) => {
+const DetectedItems = () => {
+    const {
+        detectedUrls,
+        selectedMentions,
+        handleRemoveUrl,
+        handleRemoveMention,
+    } = useContext(ChatContext);
     return (
         <DetectedItemsContainer>
-            {detectedUrls.map((url, index) => (
+            {Array.from(detectedUrls).map((url, index) => (
                 <StyledChip
                     key={`url-${index}`}
                     label={url}
                     itemtype="url"
                     icon={<LinkIcon />}
-                    onDelete={() => onRemoveUrl(url)}
+                    onDelete={() => handleRemoveUrl(url)}
                 />
             ))}
             {Array.from(selectedMentions).map((mention, index) => (
@@ -44,7 +49,7 @@ const DetectedItems = ({
                     label={mention.replace(/-/g, ' ')}
                     itemtype="mention"
                     icon={<PersonIcon />}
-                    onDelete={() => onRemoveMention(mention)}
+                    onDelete={() => handleRemoveMention(mention)}
                 />
             ))}
         </DetectedItemsContainer>

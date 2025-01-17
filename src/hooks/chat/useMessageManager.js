@@ -90,8 +90,10 @@ export const useMessageManager = ({
             const validMentions = mentions.filter((m) => m.isValid);
             kbIds = validMentions
                 .map((mention) => {
-                    const kbName = mention.mention.replace(/-/g, ' ');
-                    const kb = kbArray.find((kb) => kb.name === kbName);
+                    console.log(mention);
+                    const kb = kbArray.find(
+                        (kb) => kb.name === mention.mention
+                    );
                     return kb?.id;
                 })
                 .filter((id) => id != null);

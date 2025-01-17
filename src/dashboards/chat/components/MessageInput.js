@@ -19,10 +19,7 @@ const MessageInput = () => {
     const {
         input,
         setInput,
-        detectedUrls,
-        setDetectedUrls,
         selectedMentions,
-        setSelectedMentions,
         mentionAnchorEl,
         setMentionAnchorEl,
         mentionOptions,
@@ -54,31 +51,9 @@ const MessageInput = () => {
         },
     });
 
-    const handleRemoveUrl = (urlToRemove) => {
-        // Remove from detectedUrls and from input text
-        const newUrls = detectedUrls.filter((url) => url !== urlToRemove);
-        setDetectedUrls(newUrls);
-    };
-
-    const handleRemoveMention = (mentionToRemove) => {
-        // Remove from selectedMentions
-        const newMentions = new Set(selectedMentions);
-        newMentions.delete(mentionToRemove);
-        setSelectedMentions(newMentions);
-
-        // Remove from input text (optional)
-        const newInput = input.replace(`@${mentionToRemove}`, '').trim();
-        setInput(newInput);
-    };
-
     return (
         <InputArea>
-            <DetectedItems
-                detectedUrls={detectedUrls}
-                selectedMentions={selectedMentions}
-                onRemoveUrl={handleRemoveUrl}
-                onRemoveMention={handleRemoveMention}
-            />
+            <DetectedItems />
             <StyledBox {...getRootProps()} isDragActive={isDragActive}>
                 <input {...getInputProps()} />
                 {image && (
@@ -190,6 +165,7 @@ const MessageInput = () => {
                     onSelect={handleMentionSelect}
                     className="mention-menu"
                     highlightedIndex={highlightedIndex}
+                    selectedMentions={selectedMentions}
                 />
             </StyledBox>
         </InputArea>

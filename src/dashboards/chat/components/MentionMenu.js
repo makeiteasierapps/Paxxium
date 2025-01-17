@@ -10,16 +10,14 @@ import {
 } from '@mui/material';
 
 // Style the highlighted item
-const StyledListItemButton = styled(ListItemButton)(
-    ({ theme, isHighlighted }) => ({
-        backgroundColor: isHighlighted
-            ? theme.palette.action.hover
-            : 'transparent',
-        '&:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-    })
-);
+const StyledListItemButton = styled(ListItemButton, {
+    shouldForwardProp: (prop) => prop !== 'isHighlighted',
+})(({ theme, isHighlighted }) => ({
+    backgroundColor: isHighlighted ? theme.palette.action.hover : 'transparent',
+    '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+    },
+}));
 
 const MentionMenu = ({
     anchorEl,
@@ -27,11 +25,12 @@ const MentionMenu = ({
     onSelect,
     highlightedIndex,
     className,
+    selectedMentions,
 }) => {
-    // Prevent menu from closing when clicking inside
-    const handleMouseDown = (e) => {
-        e.preventDefault();
-    };
+    // Filter out already selected mentions
+    const filteredOptions = options.filter(
+        (option) => !selectedMentions.has(option)
+    );
 
     // Scroll highlighted item into view
     useEffect(() => {
@@ -51,7 +50,6 @@ const MentionMenu = ({
             anchorEl={anchorEl}
             placement="top-start"
             className={className}
-            onMouseDown={handleMouseDown}
             style={{ zIndex: 1300 }}
         >
             <Paper
@@ -63,7 +61,7 @@ const MentionMenu = ({
                 }}
             >
                 <List>
-                    {options.map((option, index) => (
+                    {filteredOptions.map((option, index) => (
                         <ListItem
                             disablePadding
                             key={index}

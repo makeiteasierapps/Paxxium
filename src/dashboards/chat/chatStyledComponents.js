@@ -203,6 +203,7 @@ export const CloseIconButton = styled(IconButton)(({ theme }) => ({
 
 export const InputArea = styled(Box)(({ theme }) => ({
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     paddingTop: '10px',
     width: '80%',

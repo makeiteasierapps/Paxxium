@@ -8,44 +8,57 @@ export const useInputDetection = () => {
     const [mentionOptions, setMentionOptions] = useState([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const [selectedMentions, setSelectedMentions] = useState(new Set());
-    const [detectedUrls, setDetectedUrls] = useState([]);
+    const [detectedUrls, setDetectedUrls] = useState(new Set());
     const { kbArray } = useContext(KbContext);
 
-    const detectUrls = (text) => {
-        // Split text by spaces to check completed words
-        const words = text.split(' ');
+    const handleRemoveUrl = (urlToRemove) => {
+        setDetectedUrls((prev) => {
+            const newUrls = new Set(prev);
+            newUrls.delete(urlToRemove);
+            return newUrls;
+        });
+    };
 
-        // Only process completed words (not the last word unless it ends with space)
+    const handleRemoveMention = (mentionToRemove) => {
+        setSelectedMentions((prev) => {
+            const newMentions = new Set(prev);
+            newMentions.delete(mentionToRemove);
+            return newMentions;
+        });
+    };
+
+    const detectUrls = (text) => {
+        const words = text.split(' ');
         const completedWords = text.endsWith(' ') ? words : words.slice(0, -1);
 
         const urlRegex = new RegExp(
-            '^(' + // Start of string
-                '(?:https?://|www\\.)?' + // Protocol or www
-                '[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*' + // Domain name
+            '^(' +
+                '(?:https?://|www\\.)?' +
+                '[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*' +
                 '\\.' +
                 '(?:com|net|org|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum|co|' +
                 'uk|us|ca|eu|de|jp|fr|au|ru|ch|it|nl|se|no|es|io|dev|ai|app)' +
-                '(?::\\d{2,5})?' + // Port number (optional)
-                '(?:[/?#][^\\s"]*)?)', // Path (optional)
-            'i' // Case insensitive, but not global since we're checking one word at a time
+                '(?::\\d{2,5})?' +
+                '(?:[/?#][^\\s"]*)?)',
+            'i'
         );
 
-        const validUrls = completedWords
-            .filter((word) => {
-                try {
-                    if (!urlRegex.test(word)) return false;
-                    const urlToTest = word.startsWith('http')
-                        ? word
-                        : `https://${word}`;
-                    new URL(urlToTest);
-                    return true;
-                } catch {
-                    return false;
-                }
-            })
-            .map((url) => url.trim());
-
-        return [...new Set(validUrls)]; // Remove any duplicates
+        return new Set(
+            completedWords
+                .filter((word) => {
+                    try {
+                        if (!urlRegex.test(word)) return false;
+                        const urlToTest = word.startsWith('http')
+                            ? word
+                            : `https://${word}`;
+                        new URL(urlToTest);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                })
+                .map((url) => url.trim())
+        );
     };
 
     const detectMentions = (text, cursorPosition) => {
@@ -55,22 +68,26 @@ export const useInputDetection = () => {
 
         if (lastAtIndex === -1) return null;
 
-        // Get the word containing the cursor
+        // Get all text after @ up to the next @ or end
         const textAfterAt = text.slice(lastAtIndex + 1);
-        const match = textAfterAt.match(/^(\S*)/);
+        const nextAtIndex = textAfterAt.indexOf('@');
+        const relevantText =
+            nextAtIndex === -1
+                ? textAfterAt
+                : textAfterAt.slice(0, nextAtIndex);
+
+        // Get the word containing the cursor, allowing spaces
+        const match = relevantText.match(/^([^@]*)/);
         const currentWord = match ? match[1] : '';
 
-        // Check if we're still within the mention word
+        // Check if we're still within the mention text
         const cursorPositionInWord = cursorPosition - (lastAtIndex + 1);
-        if (
-            cursorPositionInWord < 0 ||
-            cursorPositionInWord > currentWord.length
-        ) {
+        if (cursorPositionInWord < 0) {
             return null;
         }
 
         return {
-            searchTerm: currentWord,
+            searchTerm: currentWord.trim(),
             position: lastAtIndex,
             startPosition: lastAtIndex,
             endPosition: lastAtIndex + 1 + currentWord.length,
@@ -81,23 +98,16 @@ export const useInputDetection = () => {
         const mention = detectMentions(input, cursorPosition);
         if (!mention) return;
 
-        const formattedOption = option.replace(/\s+/g, '-');
         const beforeMention = input.slice(0, mention.startPosition);
         const afterMention = input.slice(mention.endPosition);
 
-        // Add a space after the mention if there isn't one already
-        const newInput = `${beforeMention}@${option}${
-            afterMention.startsWith(' ') ? '' : ' '
-        }${afterMention}`;
+        // Remove the mention text completely
+        const newInput = `${beforeMention}${afterMention}`;
 
-        setSelectedMentions((prev) => new Set(prev).add(formattedOption));
+        setSelectedMentions((prev) => new Set(prev).add(option));
         setInput(newInput);
         setMentionAnchorEl(null);
         setHighlightedIndex(-1);
-
-        // Calculate new cursor position after the inserted mention
-        const newPosition = mention.startPosition + option.length + 2; // +2 for @ and space
-        setCursorPosition(newPosition);
     };
 
     const validateMentions = (text) => {
@@ -120,43 +130,28 @@ export const useInputDetection = () => {
         const cursorPosition = event.target.selectionStart;
         setInput(newValue);
 
-        // Check for completed mentions when space is typed
+        // Handle URLs - only process completed words (when space is typed)
         if (newValue.endsWith(' ')) {
-            const words = newValue.trim().split(' ');
-            const lastAtIndex = words.findLastIndex((word) =>
-                word.startsWith('@')
-            );
-
-            if (lastAtIndex !== -1) {
-                // Collect all words from @ until the end to handle multi-word mentions
-                const mentionText = words.slice(lastAtIndex).join(' ').slice(1); // Remove @ symbol
-
-                const matchingKb = kbArray.find(
-                    (kb) => kb.name.toLowerCase() === mentionText.toLowerCase()
-                );
-
-                if (matchingKb) {
-                    const formattedMention = matchingKb.name.replace(
-                        /\s+/g,
-                        '-'
-                    );
-                    setSelectedMentions((prev) =>
-                        new Set(prev).add(formattedMention)
-                    );
-                }
-
-                const urls = detectUrls(newValue);
-                setDetectedUrls((prev) => {
-                    const newUrls = new Set([...prev, ...urls]);
-                    return Array.from(newUrls);
-                });
-            }
+            const newUrls = detectUrls(newValue);
+            setDetectedUrls((prev) => {
+                const updatedUrls = new Set(prev);
+                newUrls.forEach((url) => updatedUrls.add(url));
+                return updatedUrls;
+            });
         }
 
         // Remove URLs that are no longer in the input
-        setDetectedUrls((prev) => prev.filter((url) => newValue.includes(url)));
+        setDetectedUrls((prev) => {
+            const updatedUrls = new Set();
+            for (const url of prev) {
+                if (newValue.includes(url)) {
+                    updatedUrls.add(url);
+                }
+            }
+            return updatedUrls;
+        });
 
-        // Handle mention detection
+        // Handle mention detection - continuous process
         const mention = detectMentions(newValue, cursorPosition);
         if (!mention) {
             setMentionAnchorEl(null);
@@ -171,6 +166,18 @@ export const useInputDetection = () => {
                 kb.name.toLowerCase().includes(mention.searchTerm.toLowerCase())
             )
             .map((kb) => kb.name);
+
+        // Check for exact match (case-insensitive)
+        const exactMatch = filteredOptions.find(
+            (option) =>
+                option.toLowerCase() === mention.searchTerm.toLowerCase()
+        );
+
+        if (exactMatch) {
+            // Auto-select the exact match
+            handleMentionSelect(exactMatch);
+            return;
+        }
 
         // Close menu if no matches found
         if (filteredOptions.length === 0) {
@@ -219,12 +226,12 @@ export const useInputDetection = () => {
         mentionOptions,
         highlightedIndex,
         detectedUrls,
-        setDetectedUrls,
         handleInputChange,
         handleMentionSelect,
         handleMenuKeyDown,
         validateMentions,
         selectedMentions,
-        setSelectedMentions,
+        handleRemoveUrl,
+        handleRemoveMention,
     };
 };
