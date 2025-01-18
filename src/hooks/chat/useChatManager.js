@@ -7,7 +7,7 @@ export const useChatManager = ({
     setChatArray,
     setMessages,
     setLoading,
-    setSelectedChat,
+    setSelectedChatId,
 }) => {
     const fetchChatsFromDB = useCallback(async () => {
         try {
@@ -33,7 +33,7 @@ export const useChatManager = ({
             setChatArray(sortedData);
             // Set the most recent chat as the selected chat
             if (sortedData.length > 0) {
-                setSelectedChat(sortedData[0]);
+                setSelectedChatId(sortedData[0].chatId);
             }
 
             setMessages((prevMessages) => {
@@ -59,7 +59,7 @@ export const useChatManager = ({
         setMessages,
         uid,
         showSnackbar,
-        setSelectedChat,
+        setSelectedChatId,
     ]);
 
     const getChats = useCallback(async () => {
@@ -67,7 +67,7 @@ export const useChatManager = ({
             const cachedChats = JSON.parse(localStorage.getItem('chatArray'));
             if (cachedChats && cachedChats.length > 0) {
                 setChatArray(cachedChats);
-                setSelectedChat(cachedChats[0]);
+                setSelectedChatId(cachedChats[0].chatId);
                 setMessages((prevMessages) => {
                     return cachedChats.reduce((acc, chat) => {
                         if (chat.messages) {
@@ -89,7 +89,7 @@ export const useChatManager = ({
         setChatArray,
         setMessages,
         showSnackbar,
-        setSelectedChat,
+        setSelectedChatId,
     ]);
 
     const createChat = async () => {
@@ -115,7 +115,7 @@ export const useChatManager = ({
             }
 
             setChatArray((prevAgents) => [data, ...prevAgents]);
-            setSelectedChat(data);
+            setSelectedChatId(data.chatId);
             const updatedChatArray = [
                 data,
                 ...JSON.parse(localStorage.getItem('chatArray') || '[]'),
@@ -151,7 +151,7 @@ export const useChatManager = ({
                     JSON.stringify(updatedChatArray)
                 );
 
-                setSelectedChat(updatedChatArray[0]);
+                setSelectedChatId(updatedChatArray[0].chatId);
                 return updatedChatArray;
             });
         } catch (error) {

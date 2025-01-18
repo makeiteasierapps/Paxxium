@@ -4,15 +4,15 @@ export const useChatSettings = ({
     backendUrl,
     showSnackbar,
     setChatArray,
-    selectedChat,
-    setSelectedChat,
+    selectedChatId,
+    uid,
 }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const handleUpdateSettings = (newSettings) => {
         updateSettings({
-            chatId: selectedChat.chatId,
-            uid: selectedChat.uid,
+            chatId: selectedChatId,
+            uid: uid,
             ...newSettings,
         });
     };
@@ -45,14 +45,6 @@ export const useChatSettings = ({
                     'chatArray',
                     JSON.stringify(updatedChatArray)
                 );
-
-                // Update selectedChat if it's the one being modified
-                if (
-                    selectedChat &&
-                    selectedChat.chatId === newAgentSettings.chatId
-                ) {
-                    setSelectedChat({ ...selectedChat, ...newAgentSettings });
-                }
 
                 return updatedChatArray;
             });

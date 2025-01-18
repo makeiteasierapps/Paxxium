@@ -13,7 +13,7 @@ export const ChatProvider = ({ children }) => {
     const { showSnackbar } = useSnackbar();
     const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);
-    const [selectedChat, setSelectedChat] = useState(null);
+    const [selectedChatId, setSelectedChatId] = useState(null);
     const [messages, setMessages] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -26,10 +26,11 @@ export const ChatProvider = ({ children }) => {
         backendUrl,
         uid,
         showSnackbar,
+        chatArray,
         setChatArray,
         setMessages,
-        selectedChat,
-        setSelectedChat,
+        selectedChatId,
+        setSelectedChatId,
     };
 
     const inputDetection = useInputDetection();
@@ -39,7 +40,7 @@ export const ChatProvider = ({ children }) => {
         ...commonParams,
         messages,
         socket,
-        detectedUrls: inputDetection.detectedUrls,
+        getDetectedUrls: () => inputDetection.detectedUrls,
         validateMentions: inputDetection.validateMentions,
     });
 
@@ -51,8 +52,8 @@ export const ChatProvider = ({ children }) => {
                 loading,
                 setLoading,
                 chatArray,
-                selectedChat,
-                setSelectedChat,
+                selectedChatId,
+                setSelectedChatId,
                 messages,
                 ...chatManager,
                 ...messageManager,

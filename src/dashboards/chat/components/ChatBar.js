@@ -21,25 +21,27 @@ const ChatBar = () => {
         clearChat,
         deleteChat,
         createChat,
-        selectedChat,
+        selectedChatId,
+        getSelectedChat,
         isSettingsOpen,
         setIsSettingsOpen,
     } = useContext(ChatContext);
     const [deleteClicked, setDeleteClicked] = useState(false);
     const [agentModel, setAgentModel] = useState();
-    const [chatConstants, setChatConstants] = useState();
+    const [systemMessage, setSystemMessage] = useState();
     const [useProfileData, setUseProfileData] = useState();
     const [chatName, setChatName] = useState();
 
     const theme = useTheme();
     useEffect(() => {
-        if (selectedChat) {
+        if (selectedChatId) {
+            const selectedChat = getSelectedChat(selectedChatId);
             setAgentModel(selectedChat.agent_model);
-            setChatConstants(selectedChat.chat_constants);
+            setSystemMessage(selectedChat.system_message);
             setUseProfileData(selectedChat.use_profile_data);
             setChatName(selectedChat.chat_name);
         }
-    }, [selectedChat]);
+    }, [getSelectedChat, selectedChatId]);
 
     const handleSubmit = () => {
         createChat();
@@ -47,7 +49,7 @@ const ChatBar = () => {
 
     const handleDeleteClick = () => {
         if (deleteClicked) {
-            deleteChat(selectedChat.chatId);
+            deleteChat(selectedChatId);
         } else {
             setDeleteClicked(true);
             setTimeout(() => {
@@ -67,8 +69,8 @@ const ChatBar = () => {
                 <ChatSettings
                     agentModel={agentModel}
                     setAgentModel={setAgentModel}
-                    chatConstants={chatConstants}
-                    setChatConstants={setChatConstants}
+                    chatConstants={systemMessage}
+                    setChatConstants={setSystemMessage}
                     chatName={chatName}
                     setChatName={setChatName}
                 />
@@ -128,7 +130,7 @@ const ChatBar = () => {
                         <StyledIconButton
                             disableRipple
                             aria-label="clear_chat"
-                            onClick={() => clearChat(selectedChat.chatId)}
+                            onClick={() => clearChat(selectedChatId)}
                         >
                             <CommentsDisabledIcon />
                         </StyledIconButton>

@@ -5,16 +5,23 @@ export const useMessageManager = ({
     backendUrl,
     uid,
     showSnackbar,
-    selectedChat,
+    selectedChatId,
+    chatArray,
     setChatArray,
     setMessages,
     messages,
     socket,
-    detectedUrls,
+    getDetectedUrls,
     validateMentions,
 }) => {
-    const selectedChatId = useRef(null);
+    const streamDestinationId = useRef(null);
     const { kbArray } = useContext(KbContext);
+    const getSelectedChat = useCallback(
+        (chatId) => {
+            return chatArray.find((chat) => chat.chatId === chatId);
+        },
+        [chatArray]
+    );
 
     const updateChatArrayAndMessages = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
@@ -53,20 +60,23 @@ export const useMessageManager = ({
 
     const addMessage = useCallback(
         (chatId, newMessage, isOptimistic = false) => {
-            setMessages((prevMessages) => {
-                const updatedMessages = [
-                    ...(prevMessages[chatId] || []),
-                    newMessage,
-                ];
-                updateChatArrayAndMessages(
-                    chatId,
-                    updatedMessages,
-                    isOptimistic
-                );
-                return {
-                    ...prevMessages,
-                    [chatId]: updatedMessages,
-                };
+            return new Promise((resolve) => {
+                setMessages((prevMessages) => {
+                    const updatedMessages = [
+                        ...(prevMessages[chatId] || []),
+                        newMessage,
+                    ];
+                    updateChatArrayAndMessages(
+                        chatId,
+                        updatedMessages,
+                        isOptimistic
+                    );
+                    resolve(updatedMessages);
+                    return {
+                        ...prevMessages,
+                        [chatId]: updatedMessages,
+                    };
+                });
             });
         },
         [setMessages, updateChatArrayAndMessages]
@@ -119,20 +129,29 @@ export const useMessageManager = ({
             type: 'database',
             image_path: imageBlob,
         };
-        addMessage(selectedChat.chatId, userMessage, true);
-        const chatHistory = await getMessages(selectedChat.chatId);
+        
+        const updatedMessages = await addMessage(
+            selectedChatId,
+            userMessage,
+            true
+        );
+        const selectedChat = getSelectedChat(selectedChatId);
+        const chatWithUpdatedMessages = {
+            ...selectedChat,
+            messages: updatedMessages,
+        };
         try {
             if (socket) {
+                const currentDetectedUrls = getDetectedUrls();
+                // Convert Set to Array
+                const urlsArray = Array.from(currentDetectedUrls);
+                console.log(urlsArray);
                 socket.emit('chat', {
-                    uid,
-                    chatId: selectedChat.chatId,
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
-                    chatSettings: selectedChat,
-                    chatHistory,
-                    userMessage,
+                    selectedChat: chatWithUpdatedMessages,
                     kbIds,
-                    urls: detectedUrls,
+                    urls: urlsArray,
                 });
             }
         } catch (error) {
@@ -189,10 +208,10 @@ export const useMessageManager = ({
     const handleStreamingResponse = useCallback(
         async (data) => {
             console.log('streaming response', data);
-            selectedChatId.current = data.room;
+            streamDestinationId.current = data.room;
             if (data.type === 'end_of_stream') {
                 // Update the most recent user message with the image path
-                const chatMessages = messages[selectedChatId.current];
+                const chatMessages = messages[streamDestinationId.current];
                 const lastUserMessageIndex = chatMessages
                     .map((m) => m.message_from)
                     .lastIndexOf('user');
@@ -205,7 +224,7 @@ export const useMessageManager = ({
                     };
 
                     updateChatArrayAndMessages(
-                        selectedChatId.current,
+                        streamDestinationId.current,
                         updatedMessages
                     );
                 }
@@ -213,11 +232,11 @@ export const useMessageManager = ({
                 const newMessageParts = processIncomingStream(
                     messages,
                     data,
-                    selectedChatId.current
+                    streamDestinationId.current
                 );
                 updateChatArrayAndMessages(
-                    selectedChatId.current,
-                    newMessageParts[selectedChatId.current]
+                    streamDestinationId.current,
+                    newMessageParts[streamDestinationId.current]
                 );
             }
         },
@@ -240,6 +259,6 @@ export const useMessageManager = ({
         getMessages,
         sendMessage,
         clearChat,
-        handleStreamingResponse,
+        getSelectedChat,
     };
 };
