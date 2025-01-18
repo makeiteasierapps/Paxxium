@@ -17,8 +17,22 @@ export const useChatSettings = ({
         });
     };
 
+    const updateLocalSettings = (newAgentSettings) => {
+        setChatArray((prevChatArray) => {
+            const updatedChatArray = prevChatArray.map((agent) =>
+                agent.chatId === newAgentSettings.chatId
+                    ? { ...agent, ...newAgentSettings }
+                    : agent
+            );
+
+            // Update localStorage
+            localStorage.setItem('chatArray', JSON.stringify(updatedChatArray));
+
+            return updatedChatArray;
+        });
+    };
+
     const updateSettings = async (newAgentSettings) => {
-        console.log('newAgentSettings', newAgentSettings);
         try {
             const response = await fetch(`${backendUrl}/chat/update_settings`, {
                 method: 'PATCH',
@@ -32,22 +46,7 @@ export const useChatSettings = ({
 
             if (!response.ok) throw new Error('Failed to update settings');
 
-            // Update the local settings state
-            setChatArray((prevChatArray) => {
-                const updatedChatArray = prevChatArray.map((agent) =>
-                    agent.chatId === newAgentSettings.chatId
-                        ? { ...agent, ...newAgentSettings }
-                        : agent
-                );
-
-                // Update localStorage
-                localStorage.setItem(
-                    'chatArray',
-                    JSON.stringify(updatedChatArray)
-                );
-
-                return updatedChatArray;
-            });
+            updateLocalSettings(newAgentSettings);
 
             showSnackbar('Settings updated successfully', 'success');
         } catch (error) {
@@ -56,5 +55,5 @@ export const useChatSettings = ({
         }
     };
 
-    return { isSettingsOpen, setIsSettingsOpen, handleUpdateSettings };
+    return { isSettingsOpen, setIsSettingsOpen, handleUpdateSettings, updateLocalSettings };
 };

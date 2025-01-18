@@ -5,24 +5,16 @@ export const useMessageManager = ({
     backendUrl,
     uid,
     showSnackbar,
-    selectedChatId,
-    chatArray,
+    getSelectedChat,
     setChatArray,
     setMessages,
     messages,
     socket,
-    getDetectedUrls,
     validateMentions,
 }) => {
     const streamDestinationId = useRef(null);
     const { kbArray } = useContext(KbContext);
-    const getSelectedChat = useCallback(
-        (chatId) => {
-            return chatArray.find((chat) => chat.chatId === chatId);
-        },
-        [chatArray]
-    );
-
+    
     const updateChatArrayAndMessages = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
             setMessages((prevMessages) => ({
@@ -129,23 +121,22 @@ export const useMessageManager = ({
             type: 'database',
             image_path: imageBlob,
         };
-        
+
+        const selectedChat = getSelectedChat();
         const updatedMessages = await addMessage(
-            selectedChatId,
+            selectedChat.chatId,
             userMessage,
             true
         );
-        const selectedChat = getSelectedChat(selectedChatId);
         const chatWithUpdatedMessages = {
             ...selectedChat,
             messages: updatedMessages,
         };
         try {
             if (socket) {
-                const currentDetectedUrls = getDetectedUrls();
+                const currentDetectedUrls = selectedChat?.context_urls || [];
                 // Convert Set to Array
                 const urlsArray = Array.from(currentDetectedUrls);
-                console.log(urlsArray);
                 socket.emit('chat', {
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
@@ -259,6 +250,5 @@ export const useMessageManager = ({
         getMessages,
         sendMessage,
         clearChat,
-        getSelectedChat,
     };
 };

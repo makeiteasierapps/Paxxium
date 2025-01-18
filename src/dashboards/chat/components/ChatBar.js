@@ -35,7 +35,7 @@ const ChatBar = () => {
     const theme = useTheme();
     useEffect(() => {
         if (selectedChatId) {
-            const selectedChat = getSelectedChat(selectedChatId);
+            const selectedChat = getSelectedChat();
             setAgentModel(selectedChat.agent_model);
             setSystemMessage(selectedChat.system_message);
             setUseProfileData(selectedChat.use_profile_data);
@@ -69,8 +69,8 @@ const ChatBar = () => {
                 <ChatSettings
                     agentModel={agentModel}
                     setAgentModel={setAgentModel}
-                    chatConstants={systemMessage}
-                    setChatConstants={setSystemMessage}
+                    systemMessage={systemMessage}
+                    setSystemMessage={setSystemMessage}
                     chatName={chatName}
                     setChatName={setChatName}
                 />

@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react';
+import { useState, createContext, useContext, useCallback } from 'react';
 import { AuthContext } from './AuthContext';
 import { useChatManager } from '../hooks/chat/useChatManager';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
@@ -22,6 +22,10 @@ export const ChatProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
+    const getSelectedChat = useCallback(() => {
+        return chatArray.find((chat) => chat.chatId === selectedChatId);
+    }, [chatArray, selectedChatId]);
+
     const commonParams = {
         backendUrl,
         uid,
@@ -31,20 +35,24 @@ export const ChatProvider = ({ children }) => {
         setMessages,
         selectedChatId,
         setSelectedChatId,
+        getSelectedChat,
     };
 
-    const inputDetection = useInputDetection();
+    const chatSettings = useChatSettings({ ...commonParams });
+
+    const inputDetection = useInputDetection({
+        updateLocalSettings: chatSettings.updateLocalSettings,
+        getSelectedChat,
+    });
+
     const chatManager = useChatManager({ ...commonParams, setLoading });
 
     const messageManager = useMessageManager({
         ...commonParams,
         messages,
         socket,
-        getDetectedUrls: () => inputDetection.detectedUrls,
         validateMentions: inputDetection.validateMentions,
     });
-
-    const chatSettings = useChatSettings({ ...commonParams });
 
     return (
         <ChatContext.Provider
@@ -53,6 +61,7 @@ export const ChatProvider = ({ children }) => {
                 setLoading,
                 chatArray,
                 selectedChatId,
+                getSelectedChat,
                 setSelectedChatId,
                 messages,
                 ...chatManager,

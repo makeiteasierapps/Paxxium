@@ -28,8 +28,8 @@ const ChatSettings = ({
     chatName,
     setAgentModel,
     agentModel,
-    setChatConstants,
-    chatConstants,
+    setSystemMessage,
+    systemMessage,
 }) => {
     const { selectedChatId, handleUpdateSettings, getSelectedChat } = useContext(ChatContext);
 
@@ -113,18 +113,18 @@ const ChatSettings = ({
 
                 <Box width="100%" marginBottom={1}>
                     <ResizableTextField
-                        id="chatConstants"
-                        name="chatConstants"
+                        id="systemMessage"
+                        name="systemMessage"
                         multiline
                         fullWidth
                         variant="outlined"
-                        value={chatConstants}
+                        value={systemMessage}
                         onChange={(event) =>
-                            setChatConstants(event.target.value)
+                            setSystemMessage(event.target.value)
                         }
                         onBlur={() =>
                             handleUpdateSettings({
-                                chat_constants: chatConstants,
+                                system_message: systemMessage,
                             })
                         }
                         InputProps={{

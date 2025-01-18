@@ -1,21 +1,23 @@
 import { useState, useContext } from 'react';
 import { KbContext } from '../../contexts/KbContext';
 
-export const useInputDetection = () => {
+export const useInputDetection = ({ getSelectedChat, updateLocalSettings }) => {
     const [input, setInput] = useState('');
     const [cursorPosition, setCursorPosition] = useState(0);
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
     const [mentionOptions, setMentionOptions] = useState([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const [selectedMentions, setSelectedMentions] = useState(new Set());
-    const [detectedUrls, setDetectedUrls] = useState(new Set());
     const { kbArray } = useContext(KbContext);
+    const selectedChat = getSelectedChat();
 
     const handleRemoveUrl = (urlToRemove) => {
-        setDetectedUrls((prev) => {
-            const newUrls = new Set(prev);
-            newUrls.delete(urlToRemove);
-            return newUrls;
+        const existingUrls = selectedChat?.context_urls || [];
+        // Only update local state
+        updateLocalSettings({
+            chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
+            context_urls: existingUrls.filter((url) => url !== urlToRemove),
         });
     };
 
@@ -133,23 +135,35 @@ export const useInputDetection = () => {
         // Handle URLs - only process completed words (when space is typed)
         if (newValue.endsWith(' ')) {
             const newUrls = detectUrls(newValue);
-            setDetectedUrls((prev) => {
-                const updatedUrls = new Set(prev);
-                newUrls.forEach((url) => updatedUrls.add(url));
-                return updatedUrls;
-            });
+            if (newUrls.size > 0) {
+                const existingUrls = new Set(selectedChat?.context_urls || []);
+                const updatedUrls = Array.from(
+                    new Set([...existingUrls, ...newUrls])
+                );
+
+                // Only update local state
+                updateLocalSettings({
+                    chatId: selectedChat.chatId,
+                    uid: selectedChat.uid,
+                    context_urls: updatedUrls,
+                });
+            }
         }
 
         // Remove URLs that are no longer in the input
-        setDetectedUrls((prev) => {
-            const updatedUrls = new Set();
-            for (const url of prev) {
-                if (newValue.includes(url)) {
-                    updatedUrls.add(url);
-                }
+        if (selectedChat?.context_urls?.length) {
+            const remainingUrls = selectedChat.context_urls.filter((url) =>
+                newValue.includes(url)
+            );
+            if (remainingUrls.length !== selectedChat.context_urls.length) {
+                // Only update local state
+                updateLocalSettings({
+                    chatId: selectedChat.chatId,
+                    uid: selectedChat.uid,
+                    context_urls: remainingUrls,
+                });
             }
-            return updatedUrls;
-        });
+        }
 
         // Handle mention detection - continuous process
         const mention = detectMentions(newValue, cursorPosition);
@@ -225,7 +239,6 @@ export const useInputDetection = () => {
         setMentionAnchorEl,
         mentionOptions,
         highlightedIndex,
-        detectedUrls,
         handleInputChange,
         handleMentionSelect,
         handleMenuKeyDown,

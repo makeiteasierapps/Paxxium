@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { Box, Chip, styled } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import PersonIcon from '@mui/icons-material/Person';
@@ -27,16 +27,20 @@ const StyledChip = styled(Chip, {
 
 const DetectedItems = () => {
     const {
-        detectedUrls,
         selectedMentions,
-        handleRemoveUrl,
         handleRemoveMention,
+        handleRemoveUrl,
+        getSelectedChat,
     } = useContext(ChatContext);
+
+    const selectedChat = useMemo(() => getSelectedChat(), [getSelectedChat]);
+    const contextUrls = selectedChat?.context_urls || [];
+
     return (
         <DetectedItemsContainer>
-            {Array.from(detectedUrls).map((url, index) => (
+            {contextUrls.map((url, index) => (
                 <StyledChip
-                    key={`url-${index}`}
+                    key={`url-${url}-${index}`} // More specific key to help with updates
                     label={url}
                     itemtype="url"
                     icon={<LinkIcon />}
@@ -45,7 +49,7 @@ const DetectedItems = () => {
             ))}
             {Array.from(selectedMentions).map((mention, index) => (
                 <StyledChip
-                    key={`mention-${index}`}
+                    key={`mention-${mention}-${index}`}
                     label={mention.replace(/-/g, ' ')}
                     itemtype="mention"
                     icon={<PersonIcon />}
