@@ -42,6 +42,7 @@ export const ChatProvider = ({ children }) => {
 
     const inputDetection = useInputDetection({
         updateLocalSettings: chatSettings.updateLocalSettings,
+        handleUpdateSettings: chatSettings.handleUpdateSettings,
         getSelectedChat,
     });
 

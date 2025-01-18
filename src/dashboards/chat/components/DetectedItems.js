@@ -34,19 +34,27 @@ const DetectedItems = () => {
     } = useContext(ChatContext);
 
     const selectedChat = useMemo(() => getSelectedChat(), [getSelectedChat]);
+    console.log('selectedChat', selectedChat);
     const contextUrls = selectedChat?.context_urls || [];
 
     return (
         <DetectedItemsContainer>
-            {contextUrls.map((url, index) => (
-                <StyledChip
-                    key={`url-${url}-${index}`} // More specific key to help with updates
-                    label={url}
-                    itemtype="url"
-                    icon={<LinkIcon />}
-                    onDelete={() => handleRemoveUrl(url)}
-                />
-            ))}
+            <DetectedItemsContainer>
+            {contextUrls.map((urlItem, index) => {
+                // Handle both string URLs and URL objects
+                const url = typeof urlItem === 'string' ? urlItem : urlItem.url;
+                
+                return (
+                    <StyledChip
+                        key={`url-${url}-${index}`}
+                        label={url}
+                        itemtype="url"
+                        icon={<LinkIcon />}
+                        onDelete={() => handleRemoveUrl(url)}
+                    />
+                );
+            })}
+        </DetectedItemsContainer>
             {Array.from(selectedMentions).map((mention, index) => (
                 <StyledChip
                     key={`mention-${mention}-${index}`}

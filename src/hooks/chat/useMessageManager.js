@@ -134,15 +134,11 @@ export const useMessageManager = ({
         };
         try {
             if (socket) {
-                const currentDetectedUrls = selectedChat?.context_urls || [];
-                // Convert Set to Array
-                const urlsArray = Array.from(currentDetectedUrls);
                 socket.emit('chat', {
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
                     selectedChat: chatWithUpdatedMessages,
                     kbIds,
-                    urls: urlsArray,
                 });
             }
         } catch (error) {

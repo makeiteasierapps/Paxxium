@@ -1,7 +1,11 @@
 import { useState, useContext } from 'react';
 import { KbContext } from '../../contexts/KbContext';
 
-export const useInputDetection = ({ getSelectedChat, updateLocalSettings }) => {
+export const useInputDetection = ({
+    getSelectedChat,
+    updateLocalSettings,
+    handleUpdateSettings,
+}) => {
     const [input, setInput] = useState('');
     const [cursorPosition, setCursorPosition] = useState(0);
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
@@ -11,14 +15,33 @@ export const useInputDetection = ({ getSelectedChat, updateLocalSettings }) => {
     const { kbArray } = useContext(KbContext);
     const selectedChat = getSelectedChat();
 
-    const handleRemoveUrl = (urlToRemove) => {
+    const handleRemoveUrl = async (urlToRemove) => {
         const existingUrls = selectedChat?.context_urls || [];
-        // Only update local state
-        updateLocalSettings({
-            chatId: selectedChat.chatId,
-            uid: selectedChat.uid,
-            context_urls: existingUrls.filter((url) => url !== urlToRemove),
+
+        // Check if we're dealing with temporary URLs (strings) or persisted URLs (objects)
+        const isTemporaryUrl =
+            existingUrls.length > 0 && typeof existingUrls[0] === 'string';
+
+        const filteredUrls = existingUrls.filter((urlItem) => {
+            const url = typeof urlItem === 'string' ? urlItem : urlItem.url;
+            return url !== urlToRemove;
         });
+
+        if (isTemporaryUrl) {
+            // Only update local state for temporary URLs
+            updateLocalSettings({
+                chatId: selectedChat.chatId,
+                uid: selectedChat.uid,
+                context_urls: filteredUrls,
+            });
+        } else {
+            // Update database for persisted URLs
+            await handleUpdateSettings({
+                chatId: selectedChat.chatId,
+                uid: selectedChat.uid,
+                context_urls: filteredUrls,
+            });
+        }
     };
 
     const handleRemoveMention = (mentionToRemove) => {
@@ -146,21 +169,6 @@ export const useInputDetection = ({ getSelectedChat, updateLocalSettings }) => {
                     chatId: selectedChat.chatId,
                     uid: selectedChat.uid,
                     context_urls: updatedUrls,
-                });
-            }
-        }
-
-        // Remove URLs that are no longer in the input
-        if (selectedChat?.context_urls?.length) {
-            const remainingUrls = selectedChat.context_urls.filter((url) =>
-                newValue.includes(url)
-            );
-            if (remainingUrls.length !== selectedChat.context_urls.length) {
-                // Only update local state
-                updateLocalSettings({
-                    chatId: selectedChat.chatId,
-                    uid: selectedChat.uid,
-                    context_urls: remainingUrls,
                 });
             }
         }
