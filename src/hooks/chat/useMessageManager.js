@@ -14,7 +14,7 @@ export const useMessageManager = ({
 }) => {
     const streamDestinationId = useRef(null);
     const { kbArray } = useContext(KbContext);
-    
+
     const updateChatArrayAndMessages = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
             setMessages((prevMessages) => ({
@@ -194,36 +194,35 @@ export const useMessageManager = ({
 
     const handleStreamingResponse = useCallback(
         async (data) => {
-            console.log('streaming response', data);
             streamDestinationId.current = data.room;
+            const currentChatThread =
+                messages[streamDestinationId.current] || [];
+
             if (data.type === 'end_of_stream') {
-                // Update the most recent user message with the image path
-                const chatMessages = messages[streamDestinationId.current];
-                const lastUserMessageIndex = chatMessages
+                const lastUserMessageIndex = currentChatThread
                     .map((m) => m.message_from)
                     .lastIndexOf('user');
 
                 if (lastUserMessageIndex !== -1) {
-                    const updatedMessages = [...chatMessages];
-                    updatedMessages[lastUserMessageIndex] = {
-                        ...updatedMessages[lastUserMessageIndex],
+                    const updatedThread = [...currentChatThread];
+                    updatedThread[lastUserMessageIndex] = {
+                        ...updatedThread[lastUserMessageIndex],
                         image_path: data.image_path,
                     };
 
                     updateChatArrayAndMessages(
                         streamDestinationId.current,
-                        updatedMessages
+                        updatedThread
                     );
                 }
             } else {
-                const newMessageParts = processIncomingStream(
-                    messages,
-                    data,
-                    streamDestinationId.current
+                const updatedThread = processIncomingStream(
+                    currentChatThread,
+                    data
                 );
                 updateChatArrayAndMessages(
                     streamDestinationId.current,
-                    newMessageParts[streamDestinationId.current]
+                    updatedThread
                 );
             }
         },

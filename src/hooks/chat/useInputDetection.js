@@ -15,27 +15,25 @@ export const useInputDetection = ({
     const { kbArray } = useContext(KbContext);
     const selectedChat = getSelectedChat();
 
-    const handleRemoveUrl = async (urlToRemove) => {
+    const handleRemoveUrl = async (urlItem) => {
         const existingUrls = selectedChat?.context_urls || [];
-
-        // Check if we're dealing with temporary URLs (strings) or persisted URLs (objects)
         const isTemporaryUrl =
             existingUrls.length > 0 && typeof existingUrls[0] === 'string';
 
-        const filteredUrls = existingUrls.filter((urlItem) => {
-            const url = typeof urlItem === 'string' ? urlItem : urlItem.url;
-            return url !== urlToRemove;
+        const filteredUrls = existingUrls.filter((existingUrl) => {
+            if (isTemporaryUrl) {
+                return existingUrl !== urlItem;
+            }
+            return existingUrl.url !== urlItem.url;
         });
 
         if (isTemporaryUrl) {
-            // Only update local state for temporary URLs
             updateLocalSettings({
                 chatId: selectedChat.chatId,
                 uid: selectedChat.uid,
                 context_urls: filteredUrls,
             });
         } else {
-            // Update database for persisted URLs
             await handleUpdateSettings({
                 chatId: selectedChat.chatId,
                 uid: selectedChat.uid,
@@ -57,14 +55,11 @@ export const useInputDetection = ({
         const completedWords = text.endsWith(' ') ? words : words.slice(0, -1);
 
         const urlRegex = new RegExp(
-            '^(' +
-                '(?:https?://|www\\.)?' +
-                '[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*' +
-                '\\.' +
-                '(?:com|net|org|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum|co|' +
-                'uk|us|ca|eu|de|jp|fr|au|ru|ch|it|nl|se|no|es|io|dev|ai|app)' +
-                '(?::\\d{2,5})?' +
-                '(?:[/?#][^\\s"]*)?)',
+            '(?:https?://|www\\.)?' + // Protocol or www
+                '(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+' + // Domain segments
+                '[a-zA-Z]{2,}' + // TLD
+                '(?::\\d{2,5})?' + // Optional port
+                '(?:/[^\\s]*)?', // Path and query params
             'i'
         );
 

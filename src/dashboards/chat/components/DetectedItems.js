@@ -34,7 +34,7 @@ const DetectedItems = () => {
     } = useContext(ChatContext);
 
     const selectedChat = useMemo(() => getSelectedChat(), [getSelectedChat]);
-    console.log('selectedChat', selectedChat);
+  
     const contextUrls = selectedChat?.context_urls || [];
 
     return (
@@ -50,7 +50,7 @@ const DetectedItems = () => {
                         label={url}
                         itemtype="url"
                         icon={<LinkIcon />}
-                        onDelete={() => handleRemoveUrl(url)}
+                        onDelete={() => handleRemoveUrl(urlItem)}
                     />
                 );
             })}

@@ -1,79 +1,24 @@
-export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
+export const processIncomingStream = (chatThread = [], tokenObj) => {
     if (tokenObj.content === '') {
-        return prevMessage;
+        return chatThread;
     }
 
-    if (id === null) {
-        if (
-            prevMessage.length === 0 ||
-            prevMessage[prevMessage.length - 1].message_from === 'user'
-        ) {
-
-            // Create new agent message
-            return [
-                ...prevMessage,
-                {
-                    message_from: 'agent',
-                    content: [
-                        {
-                            type: tokenObj.type,
-                            content: tokenObj.content,
-                        },
-                    ],
-                },
-            ];
-        } else {
-            // Append to existing agent message
-            const newMessages = [...prevMessage];
-            const lastMessageIndex = newMessages.length - 1;
-            let lastMessageObject = newMessages[lastMessageIndex];
-
-            // Ensure content array exists
-            if (!Array.isArray(lastMessageObject.content)) {
-                lastMessageObject.content = [];
-            }
-
-            const lastContent =
-                lastMessageObject.content[lastMessageObject.content.length - 1];
-
-            // If last content exists and has same type, append to it
-            if (lastContent && lastContent.type === tokenObj.type) {
-                lastContent.content += tokenObj.content;
-            } else {
-                // Otherwise add new content object
-                lastMessageObject.content.push({
-                    type: tokenObj.type,
-                    content: tokenObj.content,
-                });
-            }
-
-            return newMessages;
-        }
-    }
-
-    // If the message array for the chatId does not exist, create it
-    if (!prevMessage[id]) {
-        prevMessage[id] = [];
-    }
-    // If the message array for the chatId is empty or the last message is from the user, add the tokenObj to the message array
+    // If the chat thread is empty or the last message is from the user, add the tokenObj
     if (
-        prevMessage[id].length === 0 ||
-        prevMessage[id][prevMessage[id].length - 1].message_from === 'user'
+        chatThread.length === 0 ||
+        chatThread[chatThread.length - 1].message_from === 'user'
     ) {
-        return {
-            ...prevMessage,
-            [id]: [
-                ...prevMessage[id],
-                {
-                    message_from: 'agent',
-                    content: [tokenObj],
-                },
-            ],
-        };
+        return [
+            ...chatThread,
+            {
+                message_from: 'agent',
+                content: [tokenObj],
+            },
+        ];
     } else {
-        const newPrevMessage = { ...prevMessage };
-        const lastMessageIndex = newPrevMessage[id].length - 1;
-        let lastMessageObject = newPrevMessage[id][lastMessageIndex];
+        const updatedThread = [...chatThread];
+        const lastMessageIndex = updatedThread.length - 1;
+        let lastMessageObject = updatedThread[lastMessageIndex];
 
         // Check if the last message object has the same type as the incoming token
         if (
@@ -87,7 +32,6 @@ export const processIncomingStream = (prevMessage, tokenObj, id = null) => {
             lastMessageObject.content.push(tokenObj);
         }
 
-        // Return the updated messages array without spreading it into a new array
-        return newPrevMessage;
+        return updatedThread;
     }
 };
