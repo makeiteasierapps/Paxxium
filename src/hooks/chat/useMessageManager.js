@@ -194,7 +194,6 @@ export const useMessageManager = ({
 
     const handleStreamingResponse = useCallback(
         async (data) => {
-            console.log(data);
             streamDestinationId.current = data.room;
             const currentChatThread =
                 messages[streamDestinationId.current] || [];

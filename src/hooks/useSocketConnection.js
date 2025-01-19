@@ -13,54 +13,71 @@ export const useSocketConnection = () => {
         if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
             const newSocket = io(wsBackendUrl, {
-                // Add transport options for better debugging
                 transports: ['websocket'],
                 reconnectionDelay: 1000,
                 reconnectionDelayMax: 5000,
                 reconnectionAttempts: 5,
             });
-            setSocket(newSocket);
 
-            // Enhanced error handling
-            newSocket.on('connect', () => {
-                console.log('Connected to WebSocket server');
+            // Debug all events before setting up any listeners
+            const debugSocket = new Proxy(newSocket, {
+                get: (target, prop) => {
+                    if (prop === 'emit') {
+                        return function (eventName, ...args) {
+                            console.log('🔵 Emitting:', eventName, ...args);
+                            return target.emit.call(target, eventName, ...args);
+                        };
+                    }
+                    if (prop === 'on') {
+                        return function (eventName, callback) {
+                            const wrappedCallback = (...args) => {
+                                console.log('🟢 Received:', eventName, ...args);
+                                return callback.apply(target, args);
+                            };
+                            return target.on.call(
+                                target,
+                                eventName,
+                                wrappedCallback
+                            );
+                        };
+                    }
+                    return target[prop];
+                },
             });
 
-            newSocket.on('disconnect', (reason) => {
-                console.log('Disconnected from WebSocket server:', reason);
+            setSocket(debugSocket);
+
+            // Set up event listeners using the proxied socket
+            debugSocket.on('connect', () => {
+                console.log('🟢 Connected to WebSocket server');
             });
 
-            newSocket.on('connect_error', (error) => {
-                console.error('Connect error:', error.message, error.stack);
+            debugSocket.on('disconnect', (reason) => {
+                console.log('🔴 Disconnected from WebSocket server:', reason);
             });
 
-            newSocket.on('error', (error) => {
-                console.error('Socket error:', {
+            debugSocket.on('connect_error', (error) => {
+                console.error('🔴 Connect error:', {
                     message: error.message,
-                    data: error.data,
                     stack: error.stack,
+                });
+            });
+
+            debugSocket.on('error', (error) => {
+                console.error('🔴 Socket error:', {
+                    message: error?.message,
+                    data: error?.data,
+                    stack: error?.stack,
                     fullError: error,
                 });
             });
 
-            // Add debugging for all emitted events
-            const originalEmit = newSocket.emit;
-            newSocket.emit = function (eventName, ...args) {
-                console.log(`Emitting ${eventName}:`, ...args);
-                return originalEmit.apply(this, [eventName, ...args]);
-            };
-
-            // Add debugging for all received events
-            const originalOn = newSocket.on;
-            newSocket.on = function (eventName, callback) {
-                return originalOn.call(this, eventName, (...args) => {
-                    console.log(`Received ${eventName}:`, ...args);
-                    return callback.apply(this, args);
-                });
-            };
+            // Add a catch-all listener for any other events
+            debugSocket.onAny((eventName, ...args) => {
+                console.log('🟣 Caught event:', eventName, ...args);
+            });
         }
     }, [wsBackendUrl, socket]);
-
     const disconnect = useCallback(() => {
         if (socket) {
             socket.disconnect();
