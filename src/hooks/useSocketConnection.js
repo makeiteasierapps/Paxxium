@@ -12,9 +12,16 @@ export const useSocketConnection = () => {
     const connect = useCallback(() => {
         if (!socket) {
             console.log('Attempting to connect to:', wsBackendUrl);
-            const newSocket = io(wsBackendUrl);
+            const newSocket = io(wsBackendUrl, {
+                // Add transport options for better debugging
+                transports: ['websocket'],
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: 5,
+            });
             setSocket(newSocket);
 
+            // Enhanced error handling
             newSocket.on('connect', () => {
                 console.log('Connected to WebSocket server');
             });
@@ -24,12 +31,33 @@ export const useSocketConnection = () => {
             });
 
             newSocket.on('connect_error', (error) => {
-                console.error('Connect error:', error);
+                console.error('Connect error:', error.message, error.stack);
             });
 
             newSocket.on('error', (error) => {
-                console.error('Socket error:', error);
+                console.error('Socket error:', {
+                    message: error.message,
+                    data: error.data,
+                    stack: error.stack,
+                    fullError: error,
+                });
             });
+
+            // Add debugging for all emitted events
+            const originalEmit = newSocket.emit;
+            newSocket.emit = function (eventName, ...args) {
+                console.log(`Emitting ${eventName}:`, ...args);
+                return originalEmit.apply(this, [eventName, ...args]);
+            };
+
+            // Add debugging for all received events
+            const originalOn = newSocket.on;
+            newSocket.on = function (eventName, callback) {
+                return originalOn.call(this, eventName, (...args) => {
+                    console.log(`Received ${eventName}:`, ...args);
+                    return callback.apply(this, args);
+                });
+            };
         }
     }, [wsBackendUrl, socket]);
 
