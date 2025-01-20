@@ -8,6 +8,7 @@ export const useMessageManager = ({
     getSelectedChat,
     setChatArray,
     setMessages,
+    chatArray,
     messages,
     socket,
     validateMentions,
@@ -192,6 +193,16 @@ export const useMessageManager = ({
         }
     };
 
+    const handleContextUrls = useCallback(
+        (data) => {
+            const currentChatObject = chatArray.find(
+                (chat) => chat.chatId === streamDestinationId.current
+            );
+            currentChatObject.context_urls = data;
+        },
+        [chatArray]
+    );
+
     const handleStreamingResponse = useCallback(
         async (data) => {
             streamDestinationId.current = data.room;
@@ -234,11 +245,12 @@ export const useMessageManager = ({
 
         const currentSocket = socket;
         currentSocket.on('chat_response', handleStreamingResponse);
-
+        currentSocket.on('context_urls', handleContextUrls);
         return () => {
             currentSocket.off('chat_response', handleStreamingResponse);
+            currentSocket.off('context_urls', handleContextUrls);
         };
-    }, [handleStreamingResponse, socket]);
+    }, [handleContextUrls, handleStreamingResponse, socket]);
 
     return {
         addMessage,

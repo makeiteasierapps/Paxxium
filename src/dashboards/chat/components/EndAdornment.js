@@ -4,14 +4,7 @@ import { StyledIconButton } from '../chatStyledComponents';
 import SendIcon from '@mui/icons-material/Send';
 import AddBox from '@mui/icons-material/AddBox';
 
-const EndAdornment = ({
-    onSendMessage,
-    input,
-    setInput,
-    image,
-    removeImage,
-    handleFileInput,
-}) => {
+const EndAdornment = ({ onSendMessage, input, setInput }) => {
     const inputRef = useRef();
     return (
         <>
@@ -22,13 +15,6 @@ const EndAdornment = ({
                         aria-label="add image"
                         onClick={() => inputRef.current.click()}
                     >
-                        <input
-                            type="file"
-                            accept="image/*"
-                            style={{ display: 'none' }}
-                            ref={inputRef}
-                            onChange={handleFileInput}
-                        />
                         <AddBox />
                     </StyledIconButton>
                 </InputAdornment>
@@ -40,9 +26,8 @@ const EndAdornment = ({
                     disableRipple
                     aria-label="send message"
                     onClick={() => {
-                        onSendMessage(input, image);
+                        onSendMessage(input);
                         setInput('');
-                        removeImage();
                     }}
                 >
                     <SendIcon />

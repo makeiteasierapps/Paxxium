@@ -27,6 +27,7 @@ export const useChatManager = ({
             }
 
             const data = await response.json();
+            console.log(data);
             const sortedData = data.sort(
                 (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
             );

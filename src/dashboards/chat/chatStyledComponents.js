@@ -217,45 +217,15 @@ export const InputArea = styled(Box)(({ theme }) => ({
 export const StyledInputTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
         '& fieldset': {
-            border: 'none',
+            border: `2px solid ${theme.palette.secondary.light}`,
         },
         '&:hover fieldset': {
-            border: 'none',
+            borderColor: theme.palette.secondary.main,
         },
         '&.Mui-focused fieldset': {
-            border: 'none',
+            borderColor: theme.palette.secondary.main,
         },
     },
-}));
-
-const RefWrapper = forwardRef(({ isDragActive, ...other }, ref) => (
-    <Box ref={ref} {...other} />
-));
-
-export const StyledBox = styled(RefWrapper)(({ theme, isDragActive }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    position: 'relative',
-    border: isDragActive
-        ? '2px solid green'
-        : `2px solid ${theme.palette.secondary.light}`,
-    borderRadius: theme.shape.borderRadius,
-}));
-
-export const StyledInputLabel = styled(
-    ({ hasImage, isFocused, userMessage, ...other }) => (
-        <InputLabel {...other} />
-    )
-)(({ theme, hasImage, isFocused, userMessage }) => ({
-    position: 'absolute',
-    top: '50%',
-    left: hasImage ? '120px' : '12px',
-    visibility: isFocused || userMessage ? 'hidden' : 'visible',
-    transform: 'translateY(-50%)',
-    backgroundColor: theme.palette.background.paper,
-    paddingLeft: '5px',
-    paddingRight: '5px',
 }));
 
 export const ImageOverlay = styled(Box)(({ theme }) => ({
