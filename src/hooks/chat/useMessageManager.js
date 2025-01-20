@@ -195,12 +195,15 @@ export const useMessageManager = ({
 
     const handleContextUrls = useCallback(
         (data) => {
-            const currentChatObject = chatArray.find(
-                (chat) => chat.chatId === streamDestinationId.current
+            setChatArray((prevChatArray) =>
+                prevChatArray.map((chat) =>
+                    chat.chatId === streamDestinationId.current
+                        ? { ...chat, context_urls: data }
+                        : chat
+                )
             );
-            currentChatObject.context_urls = data;
         },
-        [chatArray]
+        [setChatArray] // Updated dependency array
     );
 
     const handleStreamingResponse = useCallback(
