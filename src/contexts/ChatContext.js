@@ -1,9 +1,14 @@
-import { useState, createContext, useContext, useCallback } from 'react';
+import {
+    useState,
+    createContext,
+    useContext,
+    useCallback,
+    useMemo,
+} from 'react';
 import { AuthContext } from './AuthContext';
 import { useChatManager } from '../hooks/chat/useChatManager';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
 import { useChatSettings } from '../hooks/chat/useChatSettings';
-import { useInputDetection } from '../hooks/chat/useInputDetection';
 import { useSnackbar } from './SnackbarContext';
 import { useSocket } from './SocketProvider';
 export const ChatContext = createContext();
@@ -22,9 +27,25 @@ export const ChatProvider = ({ children }) => {
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const getSelectedChat = useCallback(() => {
-        return chatArray.find((chat) => chat.chatId === selectedChatId);
-    }, [chatArray, selectedChatId]);
+    const selectedChat = useMemo(
+        () => chatArray.find((chat) => chat.chatId === selectedChatId),
+        [chatArray, selectedChatId]
+    );
+
+    console.log('selectedChat', selectedChat);
+
+    const updateSelectedChat = useCallback(
+        (updates) => {
+            setChatArray((prevChats) =>
+                prevChats.map((chat) =>
+                    chat.chatId === selectedChatId
+                        ? { ...chat, ...updates }
+                        : chat
+                )
+            );
+        },
+        [selectedChatId]
+    );
 
     const commonParams = {
         backendUrl,
@@ -33,26 +54,17 @@ export const ChatProvider = ({ children }) => {
         chatArray,
         setChatArray,
         setMessages,
-        selectedChatId,
+        selectedChat,
         setSelectedChatId,
-        getSelectedChat,
     };
 
     const chatSettings = useChatSettings({ ...commonParams });
-
-    const inputDetection = useInputDetection({
-        updateLocalSettings: chatSettings.updateLocalSettings,
-        handleUpdateSettings: chatSettings.handleUpdateSettings,
-        getSelectedChat,
-    });
-
     const chatManager = useChatManager({ ...commonParams, setLoading });
 
     const messageManager = useMessageManager({
         ...commonParams,
         messages,
         socket,
-        validateMentions: inputDetection.validateMentions,
     });
 
     return (
@@ -61,14 +73,13 @@ export const ChatProvider = ({ children }) => {
                 loading,
                 setLoading,
                 chatArray,
-                selectedChatId,
-                getSelectedChat,
+                selectedChat,
+                updateSelectedChat,
                 setSelectedChatId,
                 messages,
                 ...chatManager,
                 ...messageManager,
                 ...chatSettings,
-                ...inputDetection,
             }}
         >
             {children}

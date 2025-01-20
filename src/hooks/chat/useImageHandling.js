@@ -2,41 +2,58 @@ import { useState, useCallback, useEffect } from 'react';
 
 export const useImageHandling = () => {
     const [image, setImage] = useState(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-    const [showOverlay, setShowOverlay] = useState(false);
 
     useEffect(() => {
         if (image) {
             const url = URL.createObjectURL(image);
-            setImagePreviewUrl(url);
             return () => URL.revokeObjectURL(url);
         }
     }, [image]);
 
     const handleFileInput = (event) => {
         const file = event.target.files[0];
-        if (file) {
-            console.log(file);
+        if (file && isValidFile(file)) {
             setImage(file);
         }
     };
 
     const onDrop = useCallback((acceptedFiles) => {
-        setImage(acceptedFiles[0]);
+        const file = acceptedFiles[0];
+        if (file && isValidFile(file)) {
+            setImage(file);
+        }
     }, []);
+
+    const isValidFile = (file) => {
+        const validTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+        ];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!validTypes.includes(file.type)) {
+            console.error('Invalid file type');
+            return false;
+        }
+
+        if (file.size > maxSize) {
+            console.error('File is too large');
+            return false;
+        }
+
+        return true;
+    };
 
     const removeImage = () => {
         setImage(null);
-        setImagePreviewUrl(null);
     };
 
     return {
         image,
-        imagePreviewUrl,
-        showOverlay,
         handleFileInput,
         onDrop,
         removeImage,
-        setShowOverlay
     };
 };

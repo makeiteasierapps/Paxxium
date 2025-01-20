@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
 import { Box, Chip, styled } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
-import PersonIcon from '@mui/icons-material/Person';
+import ArticleIcon from '@mui/icons-material/Article';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useContext } from 'react';
+import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { ChatContext } from '../../../contexts/ChatContext';
 
 const DetectedItemsContainer = styled(Box)(({ theme }) => ({
@@ -26,40 +27,49 @@ const StyledChip = styled(Chip, {
 }));
 
 const DetectedItems = () => {
-    const {
-        selectedMentions,
-        handleRemoveMention,
-        handleRemoveUrl,
-        getSelectedChat,
-    } = useContext(ChatContext);
+    const { removeContextItem } = useContext(ContextManagerContext);
+    const { selectedChat } = useContext(ChatContext);
+    const contextItems = selectedChat?.context || [];
+    console.log('contextItems', contextItems);
 
-    const selectedChat = getSelectedChat();
-    const contextUrls = selectedChat?.context_urls || [];
+    const getIconByType = (type) => {
+        switch (type) {
+            case 'url':
+                return <LinkIcon />;
+            case 'kb':
+                return <ArticleIcon />;
+            case 'file':
+                return <AttachFileIcon />;
+            default:
+                return null;
+        }
+    };
+
+    const getChipLabel = (item) => {
+        switch (item.type) {
+            case 'url':
+                return item.source;
+            case 'kb':
+            case 'file':
+                return item.name;
+            default:
+                return '';
+        }
+    };
+
+    const handleDelete = (item) => {
+        removeContextItem(item.type, item.type === 'url' ? item.source : item);
+    };
 
     return (
         <DetectedItemsContainer>
-            {contextUrls.map((urlItem, index) => {
-                // Handle both string URLs and URL objects
-                const url = typeof urlItem === 'string' ? urlItem : urlItem.url;
-
-                console.log(urlItem);
-                return (
-                    <StyledChip
-                        key={`url-${url}-${index}`}
-                        label={url}
-                        itemtype="url"
-                        icon={<LinkIcon />}
-                        onDelete={() => handleRemoveUrl(urlItem)}
-                    />
-                );
-            })}
-            {Array.from(selectedMentions).map((mention, index) => (
+            {contextItems.map((item) => (
                 <StyledChip
-                    key={`mention-${mention}-${index}`}
-                    label={mention.replace(/-/g, ' ')}
-                    itemtype="mention"
-                    icon={<PersonIcon />}
-                    onDelete={() => handleRemoveMention(mention)}
+                    key={item.id}
+                    label={getChipLabel(item)}
+                    itemtype={item.type}
+                    icon={getIconByType(item.type)}
+                    onDelete={() => handleDelete(item)}
                 />
             ))}
         </DetectedItemsContainer>

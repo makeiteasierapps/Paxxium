@@ -4,14 +4,14 @@ export const useChatSettings = ({
     backendUrl,
     showSnackbar,
     setChatArray,
-    selectedChatId,
+    selectedChat,
     uid,
 }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const handleUpdateSettings = (newSettings) => {
         updateSettings({
-            chatId: selectedChatId,
+            chatId: selectedChat.chatId,
             uid: uid,
             ...newSettings,
         });
@@ -55,5 +55,10 @@ export const useChatSettings = ({
         }
     };
 
-    return { isSettingsOpen, setIsSettingsOpen, handleUpdateSettings, updateLocalSettings };
+    return {
+        isSettingsOpen,
+        setIsSettingsOpen,
+        handleUpdateSettings,
+        updateLocalSettings,
+    };
 };

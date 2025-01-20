@@ -1,83 +1,19 @@
-import { useState, useContext } from 'react';
-import { KbContext } from '../../contexts/KbContext';
+import { useState } from 'react';
 
 export const useInputDetection = ({
-    getSelectedChat,
+    onUrlDetected,
+    onKbSelected,
+    onKbRemoved,
     updateLocalSettings,
     handleUpdateSettings,
+    selectedChat,
+    kbArray,
+    chatArray,
 }) => {
     const [input, setInput] = useState('');
-    const [cursorPosition, setCursorPosition] = useState(0);
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
     const [mentionOptions, setMentionOptions] = useState([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
-    const [selectedMentions, setSelectedMentions] = useState(new Set());
-    const { kbArray } = useContext(KbContext);
-    const selectedChat = getSelectedChat();
-
-    const handleRemoveUrl = async (urlItem) => {
-        const existingUrls = selectedChat?.context_urls || [];
-        const filteredUrls = existingUrls.filter((existingUrl) =>
-            typeof existingUrl === 'string'
-                ? existingUrl !== urlItem
-                : existingUrl.url !== urlItem.url
-        );
-
-        // If urlItem is a string, update local state only
-        if (typeof urlItem === 'string') {
-            updateLocalSettings({
-                chatId: selectedChat.chatId,
-                uid: selectedChat.uid,
-                context_urls: filteredUrls,
-            });
-        } else {
-            // If urlItem is an object, update server state
-            await handleUpdateSettings({
-                chatId: selectedChat.chatId,
-                uid: selectedChat.uid,
-                context_urls: filteredUrls,
-            });
-        }
-    };
-
-    const handleRemoveMention = (mentionToRemove) => {
-        setSelectedMentions((prev) => {
-            const newMentions = new Set(prev);
-            newMentions.delete(mentionToRemove);
-            return newMentions;
-        });
-    };
-
-    const detectUrls = (text) => {
-        const words = text.split(' ');
-        const completedWords = text.endsWith(' ') ? words : words.slice(0, -1);
-
-        const urlRegex = new RegExp(
-            '(?:https?://|www\\.)?' + // Protocol or www
-                '(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+' + // Domain segments
-                '[a-zA-Z]{2,}' + // TLD
-                '(?::\\d{2,5})?' + // Optional port
-                '(?:/[^\\s]*)?', // Path and query params
-            'i'
-        );
-
-        return new Set(
-            completedWords
-                .filter((word) => {
-                    try {
-                        if (!urlRegex.test(word)) return false;
-                        const urlToTest = word.startsWith('http')
-                            ? word
-                            : `https://${word}`;
-                        new URL(urlToTest);
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                })
-                .map((url) => url.trim())
-        );
-    };
 
     const detectMentions = (text, cursorPosition) => {
         // Only look for @ symbols before the cursor position
@@ -112,35 +48,120 @@ export const useInputDetection = ({
         };
     };
 
+    const validateAndGetKb = (mentionText) => {
+        const normalizedMention = mentionText.toLowerCase();
+        const kb = kbArray.find(
+            (kb) => kb.name.toLowerCase() === normalizedMention
+        );
+
+        return kb
+            ? {
+                  type: 'kb',
+                  id: kb.id,
+                  name: kb.name,
+              }
+            : null;
+    };
+
     const handleMentionSelect = (option) => {
-        const mention = detectMentions(input, cursorPosition);
+        const mention = detectMentions(input, input.length);
         if (!mention) return;
 
         const beforeMention = input.slice(0, mention.startPosition);
         const afterMention = input.slice(mention.endPosition);
-
-        // Remove the mention text completely
         const newInput = `${beforeMention}${afterMention}`;
 
-        setSelectedMentions((prev) => new Set(prev).add(option));
+        const kb = validateAndGetKb(option);
+        if (kb) {
+            onKbSelected(kb);
+        }
+
         setInput(newInput);
         setMentionAnchorEl(null);
         setHighlightedIndex(-1);
     };
 
+    const handleRemoveMention = (mentionToRemove) => {
+        console.log('mentionToRemove', mentionToRemove);
+        onKbRemoved(mentionToRemove);
+    };
+
     const validateMentions = (text) => {
-        // Updated regex to capture everything between @ and space/end
         const mentionRegex = /@([^@]+?)(?=\s|$)/g;
         const matches = [...text.matchAll(mentionRegex)];
 
         return matches.map((match) => ({
             mention: match[1].trim(),
-            isValid:
-                selectedMentions.has(match[1].replace(/\s+/g, '-')) ||
-                kbArray.some(
-                    (kb) => kb.name.toLowerCase() === match[1].toLowerCase()
-                ),
+            isValid: kbArray.some(
+                (kb) => kb.name.toLowerCase() === match[1].toLowerCase()
+            ),
         }));
+    };
+
+    const detectUrls = (text) => {
+        const words = text.split(' ');
+        const completedWords = text.endsWith(' ') ? words : words.slice(0, -1);
+
+        const urlRegex = new RegExp(
+            '(?:https?://|www\\.)?' + // Protocol or www
+                '(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+' + // Domain segments
+                '[a-zA-Z]{2,}' + // TLD
+                '(?::\\d{2,5})?' + // Optional port
+                '(?:/[^\\s]*)?', // Path and query params
+            'i'
+        );
+
+        return new Set(
+            completedWords
+                .filter((word) => {
+                    try {
+                        if (!urlRegex.test(word)) return false;
+                        const urlToTest = word.startsWith('http')
+                            ? word
+                            : `https://${word}`;
+                        new URL(urlToTest);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                })
+                .map((url) => url.trim())
+        );
+    };
+
+    const handleRemoveUrl = async (urlItem) => {
+        const updatedContext = (selectedChat?.context || []).filter((item) => {
+            if (item.type !== 'url') return true;
+            return typeof urlItem === 'string'
+                ? item.content !== urlItem
+                : item.content !== urlItem.url;
+        });
+
+        // Update the chat in chatArray
+        const chatIndex = chatArray.findIndex(
+            (chat) => chat.chatId === selectedChat.chatId
+        );
+
+        if (chatIndex !== -1) {
+            chatArray[chatIndex] = {
+                ...chatArray[chatIndex],
+                context: updatedContext,
+            };
+        }
+
+        if (typeof urlItem === 'string') {
+            updateLocalSettings({
+                chatId: selectedChat.chatId,
+                uid: selectedChat.uid,
+                context: updatedContext,
+            });
+        } else {
+            await handleUpdateSettings({
+                chatId: selectedChat.chatId,
+                uid: selectedChat.uid,
+                context: updatedContext,
+            });
+        }
     };
 
     const handleInputChange = (event) => {
@@ -148,25 +169,31 @@ export const useInputDetection = ({
         const cursorPosition = event.target.selectionStart;
         setInput(newValue);
 
-        // Handle URLs - only process completed words (when space is typed)
+        // Handle URLs
         if (newValue.endsWith(' ')) {
             const newUrls = detectUrls(newValue);
             if (newUrls.size > 0) {
-                const existingUrls = new Set(selectedChat?.context_urls || []);
-                const updatedUrls = Array.from(
-                    new Set([...existingUrls, ...newUrls])
-                );
+                const updatedContext = [
+                    ...(selectedChat?.context || []).filter(
+                        (item) => item.type !== 'url'
+                    ),
+                    ...Array.from(newUrls).map((url) => ({
+                        type: 'url',
+                        source: url,
+                        content: '',
+                        id: Date.now(),
+                    })),
+                ];
 
-                // Only update local state
                 updateLocalSettings({
                     chatId: selectedChat.chatId,
                     uid: selectedChat.uid,
-                    context_urls: updatedUrls,
+                    context: updatedContext,
                 });
             }
         }
 
-        // Handle mention detection - continuous process
+        // Handle mentions
         const mention = detectMentions(newValue, cursorPosition);
         if (!mention) {
             setMentionAnchorEl(null);
@@ -174,7 +201,6 @@ export const useInputDetection = ({
             return;
         }
 
-        // Update mention suggestions
         setMentionAnchorEl(event.currentTarget);
         const filteredOptions = kbArray
             .filter((kb) =>
@@ -182,19 +208,16 @@ export const useInputDetection = ({
             )
             .map((kb) => kb.name);
 
-        // Check for exact match (case-insensitive)
         const exactMatch = filteredOptions.find(
             (option) =>
                 option.toLowerCase() === mention.searchTerm.toLowerCase()
         );
 
         if (exactMatch) {
-            // Auto-select the exact match
             handleMentionSelect(exactMatch);
             return;
         }
 
-        // Close menu if no matches found
         if (filteredOptions.length === 0) {
             setMentionAnchorEl(null);
         }
@@ -234,18 +257,16 @@ export const useInputDetection = ({
     return {
         input,
         setInput,
-        cursorPosition,
-        setCursorPosition,
         mentionAnchorEl,
         setMentionAnchorEl,
         mentionOptions,
         highlightedIndex,
         handleInputChange,
-        handleMentionSelect,
         handleMenuKeyDown,
-        validateMentions,
-        selectedMentions,
+        handleMentionSelect,
         handleRemoveUrl,
+        validateMentions,
+        detectMentions,
         handleRemoveMention,
     };
 };

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import {
     Popper,
     Paper,
@@ -8,6 +8,7 @@ import {
     ListItemButton,
     styled,
 } from '@mui/material';
+import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 
 // Style the highlighted item
 const StyledListItemButton = styled(ListItemButton, {
@@ -25,11 +26,11 @@ const MentionMenu = ({
     onSelect,
     highlightedIndex,
     className,
-    selectedMentions,
 }) => {
+    const { contextItems } = useContext(ContextManagerContext);
     // Filter out already selected mentions
     const filteredOptions = options.filter(
-        (option) => !selectedMentions.has(option)
+        (option) => !contextItems?.kbs?.some((kb) => kb.name === option)
     );
 
     // Scroll highlighted item into view

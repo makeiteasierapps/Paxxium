@@ -46,8 +46,7 @@ const SideDrawer = ({
     const [chatsOpen, setChatsOpen] = useState(false);
     const chatButtonRef = useRef(null);
     const navigate = useNavigate();
-    const { chatArray, selectedChatId, setSelectedChatId } =
-        useContext(ChatContext);
+    const { chatArray, selectedChat, setSelectedChatId } = useContext(ChatContext);
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
 
     const handleLogout = async () => {
@@ -82,7 +81,7 @@ const SideDrawer = ({
                 onClick={() => {
                     setSelectedChatId(chat.chatId);
                 }}
-                selected={selectedChatId === chat.chatId}
+                selected={selectedChat.chatId === chat.chatId}
             >
                 {chat.chat_name}
             </MenuItem>

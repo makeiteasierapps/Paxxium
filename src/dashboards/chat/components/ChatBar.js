@@ -21,27 +21,15 @@ const ChatBar = () => {
         clearChat,
         deleteChat,
         createChat,
-        selectedChatId,
-        getSelectedChat,
         isSettingsOpen,
         setIsSettingsOpen,
+        updateSelectedChat,
+        selectedChat,
     } = useContext(ChatContext);
+
     const [deleteClicked, setDeleteClicked] = useState(false);
-    const [agentModel, setAgentModel] = useState();
-    const [systemMessage, setSystemMessage] = useState();
-    const [useProfileData, setUseProfileData] = useState();
-    const [chatName, setChatName] = useState();
 
     const theme = useTheme();
-    useEffect(() => {
-        if (selectedChatId) {
-            const selectedChat = getSelectedChat();
-            setAgentModel(selectedChat.agent_model);
-            setSystemMessage(selectedChat.system_message);
-            setUseProfileData(selectedChat.use_profile_data);
-            setChatName(selectedChat.chat_name);
-        }
-    }, [getSelectedChat, selectedChatId]);
 
     const handleSubmit = () => {
         createChat();
@@ -49,7 +37,7 @@ const ChatBar = () => {
 
     const handleDeleteClick = () => {
         if (deleteClicked) {
-            deleteChat(selectedChatId);
+            deleteChat(selectedChat.chatId);
         } else {
             setDeleteClicked(true);
             setTimeout(() => {
@@ -62,17 +50,15 @@ const ChatBar = () => {
         <Bar>
             {!isSettingsOpen && (
                 <Box display="flex" justifyContent="flex-start">
-                    <Typography variant="h6">{chatName}</Typography>
+                    <Typography variant="h6">
+                        {selectedChat?.chat_name}
+                    </Typography>
                 </Box>
             )}
             {isSettingsOpen && (
                 <ChatSettings
-                    agentModel={agentModel}
-                    setAgentModel={setAgentModel}
-                    systemMessage={systemMessage}
-                    setSystemMessage={setSystemMessage}
-                    chatName={chatName}
-                    setChatName={setChatName}
+                    chatSettings={selectedChat}
+                    setChatSettings={updateSelectedChat}
                 />
             )}
             <Box display="flex" justifyContent="flex-end">
@@ -99,11 +85,16 @@ const ChatBar = () => {
                         <StyledIconButton
                             disableRipple
                             aria-label="AI Insight"
-                            onClick={() => setUseProfileData(!useProfileData)}
+                            onClick={() =>
+                                updateSelectedChat({
+                                    use_profile_data:
+                                        !selectedChat?.use_profile_data,
+                                })
+                            }
                         >
                             <TipsAndUpdatesIcon
                                 sx={{
-                                    color: useProfileData
+                                    color: selectedChat?.use_profile_data
                                         ? theme.palette.text.secondary
                                         : 'inherit',
                                 }}
@@ -130,7 +121,7 @@ const ChatBar = () => {
                         <StyledIconButton
                             disableRipple
                             aria-label="clear_chat"
-                            onClick={() => clearChat(selectedChatId)}
+                            onClick={() => clearChat(selectedChat.chatId)}
                         >
                             <CommentsDisabledIcon />
                         </StyledIconButton>

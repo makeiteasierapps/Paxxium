@@ -1,21 +1,16 @@
-import { useCallback, useEffect, useRef, useContext } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
-import { KbContext } from '../../contexts/KbContext';
 export const useMessageManager = ({
     backendUrl,
     uid,
     showSnackbar,
-    getSelectedChat,
     setChatArray,
     setMessages,
-    chatArray,
     messages,
     socket,
-    validateMentions,
+    selectedChat,
 }) => {
     const streamDestinationId = useRef(null);
-    const { kbArray } = useContext(KbContext);
-
     const updateChatArrayAndMessages = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
             setMessages((prevMessages) => ({
@@ -82,25 +77,7 @@ export const useMessageManager = ({
     };
 
     const sendMessage = async (input, image = null) => {
-        let kbIds = [];
         let imageBlob = null;
-
-        if (kbArray.length > 0) {
-            // Validate all mentions in the message
-            const mentions = validateMentions(input);
-
-            // Get all valid mentions and their corresponding KB IDs
-            const validMentions = mentions.filter((m) => m.isValid);
-            kbIds = validMentions
-                .map((mention) => {
-                    console.log(mention);
-                    const kb = kbArray.find(
-                        (kb) => kb.name === mention.mention
-                    );
-                    return kb?.id;
-                })
-                .filter((id) => id != null);
-        }
 
         if (image) {
             try {
@@ -123,7 +100,6 @@ export const useMessageManager = ({
             image_path: imageBlob,
         };
 
-        const selectedChat = getSelectedChat();
         const updatedMessages = await addMessage(
             selectedChat.chatId,
             userMessage,
@@ -139,7 +115,6 @@ export const useMessageManager = ({
                     imageBlob,
                     fileName: imageBlob ? imageBlob.name : null,
                     selectedChat: chatWithUpdatedMessages,
-                    kbIds,
                 });
             }
         } catch (error) {

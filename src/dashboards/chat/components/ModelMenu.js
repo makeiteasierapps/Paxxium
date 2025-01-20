@@ -1,7 +1,12 @@
 import React from 'react';
 import { Menu, MenuItem } from '@mui/material';
 
-const ModelMenu = ({ anchorEl, setAnchorEl, setAgentModel, handleUpdateSettings }) => {
+const ModelMenu = ({
+    anchorEl,
+    setAnchorEl,
+    updateSelectedChat,
+    handleUpdateSettings,
+}) => {
     const handleClose = (menu) => () => {
         setAnchorEl((prevState) => ({ ...prevState, [menu]: null }));
     };
@@ -15,7 +20,7 @@ const ModelMenu = ({ anchorEl, setAnchorEl, setAgentModel, handleUpdateSettings 
             onClick={(event) => {
                 const value = event.target.getAttribute('value');
                 if (value) {
-                    setAgentModel(value);
+                    updateSelectedChat({ agent_model: value });
                     handleUpdateSettings({ agent_model: value });
                 }
             }}

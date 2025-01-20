@@ -1,55 +1,27 @@
-import { useContext, useState } from 'react';
-import { Box } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
+import { useContext } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
-import {
-    InputArea,
-    ImageOverlay,
-    StyledBox,
-    StyledInputTextField,
-    StyledInputLabel,
-} from '../chatStyledComponents';
+import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
+import { InputArea, StyledInputTextField } from '../chatStyledComponents';
 import DetectedItems from './DetectedItems';
-import { useDropzone } from 'react-dropzone';
 import MentionMenu from './MentionMenu';
-import { useImageHandling } from '../../../hooks/chat/useImageHandling';
 import EndAdornment from './EndAdornment';
 
 const MessageInput = () => {
+    const { sendMessage, selectedChat } = useContext(ChatContext);
+
     const {
         input,
         setInput,
-        selectedMentions,
         mentionAnchorEl,
         setMentionAnchorEl,
         mentionOptions,
+        highlightedIndex,
+        handleMenuKeyDown,
         handleInputChange,
         handleMentionSelect,
-        sendMessage,
-        highlightedIndex,
-        setCursorPosition,
-        handleMenuKeyDown,
-    } = useContext(ChatContext);
+    } = useContext(ContextManagerContext);
 
-    const {
-        image,
-        imagePreviewUrl,
-        showOverlay,
-        handleFileInput,
-        onDrop,
-        removeImage,
-        setShowOverlay,
-    } = useImageHandling();
 
-    const [isFocused, setIsFocused] = useState(false);
-
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop,
-        noClick: true,
-        accept: {
-            'image/*': ['.png', '.gif', '.jpeg', '.jpg'],
-        },
-    });
 
     return (
         <InputArea>
@@ -60,19 +32,13 @@ const MessageInput = () => {
                 value={input}
                 placeholder="Let's gooooo!"
                 onChange={handleInputChange}
-                onFocus={() => setIsFocused(true)}
                 onBlur={(e) => {
                     // Give menu click events time to fire before closing
                     setTimeout(() => {
                         if (!document.activeElement?.closest('.mention-menu')) {
-                            setIsFocused(false);
                             setMentionAnchorEl(null);
                         }
                     }, 0);
-                }}
-                // Add cursor tracking
-                onSelect={(e) => {
-                    setCursorPosition(e.target.selectionStart);
                 }}
                 onKeyDown={(event) => {
                     // Handle mention menu navigation when it's open
@@ -105,7 +71,7 @@ const MessageInput = () => {
                         !mentionAnchorEl
                     ) {
                         event.preventDefault();
-                        sendMessage(input);
+                        sendMessage(input, selectedChat);
                         setInput('');
                     }
                 }}
@@ -125,7 +91,6 @@ const MessageInput = () => {
                 onSelect={handleMentionSelect}
                 className="mention-menu"
                 highlightedIndex={highlightedIndex}
-                selectedMentions={selectedMentions}
             />
         </InputArea>
     );

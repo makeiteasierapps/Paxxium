@@ -1,5 +1,4 @@
 import { styled } from '@mui/system';
-import { forwardRef } from 'react';
 
 import {
     Box,
@@ -8,7 +7,6 @@ import {
     Button,
     IconButton,
     TextField,
-    InputLabel,
 } from '@mui/material';
 import Markdown from 'react-markdown';
 
@@ -116,8 +114,9 @@ export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
     width: '100%',
 }));
 
-// Container components
-export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
+export const ChatContainerStyled = styled(Box, {
+    shouldForwardProp: (prop) => !['isDragActive', 'sx'].includes(prop),
+})(({ theme, isDragActive, sx }) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -128,6 +127,25 @@ export const ChatContainerStyled = styled(Box)(({ theme, sx }) => ({
     borderRadius: '10px',
     overflow: 'hidden',
     whiteSpace: 'pre-line',
+    position: 'relative',
+
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor:
+            theme.palette.mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.1)',
+        pointerEvents: 'none',
+        opacity: isDragActive ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+        zIndex: 1,
+    },
+
     ...(sx || {}),
 }));
 
@@ -225,19 +243,5 @@ export const StyledInputTextField = styled(TextField)(({ theme }) => ({
         '&.Mui-focused fieldset': {
             borderColor: theme.palette.secondary.main,
         },
-    },
-}));
-
-export const ImageOverlay = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    display: 'flex',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: theme.palette.common.white,
-    cursor: 'pointer',
-    visibility: 'hidden',
-    '&:hover': {
-        visibility: 'visible',
     },
 }));

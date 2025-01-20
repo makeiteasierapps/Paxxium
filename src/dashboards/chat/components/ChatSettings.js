@@ -23,23 +23,16 @@ const ResizableTextField = styled(TextField)({
     },
 });
 
-const ChatSettings = ({
-    setChatName,
-    chatName,
-    setAgentModel,
-    agentModel,
-    setSystemMessage,
-    systemMessage,
-}) => {
-    const { selectedChatId, handleUpdateSettings, getSelectedChat } = useContext(ChatContext);
-
-    const selectedChat = getSelectedChat(selectedChatId);
-
+const ChatSettings = () => {
+    const { handleUpdateSettings, updateSelectedChat, selectedChat } =
+        useContext(ChatContext);
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEdit = (event) => {
         if (isEditing) {
-            setChatName(event.target.value);
+            updateSelectedChat({
+                chat_name: event.target.value,
+            });
         }
     };
 
@@ -74,16 +67,16 @@ const ChatSettings = ({
                         sx={{ width: '48%' }}
                         onClick={handleClick('model')}
                     >
-                        {agentModel ? agentModel : 'Select Model'}
+                        {selectedChat?.agent_model
+                            ? selectedChat.agent_model
+                            : 'Select Model'}
                     </SettingsMenuButton>
                     <ModelMenu
                         anchorEl={anchorEl}
                         setAnchorEl={setAnchorEl}
-                        setAgentModel={setAgentModel}
+                        updateSelectedChat={updateSelectedChat}
                         handleUpdateSettings={handleUpdateSettings}
                     />
-
-                    {/* Chat Name */}
                     <SettingsMenuButton
                         id="name"
                         onClick={() => setIsEditing(true)}
@@ -92,18 +85,18 @@ const ChatSettings = ({
                         {isEditing ? (
                             <InvisibleInput
                                 autoFocus
-                                value={chatName}
+                                value={selectedChat?.chat_name}
                                 onChange={handleEdit}
                                 onBlur={() => {
                                     setIsEditing(false);
                                     handleUpdateSettings({
-                                        chat_name: chatName,
+                                        chat_name: selectedChat.chat_name,
                                     });
                                 }}
                                 onKeyDown={handleKeyPress}
                                 fullWidth
                             />
-                        ) : selectedChat.chat_name ? (
+                        ) : selectedChat?.chat_name ? (
                             selectedChat.chat_name
                         ) : (
                             'Chat Name'
@@ -118,13 +111,15 @@ const ChatSettings = ({
                         multiline
                         fullWidth
                         variant="outlined"
-                        value={systemMessage}
+                        value={selectedChat?.system_message}
                         onChange={(event) =>
-                            setSystemMessage(event.target.value)
+                            updateSelectedChat({
+                                system_message: event.target.value,
+                            })
                         }
                         onBlur={() =>
                             handleUpdateSettings({
-                                system_message: systemMessage,
+                                system_message: selectedChat.system_message,
                             })
                         }
                         InputProps={{

@@ -108,6 +108,7 @@ export const useChatManager = ({
             if (!response.ok) throw new Error('Failed to create chat');
 
             const data = await response.json();
+            console.log('data', data);
             if (!response.ok) {
                 const errorBody = await response.text();
                 throw new Error(
