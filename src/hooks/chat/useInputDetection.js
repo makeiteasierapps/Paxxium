@@ -17,23 +17,21 @@ export const useInputDetection = ({
 
     const handleRemoveUrl = async (urlItem) => {
         const existingUrls = selectedChat?.context_urls || [];
-        const isTemporaryUrl =
-            existingUrls.length > 0 && typeof existingUrls[0] === 'string';
+        const filteredUrls = existingUrls.filter((existingUrl) =>
+            typeof existingUrl === 'string'
+                ? existingUrl !== urlItem
+                : existingUrl.url !== urlItem.url
+        );
 
-        const filteredUrls = existingUrls.filter((existingUrl) => {
-            if (isTemporaryUrl) {
-                return existingUrl !== urlItem;
-            }
-            return existingUrl.url !== urlItem.url;
-        });
-
-        if (isTemporaryUrl) {
+        // If urlItem is a string, update local state only
+        if (typeof urlItem === 'string') {
             updateLocalSettings({
                 chatId: selectedChat.chatId,
                 uid: selectedChat.uid,
                 context_urls: filteredUrls,
             });
         } else {
+            // If urlItem is an object, update server state
             await handleUpdateSettings({
                 chatId: selectedChat.chatId,
                 uid: selectedChat.uid,
