@@ -70,34 +70,13 @@ export const useMessageManager = ({
         [setMessages, updateChatArrayAndMessages]
     );
 
-    // Used to get the messages for a specific chat
-    // Sent in as chat history
-    const getMessages = (chatId) => {
-        return messages[chatId] || [];
-    };
-
-    const sendMessage = async (input, image = null) => {
-        let imageBlob = null;
-
-        if (image) {
-            try {
-                imageBlob = image;
-            } catch (error) {
-                console.error(error);
-                showSnackbar(
-                    `Image processing error: ${error.message}`,
-                    'error'
-                );
-                return;
-            }
-        }
-
+    const sendMessage = async (input) => {
+        
         const userMessage = {
             content: input,
             message_from: 'user',
             created_at: new Date().toISOString(),
             type: 'database',
-            image_path: imageBlob,
         };
 
         const updatedMessages = await addMessage(
@@ -112,8 +91,6 @@ export const useMessageManager = ({
         try {
             if (socket) {
                 socket.emit('chat', {
-                    imageBlob,
-                    fileName: imageBlob ? imageBlob.name : null,
                     selectedChat: chatWithUpdatedMessages,
                 });
             }
@@ -232,7 +209,6 @@ export const useMessageManager = ({
 
     return {
         addMessage,
-        getMessages,
         sendMessage,
         clearChat,
     };
