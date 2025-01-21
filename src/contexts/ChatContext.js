@@ -32,8 +32,6 @@ export const ChatProvider = ({ children }) => {
         [chatArray, selectedChatId]
     );
 
-    console.log('selectedChat', selectedChat);
-
     const updateSelectedChat = useCallback(
         (updates) => {
             setChatArray((prevChats) =>

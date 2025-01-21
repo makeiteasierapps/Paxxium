@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useImageHandling } from './useImageHandling';
 
-export const useContextManager = ({ selectedChat }) => {
+export const useContextManager = ({ selectedChat, handleUpdateSettings }) => {
     const { handleFileInput, onDrop } = useImageHandling();
 
     const addContextItem = (type, item) => {
@@ -11,7 +11,8 @@ export const useContextManager = ({ selectedChat }) => {
             case 'url':
                 newContext.push({
                     type: 'url',
-                    content: item,
+                    source: item,
+                    content: '',
                     id: Date.now(),
                 });
                 break;
@@ -40,14 +41,19 @@ export const useContextManager = ({ selectedChat }) => {
                 return true;
         }
 
-        selectedChat.context = newContext;
+        handleUpdateSettings({
+            chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
+            context: newContext,
+        });
     };
 
     const removeContextItem = (type, itemToRemove) => {
+        console.log('itemToRemove', itemToRemove);
         const newContext = (selectedChat.context || []).filter((item) => {
             switch (type) {
                 case 'url':
-                    return item.source !== itemToRemove;
+                    return item.source !== itemToRemove.source;
                 case 'kb':
                     return item.id !== itemToRemove.id;
                 case 'file':
@@ -57,7 +63,11 @@ export const useContextManager = ({ selectedChat }) => {
             }
         });
 
-        selectedChat.context = newContext;
+        handleUpdateSettings({
+            chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
+            context: newContext,
+        });
     };
 
     const handleFileDrop = (acceptedFiles) => {

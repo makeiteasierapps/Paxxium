@@ -1,15 +1,6 @@
 import { useState } from 'react';
 
-export const useInputDetection = ({
-    onUrlDetected,
-    onKbSelected,
-    onKbRemoved,
-    updateLocalSettings,
-    handleUpdateSettings,
-    selectedChat,
-    kbArray,
-    chatArray,
-}) => {
+export const useInputDetection = ({ onUrlDetected, onKbSelected, kbArray }) => {
     const [input, setInput] = useState('');
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
     const [mentionOptions, setMentionOptions] = useState([]);
@@ -81,11 +72,6 @@ export const useInputDetection = ({
         setHighlightedIndex(-1);
     };
 
-    const handleRemoveMention = (mentionToRemove) => {
-        console.log('mentionToRemove', mentionToRemove);
-        onKbRemoved(mentionToRemove);
-    };
-
     const validateMentions = (text) => {
         const mentionRegex = /@([^@]+?)(?=\s|$)/g;
         const matches = [...text.matchAll(mentionRegex)];
@@ -129,41 +115,6 @@ export const useInputDetection = ({
         );
     };
 
-    const handleRemoveUrl = async (urlItem) => {
-        const updatedContext = (selectedChat?.context || []).filter((item) => {
-            if (item.type !== 'url') return true;
-            return typeof urlItem === 'string'
-                ? item.content !== urlItem
-                : item.content !== urlItem.url;
-        });
-
-        // Update the chat in chatArray
-        const chatIndex = chatArray.findIndex(
-            (chat) => chat.chatId === selectedChat.chatId
-        );
-
-        if (chatIndex !== -1) {
-            chatArray[chatIndex] = {
-                ...chatArray[chatIndex],
-                context: updatedContext,
-            };
-        }
-
-        if (typeof urlItem === 'string') {
-            updateLocalSettings({
-                chatId: selectedChat.chatId,
-                uid: selectedChat.uid,
-                context: updatedContext,
-            });
-        } else {
-            await handleUpdateSettings({
-                chatId: selectedChat.chatId,
-                uid: selectedChat.uid,
-                context: updatedContext,
-            });
-        }
-    };
-
     const handleInputChange = (event) => {
         const newValue = event.target.value;
         const cursorPosition = event.target.selectionStart;
@@ -173,22 +124,8 @@ export const useInputDetection = ({
         if (newValue.endsWith(' ')) {
             const newUrls = detectUrls(newValue);
             if (newUrls.size > 0) {
-                const updatedContext = [
-                    ...(selectedChat?.context || []).filter(
-                        (item) => item.type !== 'url'
-                    ),
-                    ...Array.from(newUrls).map((url) => ({
-                        type: 'url',
-                        source: url,
-                        content: '',
-                        id: Date.now(),
-                    })),
-                ];
-
-                updateLocalSettings({
-                    chatId: selectedChat.chatId,
-                    uid: selectedChat.uid,
-                    context: updatedContext,
+                Array.from(newUrls).forEach((url) => {
+                    onUrlDetected(url);
                 });
             }
         }
@@ -264,9 +201,7 @@ export const useInputDetection = ({
         handleInputChange,
         handleMenuKeyDown,
         handleMentionSelect,
-        handleRemoveUrl,
         validateMentions,
         detectMentions,
-        handleRemoveMention,
     };
 };

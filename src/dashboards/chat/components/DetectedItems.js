@@ -29,9 +29,6 @@ const StyledChip = styled(Chip, {
 const DetectedItems = () => {
     const { removeContextItem } = useContext(ContextManagerContext);
     const { selectedChat } = useContext(ChatContext);
-    const contextItems = selectedChat?.context || [];
-    console.log('contextItems', contextItems);
-
     const getIconByType = (type) => {
         switch (type) {
             case 'url':
@@ -58,12 +55,12 @@ const DetectedItems = () => {
     };
 
     const handleDelete = (item) => {
-        removeContextItem(item.type, item.type === 'url' ? item.source : item);
+        removeContextItem(item.type, item);
     };
 
     return (
         <DetectedItemsContainer>
-            {contextItems.map((item) => (
+            {selectedChat?.context.map((item) => (
                 <StyledChip
                     key={item.id}
                     label={getChipLabel(item)}

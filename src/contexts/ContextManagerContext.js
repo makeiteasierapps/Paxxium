@@ -7,16 +7,17 @@ import { KbContext } from './KbContext';
 export const ContextManagerContext = createContext();
 
 export const ContextManagerProvider = ({ children }) => {
-    const { handleUpdateSettings, updateLocalSettings, selectedChat, chatArray } =
+    const { handleUpdateSettings, selectedChat, chatArray } =
         useContext(ChatContext);
     const { kbArray } = useContext(KbContext);
-    const contextManager = useContextManager({ selectedChat });
+    const contextManager = useContextManager({
+        selectedChat,
+        handleUpdateSettings,
+    });
 
     const inputDetection = useInputDetection({
         onUrlDetected: (url) => contextManager.addContextItem('url', url),
         onKbSelected: (kb) => contextManager.addContextItem('kb', kb),
-        onKbRemoved: (kb) => contextManager.removeContextItem('kb', kb),
-        updateLocalSettings,
         handleUpdateSettings,
         selectedChat,
         kbArray,
