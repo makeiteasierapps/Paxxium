@@ -43,6 +43,7 @@ const DetectedItems = () => {
     };
 
     const getChipLabel = (item) => {
+        console.log('item', item);
         switch (item.type) {
             case 'url':
                 return item.source;

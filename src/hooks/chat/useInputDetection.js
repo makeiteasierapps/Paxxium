@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export const useInputDetection = ({ onUrlDetected, onKbSelected, kbArray }) => {
+export const useInputDetection = ({ kbArray, addContextItem }) => {
     const [input, setInput] = useState('');
     const [mentionAnchorEl, setMentionAnchorEl] = useState(null);
     const [mentionOptions, setMentionOptions] = useState([]);
@@ -64,24 +64,12 @@ export const useInputDetection = ({ onUrlDetected, onKbSelected, kbArray }) => {
 
         const kb = validateAndGetKb(option);
         if (kb) {
-            onKbSelected(kb);
+            addContextItem('kb', kb);
         }
 
         setInput(newInput);
         setMentionAnchorEl(null);
         setHighlightedIndex(-1);
-    };
-
-    const validateMentions = (text) => {
-        const mentionRegex = /@([^@]+?)(?=\s|$)/g;
-        const matches = [...text.matchAll(mentionRegex)];
-
-        return matches.map((match) => ({
-            mention: match[1].trim(),
-            isValid: kbArray.some(
-                (kb) => kb.name.toLowerCase() === match[1].toLowerCase()
-            ),
-        }));
     };
 
     const detectUrls = (text) => {
@@ -125,7 +113,7 @@ export const useInputDetection = ({ onUrlDetected, onKbSelected, kbArray }) => {
             const newUrls = detectUrls(newValue);
             if (newUrls.size > 0) {
                 Array.from(newUrls).forEach((url) => {
-                    onUrlDetected(url);
+                    addContextItem('url', url);
                 });
             }
         }
@@ -201,7 +189,6 @@ export const useInputDetection = ({ onUrlDetected, onKbSelected, kbArray }) => {
         handleInputChange,
         handleMenuKeyDown,
         handleMentionSelect,
-        validateMentions,
         detectMentions,
     };
 };

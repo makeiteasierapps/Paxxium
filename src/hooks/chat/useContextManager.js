@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { useImageHandling } from './useImageHandling';
-
 export const useContextManager = ({ selectedChat, handleUpdateSettings }) => {
-    const { handleFileInput, onDrop } = useImageHandling();
-
     const addContextItem = (type, item) => {
         const newContext = [...(selectedChat.context || [])];
 
@@ -49,7 +44,6 @@ export const useContextManager = ({ selectedChat, handleUpdateSettings }) => {
     };
 
     const removeContextItem = (type, itemToRemove) => {
-        console.log('itemToRemove', itemToRemove);
         const newContext = (selectedChat.context || []).filter((item) => {
             switch (type) {
                 case 'url':
@@ -70,18 +64,8 @@ export const useContextManager = ({ selectedChat, handleUpdateSettings }) => {
         });
     };
 
-    const handleFileDrop = (acceptedFiles) => {
-        const file = acceptedFiles[0];
-        if (file) {
-            onDrop(acceptedFiles);
-            addContextItem('file', file);
-        }
-    };
-
     return {
         addContextItem,
         removeContextItem,
-        handleFileDrop,
-        onDrop,
     };
 };

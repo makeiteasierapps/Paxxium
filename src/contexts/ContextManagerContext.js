@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import { ChatContext } from './ChatContext';
 import { useInputDetection } from '../hooks/chat/useInputDetection';
 import { useContextManager } from '../hooks/chat/useContextManager';
+import { useImageHandling } from '../hooks/chat/useImageHandling';
 import { KbContext } from './KbContext';
 
 export const ContextManagerContext = createContext();
@@ -10,14 +11,18 @@ export const ContextManagerProvider = ({ children }) => {
     const { handleUpdateSettings, selectedChat, chatArray } =
         useContext(ChatContext);
     const { kbArray } = useContext(KbContext);
+
     const contextManager = useContextManager({
         selectedChat,
         handleUpdateSettings,
     });
 
+    const imageHandling = useImageHandling({
+        addContextItem: contextManager.addContextItem,
+    });
+
     const inputDetection = useInputDetection({
-        onUrlDetected: (url) => contextManager.addContextItem('url', url),
-        onKbSelected: (kb) => contextManager.addContextItem('kb', kb),
+        addContextItem: contextManager.addContextItem,
         handleUpdateSettings,
         selectedChat,
         kbArray,
@@ -29,6 +34,7 @@ export const ContextManagerProvider = ({ children }) => {
             value={{
                 ...inputDetection,
                 ...contextManager,
+                ...imageHandling,
             }}
         >
             {children}

@@ -1,29 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
-export const useImageHandling = () => {
-    const [image, setImage] = useState(null);
-
-    useEffect(() => {
-        if (image) {
-            const url = URL.createObjectURL(image);
-            return () => URL.revokeObjectURL(url);
-        }
-    }, [image]);
-
-    const handleFileInput = (event) => {
-        const file = event.target.files[0];
-        if (file && isValidFile(file)) {
-            setImage(file);
-        }
-    };
-
-    const onDrop = useCallback((acceptedFiles) => {
-        const file = acceptedFiles[0];
-        if (file && isValidFile(file)) {
-            setImage(file);
-        }
-    }, []);
-
+export const useImageHandling = ({ addContextItem }) => {
     const isValidFile = (file) => {
         const validTypes = [
             'image/jpeg',
@@ -46,14 +23,33 @@ export const useImageHandling = () => {
         return true;
     };
 
-    const removeImage = () => {
-        setImage(null);
-    };
+    const handleFile = useCallback(
+        (file) => {
+            if (file && isValidFile(file)) {
+                addContextItem('file', file);
+            }
+        },
+        [addContextItem]
+    );
+
+    const onDrop = useCallback(
+        (acceptedFiles) => {
+            handleFile(acceptedFiles[0]);
+        },
+        [handleFile]
+    );
+
+    // Can be used with event.target.files[0] from input element
+    const onFileSelect = useCallback(
+        (event) => {
+            console.log(event.target.files);
+            handleFile(event.target.files[0]);
+        },
+        [handleFile]
+    );
 
     return {
-        image,
-        handleFileInput,
         onDrop,
-        removeImage,
+        onFileSelect,
     };
 };

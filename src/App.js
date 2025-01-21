@@ -23,6 +23,7 @@ import { ProfileProvider } from './contexts/ProfileContext';
 import { SocketProvider } from './contexts/SocketProvider';
 import { MainProvider } from './contexts/MainContext';
 import { SystemProvider } from './contexts/SystemContext';
+import { ContextManagerProvider } from './contexts/ContextManagerContext';
 import MainContent from './dashboards/main/MainContent';
 import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
@@ -97,125 +98,127 @@ const AuthenticatedApp = () => {
                 <>
                     <MainProvider>
                         <ChatProvider>
-                            <SideDrawer
-                                mobileOpen={mobileOpen}
-                                setMobileOpen={setMobileOpen}
-                                drawerWidth={drawerWidth}
-                                expandedDrawerWidth={expandedDrawerWidth}
-                            />
-                            <MainContent
-                                drawerWidth={drawerWidth}
-                                expandedDrawerWidth={expandedDrawerWidth}
-                            >
-                                <Routes>
-                                    {['/', '/home'].map((path, i) => (
+                            <ContextManagerProvider>
+                                <SideDrawer
+                                    mobileOpen={mobileOpen}
+                                    setMobileOpen={setMobileOpen}
+                                    drawerWidth={drawerWidth}
+                                    expandedDrawerWidth={expandedDrawerWidth}
+                                />
+                                <MainContent
+                                    drawerWidth={drawerWidth}
+                                    expandedDrawerWidth={expandedDrawerWidth}
+                                >
+                                    <Routes>
+                                        {['/', '/home'].map((path, i) => (
+                                            <Route
+                                                path={path}
+                                                element={
+                                                    <>
+                                                        <Header
+                                                            setMobileOpen={
+                                                                setMobileOpen
+                                                            }
+                                                            title="Home"
+                                                        />
+                                                        <HomeDash />
+                                                    </>
+                                                }
+                                                key={i}
+                                            />
+                                        ))}
                                         <Route
-                                            path={path}
+                                            path="/chat"
                                             element={
                                                 <>
                                                     <Header
                                                         setMobileOpen={
                                                             setMobileOpen
                                                         }
-                                                        title="Home"
                                                     />
-                                                    <HomeDash />
+                                                    <ChatDash />
                                                 </>
                                             }
-                                            key={i}
                                         />
-                                    ))}
-                                    <Route
-                                        path="/chat"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                />
-                                                <ChatDash />
-                                            </>
-                                        }
-                                    />
-                                    <Route
-                                        path="/dalle"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                    title="ImageGen"
-                                                />
-                                                <ImageDash />
-                                            </>
-                                        }
-                                    />
-                                    <Route
-                                        path="/insight"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                    title="InsightHub"
-                                                />
-                                                <InsightDash />
-                                            </>
-                                        }
-                                    />
-                                    <Route
-                                        path="/kb"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                    title="KnowledgeBase"
-                                                />
-                                                <KbDash />
-                                            </>
-                                        }
-                                    />
-                                    <Route
-                                        path="/account"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                    title="Account"
-                                                />
-                                                <SettingsDash />
-                                            </>
-                                        }
-                                    />
-                                    <Route
-                                        path="/settings/system"
-                                        element={
-                                            <>
-                                                <Header
-                                                    setMobileOpen={
-                                                        setMobileOpen
-                                                    }
-                                                    title="SystemDash"
-                                                    tools={
-                                                        <>
-                                                            <NewFileMenu />
-                                                            <SystemHealthCheck />
-                                                        </>
-                                                    }
-                                                />
-                                                <SystemSettingsDash />
-                                            </>
-                                        }
-                                    />
-                                </Routes>
-                            </MainContent>
+                                        <Route
+                                            path="/dalle"
+                                            element={
+                                                <>
+                                                    <Header
+                                                        setMobileOpen={
+                                                            setMobileOpen
+                                                        }
+                                                        title="ImageGen"
+                                                    />
+                                                    <ImageDash />
+                                                </>
+                                            }
+                                        />
+                                        <Route
+                                            path="/insight"
+                                            element={
+                                                <>
+                                                    <Header
+                                                        setMobileOpen={
+                                                            setMobileOpen
+                                                        }
+                                                        title="InsightHub"
+                                                    />
+                                                    <InsightDash />
+                                                </>
+                                            }
+                                        />
+                                        <Route
+                                            path="/kb"
+                                            element={
+                                                <>
+                                                    <Header
+                                                        setMobileOpen={
+                                                            setMobileOpen
+                                                        }
+                                                        title="KnowledgeBase"
+                                                    />
+                                                    <KbDash />
+                                                </>
+                                            }
+                                        />
+                                        <Route
+                                            path="/account"
+                                            element={
+                                                <>
+                                                    <Header
+                                                        setMobileOpen={
+                                                            setMobileOpen
+                                                        }
+                                                        title="Account"
+                                                    />
+                                                    <SettingsDash />
+                                                </>
+                                            }
+                                        />
+                                        <Route
+                                            path="/settings/system"
+                                            element={
+                                                <>
+                                                    <Header
+                                                        setMobileOpen={
+                                                            setMobileOpen
+                                                        }
+                                                        title="SystemDash"
+                                                        tools={
+                                                            <>
+                                                                <NewFileMenu />
+                                                                <SystemHealthCheck />
+                                                            </>
+                                                        }
+                                                    />
+                                                    <SystemSettingsDash />
+                                                </>
+                                            }
+                                        />
+                                    </Routes>
+                                </MainContent>
+                            </ContextManagerProvider>
                         </ChatProvider>
                     </MainProvider>
                 </>

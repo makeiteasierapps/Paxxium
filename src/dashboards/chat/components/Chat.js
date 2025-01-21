@@ -1,14 +1,13 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, useContext } from 'react';
 import AgentMessage from './AgentMessage';
 import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
-import { ContextManagerProvider } from '../../../contexts/ContextManagerContext';
+import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 import { useDropzone } from 'react-dropzone';
-import { useImageHandling } from '../../../hooks/chat/useImageHandling';
 
 const Chat = ({ messages, sx }) => {
-    const { onDrop } = useImageHandling();
+    const { onDrop } = useContext(ContextManagerContext);
     const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
@@ -33,31 +32,29 @@ const Chat = ({ messages, sx }) => {
     };
 
     return (
-        <ContextManagerProvider>
-            <ChatContainerStyled
-                id="chat-container"
-                sx={sx}
-                {...getRootProps()}
-                isDragActive={isDragActive}
-            >
-                <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
-                    {messages?.map((message, index) => {
-                        const MessageComponent =
-                            message.message_from === 'user'
-                                ? UserMessage
-                                : AgentMessage;
-                        return (
-                            <MessageComponent
-                                className="message-item"
-                                key={`${message.message_from}-${index}`}
-                                message={message}
-                            />
-                        );
-                    })}
-                </MessageArea>
-                <MessageInput />
-            </ChatContainerStyled>
-        </ContextManagerProvider>
+        <ChatContainerStyled
+            id="chat-container"
+            sx={sx}
+            {...getRootProps()}
+            isDragActive={isDragActive}
+        >
+            <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
+                {messages?.map((message, index) => {
+                    const MessageComponent =
+                        message.message_from === 'user'
+                            ? UserMessage
+                            : AgentMessage;
+                    return (
+                        <MessageComponent
+                            className="message-item"
+                            key={`${message.message_from}-${index}`}
+                            message={message}
+                        />
+                    );
+                })}
+            </MessageArea>
+            <MessageInput />
+        </ChatContainerStyled>
     );
 };
 
