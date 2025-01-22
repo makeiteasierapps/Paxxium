@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
+import { useFileUpload } from './useFileUpload';
 export const useMessageManager = ({
     backendUrl,
     uid,
@@ -9,7 +10,9 @@ export const useMessageManager = ({
     messages,
     socket,
     selectedChat,
+    updateLocalSettings,
 }) => {
+    const { uploadFile } = useFileUpload();
     const streamDestinationId = useRef(null);
     const updateChatArrayAndMessages = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
@@ -70,8 +73,52 @@ export const useMessageManager = ({
         [setMessages, updateChatArrayAndMessages]
     );
 
+    const handleFileUpload = async (fileContextItems) => {
+        const newContext = [...(selectedChat.context || [])];
+        const files = fileContextItems.map((item) => item.file);
+        const uploadedFiles = await uploadFile(files);
+
+        const updatedContext = newContext.map((contextItem) => {
+            const fileItem = fileContextItems.find(
+                (item) => item.name === contextItem.name
+            );
+            if (fileItem) {
+                const fileIndex = fileContextItems.indexOf(fileItem);
+                return {
+                    type: 'file',
+                    name: contextItem.name,
+                    file_path: uploadedFiles[fileIndex].storedPath,
+                    file: undefined,
+                };
+            }
+            return contextItem;
+        });
+
+        // Return the updated context
+        await updateLocalSettings({
+            chatId: selectedChat.chatId,
+            uid: selectedChat.uid,
+            context: updatedContext,
+        });
+        return updatedContext; // Add this return
+    };
+
     const sendMessage = async (input) => {
-        
+        let currentChat = { ...selectedChat }; // Create local copy
+
+        // Handle file uploads first if there are any files in context
+        if (selectedChat.context?.length) {
+            const fileContextItems = selectedChat.context.filter(
+                (item) => item.type === 'file' && item.file
+            );
+
+            // Upload all files and get updated context
+            if (fileContextItems.length) {
+                const updatedContext = await handleFileUpload(fileContextItems);
+                currentChat = { ...currentChat, context: updatedContext };
+            }
+        }
+
         const userMessage = {
             content: input,
             message_from: 'user',
@@ -80,14 +127,16 @@ export const useMessageManager = ({
         };
 
         const updatedMessages = await addMessage(
-            selectedChat.chatId,
+            currentChat.chatId,
             userMessage,
             true
         );
+
         const chatWithUpdatedMessages = {
-            ...selectedChat,
+            ...currentChat,
             messages: updatedMessages,
         };
+        console.log(chatWithUpdatedMessages);
         try {
             if (socket) {
                 socket.emit('chat', {

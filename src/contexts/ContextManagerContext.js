@@ -8,13 +8,14 @@ import { KbContext } from './KbContext';
 export const ContextManagerContext = createContext();
 
 export const ContextManagerProvider = ({ children }) => {
-    const { handleUpdateSettings, selectedChat, chatArray } =
+    const { handleUpdateSettings, updateLocalSettings, selectedChat, chatArray } =
         useContext(ChatContext);
     const { kbArray } = useContext(KbContext);
 
     const contextManager = useContextManager({
         selectedChat,
         handleUpdateSettings,
+        updateLocalSettings,
     });
 
     const imageHandling = useImageHandling({

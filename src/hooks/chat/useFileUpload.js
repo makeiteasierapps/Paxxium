@@ -1,27 +1,46 @@
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export const useFileUpload = () => {
-    const uploadFile = useCallback(async (file) => {
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
+    const { uid } = useContext(AuthContext);
+    const backendUrl =
+        process.env.NODE_ENV === 'development'
+            ? `http://${process.env.REACT_APP_BACKEND_URL}`
+            : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
+    const uploadFile = useCallback(
+        async (files) => {
+            try {
+                
+                const formData = new FormData();
+                files.forEach((file) => {
+                    formData.append('files', file);
+                });
 
-            if (!response.ok) {
-                throw new Error('Upload failed');
+                const response = await fetch(
+                    `${backendUrl}/images/upload-context`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            uid: uid,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const { files: uploadedFiles } = await response.json();
+                return uploadedFiles;
+            } catch (error) {
+                console.error('File upload error:', error);
+                throw error;
             }
-
-            const { url } = await response.json();
-            return url;
-        } catch (error) {
-            console.error('File upload error:', error);
-            throw error;
-        }
-    }, []);
+        },
+        [uid]
+    );
 
     return { uploadFile };
 };

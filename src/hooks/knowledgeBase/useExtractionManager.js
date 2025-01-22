@@ -52,7 +52,6 @@ export const useExtractionManager = (
         method: "POST",
         body: formData,
         headers: {
-          dbName: process.env.REACT_APP_DB_NAME,
           uid: uid,
         },
       });

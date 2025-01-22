@@ -41,7 +41,6 @@ export const useImageHandling = ({ addContextItem }) => {
 
     const onFileSelect = useCallback(
         (event) => {
-            console.log(event.target.files);
             handleFile(event.target.files[0]);
         },
         [handleFile]

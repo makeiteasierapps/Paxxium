@@ -61,6 +61,7 @@ export const ChatProvider = ({ children }) => {
 
     const messageManager = useMessageManager({
         ...commonParams,
+        updateLocalSettings: chatSettings.updateLocalSettings,
         messages,
         socket,
     });
