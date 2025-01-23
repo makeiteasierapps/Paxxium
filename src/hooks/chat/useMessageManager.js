@@ -100,7 +100,7 @@ export const useMessageManager = ({
             uid: selectedChat.uid,
             context: updatedContext,
         });
-        return updatedContext; // Add this return
+        return updatedContext;
     };
 
     const sendMessage = async (input) => {
@@ -136,7 +136,6 @@ export const useMessageManager = ({
             ...currentChat,
             messages: updatedMessages,
         };
-        console.log(chatWithUpdatedMessages);
         try {
             if (socket) {
                 socket.emit('chat', {
@@ -194,19 +193,6 @@ export const useMessageManager = ({
         }
     };
 
-    const handleContextUrls = useCallback(
-        (data) => {
-            setChatArray((prevChatArray) =>
-                prevChatArray.map((chat) =>
-                    chat.chatId === streamDestinationId.current
-                        ? { ...chat, context_urls: data }
-                        : chat
-                )
-            );
-        },
-        [setChatArray] // Updated dependency array
-    );
-
     const handleStreamingResponse = useCallback(
         async (data) => {
             streamDestinationId.current = data.room;
@@ -249,12 +235,10 @@ export const useMessageManager = ({
 
         const currentSocket = socket;
         currentSocket.on('chat_response', handleStreamingResponse);
-        currentSocket.on('context_urls', handleContextUrls);
         return () => {
             currentSocket.off('chat_response', handleStreamingResponse);
-            currentSocket.off('context_urls', handleContextUrls);
         };
-    }, [handleContextUrls, handleStreamingResponse, socket]);
+    }, [handleStreamingResponse, socket]);
 
     return {
         addMessage,
