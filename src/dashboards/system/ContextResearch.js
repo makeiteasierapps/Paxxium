@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Typography, Box, Grid } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
+import ChatBar from '../chat/components/ChatBar';
 import ExpandableInput from './ExpandableInput';
 
 const FileItem = styled(Box)(({ theme, selected }) => ({
@@ -79,6 +80,13 @@ const ContextResearch = () => {
         }
     };
 
+    const sx = {
+        width: '100%',
+        p: 2,
+        margin: '0 auto',
+        height: '60vh',
+        overflow: 'auto',
+    };
     useEffect(() => {
         if (systemAgentMessages.length > 0) {
             setExpanded(false);
@@ -135,7 +143,10 @@ const ContextResearch = () => {
                 ))}
             </Grid>
             {systemAgentMessages.length > 0 && (
-                <Chat messages={systemAgentMessages} />
+                <>
+                    <ChatBar />
+                    <Chat messages={systemAgentMessages} sx={sx} />
+                </>
             )}
         </>
     );
