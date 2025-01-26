@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import { Typography, Box, Grid } from '@mui/material';
+import { Typography, Box, Grid, Button } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
 import ChatBar from '../chat/components/ChatBar';
@@ -21,6 +21,19 @@ const FileItem = styled(Box)(({ theme, selected }) => ({
     },
 }));
 
+const SystemAgentButton = styled(Button)(({ theme }) => ({
+    width: '100%',
+    padding: theme.spacing(2),
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    textTransform: 'none',
+    borderRadius: theme.shape.borderRadius,
+    border: `1px solid ${theme.palette.divider}`,
+    '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+    },
+}));
+
 const ContextResearch = () => {
     const {
         contextFiles,
@@ -33,19 +46,13 @@ const ContextResearch = () => {
     const [longPressTimer, setLongPressTimer] = useState(null);
     const [isLongPress, setIsLongPress] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [expanded, setExpanded] = useState(true);
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
         if (contextFiles?.length) {
             setSelectedFiles(contextFiles);
         }
     }, [contextFiles]);
-
-    const handleSubmit = (query) => {
-        setContextFiles([]);
-        setSystemAgentMessages([]);
-        getAgentResponse(query);
-    };
 
     const handleFilePress = (file) => {
         if (!isLongPress) {
@@ -80,6 +87,13 @@ const ContextResearch = () => {
         }
     };
 
+    const handleSystemAgentClick = () => {
+        setContextFiles([]);
+        setSystemAgentMessages([]);
+        getAgentResponse('');
+        setShowChat(true);
+    };
+
     const sx = {
         width: '100%',
         p: 2,
@@ -87,22 +101,20 @@ const ContextResearch = () => {
         height: '60vh',
         overflow: 'auto',
     };
-    useEffect(() => {
-        if (systemAgentMessages.length > 0) {
-            setExpanded(false);
-        }
-    }, [systemAgentMessages]);
 
     return (
         <>
             <Box width="100%" p={2}>
-                <ExpandableInput
-                    expanded={expanded}
-                    onExpand={setExpanded}
-                    onSubmit={handleSubmit}
-                    placeholder="Ask the SystemAgent..."
-                    buttonText="SystemAgent"
-                />
+                {!showChat ? (
+                    <SystemAgentButton onClick={handleSystemAgentClick}>
+                        Ask the SystemAgent...
+                    </SystemAgentButton>
+                ) : (
+                    <>
+                        <ChatBar />
+                        <Chat messages={systemAgentMessages} sx={sx} />
+                    </>
+                )}
             </Box>
             <Grid
                 container

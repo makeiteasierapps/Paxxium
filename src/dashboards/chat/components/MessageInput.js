@@ -21,8 +21,6 @@ const MessageInput = () => {
         handleMentionSelect,
     } = useContext(ContextManagerContext);
 
-
-
     return (
         <InputArea>
             <DetectedItems />
