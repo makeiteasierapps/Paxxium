@@ -45,7 +45,7 @@ export const useContextManager = ({
             context: newContext,
         });
     };
-    
+
     const removeContextItem = (type, itemToRemove) => {
         const newContext = (selectedChat.context || []).filter((item) => {
             switch (type) {

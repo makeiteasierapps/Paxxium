@@ -54,6 +54,16 @@ export const useInputDetection = ({ kbArray, addContextItem }) => {
             : null;
     };
 
+    const validateUrl = (url) => {
+        try {
+            const urlToTest = url.startsWith('http') ? url : `https://${url}`;
+            new URL(urlToTest);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
     const handleMentionSelect = (option) => {
         const mention = detectMentions(input, input.length);
         if (!mention) return;
@@ -65,6 +75,11 @@ export const useInputDetection = ({ kbArray, addContextItem }) => {
         const kb = validateAndGetKb(option);
         if (kb) {
             addContextItem('kb', kb);
+        } else if (validateUrl(option)) {
+            const urlToAdd = option.startsWith('http')
+                ? option
+                : `https://${option}`;
+            addContextItem('url', urlToAdd);
         }
 
         setInput(newInput);
@@ -72,51 +87,10 @@ export const useInputDetection = ({ kbArray, addContextItem }) => {
         setHighlightedIndex(-1);
     };
 
-    const detectUrls = (text) => {
-        const words = text.split(' ');
-        const completedWords = text.endsWith(' ') ? words : words.slice(0, -1);
-
-        const urlRegex = new RegExp(
-            '(?:https?://|www\\.)?' + // Protocol or www
-                '(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+' + // Domain segments
-                '[a-zA-Z]{2,}' + // TLD
-                '(?::\\d{2,5})?' + // Optional port
-                '(?:/[^\\s]*)?', // Path and query params
-            'i'
-        );
-
-        return new Set(
-            completedWords
-                .filter((word) => {
-                    try {
-                        if (!urlRegex.test(word)) return false;
-                        const urlToTest = word.startsWith('http')
-                            ? word
-                            : `https://${word}`;
-                        new URL(urlToTest);
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                })
-                .map((url) => url.trim())
-        );
-    };
-
     const handleInputChange = (event) => {
         const newValue = event.target.value;
         const cursorPosition = event.target.selectionStart;
         setInput(newValue);
-
-        // Handle URLs
-        if (newValue.endsWith(' ')) {
-            const newUrls = detectUrls(newValue);
-            if (newUrls.size > 0) {
-                Array.from(newUrls).forEach((url) => {
-                    addContextItem('url', url);
-                });
-            }
-        }
 
         // Handle mentions
         const mention = detectMentions(newValue, cursorPosition);
@@ -127,26 +101,43 @@ export const useInputDetection = ({ kbArray, addContextItem }) => {
         }
 
         setMentionAnchorEl(event.currentTarget);
-        const filteredOptions = kbArray
+
+        // First check KB matches
+        const kbMatches = kbArray
             .filter((kb) =>
                 kb.name.toLowerCase().includes(mention.searchTerm.toLowerCase())
             )
             .map((kb) => kb.name);
 
-        const exactMatch = filteredOptions.find(
-            (option) =>
-                option.toLowerCase() === mention.searchTerm.toLowerCase()
-        );
+        // If we have KB matches, use those
+        if (kbMatches.length > 0) {
+            const exactMatch = kbMatches.find(
+                (option) =>
+                    option.toLowerCase() === mention.searchTerm.toLowerCase()
+            );
 
-        if (exactMatch) {
-            handleMentionSelect(exactMatch);
+            if (exactMatch) {
+                handleMentionSelect(exactMatch);
+                return;
+            }
+
+            setMentionOptions(kbMatches);
             return;
         }
 
-        if (filteredOptions.length === 0) {
+        // If no KB matches and the input looks like a URL, show it as an option
+        if (mention.searchTerm.includes('.')) {
+            setMentionOptions([mention.searchTerm]);
+
+            // If it's a valid URL and ends with a space, add it
+            if (validateUrl(mention.searchTerm) && newValue.endsWith(' ')) {
+                handleMentionSelect(mention.searchTerm);
+                return;
+            }
+        } else {
             setMentionAnchorEl(null);
+            setMentionOptions([]);
         }
-        setMentionOptions(filteredOptions);
     };
 
     const handleMenuKeyDown = (e) => {
