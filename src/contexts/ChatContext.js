@@ -19,7 +19,6 @@ export const ChatProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const [chatArray, setChatArray] = useState([]);
     const [selectedChatId, setSelectedChatId] = useState(null);
-    const [messages, setMessages] = useState({});
     const [loading, setLoading] = useState(true);
 
     const backendUrl =
@@ -51,7 +50,6 @@ export const ChatProvider = ({ children }) => {
         showSnackbar,
         chatArray,
         setChatArray,
-        setMessages,
         selectedChat,
         setSelectedChatId,
     };
@@ -62,7 +60,6 @@ export const ChatProvider = ({ children }) => {
     const messageManager = useMessageManager({
         ...commonParams,
         updateLocalSettings: chatSettings.updateLocalSettings,
-        messages,
         socket,
     });
 
@@ -75,7 +72,6 @@ export const ChatProvider = ({ children }) => {
                 selectedChat,
                 updateSelectedChat,
                 setSelectedChatId,
-                messages,
                 ...chatManager,
                 ...messageManager,
                 ...chatSettings,

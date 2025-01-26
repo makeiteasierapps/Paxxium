@@ -24,7 +24,7 @@ const ResizableTextField = styled(TextField)({
 });
 
 const ChatSettings = () => {
-    const { handleUpdateSettings, updateSelectedChat, selectedChat } =
+    const { updateSettings, updateSelectedChat, selectedChat } =
         useContext(ChatContext);
     const [isEditing, setIsEditing] = useState(false);
 
@@ -75,7 +75,7 @@ const ChatSettings = () => {
                         anchorEl={anchorEl}
                         setAnchorEl={setAnchorEl}
                         updateSelectedChat={updateSelectedChat}
-                        handleUpdateSettings={handleUpdateSettings}
+                        handleUpdateSettings={updateSettings}
                     />
                     <SettingsMenuButton
                         id="name"
@@ -89,7 +89,7 @@ const ChatSettings = () => {
                                 onChange={handleEdit}
                                 onBlur={() => {
                                     setIsEditing(false);
-                                    handleUpdateSettings({
+                                    updateSettings({
                                         chat_name: selectedChat.chat_name,
                                     });
                                 }}
@@ -118,7 +118,7 @@ const ChatSettings = () => {
                             })
                         }
                         onBlur={() =>
-                            handleUpdateSettings({
+                            updateSettings({
                                 system_message: selectedChat.system_message,
                             })
                         }

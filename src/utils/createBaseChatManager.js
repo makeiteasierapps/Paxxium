@@ -4,7 +4,6 @@ export const createBaseChatManager = ({
     uid,
     showSnackbar,
     setChatArray,
-    setMessages,
     setSelectedChatId,
 }) => {
     const fetchChatsFromDB = async () => {
@@ -34,16 +33,6 @@ export const createBaseChatManager = ({
                 setSelectedChatId(sortedData[0].chatId);
             }
 
-            setMessages((prevMessages) => {
-                const messagesFromData = data.reduce((acc, chat) => {
-                    if (chat.messages) {
-                        acc[chat.chatId] = chat.messages;
-                    }
-                    return acc;
-                }, {});
-                return messagesFromData;
-            });
-
             localStorage.setItem(storageKey, JSON.stringify(sortedData));
             return sortedData;
         } catch (error) {
@@ -59,14 +48,6 @@ export const createBaseChatManager = ({
             if (cachedChats && cachedChats.length > 0) {
                 setChatArray(cachedChats);
                 setSelectedChatId(cachedChats[0].chatId);
-                setMessages((prevMessages) => {
-                    return cachedChats.reduce((acc, chat) => {
-                        if (chat.messages) {
-                            acc[chat.chatId] = chat.messages;
-                        }
-                        return acc;
-                    }, {});
-                });
             } else {
                 return await fetchChatsFromDB();
             }

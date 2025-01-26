@@ -8,13 +8,13 @@ import { KbContext } from './KbContext';
 export const ContextManagerContext = createContext();
 
 export const ContextManagerProvider = ({ children }) => {
-    const { handleUpdateSettings, updateLocalSettings, selectedChat, chatArray } =
+    const { updateSettings, updateLocalSettings, selectedChat, chatArray } =
         useContext(ChatContext);
     const { kbArray } = useContext(KbContext);
 
     const contextManager = useContextManager({
         selectedChat,
-        handleUpdateSettings,
+        updateSettings,
         updateLocalSettings,
     });
 
@@ -24,7 +24,7 @@ export const ContextManagerProvider = ({ children }) => {
 
     const inputDetection = useInputDetection({
         addContextItem: contextManager.addContextItem,
-        handleUpdateSettings,
+        updateSettings,
         selectedChat,
         kbArray,
         chatArray,

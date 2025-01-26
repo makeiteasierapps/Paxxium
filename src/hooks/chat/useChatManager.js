@@ -6,7 +6,6 @@ export const useChatManager = ({
     uid,
     showSnackbar,
     setChatArray,
-    setMessages,
     setLoading,
     setSelectedChatId,
 }) => {
@@ -17,17 +16,9 @@ export const useChatManager = ({
             uid,
             showSnackbar,
             setChatArray,
-            setMessages,
             setSelectedChatId,
         });
-    }, [
-        backendUrl,
-        uid,
-        showSnackbar,
-        setChatArray,
-        setMessages,
-        setSelectedChatId,
-    ]);
+    }, [backendUrl, uid, showSnackbar, setChatArray, setSelectedChatId]);
 
     useEffect(() => {
         if (!uid) return;

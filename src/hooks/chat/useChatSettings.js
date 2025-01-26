@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createBaseSettingsManager } from '../../utils/baseSettingsManager';
 
 export const useChatSettings = ({
     backendUrl,
@@ -9,56 +10,25 @@ export const useChatSettings = ({
 }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+    const settingsManager = createBaseSettingsManager({
+        baseUrl: `${backendUrl}/chat`,
+        storageKey: 'chatArray',
+        uid,
+        showSnackbar,
+        setChatArray,
+    });
+
     const handleUpdateSettings = (newSettings) => {
-        updateSettings({
+        return settingsManager.updateSettings({
             chatId: selectedChat.chatId,
-            uid: uid,
             ...newSettings,
         });
-    };
-
-    const updateLocalSettings = (newAgentSettings) => {
-        setChatArray((prevChatArray) => {
-            const updatedChatArray = prevChatArray.map((agent) =>
-                agent.chatId === newAgentSettings.chatId
-                    ? { ...agent, ...newAgentSettings }
-                    : agent
-            );
-
-            // Update localStorage
-            localStorage.setItem('chatArray', JSON.stringify(updatedChatArray));
-
-            return updatedChatArray;
-        });
-    };
-
-    const updateSettings = async (newAgentSettings) => {
-        try {
-            const response = await fetch(`${backendUrl}/chat/update_settings`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    dbName: process.env.REACT_APP_DB_NAME,
-                    uid: newAgentSettings.uid,
-                },
-                body: JSON.stringify(newAgentSettings),
-            });
-
-            if (!response.ok) throw new Error('Failed to update settings');
-
-            updateLocalSettings(newAgentSettings);
-
-            showSnackbar('Settings updated successfully', 'success');
-        } catch (error) {
-            console.error(error);
-            showSnackbar(`Network or fetch error: ${error.message}`, 'error');
-        }
     };
 
     return {
         isSettingsOpen,
         setIsSettingsOpen,
         handleUpdateSettings,
-        updateLocalSettings,
+        updateLocalSettings: settingsManager.updateLocalSettings,
     };
 };

@@ -4,11 +4,10 @@ import ChatBar from './components/ChatBar';
 import { ChatContext } from '../../contexts/ChatContext';
 import { Box, Typography } from '@mui/material';
 import { MainContainer } from '../styledComponents/DashStyledComponents';
-
 import { CustomGridLoader } from '../main/customLoaders';
 
 const ChatDash = () => {
-    const { loading, selectedChat, messages } = useContext(ChatContext);
+    const { loading, selectedChat } = useContext(ChatContext);
 
     return (
         <MainContainer id="chat-dash-main-container">
@@ -19,7 +18,7 @@ const ChatDash = () => {
             ) : selectedChat ? (
                 <>
                     <ChatBar />
-                    <Chat messages={messages[selectedChat.chatId]} />
+                    <Chat messages={selectedChat.messages} />
                 </>
             ) : (
                 <Box>

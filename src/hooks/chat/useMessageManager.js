@@ -6,21 +6,14 @@ export const useMessageManager = ({
     uid,
     showSnackbar,
     setChatArray,
-    setMessages,
-    messages,
     socket,
     selectedChat,
     updateLocalSettings,
 }) => {
     const { uploadFile } = useFileUpload();
     const streamDestinationId = useRef(null);
-    const updateChatArrayAndMessages = useCallback(
+    const updateChatMessagesList = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
-            setMessages((prevMessages) => ({
-                ...prevMessages,
-                [chatId]: newMessages,
-            }));
-
             setChatArray((prevChatArray) => {
                 const updatedChatArray = prevChatArray.map((chat) =>
                     chat.chatId === chatId
@@ -46,31 +39,19 @@ export const useMessageManager = ({
                 return sortedChatArray;
             });
         },
-        [setChatArray, setMessages]
+        [setChatArray]
     );
 
     const addMessage = useCallback(
         (chatId, newMessage, isOptimistic = false) => {
-            return new Promise((resolve) => {
-                setMessages((prevMessages) => {
-                    const updatedMessages = [
-                        ...(prevMessages[chatId] || []),
-                        newMessage,
-                    ];
-                    updateChatArrayAndMessages(
-                        chatId,
-                        updatedMessages,
-                        isOptimistic
-                    );
-                    resolve(updatedMessages);
-                    return {
-                        ...prevMessages,
-                        [chatId]: updatedMessages,
-                    };
-                });
-            });
+            const updatedMessages = [
+                ...(selectedChat.messages || []),
+                newMessage,
+            ];
+            updateChatMessagesList(chatId, updatedMessages, isOptimistic);
+            return updatedMessages;
         },
-        [setMessages, updateChatArrayAndMessages]
+        [selectedChat, updateChatMessagesList]
     );
 
     const handleFileUpload = async (fileContextItems) => {
@@ -126,7 +107,7 @@ export const useMessageManager = ({
             type: 'database',
         };
 
-        const updatedMessages = await addMessage(
+        const updatedMessages = addMessage(
             currentChat.chatId,
             userMessage,
             true
@@ -180,13 +161,6 @@ export const useMessageManager = ({
 
                 return updatedChatArray;
             });
-
-            // Update the messages state for the UI to reflect the cleared messages
-            setMessages((prevMessages) => {
-                const updatedMessages = { ...prevMessages, [chatId]: [] };
-                // No need to update 'messages' in local storage since it's part of 'chatArray'
-                return updatedMessages;
-            });
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -197,7 +171,7 @@ export const useMessageManager = ({
         async (data) => {
             streamDestinationId.current = data.room;
             const currentChatThread =
-                messages[streamDestinationId.current] || [];
+                selectedChat.messages || [];
 
             if (data.type === 'end_of_stream') {
                 const lastUserMessageIndex = currentChatThread
@@ -211,7 +185,7 @@ export const useMessageManager = ({
                         image_path: data.image_path,
                     };
 
-                    updateChatArrayAndMessages(
+                    updateChatMessagesList(
                         streamDestinationId.current,
                         updatedThread
                     );
@@ -221,13 +195,13 @@ export const useMessageManager = ({
                     currentChatThread,
                     data
                 );
-                updateChatArrayAndMessages(
+                updateChatMessagesList(
                     streamDestinationId.current,
                     updatedThread
                 );
             }
         },
-        [updateChatArrayAndMessages, messages]
+        [updateChatMessagesList, selectedChat]
     );
 
     useEffect(() => {
