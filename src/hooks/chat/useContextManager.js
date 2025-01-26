@@ -54,7 +54,7 @@ export const useContextManager = ({
                 case 'kb':
                     return item.id !== itemToRemove.id;
                 case 'file':
-                    return item.id !== itemToRemove.id;
+                    return item.name !== itemToRemove.name;
                 default:
                     return true;
             }

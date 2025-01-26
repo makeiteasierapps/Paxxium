@@ -60,7 +60,7 @@ const DetectedItems = () => {
 
     return (
         <DetectedItemsContainer>
-            {selectedChat?.context.map((item) => (
+            {selectedChat?.context?.map((item) => (
                 <StyledChip
                     key={item.id}
                     label={getChipLabel(item)}
