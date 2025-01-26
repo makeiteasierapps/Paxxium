@@ -11,7 +11,7 @@ const DetectedItemsContainer = styled(Box)(({ theme }) => ({
     flexWrap: 'wrap-reverse',
     gap: theme.spacing(1),
     padding: theme.spacing(1),
-    minHeight: '32px', 
+    minHeight: '32px',
 }));
 
 const StyledChip = styled(Chip, {
@@ -72,9 +72,9 @@ const DetectedItems = () => {
 
     return (
         <DetectedItemsContainer>
-            {selectedChat?.context?.map((item) => (
+            {selectedChat?.context?.map((item, index) => (
                 <Tooltip
-                    key={item.id}
+                    key={index}
                     title={getChipLabel(item)}
                     enterDelay={500}
                     placement="top"
