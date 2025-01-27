@@ -4,13 +4,14 @@ import {
     useContext,
     useCallback,
     useMemo,
+    useEffect,
 } from 'react';
 import { AuthContext } from './AuthContext';
-import { useChatManager } from '../hooks/chat/useChatManager';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
-import { useChatSettings } from '../hooks/chat/useChatSettings';
 import { useSnackbar } from './SnackbarContext';
 import { useSocket } from './SocketProvider';
+import { createBaseChatManager } from '../utils/baseChatManager.js';
+import { createBaseSettingsManager } from '../utils/baseSettingsManager';
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -54,12 +55,38 @@ export const ChatProvider = ({ children }) => {
         setSelectedChatId,
     };
 
-    const chatSettings = useChatSettings({ ...commonParams });
-    const chatManager = useChatManager({ ...commonParams, setLoading });
+    const baseManager = useMemo(() => {
+        return createBaseChatManager({
+            baseUrl: `${backendUrl}/chat`,
+            storageKey: 'chatArray',
+            uid,
+            showSnackbar,
+            setChatArray,
+            setSelectedChatId,
+        });
+    }, [backendUrl, uid, showSnackbar, setChatArray, setSelectedChatId]);
+
+    const settingsManager = useMemo(() => {
+        return createBaseSettingsManager({
+            baseUrl: `${backendUrl}/chat`,
+            storageKey: 'chatArray',
+            uid,
+            selectedChatId,
+            showSnackbar,
+            setChatArray,
+        });
+    }, [backendUrl, uid, showSnackbar, setChatArray, selectedChatId]);
+
+    useEffect(() => {
+        if (!uid) return;
+        baseManager.getChats().then(() => {
+            setLoading(false);
+        });
+    }, [baseManager, setLoading, uid]);
 
     const messageManager = useMessageManager({
         ...commonParams,
-        updateLocalSettings: chatSettings.updateLocalSettings,
+        updateLocalSettings: settingsManager.updateLocalSettings,
         socket,
     });
 
@@ -72,9 +99,9 @@ export const ChatProvider = ({ children }) => {
                 selectedChat,
                 updateSelectedChat,
                 setSelectedChatId,
-                ...chatManager,
+                ...baseManager,
                 ...messageManager,
-                ...chatSettings,
+                ...settingsManager,
             }}
         >
             {children}

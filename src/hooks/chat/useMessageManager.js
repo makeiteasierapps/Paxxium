@@ -171,7 +171,7 @@ export const useMessageManager = ({
         async (data) => {
             streamDestinationId.current = data.room;
             const currentChatThread =
-                selectedChat.messages || [];
+                selectedChat?.messages || [];
 
             if (data.type === 'end_of_stream') {
                 const lastUserMessageIndex = currentChatThread

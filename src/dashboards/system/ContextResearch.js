@@ -4,7 +4,6 @@ import { Typography, Box, Grid, Button } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
 import ChatBar from '../chat/components/ChatBar';
-import ExpandableInput from './ExpandableInput';
 
 const FileItem = styled(Box)(({ theme, selected }) => ({
     display: 'flex',
@@ -36,61 +35,14 @@ const SystemAgentButton = styled(Button)(({ theme }) => ({
 
 const ContextResearch = () => {
     const {
-        contextFiles,
-        setContextFiles,
-        getAgentResponse,
-        systemAgentMessages,
-        setSystemAgentMessages,
-        setSelectedFile,
+        selectedSystemChat,
+        createChat,
     } = useContext(SystemContext);
-    const [longPressTimer, setLongPressTimer] = useState(null);
-    const [isLongPress, setIsLongPress] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState([]);
+
     const [showChat, setShowChat] = useState(false);
 
-    useEffect(() => {
-        if (contextFiles?.length) {
-            setSelectedFiles(contextFiles);
-        }
-    }, [contextFiles]);
-
-    const handleFilePress = (file) => {
-        if (!isLongPress) {
-            setSelectedFiles((prev) => {
-                const isSelected = prev.some(
-                    (selectedFile) => selectedFile.path === file.path
-                );
-                if (isSelected) {
-                    return prev.filter(
-                        (selectedFile) => selectedFile.path !== file.path
-                    );
-                } else {
-                    return [...prev, file];
-                }
-            });
-        }
-        setIsLongPress(false);
-    };
-
-    const handleMouseDown = (file) => {
-        const timer = setTimeout(() => {
-            setIsLongPress(true);
-            setSelectedFile(file);
-        }, 500); // 500ms for long press
-        setLongPressTimer(timer);
-    };
-
-    const handleMouseUp = () => {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            setLongPressTimer(null);
-        }
-    };
-
     const handleSystemAgentClick = () => {
-        setContextFiles([]);
-        setSystemAgentMessages([]);
-        getAgentResponse('');
+        createChat();
         setShowChat(true);
     };
 
@@ -112,7 +64,7 @@ const ContextResearch = () => {
                 ) : (
                     <>
                         <ChatBar />
-                        <Chat messages={systemAgentMessages} sx={sx} />
+                        <Chat messages={selectedSystemChat?.messages} sx={sx} />
                     </>
                 )}
             </Box>
@@ -127,39 +79,7 @@ const ContextResearch = () => {
                     maxWidth: '500px',
                 }}
             >
-                {contextFiles?.map((file, index) => (
-                    <Grid
-                        item
-                        lg={4}
-                        key={file.path}
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <FileItem
-                            selected={selectedFiles.some(
-                                (selectedFile) =>
-                                    selectedFile.path === file.path
-                            )}
-                            onClick={() => handleFilePress(file)}
-                            onMouseDown={() => handleMouseDown(file)}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                        >
-                            <Typography noWrap fontSize="14px">
-                                {file.path.split('/').pop()}
-                            </Typography>
-                        </FileItem>
-                    </Grid>
-                ))}
             </Grid>
-            {systemAgentMessages.length > 0 && (
-                <>
-                    <ChatBar />
-                    <Chat messages={systemAgentMessages} sx={sx} />
-                </>
-            )}
         </>
     );
 };

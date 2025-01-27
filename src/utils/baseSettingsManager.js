@@ -2,6 +2,7 @@ export const createBaseSettingsManager = ({
     baseUrl,
     storageKey,
     uid,
+    selectedChatId,
     showSnackbar,
     setChatArray,
 }) => {
@@ -19,6 +20,10 @@ export const createBaseSettingsManager = ({
     };
 
     const updateSettings = async (newSettings) => {
+        const settingsToUpdate = {
+            ...newSettings,
+            chatId: selectedChatId,
+        };
         try {
             const response = await fetch(`${baseUrl}/update_settings`, {
                 method: 'PATCH',
@@ -27,10 +32,7 @@ export const createBaseSettingsManager = ({
                     dbName: process.env.REACT_APP_DB_NAME,
                     uid: uid,
                 },
-                body: JSON.stringify({
-                    uid,
-                    ...newSettings,
-                }),
+                body: JSON.stringify(settingsToUpdate),
             });
 
             if (!response.ok) throw new Error('Failed to update settings');
