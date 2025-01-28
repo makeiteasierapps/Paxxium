@@ -33,8 +33,6 @@ export const useImageManager = () => {
 
             const imageArray = await response.json();
             setImageList(imageArray);
-            console.log(imageArray);
-
             // Only store the image paths in localStorage
             localStorage.setItem('imageList', JSON.stringify(imageArray));
         } catch (error) {

@@ -45,16 +45,6 @@ export const ChatProvider = ({ children }) => {
         [selectedChatId]
     );
 
-    const commonParams = {
-        backendUrl,
-        uid,
-        showSnackbar,
-        chatArray,
-        setChatArray,
-        selectedChat,
-        setSelectedChatId,
-    };
-
     const baseManager = useMemo(() => {
         return createBaseChatManager({
             baseUrl: `${backendUrl}/chat`,
@@ -85,9 +75,14 @@ export const ChatProvider = ({ children }) => {
     }, [baseManager, setLoading, uid]);
 
     const messageManager = useMessageManager({
-        ...commonParams,
-        updateLocalSettings: settingsManager.updateLocalSettings,
+        baseUrl: `${backendUrl}/chat`,
+        uid,
+        showSnackbar,
+        setChatArray,
         socket,
+        socketEvent: 'chat_response',
+        selectedChat,
+        updateLocalSettings: settingsManager.updateLocalSettings,
     });
 
     return (

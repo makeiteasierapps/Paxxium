@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef } from 'react';
 import { processIncomingStream } from '../../dashboards/utils/processIncomingStream';
 import { useFileUpload } from './useFileUpload';
 export const useMessageManager = ({
-    backendUrl,
+    baseUrl,
     uid,
     showSnackbar,
     setChatArray,
     socket,
     selectedChat,
     updateLocalSettings,
+    socketEvent,
 }) => {
     const { uploadFile } = useFileUpload();
     const streamDestinationId = useRef(null);
@@ -131,7 +132,7 @@ export const useMessageManager = ({
 
     const clearChat = async (chatId) => {
         try {
-            const response = await fetch(`${backendUrl}/messages`, {
+            const response = await fetch(`${baseUrl}/messages`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -170,8 +171,7 @@ export const useMessageManager = ({
     const handleStreamingResponse = useCallback(
         async (data) => {
             streamDestinationId.current = data.room;
-            const currentChatThread =
-                selectedChat?.messages || [];
+            const currentChatThread = selectedChat?.messages || [];
 
             if (data.type === 'end_of_stream') {
                 const lastUserMessageIndex = currentChatThread
@@ -208,11 +208,11 @@ export const useMessageManager = ({
         if (!socket) return;
 
         const currentSocket = socket;
-        currentSocket.on('chat_response', handleStreamingResponse);
+        currentSocket.on(socketEvent, handleStreamingResponse);
         return () => {
-            currentSocket.off('chat_response', handleStreamingResponse);
+            currentSocket.off(socketEvent, handleStreamingResponse);
         };
-    }, [handleStreamingResponse, socket]);
+    }, [handleStreamingResponse, socket, socketEvent]);
 
     return {
         addMessage,

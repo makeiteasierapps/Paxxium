@@ -1,15 +1,20 @@
 import { Box, styled } from '@mui/material';
 
-export const MainContainer = styled(Box)(({ theme }) => ({
+export const MainContainer = styled(Box, {
+    shouldForwardProp: (prop) => !['sx'].includes(prop),
+})(({ theme, sx }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     width: '100%',
     minHeight: '90vh',
-    margin: '0 auto'
+    margin: '0 auto',
+    ...(sx || {}),
 }));
 
-export const StyledContainer = styled(Box)(({ theme }) => ({
+export const StyledContainer = styled(Box, {
+    shouldForwardProp: (prop) => !['sx'].includes(prop),
+})(({ theme, sx }) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -18,4 +23,5 @@ export const StyledContainer = styled(Box)(({ theme }) => ({
     height: '100%',
     borderRadius: '7px',
     boxShadow: `0px 0px 6px 2px ${theme.palette.primary.main}`,
+    ...(sx || {}),
 }));

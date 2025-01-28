@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './AuthContext';
 import { useSocket } from './SocketProvider';
 import { useSystemFileManager } from '../hooks/system/useSystemFilesManager';
@@ -19,7 +19,10 @@ export const SystemProvider = ({ children }) => {
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     const selectedSystemChat = useMemo(
-        () => systemChatArray.find((chat) => chat.chatId === selectedSystemChatId),
+        () =>
+            systemChatArray.find(
+                (chat) => chat.chatId === selectedSystemChatId
+            ),
         [systemChatArray, selectedSystemChatId]
     );
 
@@ -32,6 +35,19 @@ export const SystemProvider = ({ children }) => {
         showSnackbar
     );
 
+
+    const updateSelectedSystemChat = useCallback(
+        (updates) => {
+            setSystemChatArray((prevChats) =>
+                prevChats.map((systemChat) =>
+                    systemChat.chatId === selectedSystemChatId
+                        ? { ...systemChat, ...updates }
+                        : systemChat
+                )
+            );
+        },
+        [selectedSystemChatId]
+    );
     const baseManager = useMemo(() => {
         return createBaseChatManager({
             baseUrl: `${backendUrl}/system/chat`,
@@ -51,12 +67,12 @@ export const SystemProvider = ({ children }) => {
 
     const settingsManager = useMemo(() => {
         return createBaseSettingsManager({
-            baseUrl: `${backendUrl}/chat`,
-            storageKey: 'chatArray',
+            baseUrl: `${backendUrl}/system/chat`,
+            storageKey: 'systemChatArray',
             uid,
-            selectedChatId: selectedSystemChatId,
             showSnackbar,
             setChatArray: setSystemChatArray,
+            selectedChatId: selectedSystemChatId,
         });
     }, [
         backendUrl,
@@ -66,6 +82,17 @@ export const SystemProvider = ({ children }) => {
         selectedSystemChatId,
     ]);
 
+    const messageManager = useMessageManager({
+        baseUrl: `${backendUrl}/system/chat`,
+        uid,
+        showSnackbar,
+        setChatArray: setSystemChatArray,
+        socket,
+        socketEvent: 'system_chat_response',
+        selectedChat: selectedSystemChat,
+        updateLocalSettings: settingsManager.updateLocalSettings,
+    });
+
     useEffect(() => {
         if (!uid) return;
         baseManager.getChats().then(() => {
@@ -73,20 +100,14 @@ export const SystemProvider = ({ children }) => {
         });
     }, [baseManager, setSystemLoading, uid]);
 
-    const messageManager = useMessageManager({
-        backendUrl,
-        uid,
-        showSnackbar,
-        setChatArray: setSystemChatArray,
-        socket,
-        selectedChat: selectedSystemChat,
-        updateLocalSettings: settingsManager.updateLocalSettings,
-    });
-
     const value = {
         showSnackbar,
         systemLoading,
         socket,
+        systemChatArray,
+        selectedSystemChat,
+        setSelectedSystemChatId,
+        updateSelectedSystemChat,
         ...systemFileManager,
         ...baseManager,
         ...settingsManager,

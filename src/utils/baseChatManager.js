@@ -8,6 +8,7 @@ export const createBaseChatManager = ({
 }) => {
     const fetchChatsFromDB = async () => {
         try {
+            console.log('fetchChatsFromDB', baseUrl);
             const response = await fetch(`${baseUrl}`, {
                 method: 'GET',
                 headers: {

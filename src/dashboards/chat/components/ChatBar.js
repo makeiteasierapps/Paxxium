@@ -9,6 +9,7 @@ import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import ChatSettings from './ChatSettings';
 import { ChatContext } from '../../../contexts/ChatContext';
+import { SystemContext } from '../../../contexts/SystemContext';
 
 import {
     Bar,
@@ -16,18 +17,23 @@ import {
     StyledIconButton,
 } from '../chatStyledComponents';
 
-const ChatBar = () => {
-    const {
-        clearChat,
-        deleteChat,
-        createChat,
-        isSettingsOpen,
-        setIsSettingsOpen,
-        updateSelectedChat,
-        selectedChat,
-    } = useContext(ChatContext);
+const ChatBar = ({ type = 'user' }) => {
+    const userContext = useContext(ChatContext);
+    const systemContext = useContext(SystemContext);
 
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [deleteClicked, setDeleteClicked] = useState(false);
+
+    const context = type === 'user' ? userContext : systemContext;
+    const selectedChat =
+        type === 'user' ? context.selectedChat : context.selectedSystemChat;
+
+    const updateSelectedChat =
+        type === 'user'
+            ? context.updateSelectedChat
+            : context.updateSelectedSystemChat;
+
+    const { clearChat, deleteChat, createChat } = context;
 
     const theme = useTheme();
 
@@ -57,8 +63,9 @@ const ChatBar = () => {
             )}
             {isSettingsOpen && (
                 <ChatSettings
-                    chatSettings={selectedChat}
-                    setChatSettings={updateSelectedChat}
+                    type={type}
+                    updateSelectedChat={updateSelectedChat}
+                    selectedChat={selectedChat}
                 />
             )}
             <Box display="flex" justifyContent="flex-end">

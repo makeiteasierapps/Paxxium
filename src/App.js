@@ -30,7 +30,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
-import SystemSettingsDash from './dashboards/system/SystemSettingsDash';
+import SystemDash from './dashboards/system/SystemDash';
 import NewFileMenu from './dashboards/system/NewFileMenu';
 import SystemHealthCheck from './dashboards/system/SystemHealthCheck';
 const drawerWidth = 50;
@@ -212,7 +212,7 @@ const AuthenticatedApp = () => {
                                                             </>
                                                         }
                                                     />
-                                                    <SystemSettingsDash />
+                                                    <SystemDash />
                                                 </>
                                             }
                                         />

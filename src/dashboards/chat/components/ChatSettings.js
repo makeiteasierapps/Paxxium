@@ -23,9 +23,8 @@ const ResizableTextField = styled(TextField)({
     },
 });
 
-const ChatSettings = () => {
-    const { updateSettings, updateSelectedChat, selectedChat } =
-        useContext(ChatContext);
+const ChatSettings = ({ updateSelectedChat, selectedChat }) => {
+    const { updateSettings } = useContext(ChatContext);
     const [isEditing, setIsEditing] = useState(false);
 
     const handleEdit = (event) => {
