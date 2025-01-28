@@ -6,11 +6,10 @@ import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 import { useDropzone } from 'react-dropzone';
 
-const Chat = ({ messages, sx }) => {
+const Chat = ({ messages, sx, type = 'user' }) => {
     const { onDrop } = useContext(ContextManagerContext);
     const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-
     const { getRootProps, isDragActive } = useDropzone({
         onDrop,
         noClick: true,
@@ -53,7 +52,7 @@ const Chat = ({ messages, sx }) => {
                     );
                 })}
             </MessageArea>
-            <MessageInput />
+            <MessageInput type={type} />
         </ChatContainerStyled>
     );
 };

@@ -86,6 +86,7 @@ export const useMessageManager = ({
     };
 
     const sendMessage = async (input) => {
+        console.log('sending message from ', socketEvent);
         let currentChat = { ...selectedChat }; // Create local copy
 
         // Handle file uploads first if there are any files in context
@@ -120,7 +121,7 @@ export const useMessageManager = ({
         };
         try {
             if (socket) {
-                socket.emit('chat', {
+                socket.emit(socketEvent, {
                     selectedChat: chatWithUpdatedMessages,
                 });
             }

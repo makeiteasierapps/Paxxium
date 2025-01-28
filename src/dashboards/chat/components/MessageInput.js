@@ -1,13 +1,20 @@
 import { useContext } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
+import { SystemContext } from '../../../contexts/SystemContext';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { InputArea, StyledInputTextField } from '../chatStyledComponents';
 import DetectedItems from './DetectedItems';
 import MentionMenu from './MentionMenu';
 import EndAdornment from './EndAdornment';
 
-const MessageInput = () => {
-    const { sendMessage, selectedChat } = useContext(ChatContext);
+const MessageInput = ({ type = 'user' }) => {
+    const userContext = useContext(ChatContext);
+    const systemContext = useContext(SystemContext);
+
+    const context = type === 'user' ? userContext : systemContext;
+    const selectedChat =
+        type === 'user' ? context.selectedChat : context.selectedSystemChat;
+    const { sendMessage } = context;
 
     const {
         input,

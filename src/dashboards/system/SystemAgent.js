@@ -1,10 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { styled } from '@mui/material/styles';
 import {
     ScrollContainer,
     ScrollContent,
 } from '../insight/styledInsightComponents';
-import { Typography, Box, Grid, Button, Menu, MenuItem } from '@mui/material';
+import { Box, Grid, Button } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
 import ChatBar from '../chat/components/ChatBar';
@@ -27,12 +27,9 @@ const FileItem = styled(Box)(({ theme, selected }) => ({
 const SystemAgent = () => {
     const {
         selectedSystemChat,
-        createChat,
         systemChatArray,
         setSelectedSystemChatId,
     } = useContext(SystemContext);
-
-    const [showChat, setShowChat] = useState(false);
 
     const handleMenuClick = (event, chatId) => {
         setSelectedSystemChatId(chatId);
@@ -65,16 +62,19 @@ const SystemAgent = () => {
                                     whiteSpace: 'nowrap',
                                     flexShrink: 0,
                                     backgroundColor:
-                                        selectedSystemChat.chatId === chat.chatId
+                                        selectedSystemChat.chatId ===
+                                        chat.chatId
                                             ? 'primary.main'
                                             : 'transparent',
                                     color:
-                                    selectedSystemChat.chatId === chat.chatId
+                                        selectedSystemChat.chatId ===
+                                        chat.chatId
                                             ? 'primary.contrastText'
                                             : 'primary.main',
                                     '&:hover': {
                                         backgroundColor:
-                                        selectedSystemChat.chatId === chat.chatId
+                                            selectedSystemChat.chatId ===
+                                            chat.chatId
                                                 ? 'primary.dark'
                                                 : 'primary.light',
                                     },
@@ -86,7 +86,11 @@ const SystemAgent = () => {
                     </ScrollContent>
                 </ScrollContainer>
                 <ChatBar type="system" />
-                <Chat messages={selectedSystemChat?.messages} sx={sx} />
+                <Chat
+                    messages={selectedSystemChat?.messages}
+                    sx={sx}
+                    type="system"
+                />
             </Box>
             <Grid
                 container
