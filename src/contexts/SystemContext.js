@@ -35,19 +35,6 @@ export const SystemProvider = ({ children }) => {
         showSnackbar
     );
 
-
-    const updateSelectedSystemChat = useCallback(
-        (updates) => {
-            setSystemChatArray((prevChats) =>
-                prevChats.map((systemChat) =>
-                    systemChat.chatId === selectedSystemChatId
-                        ? { ...systemChat, ...updates }
-                        : systemChat
-                )
-            );
-        },
-        [selectedSystemChatId]
-    );
     const baseManager = useMemo(() => {
         return createBaseChatManager({
             baseUrl: `${backendUrl}/system/chat`,
@@ -107,7 +94,6 @@ export const SystemProvider = ({ children }) => {
         systemChatArray,
         selectedSystemChat,
         setSelectedSystemChatId,
-        updateSelectedSystemChat,
         ...systemFileManager,
         ...baseManager,
         ...settingsManager,

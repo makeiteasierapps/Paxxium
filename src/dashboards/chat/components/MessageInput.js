@@ -30,7 +30,7 @@ const MessageInput = ({ type = 'user' }) => {
 
     return (
         <InputArea>
-            <DetectedItems />
+            <DetectedItems selectedChat={selectedChat} />
             <StyledInputTextField
                 fullWidth
                 multiline

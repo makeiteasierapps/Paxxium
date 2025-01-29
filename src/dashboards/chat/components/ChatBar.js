@@ -31,7 +31,7 @@ const ChatBar = ({ type = 'user' }) => {
     const updateSelectedChat =
         type === 'user'
             ? context.updateSelectedChat
-            : context.updateSelectedSystemChat;
+            : context.updateLocalSettings;
 
     const { clearChat, deleteChat, createChat } = context;
 

@@ -1,6 +1,6 @@
 export const useContextManager = ({
     selectedChat,
-    handleUpdateSettings,
+    updateSettings,
     updateLocalSettings,
 }) => {
     const addContextItem = (type, item) => {
@@ -47,6 +47,7 @@ export const useContextManager = ({
     };
 
     const removeContextItem = (type, itemToRemove) => {
+
         const newContext = (selectedChat.context || []).filter((item) => {
             switch (type) {
                 case 'url':
@@ -60,7 +61,7 @@ export const useContextManager = ({
             }
         });
 
-        handleUpdateSettings({
+        updateSettings({
             chatId: selectedChat.chatId,
             uid: selectedChat.uid,
             context: newContext,

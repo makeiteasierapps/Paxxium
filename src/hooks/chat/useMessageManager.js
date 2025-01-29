@@ -205,15 +205,42 @@ export const useMessageManager = ({
         [updateChatMessagesList, selectedChat]
     );
 
+    const handleChatSettingsUpdated = useCallback(
+        (data) => {
+            console.log('chat settings updated', data);
+            updateLocalSettings({ chatId: data.chat_id, ...data });
+        },
+        [updateLocalSettings]
+    );
+
     useEffect(() => {
         if (!socket) return;
 
         const currentSocket = socket;
         currentSocket.on(socketEvent, handleStreamingResponse);
+
+        if (socketEvent === 'system_chat_response') {
+            currentSocket.on(
+                'chat_settings_updated',
+                handleChatSettingsUpdated
+            );
+        }
+
         return () => {
             currentSocket.off(socketEvent, handleStreamingResponse);
+            if (socketEvent === 'system_chat_response') {
+                currentSocket.off(
+                    'chat_settings_updated',
+                    handleChatSettingsUpdated
+                );
+            }
         };
-    }, [handleStreamingResponse, socket, socketEvent]);
+    }, [
+        handleChatSettingsUpdated,
+        handleStreamingResponse,
+        socket,
+        socketEvent,
+    ]);
 
     return {
         addMessage,

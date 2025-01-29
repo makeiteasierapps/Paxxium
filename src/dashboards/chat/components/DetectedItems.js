@@ -4,7 +4,6 @@ import LinkIcon from '@mui/icons-material/Link';
 import ArticleIcon from '@mui/icons-material/Article';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
-import { ChatContext } from '../../../contexts/ChatContext';
 
 const DetectedItemsContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -37,9 +36,8 @@ const StyledChip = styled(Chip, {
     },
 }));
 
-const DetectedItems = () => {
+const DetectedItems = ({ selectedChat }) => {
     const { removeContextItem } = useContext(ContextManagerContext);
-    const { selectedChat } = useContext(ChatContext);
 
     const getIconByType = (type) => {
         switch (type) {
