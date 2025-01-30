@@ -49,11 +49,12 @@ export const useContextManager = ({
     const removeContextItem = (type, itemToRemove) => {
 
         const newContext = (selectedChat.context || []).filter((item) => {
+            console.log(item);
             switch (type) {
                 case 'url':
                     return item.source !== itemToRemove.source;
                 case 'kb':
-                    return item.id !== itemToRemove.id;
+                    return item.kb_id !== itemToRemove.kb_id;
                 case 'file':
                     return item.name !== itemToRemove.name;
                 default:
