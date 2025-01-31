@@ -32,6 +32,7 @@ import SideDrawer from './dashboards/main/SideDrawer';
 import SystemDash from './dashboards/system/SystemDash';
 import NewFileMenu from './dashboards/system/NewFileMenu';
 import SystemHealthCheck from './dashboards/system/SystemHealthCheck';
+import useIsMobile from './hooks/useIsMobile';
 const drawerWidth = 50;
 const expandedDrawerWidth = 150;
 
@@ -39,6 +40,7 @@ const AuthenticatedApp = () => {
     const { uid, user, setUid, isAuthorized, setIsAuthorized } =
         useContext(AuthContext);
 
+    const isMobile = useIsMobile();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
 
@@ -54,6 +56,16 @@ const AuthenticatedApp = () => {
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
+
+    useEffect(() => {
+        if (
+            isMobile &&
+            document.documentElement.requestFullscreen &&
+            !document.fullscreenElement
+        ) {
+            document.documentElement.requestFullscreen().catch(console.error);
+        }
+    }, [isMobile]);
 
     useEffect(() => {
         if (isAuthorized) return;
@@ -101,11 +113,15 @@ const AuthenticatedApp = () => {
                                 mobileOpen={mobileOpen}
                                 setMobileOpen={setMobileOpen}
                                 drawerWidth={drawerWidth}
-                                expandedDrawerWidth={expandedDrawerWidth}
+                                expandedDrawerWidth={
+                                    isMobile ? 0 : expandedDrawerWidth
+                                }
                             />
                             <MainContent
                                 drawerWidth={drawerWidth}
-                                expandedDrawerWidth={expandedDrawerWidth}
+                                expandedDrawerWidth={
+                                    isMobile ? 0 : expandedDrawerWidth
+                                }
                             >
                                 <Routes>
                                     {['/', '/home'].map((path, i) => (
