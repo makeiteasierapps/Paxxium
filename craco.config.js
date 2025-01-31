@@ -1,4 +1,4 @@
-import WorkboxWebpackPlugin from 'workbox-webpack-plugin';
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 const config = {
     webpack: {
@@ -17,4 +17,4 @@ const config = {
     },
 };
 
-export default config;
+module.exports = config;
