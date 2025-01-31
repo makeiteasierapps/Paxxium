@@ -1,19 +1,28 @@
 /* eslint-disable no-restricted-globals */
 
-import { clientsClaim } from 'workbox-core';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
-import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate } from 'workbox-strategies';
+// import { clientsClaim } from 'workbox-core';
+// import { ExpirationPlugin } from 'workbox-expiration';
+// import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
+// import { registerRoute } from 'workbox-routing';
+// import { StaleWhileRevalidate } from 'workbox-strategies';
 
 // This needs to be a standalone expression
 // eslint-disable-next-line no-unused-expressions
 self.__WB_MANIFEST;
 
+// Now require the modules instead
+const { clientsClaim } = require('workbox-core');
+const { ExpirationPlugin } = require('workbox-expiration');
+const {
+    precacheAndRoute,
+    createHandlerBoundToURL,
+} = require('workbox-precaching');
+const { registerRoute } = require('workbox-routing');
+const { StaleWhileRevalidate } = require('workbox-strategies');
+
 clientsClaim();
 
-// Now use precacheAndRoute with an empty array as the initial cache
-// The manifest will be injected here during build
+// Use precacheAndRoute after the manifest declaration
 precacheAndRoute([]);
 
 // Set up App Shell-style routing, so that all navigation requests
