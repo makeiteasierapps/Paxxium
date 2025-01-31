@@ -4,6 +4,12 @@ const config = {
     webpack: {
         configure: (webpackConfig, { env, paths }) => {
             if (env === 'production') {
+                // Remove the default GenerateSW plugin that CRA adds
+                webpackConfig.plugins = webpackConfig.plugins.filter(
+                    (plugin) => plugin.constructor.name !== 'GenerateSW'
+                );
+
+                // Add our InjectManifest plugin
                 webpackConfig.plugins.push(
                     new WorkboxWebpackPlugin.InjectManifest({
                         swSrc: './src/service-worker.js',
