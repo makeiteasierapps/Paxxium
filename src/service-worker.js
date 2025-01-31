@@ -13,6 +13,8 @@ import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { StaleWhileRevalidate } from 'workbox-strategies';
 
+// This needs to be here for the InjectManifest plugin to work
+// eslint-disable-next-line no-unused-expressions
 self.__WB_MANIFEST;
 clientsClaim();
 
