@@ -15,6 +15,17 @@ const config = {
                         swSrc: './src/service-worker.js',
                         swDest: 'service-worker.js',
                         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+                        // Add these options
+                        exclude: [/\.map$/, /asset-manifest\.json$/],
+                        manifestTransforms: [
+                            (manifest) => {
+                                return {
+                                    manifest: manifest.map((entry) => {
+                                        return entry;
+                                    }),
+                                };
+                            },
+                        ],
                     })
                 );
             }
