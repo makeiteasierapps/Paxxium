@@ -27,11 +27,11 @@ export const useContextManager = ({
                     });
                 }
                 break;
-            case 'file':
+            case 'image':
                 newContext.push({
-                    type: 'file',
+                    type: 'image',
                     name: item.name,
-                    file: item,
+                    image: item,
                 });
                 break;
             default:
@@ -49,10 +49,11 @@ export const useContextManager = ({
     const removeContextItem = (type, itemToRemove) => {
 
         const newContext = (selectedChat.context || []).filter((item) => {
-            console.log(item);
             switch (type) {
                 case 'url':
                     return item.source !== itemToRemove.source;
+                case 'image':
+                    return item.name !== itemToRemove.name;
                 case 'kb':
                     return item.kb_id !== itemToRemove.kb_id;
                 case 'file':

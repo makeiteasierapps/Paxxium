@@ -57,6 +57,8 @@ const DetectedItems = ({ selectedChat }) => {
             case 'url':
                 return item.source;
             case 'kb':
+            case 'image':
+                return item.name;
             case 'file':
                 return item.name;
             default:

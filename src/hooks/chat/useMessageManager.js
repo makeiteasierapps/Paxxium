@@ -55,22 +55,22 @@ export const useMessageManager = ({
         [selectedChat, updateChatMessagesList]
     );
 
-    const handleFileUpload = async (fileContextItems) => {
+    const handleImageUpload = async (imageContextItems) => {
         const newContext = [...(selectedChat.context || [])];
-        const files = fileContextItems.map((item) => item.file);
-        const uploadedFiles = await uploadFile(files);
+        const images = imageContextItems.map((item) => item.image);
+        const uploadedImages = await uploadFile(images);
 
         const updatedContext = newContext.map((contextItem) => {
-            const fileItem = fileContextItems.find(
+            const imageItem = imageContextItems.find(
                 (item) => item.name === contextItem.name
             );
-            if (fileItem) {
-                const fileIndex = fileContextItems.indexOf(fileItem);
+            if (imageItem) {
+                const imageIndex = imageContextItems.indexOf(imageItem);
                 return {
-                    type: 'file',
+                    type: 'image',
                     name: contextItem.name,
-                    file_path: uploadedFiles[fileIndex].storedPath,
-                    file: undefined,
+                    image_path: uploadedImages[imageIndex].storedPath,
+                    image: undefined,
                 };
             }
             return contextItem;
@@ -89,15 +89,17 @@ export const useMessageManager = ({
         console.log('sending message from ', socketEvent);
         let currentChat = { ...selectedChat }; // Create local copy
 
-        // Handle file uploads first if there are any files in context
+        // Handle image uploads first if there are any images in context
         if (selectedChat.context?.length) {
-            const fileContextItems = selectedChat.context.filter(
-                (item) => item.type === 'file' && item.file
+            const imageContextItems = selectedChat.context.filter(
+                (item) => item.type === 'image' && item.image
             );
 
-            // Upload all files and get updated context
-            if (fileContextItems.length) {
-                const updatedContext = await handleFileUpload(fileContextItems);
+            // Upload all images and get updated context
+            if (imageContextItems.length) {
+                const updatedContext = await handleImageUpload(
+                    imageContextItems
+                );
                 currentChat = { ...currentChat, context: updatedContext };
             }
         }
