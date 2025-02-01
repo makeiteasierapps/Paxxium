@@ -58,16 +58,6 @@ const AuthenticatedApp = () => {
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
     useEffect(() => {
-        if (
-            isMobile &&
-            document.documentElement.requestFullscreen &&
-            !document.fullscreenElement
-        ) {
-            document.documentElement.requestFullscreen().catch(console.error);
-        }
-    }, [isMobile]);
-
-    useEffect(() => {
         if (isAuthorized) return;
         const fetchData = async () => {
             if (user) {
