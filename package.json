@@ -44,10 +44,10 @@
     "workbox-strategies": "^7.3.0"
   },
   "scripts": {
-    "start": "NODE_ENV=development craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "craco eject"
+    "start": "NODE_ENV=development react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -69,7 +69,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@craco/craco": "^7.1.0",
     "@iconify/react": "^4.1.0",
     "eslint-config-react-app": "^7.0.1",
     "workbox-webpack-plugin": "^7.3.0"
