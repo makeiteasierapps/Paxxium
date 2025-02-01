@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { styled } from '@mui/material/styles';
 import {
     ScrollContainer,
     ScrollContent,
@@ -8,21 +7,6 @@ import { Box, Grid, Button } from '@mui/material';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
 import ChatBar from '../chat/components/ChatBar';
-
-const FileItem = styled(Box)(({ theme, selected }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0 3px',
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: selected ? theme.palette.background.user : 'transparent',
-    cursor: 'pointer',
-    '&:hover': {
-        backgroundColor: selected
-            ? theme.palette.action.selected
-            : theme.palette.action.hover,
-    },
-}));
 
 const SystemAgent = () => {
     const {

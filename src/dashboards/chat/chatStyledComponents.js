@@ -109,11 +109,6 @@ export const InvisibleInput = styled(TextField)({
     },
 });
 
-export const SettingsMenuContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    width: '100%',
-}));
-
 export const ChatContainerStyled = styled(Box, {
     shouldForwardProp: (prop) => !['isDragActive', 'sx'].includes(prop),
 })(({ theme, isDragActive, sx }) => ({
@@ -180,15 +175,23 @@ export const MessageContent = styled(Box)({
 });
 
 // Chatbar
-export const Bar = styled(Box)(({ theme }) => ({
-    position: 'relative',
-    backgroundColor: theme.palette.secondary.dar,
+export const Bar = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'isDrawerExpanded',
+})(({ theme, isDrawerExpanded }) => ({
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    background:
+        theme.palette.mode === 'dark'
+            ? 'rgba(18, 18, 18, 0.8)' // Dark mode background
+            : 'rgba(255, 255, 255, 0.8)', // Light mode background
     display: 'flex',
-    width: '100%',
+    justifyContent: 'flex-end',
+    width: `calc(100% - ${isDrawerExpanded ? '153px' : '53px'})`,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottom: `2px solid ${theme.palette.secondary.main}`,
+    zIndex: theme.zIndex.drawer + 2,
+    padding: theme.spacing(1, 2),
+    backdropFilter: 'blur(8px)',
 }));
 
 export const ClearAndTrashIcons = styled(Box)(({ theme }) => ({

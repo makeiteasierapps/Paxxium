@@ -4,7 +4,6 @@ import { useContext, useState } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
 import ModelMenu from './ModelMenu';
 import {
-    SettingsMenuContainer,
     SettingsMenuButton,
     InvisibleInput,
 } from '../chatStyledComponents';
@@ -51,83 +50,81 @@ const ChatSettings = ({ updateSelectedChat, selectedChat }) => {
     };
 
     return (
-        <SettingsMenuContainer id="settings-container">
-            <Box display="flex" flexDirection="column" width="100%" padding={2}>
-                <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    width="100%"
-                    marginBottom={2}
+        <Box display="flex" flexDirection="column" width="100%" padding={2} zIndex={1000}>
+            <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                width="100%"
+                marginBottom={2}
+            >
+                <SettingsMenuButton
+                    id="model"
+                    name="model"
+                    sx={{ width: '48%' }}
+                    onClick={handleClick('model')}
                 >
-                    <SettingsMenuButton
-                        id="model"
-                        name="model"
-                        sx={{ width: '48%' }}
-                        onClick={handleClick('model')}
-                    >
-                        {selectedChat?.agent_model
-                            ? selectedChat.agent_model
-                            : 'Select Model'}
-                    </SettingsMenuButton>
-                    <ModelMenu
-                        anchorEl={anchorEl}
-                        setAnchorEl={setAnchorEl}
-                        updateSelectedChat={updateSelectedChat}
-                        handleUpdateSettings={updateSettings}
-                    />
-                    <SettingsMenuButton
-                        id="name"
-                        onClick={() => setIsEditing(true)}
-                        sx={{ width: '48%' }}
-                    >
-                        {isEditing ? (
-                            <InvisibleInput
-                                autoFocus
-                                value={selectedChat?.chat_name}
-                                onChange={handleEdit}
-                                onBlur={() => {
-                                    setIsEditing(false);
-                                    updateSettings({
-                                        chat_name: selectedChat.chat_name,
-                                    });
-                                }}
-                                onKeyDown={handleKeyPress}
-                                fullWidth
-                            />
-                        ) : selectedChat?.chat_name ? (
-                            selectedChat.chat_name
-                        ) : (
-                            'Chat Name'
-                        )}
-                    </SettingsMenuButton>
-                </Box>
-
-                <Box width="100%" marginBottom={1}>
-                    <ResizableTextField
-                        id="systemMessage"
-                        name="systemMessage"
-                        multiline
-                        fullWidth
-                        variant="outlined"
-                        value={selectedChat?.system_message}
-                        onChange={(event) =>
-                            updateSelectedChat({
-                                system_message: event.target.value,
-                            })
-                        }
-                        onBlur={() =>
-                            updateSettings({
-                                system_message: selectedChat.system_message,
-                            })
-                        }
-                        InputProps={{
-                            style: { resize: 'vertical' },
-                        }}
-                    />
-                </Box>
+                    {selectedChat?.agent_model
+                        ? selectedChat.agent_model
+                        : 'Select Model'}
+                </SettingsMenuButton>
+                <ModelMenu
+                    anchorEl={anchorEl}
+                    setAnchorEl={setAnchorEl}
+                    updateSelectedChat={updateSelectedChat}
+                    handleUpdateSettings={updateSettings}
+                />
+                <SettingsMenuButton
+                    id="name"
+                    onClick={() => setIsEditing(true)}
+                    sx={{ width: '48%' }}
+                >
+                    {isEditing ? (
+                        <InvisibleInput
+                            autoFocus
+                            value={selectedChat?.chat_name}
+                            onChange={handleEdit}
+                            onBlur={() => {
+                                setIsEditing(false);
+                                updateSettings({
+                                    chat_name: selectedChat.chat_name,
+                                });
+                            }}
+                            onKeyDown={handleKeyPress}
+                            fullWidth
+                        />
+                    ) : selectedChat?.chat_name ? (
+                        selectedChat.chat_name
+                    ) : (
+                        'Chat Name'
+                    )}
+                </SettingsMenuButton>
             </Box>
-        </SettingsMenuContainer>
+
+            <Box width="100%" marginBottom={1}>
+                <ResizableTextField
+                    id="systemMessage"
+                    name="systemMessage"
+                    multiline
+                    fullWidth
+                    variant="outlined"
+                    value={selectedChat?.system_message}
+                    onChange={(event) =>
+                        updateSelectedChat({
+                            system_message: event.target.value,
+                        })
+                    }
+                    onBlur={() =>
+                        updateSettings({
+                            system_message: selectedChat.system_message,
+                        })
+                    }
+                    InputProps={{
+                        style: { resize: 'vertical' },
+                    }}
+                />
+            </Box>
+        </Box>
     );
 };
 

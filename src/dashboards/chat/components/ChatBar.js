@@ -10,17 +10,18 @@ import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import ChatSettings from './ChatSettings';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { SystemContext } from '../../../contexts/SystemContext';
-
+import { MainContext } from '../../../contexts/MainContext';
 import {
     Bar,
     ClearAndTrashIcons,
     StyledIconButton,
 } from '../chatStyledComponents';
 
+
 const ChatBar = ({ type = 'user' }) => {
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
-
+    const { isDrawerExpanded } = useContext(MainContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [deleteClicked, setDeleteClicked] = useState(false);
 
@@ -53,14 +54,7 @@ const ChatBar = ({ type = 'user' }) => {
     };
 
     return (
-        <Bar>
-            {!isSettingsOpen && (
-                <Box display="flex" justifyContent="flex-start">
-                    <Typography variant="h6">
-                        {selectedChat?.chat_name}
-                    </Typography>
-                </Box>
-            )}
+        <Bar isDrawerExpanded={isDrawerExpanded}>
             {isSettingsOpen && (
                 <ChatSettings
                     type={type}

@@ -29,8 +29,9 @@ const MessageInput = ({ type = 'user' }) => {
     } = useContext(ContextManagerContext);
 
     return (
+        <>
+        <DetectedItems selectedChat={selectedChat} />
         <InputArea>
-            <DetectedItems selectedChat={selectedChat} />
             <StyledInputTextField
                 fullWidth
                 multiline
@@ -98,6 +99,7 @@ const MessageInput = ({ type = 'user' }) => {
                 highlightedIndex={highlightedIndex}
             />
         </InputArea>
+        </>
     );
 };
 

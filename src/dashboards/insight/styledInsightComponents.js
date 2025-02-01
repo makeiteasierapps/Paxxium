@@ -1,51 +1,53 @@
 import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-export const ScrollContainer = styled(Box)(({ theme }) => ({
+export const ScrollContainer = styled(Box, {
+    shouldForwardProp: (prop) => !['sx'].includes(prop),
+})(({ theme, sx }) => ({
     display: 'flex',
     position: 'relative',
-    width: '70%',
+    width: '100%',
     margin: '0',
 
-    '&::after': {
+    '&::after, &::before': {
         content: '""',
         position: 'absolute',
-        right: 0,
         top: 0,
         height: '100%',
-        width: '40px',
-        background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.default}00)`,
         pointerEvents: 'none',
+        [theme.breakpoints.down('sm')]: {
+            width: '40px', // Smaller gradient width on mobile
+        },
+    },
+    '&::after': {
+        right: 0,
+        background: `linear-gradient(to left, 
+            ${theme.palette.background.default} 30%, 
+            ${theme.palette.background.default}00)`,
     },
     '&::before': {
-        content: '""',
-        position: 'absolute',
         left: 0,
-        top: 0,
-        height: '100%',
-        width: '40px',
-        background: `linear-gradient(to right, ${theme.palette.background.default}, ${theme.palette.background.default}00)`,
-        pointerEvents: 'none',
+        background: `linear-gradient(to right, 
+            ${theme.palette.background.default} 30%, 
+            ${theme.palette.background.default}00)`,
         zIndex: 1,
-    },
-    [theme.breakpoints.down('md')]: {
-        width: '100%',
     },
 }));
 
-export const ScrollContent = styled(Box)(({ theme }) => ({
+export const ScrollContent = styled(Box, {
+    shouldForwardProp: (prop) => !['sx'].includes(prop),
+})(({ theme, sx }) => ({
     display: 'flex',
     width: '100%',
     gap: '1.5rem',
     overflowX: 'auto',
-    padding: '0.8rem',
+    padding: '0.8rem 40px',
     scrollBehavior: 'smooth',
-    scrollPadding: '0 24px',
     msOverflowStyle: 'none',
     scrollbarWidth: 'none',
     '&::-webkit-scrollbar': {
         display: 'none',
     },
-    
+    ...(sx || {}),
 }));
 
 export const CategoryText = styled(Typography)(({ theme }) => ({

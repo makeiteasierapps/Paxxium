@@ -1,17 +1,13 @@
 import { useContext } from 'react';
-import { Box, Chip, styled, alpha, Tooltip } from '@mui/material';
+import { Chip, styled, alpha, Tooltip } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import ArticleIcon from '@mui/icons-material/Article';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
-
-const DetectedItemsContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    flexWrap: 'wrap-reverse',
-    gap: theme.spacing(1),
-    padding: theme.spacing(1),
-    minHeight: '32px',
-}));
+import {
+    ScrollContainer,
+    ScrollContent,
+} from '../../insight/styledInsightComponents';
 
 const StyledChip = styled(Chip, {
     shouldForwardProp: (prop) => prop !== 'itemtype',
@@ -71,23 +67,25 @@ const DetectedItems = ({ selectedChat }) => {
     };
 
     return (
-        <DetectedItemsContainer>
-            {selectedChat?.context?.map((item, index) => (
-                <Tooltip
-                    key={index}
-                    title={getChipLabel(item)}
-                    enterDelay={500}
-                    placement="top"
-                >
-                    <StyledChip
-                        label={getChipLabel(item)}
-                        itemtype={item.type}
-                        icon={getIconByType(item.type)}
-                        onDelete={() => handleDelete(item)}
-                    />
-                </Tooltip>
-            ))}
-        </DetectedItemsContainer>
+        <ScrollContainer>
+            <ScrollContent sx={{ marginTop: '0.5rem', gap: '0.5rem', justifyContent: 'center' }}>
+                {selectedChat?.context?.map((item, index) => (
+                    <Tooltip
+                        key={index}
+                        title={getChipLabel(item)}
+                        enterDelay={500}
+                        placement="top"
+                    >
+                        <StyledChip
+                            label={getChipLabel(item)}
+                            itemtype={item.type}
+                            icon={getIconByType(item.type)}
+                            onDelete={() => handleDelete(item)}
+                        />
+                    </Tooltip>
+                ))}
+            </ScrollContent>
+        </ScrollContainer>
     );
 };
 
