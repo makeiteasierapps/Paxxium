@@ -1,16 +1,15 @@
-import { Icon } from '@iconify/react';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import {
     MessageListItem,
     MessageContent,
     StyledMarkdown,
+    StyledAgentIcon,
 } from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
-import { useTheme } from '@mui/material/styles';
 
 const AgentMessage = ({ message }) => {
-    const theme = useTheme();
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -33,16 +32,9 @@ const AgentMessage = ({ message }) => {
 
     return (
         <MessageListItem messageFrom={message.message_from}>
-            <Icon
-                icon="mdi:robot"
-                style={{
-                    fontSize: theme.spacing(4.5),
-                    position: 'relative',
-                    marginRight: theme.spacing(1.5),
-                    color: theme.palette.primary.dark,
-                    flexShrink: 0,
-                }}
-            />
+            <StyledAgentIcon>
+                <SmartToyOutlinedIcon />
+            </StyledAgentIcon>
 
             <MessageContent>
                 {Array.isArray(message.content)

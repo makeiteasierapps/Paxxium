@@ -1,12 +1,5 @@
 import React, { useState, useContext, useRef } from 'react';
-import {
-    Box,
-    Drawer,
-    Typography,
-    MenuItem,
-    Tooltip,
-    Collapse,
-} from '@mui/material';
+import { Box, Drawer, Typography, Tooltip } from '@mui/material';
 import {
     Home as HomeIcon,
     SettingsApplications as SettingsIcon,
@@ -14,8 +7,6 @@ import {
     AccountCircle as ProfileIcon,
     AccountTree as AccountTreeIcon,
     Logout as LogoutIcon,
-    ExpandLess,
-    ExpandMore,
     Chat as ChatIcon,
     Collections as CollectionsIcon,
 } from '@mui/icons-material';
@@ -28,7 +19,6 @@ import paxxiumTextLogo from '../../assets/images/paxxium-logo-text-only.png';
 import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext, auth } from '../../contexts/AuthContext';
-import { ChatContext } from '../../contexts/ChatContext';
 import { MainContext } from '../../contexts/MainContext';
 import { HeaderIconButton } from './mainStyledComponents';
 
@@ -46,7 +36,6 @@ const SideDrawer = ({
     const [chatsOpen, setChatsOpen] = useState(false);
     const chatButtonRef = useRef(null);
     const navigate = useNavigate();
-    const { chatArray, selectedChat, setSelectedChatId } = useContext(ChatContext);
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
 
     const handleLogout = async () => {
@@ -70,22 +59,6 @@ const SideDrawer = ({
         ) : (
             children
         );
-    };
-
-    const renderChats = () => {
-        return chatArray.map((chat) => (
-            <MenuItem
-                key={chat.chatId}
-                component={Link}
-                to={'/chat'}
-                onClick={() => {
-                    setSelectedChatId(chat.chatId);
-                }}
-                selected={selectedChat.chatId === chat.chatId}
-            >
-                {chat.chat_name}
-            </MenuItem>
-        ));
     };
 
     const homeButton = (
@@ -113,7 +86,10 @@ const SideDrawer = ({
     );
 
     const systemSettingsButton = (
-        <ConditionalTooltip title="System Settings" condition={!isDrawerExpanded}>
+        <ConditionalTooltip
+            title="System Settings"
+            condition={!isDrawerExpanded}
+        >
             <HeaderIconButton
                 disableRipple
                 component={Link}
@@ -252,20 +228,7 @@ const SideDrawer = ({
                 disableRipple
                 component={Link}
                 to="/chat"
-                onClick={() => {
-                    if (location.pathname !== '/chat') {
-                        navigate('/chat');
-                    } else {
-                        if (isDrawerExpanded) {
-                            setChatsOpen(!chatsOpen);
-                        } else {
-                            setIsDrawerExpanded(!isDrawerExpanded);
-                            setChatsOpen(true);
-                        }
-                    }
-                }}
                 currentPath={location.pathname}
-                ref={chatButtonRef}
             >
                 <Box
                     sx={{
@@ -278,9 +241,6 @@ const SideDrawer = ({
                     {isDrawerExpanded && (
                         <Typography paddingLeft={1}>Chats</Typography>
                     )}
-
-                    {isDrawerExpanded &&
-                        (chatsOpen ? <ExpandLess /> : <ExpandMore />)}
                 </Box>
             </HeaderIconButton>
         </ConditionalTooltip>
@@ -387,26 +347,11 @@ const SideDrawer = ({
 
                 {/* Menu Items */}
                 {homeButton}
-
                 {imageGalleryButton}
-
                 {insightButton}
                 {KbButton}
                 {userAccountButton}
                 {chatsButton}
-                {isDrawerExpanded && (
-                    <Collapse in={chatsOpen} timeout="auto" unmountOnExit>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                width: '100%',
-                            }}
-                        >
-                            {renderChats()}
-                        </Box>
-                    </Collapse>
-                )}
                 {systemSettingsButton}
                 {logoutButton}
             </Box>

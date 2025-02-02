@@ -4,12 +4,13 @@ import ProjectManager from './ProjectManager';
 import { AuthContext } from '../../contexts/AuthContext';
 import { SystemContext } from '../../contexts/SystemContext';
 import { ContextManagerProvider } from '../../contexts/ContextManagerContext';
-import { MainContainer } from '../styledComponents/DashStyledComponents';
+import { MainContext } from '../../contexts/MainContext';
 import SystemAgent from './SystemAgent';
 
 const SystemDash = () => {
     const { fetchConfigFiles, checkSystemHealth } = useContext(SystemContext);
     const { uid } = useContext(AuthContext);
+    const { isDrawerExpanded } = useContext(MainContext);
     const [activeTab, setActiveTab] = useState(0);
 
     useEffect(() => {
@@ -31,25 +32,29 @@ const SystemDash = () => {
 
     return (
         <ContextManagerProvider type="system">
-            <MainContainer
-                alignItems="left"
-                sx={{ maxWidth: '1200px', alignItems: 'flex-start' }}
+            <Box
+                sx={{
+                    position: 'fixed',
+                    top: 50,
+                    left: isDrawerExpanded ? 150 : 50,
+                    right: 0,
+                    bgcolor: 'background.paper',
+                    zIndex: 1100,
+                }}
             >
-                <Box sx={{ borderColor: 'divider', mb: 2 }}>
-                    <Tabs value={activeTab} onChange={handleTabChange}>
-                        <Tab label="System Agent" />
-                        <Tab label="Project Manager" />
-                    </Tabs>
-                </Box>
+                <Tabs value={activeTab} onChange={handleTabChange}>
+                    <Tab label="System Agent" />
+                    <Tab label="Project Manager" />
+                </Tabs>
+            </Box>
 
+            <Box sx={{ mt: '48px' }}> 
                 {activeTab === 0 ? (
-                    <>
-                        <SystemAgent />
-                    </>
+                    <SystemAgent />
                 ) : (
                     <ProjectManager />
                 )}
-            </MainContainer>
+            </Box>
         </ContextManagerProvider>
     );
 };

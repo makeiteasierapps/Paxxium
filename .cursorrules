@@ -7,6 +7,8 @@ Rules:
 - Use MUI 5 components for styling
     - Use Styled Components when it makes sense
         - Use the shouldForwardProp prop to forward props to the component
+    - For Simple Responsive Changes:
+        - Use MUI's breakpoint system with theme.breakpoints.down() or theme.breakpoints.up()
 
 State Management:
     - Context API

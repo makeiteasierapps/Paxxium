@@ -5,31 +5,12 @@ export const ScrollContainer = styled(Box, {
 })(({ theme, sx }) => ({
     display: 'flex',
     position: 'relative',
-    width: '100%',
-    margin: '0',
-
-    '&::after, &::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        height: '100%',
-        pointerEvents: 'none',
-        [theme.breakpoints.down('sm')]: {
-            width: '40px', // Smaller gradient width on mobile
-        },
-    },
-    '&::after': {
-        right: 0,
-        background: `linear-gradient(to left, 
-            ${theme.palette.background.default} 30%, 
-            ${theme.palette.background.default}00)`,
-    },
-    '&::before': {
-        left: 0,
-        background: `linear-gradient(to right, 
-            ${theme.palette.background.default} 30%, 
-            ${theme.palette.background.default}00)`,
-        zIndex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 'fit-content',
+    maxWidth: '100%',
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
     },
 }));
 
@@ -37,10 +18,9 @@ export const ScrollContent = styled(Box, {
     shouldForwardProp: (prop) => !['sx'].includes(prop),
 })(({ theme, sx }) => ({
     display: 'flex',
-    width: '100%',
     gap: '1.5rem',
     overflowX: 'auto',
-    padding: '0.8rem 40px',
+    padding: '0.8rem 0',
     scrollBehavior: 'smooth',
     msOverflowStyle: 'none',
     scrollbarWidth: 'none',

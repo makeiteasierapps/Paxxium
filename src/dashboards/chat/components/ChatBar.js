@@ -17,11 +17,9 @@ import {
     StyledIconButton,
 } from '../chatStyledComponents';
 
-
-const ChatBar = ({ type = 'user' }) => {
+const ChatBar = ({ type = 'user', sx }) => {
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
-    const { isDrawerExpanded } = useContext(MainContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [deleteClicked, setDeleteClicked] = useState(false);
 
@@ -54,7 +52,7 @@ const ChatBar = ({ type = 'user' }) => {
     };
 
     return (
-        <Bar isDrawerExpanded={isDrawerExpanded}>
+        <Bar sx={sx}>
             {isSettingsOpen && (
                 <ChatSettings
                     type={type}

@@ -123,7 +123,6 @@ export const ChatContainerStyled = styled(Box, {
     overflow: 'hidden',
     whiteSpace: 'pre-line',
     position: 'relative',
-
     '&::after': {
         content: '""',
         position: 'absolute',
@@ -150,6 +149,7 @@ export const MessageArea = styled(List)(({ theme }) => ({
     width: '100%',
     padding: theme.spacing(1),
     scrollBehavior: 'smooth',
+    marginTop: theme.spacing(1),
 }));
 
 export const MessageListItem = styled(ListItem, {
@@ -159,39 +159,107 @@ export const MessageListItem = styled(ListItem, {
     width: messageFrom === 'user' ? '60%' : '80%',
     height: 'auto',
     wordBreak: 'break-word',
-    alignItems: 'flex-start',
-    padding: theme.spacing(1),
+    padding: theme.spacing(1.5),
     margin: `${theme.spacing(2)} auto`,
     borderRadius: theme.shape.borderRadius,
     boxShadow: theme.shadows[3],
+    display: 'block',
+
     [theme.breakpoints.down('sm')]: {
-        width: '100%',
+        width: '95%',
+        padding: theme.spacing(1),
+    },
+}));
+
+export const StyledUserAvatar = styled('div')(({ theme }) => ({
+    float: 'left',
+    marginRight: theme.spacing(1.5),
+    lineHeight: 1,
+    shapeOutside: 'margin-box',
+    position: 'relative',
+    top: theme.spacing(-0.5),
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `radial-gradient(circle, 
+        transparent 0%, 
+        transparent 35%, 
+        ${theme.palette.background.user} 75%, 
+        ${theme.palette.background.user} 100%)`,
+        pointerEvents: 'none',
+    },
+    '& .MuiAvatar-root': {
+        width: 30,
+        height: 30,
+        backgroundColor: 'transparent',
+        objectFit: 'contain',
+    },
+
+    [theme.breakpoints.down('sm')]: {
+        '& .MuiAvatar-root': {
+            width: 22,
+            height: 22,
+        },
+        top: theme.spacing(0),
+    },
+}));
+
+export const StyledAgentIcon = styled('div')(({ theme }) => ({
+    float: 'left',
+    color: theme.palette.primary.dark,
+    marginRight: theme.spacing(1.5),
+    lineHeight: 1,
+    shapeOutside: 'margin-box',
+    position: 'relative',
+    top: theme.spacing(-0.8),
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        background: `radial-gradient(circle, 
+            transparent 0%, 
+            transparent 35%, 
+            ${theme.palette.background.agent} 70%, 
+            ${theme.palette.background.agent} 100%)`,
+        pointerEvents: 'none',
+    },
+    '& .MuiSvgIcon-root': {
+        width: '1.5em',
+        height: '1.5em',
+        display: 'block',
+    },
+
+    [theme.breakpoints.down('sm')]: {
+        '& .MuiSvgIcon-root': {
+            width: '1em',
+            height: '1em',
+        },
+        top: theme.spacing(0),
     },
 }));
 
 export const MessageContent = styled(Box)({
-    overflow: 'auto',
-    borderRadius: 'inherit',
+    display: 'block',
 });
 
 // Chatbar
 export const Bar = styled(Box, {
-    shouldForwardProp: (prop) => prop !== 'isDrawerExpanded',
-})(({ theme, isDrawerExpanded }) => ({
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    background:
-        theme.palette.mode === 'dark'
-            ? 'rgba(18, 18, 18, 0.8)' // Dark mode background
-            : 'rgba(255, 255, 255, 0.8)', // Light mode background
+    shouldForwardProp: (prop) => !['sx'].includes(prop),
+})(({ theme, sx }) => ({
     display: 'flex',
     justifyContent: 'flex-end',
-    width: `calc(100% - ${isDrawerExpanded ? '153px' : '53px'})`,
+    width: '100%',
     flexDirection: 'row',
-    zIndex: theme.zIndex.drawer + 2,
+    zIndex: theme.zIndex.drawer,
     padding: theme.spacing(1, 2),
-    backdropFilter: 'blur(8px)',
+    ...(sx || {}),
 }));
 
 export const ClearAndTrashIcons = styled(Box)(({ theme }) => ({
@@ -231,6 +299,7 @@ export const InputArea = styled(Box)(({ theme }) => ({
     justifyContent: 'space-between',
     [theme.breakpoints.down('sm')]: {
         paddingBottom: '20px',
+        width: '95%',
     },
 }));
 
@@ -239,6 +308,7 @@ export const StyledInputTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
         '& fieldset': {
             border: `2px solid ${theme.palette.secondary.light}`,
+            borderRadius: '15px',
         },
         '&:hover fieldset': {
             borderColor: theme.palette.secondary.main,

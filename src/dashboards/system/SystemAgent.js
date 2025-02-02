@@ -1,94 +1,62 @@
-import React, { useContext } from 'react';
-import {
-    ScrollContainer,
-    ScrollContent,
-} from '../insight/styledInsightComponents';
-import { Box, Grid, Button } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { SystemContext } from '../../contexts/SystemContext';
 import Chat from '../chat/components/Chat';
-import ChatBar from '../chat/components/ChatBar';
+import { Button, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { MainContext } from '../../contexts/MainContext';
+const GlassmorphicButton = styled(Button, {
+    shouldForwardProp: (prop) => !['isopen', 'isDrawerExpanded'].includes(prop),
+})(({ theme, isopen, isDrawerExpanded }) => ({
+    position: 'fixed',
+    left: isDrawerExpanded ? '150px' : '50px',
+    top: '200px',
+    backgroundColor: 'rgba(144, 202, 249, 0.2)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.18)',
+    borderLeft: 'none',
+    borderRadius: '0 8px 8px 0',
+    color: theme.palette.text.primary,
+    minWidth: '40px',
+    height: '80px',
+    writingMode: 'vertical-rl',
+    padding: 0,
+    '&:hover': {
+        backgroundColor: 'rgba(144, 202, 249, 0.3)',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+    },
+    [theme.breakpoints.down('sm')]: {
+        left: 0,
+        top: '100px',
+    },
+    zIndex: 1000,
+}));
 
 const SystemAgent = () => {
-    const {
-        selectedSystemChat,
-        systemChatArray,
-        setSelectedSystemChatId,
-    } = useContext(SystemContext);
-
-    const handleMenuClick = (event, chatId) => {
-        setSelectedSystemChatId(chatId);
-    };
-
-    const sx = {
-        width: '100%',
-        p: 2,
-        margin: '0 auto',
-        height: '60vh',
-        overflow: 'auto',
-    };
+    const { selectedSystemChat, systemChatArray, setSelectedSystemChatId } =
+        useContext(SystemContext);
+    const { isDrawerExpanded } = useContext(MainContext);
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     return (
-        <>
-            <Box width="100%" p={2}>
-                <ScrollContainer>
-                    <ScrollContent alignItems="center">
-                        {systemChatArray.map((chat) => (
-                            <Button
-                                variant={
-                                    selectedSystemChat.chatId === chat.chatId
-                                        ? 'contained'
-                                        : 'outlined'
-                                }
-                                onClick={(e) => handleMenuClick(e, chat.chatId)}
-                                sx={{
-                                    mx: 1,
-                                    minWidth: 'max-content',
-                                    whiteSpace: 'nowrap',
-                                    flexShrink: 0,
-                                    backgroundColor:
-                                        selectedSystemChat.chatId ===
-                                        chat.chatId
-                                            ? 'primary.main'
-                                            : 'transparent',
-                                    color:
-                                        selectedSystemChat.chatId ===
-                                        chat.chatId
-                                            ? 'primary.contrastText'
-                                            : 'primary.main',
-                                    '&:hover': {
-                                        backgroundColor:
-                                            selectedSystemChat.chatId ===
-                                            chat.chatId
-                                                ? 'primary.dark'
-                                                : 'primary.light',
-                                    },
-                                }}
-                            >
-                                {chat.chat_name}
-                            </Button>
-                        ))}
-                    </ScrollContent>
-                </ScrollContainer>
-                <ChatBar type="system" />
+        <Box>
+            <GlassmorphicButton
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                variant="contained"
+                isopen={isChatOpen}
+                isDrawerExpanded={isDrawerExpanded}
+            >
+                {isChatOpen ? 'Close' : 'Chat'}
+            </GlassmorphicButton>
+            {isChatOpen && (
                 <Chat
-                    messages={selectedSystemChat?.messages}
-                    sx={sx}
+                    selectedChat={selectedSystemChat}
                     type="system"
+                    chatArray={systemChatArray}
+                    setSelectedChatId={setSelectedSystemChatId}
+                    sx={{ height: '90vh' }}
                 />
-            </Box>
-            <Grid
-                container
-                justifyContent="center"
-                spacing={1}
-                sx={{
-                    p: 1,
-                    width: 'auto',
-                    margin: '0 auto',
-                    maxWidth: '500px',
-                }}
-            ></Grid>
-        </>
+            )}
+        </Box>
     );
 };
-
 export default SystemAgent;

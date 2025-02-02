@@ -1,12 +1,24 @@
-import { memo, useEffect, useRef, useState, useContext } from 'react';
+import { memo, useEffect, useRef, useState, useContext, useMemo } from 'react';
 import AgentMessage from './AgentMessage';
 import MessageInput from './MessageInput';
 import UserMessage from './UserMessage';
+import ChatBar from './ChatBar';
+import {
+    ScrollContainer,
+    ScrollContent,
+} from '../../../dashboards/insight/styledInsightComponents';
+import { Button } from '@mui/material';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 import { useDropzone } from 'react-dropzone';
 
-const Chat = ({ messages, sx, type = 'user' }) => {
+const Chat = ({
+    selectedChat,
+    chatArray,
+    setSelectedChatId,
+    sx,
+    type = 'user',
+}) => {
     const { onDrop } = useContext(ContextManagerContext);
     const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
@@ -14,6 +26,13 @@ const Chat = ({ messages, sx, type = 'user' }) => {
         onDrop,
         noClick: true,
     });
+    const messages = useMemo(
+        () => selectedChat?.messages || [],
+        [selectedChat]
+    );
+    const handleMenuClick = (event, chatId) => {
+        setSelectedChatId(chatId);
+    };
 
     useEffect(() => {
         if (shouldAutoScroll && messageAreaRef.current) {
@@ -37,6 +56,44 @@ const Chat = ({ messages, sx, type = 'user' }) => {
             {...getRootProps()}
             isDragActive={isDragActive}
         >
+            <ChatBar type={type} />
+            <ScrollContainer>
+                <ScrollContent alignItems="center">
+                    {chatArray.map((chat) => (
+                        <Button
+                            variant={
+                                selectedChat.chatId === chat.chatId
+                                    ? 'contained'
+                                    : 'outlined'
+                            }
+                            onClick={(e) => handleMenuClick(e, chat.chatId)}
+                            sx={{
+                                mx: 1,
+                                minWidth: 'max-content',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0,
+                                backgroundColor:
+                                    selectedChat.chatId === chat.chatId
+                                        ? 'primary.main'
+                                        : 'transparent',
+                                color:
+                                    selectedChat.chatId === chat.chatId
+                                        ? 'primary.contrastText'
+                                        : 'primary.main',
+                                '&:hover': {
+                                    backgroundColor:
+                                        selectedChat.chatId === chat.chatId
+                                            ? 'primary.dark'
+                                            : 'primary.light',
+                                },
+                            }}
+                        >
+                            {chat.chat_name}
+                        </Button>
+                    ))}
+                </ScrollContent>
+            </ScrollContainer>
+
             <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
                 {messages?.map((message, index) => {
                     const MessageComponent =
@@ -52,7 +109,7 @@ const Chat = ({ messages, sx, type = 'user' }) => {
                     );
                 })}
             </MessageArea>
-            <MessageInput type={type} />
+            <MessageInput />
         </ChatContainerStyled>
     );
 };

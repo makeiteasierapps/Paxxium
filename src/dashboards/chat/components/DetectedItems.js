@@ -68,7 +68,7 @@ const DetectedItems = ({ selectedChat }) => {
 
     return (
         <ScrollContainer>
-            <ScrollContent sx={{ marginTop: '0.5rem', gap: '0.5rem', justifyContent: 'center' }}>
+            <ScrollContent sx={{ marginTop: '0.5rem', gap: 0.9 }}>
                 {selectedChat?.context?.map((item, index) => (
                     <Tooltip
                         key={index}
