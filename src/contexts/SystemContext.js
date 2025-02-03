@@ -88,6 +88,7 @@ export const SystemProvider = ({ children }) => {
     }, [baseManager, setSystemLoading, uid]);
 
     const value = {
+        backendUrl,
         showSnackbar,
         systemLoading,
         socket,

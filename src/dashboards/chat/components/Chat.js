@@ -9,6 +9,7 @@ import {
 } from '../../../dashboards/insight/styledInsightComponents';
 import { Button } from '@mui/material';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
+import { SettingsContext } from '../../../contexts/SettingsContext';
 import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
 import { useDropzone } from 'react-dropzone';
 
@@ -20,6 +21,7 @@ const Chat = ({
     type = 'user',
 }) => {
     const { onDrop } = useContext(ContextManagerContext);
+    const { loadedAvatarImage } = useContext(SettingsContext);
     const messageAreaRef = useRef(null);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
     const { getRootProps, isDragActive } = useDropzone({
@@ -105,6 +107,7 @@ const Chat = ({
                             className="message-item"
                             key={`${message.message_from}-${index}`}
                             message={message}
+                            loadedAvatarImage={loadedAvatarImage}
                         />
                     );
                 })}

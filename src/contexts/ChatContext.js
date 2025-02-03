@@ -88,6 +88,7 @@ export const ChatProvider = ({ children }) => {
     return (
         <ChatContext.Provider
             value={{
+                backendUrl,
                 loading,
                 setLoading,
                 chatArray,

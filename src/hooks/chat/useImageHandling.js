@@ -26,7 +26,6 @@ export const useImageHandling = ({ addContextItem }) => {
     const handleFile = useCallback(
         (file) => {
             if (file && isValidFile(file)) {
-                console.log(file);
                 addContextItem('image', file);
             }
         },

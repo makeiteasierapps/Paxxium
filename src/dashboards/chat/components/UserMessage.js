@@ -7,16 +7,11 @@ import {
     StyledUserAvatar,
 } from '../chatStyledComponents';
 
-const UserMessage = ({ message }) => {
-    const { userAvatarImg, backendUrl } = useContext(SettingsContext);
-
+const UserMessage = ({ message, loadedAvatarImage }) => {
     return (
         <MessageListItem messageFrom="user">
             <StyledUserAvatar>
-                <Avatar
-
-                    src={`${backendUrl}/images/${userAvatarImg}`}
-                />
+                <Avatar src={loadedAvatarImage} />
             </StyledUserAvatar>
             <MessageContent>{message.content}</MessageContent>
         </MessageListItem>

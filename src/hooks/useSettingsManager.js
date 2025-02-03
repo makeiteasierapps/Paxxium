@@ -2,12 +2,39 @@ import { useCallback, useState, useEffect } from 'react';
 
 export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
     const [profileData, setProfileData] = useState({});
-    const [userAvatarImg, setUserAvatarImg] = useState(null);
+    const [loadedAvatarImage, setLoadedAvatarImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const loadImageAsBase64 = async (url) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Failed to load avatar image:', error);
+            return null;
+        }
+    };
+
     useEffect(() => {
-        setUserAvatarImg(`users/${uid}/profile_images/avatar.png`);
-    }, [uid]);
+        if (!profileData.avatar_path || !backendUrl) return;
+
+        const imageUrl = `${backendUrl}/images/${profileData.avatar_path}`;
+
+        loadImageAsBase64(imageUrl)
+            .then((base64Data) => {
+                setLoadedAvatarImage(base64Data);
+            })
+            .catch(() => {
+                console.error('Failed to load avatar image');
+                setLoadedAvatarImage(null);
+            });
+    }, [profileData.avatar_path, backendUrl]);
 
     const loadProfile = useCallback(async () => {
         try {
@@ -86,7 +113,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 const data = await response.json();
 
                 // Update the userAvatarImg state
-                setUserAvatarImg(data.path);
+                setProfileData({ ...profileData, avatar_path: data.path });
             } catch (error) {
                 showSnackbar(
                     `Network or fetch error: ${error.message}`,
@@ -95,7 +122,7 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
                 console.error(error);
             }
         },
-        [backendUrl, showSnackbar, uid]
+        [backendUrl, profileData, showSnackbar, uid]
     );
 
     useEffect(() => {
@@ -109,8 +136,8 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
         profileData,
         setProfileData,
         isLoading,
-        userAvatarImg,
-        setUserAvatarImg,
+        loadedAvatarImage,
+        setLoadedAvatarImage,
         updateUserProfile,
         updateAvatar,
     };
