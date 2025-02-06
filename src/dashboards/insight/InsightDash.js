@@ -13,12 +13,12 @@ import QuestionHub from './components/QuestionsHub';
 import { MainContainer } from '../styledComponents/DashStyledComponents';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import GenerateQuestionsForm from './components/GenerateQuestionsForm';
-import { ProfileContext } from '../../contexts/ProfileContext';
+import { InsightContext } from '../../contexts/InsightContext';
 import { StyledIconButton } from '../chat/chatStyledComponents';
 
 const InsightDash = () => {
     const { isQuestionsFormOpen, isGraphOpen, isLoading } =
-        useContext(ProfileContext);
+        useContext(InsightContext);
     const [isHelpOpen, setHelpOpen] = useState(false);
 
     const handleHelpOpen = () => setHelpOpen(true);
@@ -36,23 +36,18 @@ const InsightDash = () => {
                             <HelpOutlineIcon fontSize="small" />
                         </StyledIconButton>
                     </Box>
+                    <Typography
+                        variant="body1"
+                        color="textSecondary"
+                        sx={{ mb: 3, maxWidth: '800px' }}
+                    >
+                        Begin your journey of self-discovery and personal
+                        development. Answer tailored questions about your
+                        experiences and goals to receive personalized insights
+                        and guidance.
+                    </Typography>
 
-                    {!isQuestionsFormOpen && !isGraphOpen && (
-                        <Typography
-                            variant="body1"
-                            color="textSecondary"
-                            sx={{ mb: 3, maxWidth: '800px' }}
-                        >
-                            Begin your journey of self-discovery and personal
-                            development. Answer tailored questions about your
-                            experiences and goals to receive personalized
-                            insights and guidance.
-                        </Typography>
-                    )}
-
-                    {isQuestionsFormOpen && <GenerateQuestionsForm />}
-                    {isGraphOpen && <QuestionHub />}
-
+                    <GenerateQuestionsForm />
                     {/* Help Dialog - Simplified Content */}
                     <Dialog
                         open={isHelpOpen}

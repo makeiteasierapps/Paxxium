@@ -19,7 +19,7 @@ import { AuthContext, AuthProvider } from './contexts/AuthContext';
 import { ImageProvider } from './contexts/ImageContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { NewsProvider } from './contexts/NewsContext';
-import { ProfileProvider } from './contexts/ProfileContext';
+import { InsightProvider } from './contexts/InsightContext';
 import { SocketProvider } from './contexts/SocketProvider';
 import { MainProvider } from './contexts/MainContext';
 import { SystemProvider } from './contexts/SystemContext';
@@ -249,9 +249,9 @@ const App = () => {
                                     <NewsProvider>
                                         <ImageProvider>
                                             <KbProvider>
-                                                <ProfileProvider>
+                                                <InsightProvider>
                                                     <AuthenticatedApp />
-                                                </ProfileProvider>
+                                                </InsightProvider>
                                             </KbProvider>
                                         </ImageProvider>
                                     </NewsProvider>

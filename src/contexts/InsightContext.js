@@ -4,9 +4,9 @@ import { useQuestionsManager } from '../hooks/useQuestionsManager';
 import { AuthContext } from './AuthContext';
 import { useSnackbar } from './SnackbarContext';
 
-export const ProfileContext = createContext();
+export const InsightContext = createContext();
 
-export const ProfileProvider = ({ children }) => {
+export const InsightProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
     const backendUrl =
@@ -17,13 +17,13 @@ export const ProfileProvider = ({ children }) => {
     const questionsManager = useQuestionsManager(backendUrl, uid, showSnackbar);
 
     return (
-        <ProfileContext.Provider
+        <InsightContext.Provider
             value={{
                 ...questionsManager,
                 backendUrl,
             }}
         >
             {children}
-        </ProfileContext.Provider>
+        </InsightContext.Provider>
     );
 };
