@@ -59,42 +59,44 @@ const Chat = ({
             isDragActive={isDragActive}
         >
             <ChatBar type={type} />
-            <ScrollContainer>
-                <ScrollContent alignItems="center">
-                    {chatArray.map((chat) => (
-                        <Button
-                            variant={
-                                selectedChat.chatId === chat.chatId
-                                    ? 'contained'
-                                    : 'outlined'
-                            }
-                            onClick={(e) => handleMenuClick(e, chat.chatId)}
-                            sx={{
-                                mx: 1,
-                                minWidth: 'max-content',
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                                backgroundColor:
+            {chatArray.length > 1 && (
+                <ScrollContainer>
+                    <ScrollContent alignItems="center">
+                        {chatArray.map((chat) => (
+                            <Button
+                                variant={
                                     selectedChat.chatId === chat.chatId
-                                        ? 'primary.main'
-                                        : 'transparent',
-                                color:
-                                    selectedChat.chatId === chat.chatId
-                                        ? 'primary.contrastText'
-                                        : 'primary.main',
-                                '&:hover': {
+                                        ? 'contained'
+                                        : 'outlined'
+                                }
+                                onClick={(e) => handleMenuClick(e, chat.chatId)}
+                                sx={{
+                                    mx: 1,
+                                    minWidth: 'max-content',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
                                     backgroundColor:
                                         selectedChat.chatId === chat.chatId
-                                            ? 'primary.dark'
-                                            : 'primary.light',
-                                },
-                            }}
-                        >
-                            {chat.chat_name}
-                        </Button>
-                    ))}
-                </ScrollContent>
-            </ScrollContainer>
+                                            ? 'primary.main'
+                                            : 'transparent',
+                                    color:
+                                        selectedChat.chatId === chat.chatId
+                                            ? 'primary.contrastText'
+                                            : 'primary.main',
+                                    '&:hover': {
+                                        backgroundColor:
+                                            selectedChat.chatId === chat.chatId
+                                                ? 'primary.dark'
+                                                : 'primary.light',
+                                    },
+                                }}
+                            >
+                                {chat.chat_name}
+                            </Button>
+                        ))}
+                    </ScrollContent>
+                </ScrollContainer>
+            )}
 
             <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
                 {messages?.map((message, index) => {
@@ -112,7 +114,7 @@ const Chat = ({
                     );
                 })}
             </MessageArea>
-            <MessageInput />
+            <MessageInput type={type} />
         </ChatContainerStyled>
     );
 };

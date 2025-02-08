@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { SystemContext } from '../../../contexts/SystemContext';
+import { InsightContext } from '../../../contexts/InsightContext';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { InputArea, StyledInputTextField } from '../chatStyledComponents';
 import { Box } from '@mui/material';
@@ -11,8 +12,13 @@ import EndAdornment from './EndAdornment';
 const MessageInput = ({ type = 'user' }) => {
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
-
-    const context = type === 'user' ? userContext : systemContext;
+    const insightContext = useContext(InsightContext);
+    const context =
+        type === 'user'
+            ? userContext
+            : type === 'system'
+              ? systemContext
+              : insightContext;
     const selectedChat =
         type === 'user' ? context.selectedChat : context.selectedSystemChat;
     const { sendMessage } = context;
@@ -31,7 +37,7 @@ const MessageInput = ({ type = 'user' }) => {
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', flexDirection: 'column', alignItems: 'center' }}>
-            <DetectedItems selectedChat={selectedChat} />
+            {type !== 'insight' && <DetectedItems selectedChat={selectedChat} />}
             <InputArea>
                 <StyledInputTextField
                     fullWidth
@@ -82,7 +88,7 @@ const MessageInput = ({ type = 'user' }) => {
                             !mentionAnchorEl
                         ) {
                             event.preventDefault();
-                            sendMessage(input, selectedChat);
+                            sendMessage(input);
                             setInput('');
                         }
                     }}

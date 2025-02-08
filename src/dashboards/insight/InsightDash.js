@@ -1,94 +1,58 @@
 import { useContext, useState } from 'react';
-import {
-    CircularProgress,
-    Typography,
-    Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Box,
-} from '@mui/material';
-import QuestionHub from './components/QuestionsHub';
+import { CircularProgress, Box } from '@mui/material';
+import UserProfileView from './components/UserProfileView';
 import { MainContainer } from '../styledComponents/DashStyledComponents';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import GenerateQuestionsForm from './components/GenerateQuestionsForm';
 import { InsightContext } from '../../contexts/InsightContext';
 import { StyledIconButton } from '../chat/chatStyledComponents';
-
+import { ContextManagerProvider } from '../../contexts/ContextManagerContext';
+import HelpDialog from './components/HelpDialog';
+import SingleChat from '../chat/components/SingleChat';
 const InsightDash = () => {
-    const { isQuestionsFormOpen, isGraphOpen, isLoading } =
-        useContext(InsightContext);
+    const { userInsight, isLoading, insightChat } = useContext(InsightContext);
     const [isHelpOpen, setHelpOpen] = useState(false);
 
     const handleHelpOpen = () => setHelpOpen(true);
     const handleHelpClose = () => setHelpOpen(false);
 
     return (
-        <MainContainer id="main-container">
-            {isLoading ? (
-                <CircularProgress />
-            ) : (
-                <>
-                    {/* Header Section */}
-                    <Box position="absolute" top={7} right={7} zIndex={1000}>
-                        <StyledIconButton onClick={handleHelpOpen}>
-                            <HelpOutlineIcon fontSize="small" />
-                        </StyledIconButton>
-                    </Box>
-                    <Typography
-                        variant="body1"
-                        color="textSecondary"
-                        sx={{ mb: 3, maxWidth: '800px' }}
-                    >
-                        Begin your journey of self-discovery and personal
-                        development. Answer tailored questions about your
-                        experiences and goals to receive personalized insights
-                        and guidance.
-                    </Typography>
+        <ContextManagerProvider type="insight">
+            <MainContainer id="main-container">
+                {isLoading ? (
+                    <CircularProgress />
+                ) : (
+                    <>
+                        <Box
+                            position="absolute"
+                            top={7}
+                            right={7}
+                            zIndex={1000}
+                        >
+                            <StyledIconButton onClick={handleHelpOpen}>
+                                <HelpOutlineIcon fontSize="small" />
+                            </StyledIconButton>
+                        </Box>
 
-                    <GenerateQuestionsForm />
-                    {/* Help Dialog - Simplified Content */}
-                    <Dialog
-                        open={isHelpOpen}
-                        onClose={handleHelpClose}
-                        maxWidth="sm"
-                        fullWidth
-                    >
-                        <DialogTitle>How This Works</DialogTitle>
-                        <DialogContent>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 2,
-                                }}
-                            >
-                                <Typography variant="body1">
-                                    1. <strong>Introduction:</strong> Share some
-                                    basic information about yourself
-                                </Typography>
-                                <Typography variant="body1">
-                                    2. <strong>Answer Questions:</strong>{' '}
-                                    Respond to personalized questions about your
-                                    background, goals, and experiences
-                                </Typography>
-                                <Typography variant="body1">
-                                    3. <strong>Get Insights:</strong> Receive
-                                    tailored suggestions and guidance for your
-                                    personal development
-                                </Typography>
-                            </Box>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleHelpClose} color="primary">
-                                Close
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                </>
-            )}
-        </MainContainer>
+                        <Box
+                            display="flex"
+                            flexDirection="row"
+                            gap={2}
+                            height="100vh"
+                        >
+                            <UserProfileView
+                                userInsight={userInsight.user_profile}
+                            />
+                            <SingleChat chat={insightChat} type="insight" />
+                        </Box>
+
+                        <HelpDialog
+                            isHelpOpen={isHelpOpen}
+                            handleHelpClose={handleHelpClose}
+                        />
+                    </>
+                )}
+            </MainContainer>
+        </ContextManagerProvider>
     );
 };
 

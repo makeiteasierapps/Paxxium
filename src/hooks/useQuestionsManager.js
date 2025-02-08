@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 
 export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
-    const [questionsData, setQuestionsData] = useState([]);
+    const [userInsight, setUserInsight] = useState({});
     const [activeCategory, setActiveCategory] = useState({});
     const [activeQuestion, setActiveQuestion] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +24,8 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
                 throw new Error('Failed to update answers');
             }
 
-            setQuestionsData((prev) => {
+            setUserInsight((prev) => {
+              // Need to change this method, this will not work for the new design.
                 const updated = prev.map((category) => ({
                     ...category,
                     questions: category.questions.map((question) =>
@@ -41,7 +42,7 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
                     setActiveCategory(updatedActiveCategory);
                 }
 
-                localStorage.setItem('questionsData', JSON.stringify(updated));
+                localStorage.setItem('userInsight', JSON.stringify(updated));
                 return updated;
             });
         } catch (error) {
@@ -50,7 +51,7 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
         }
     };
 
-    const generateBaseQuestions = async (userInput) => {
+    const generateBaseUserInsight = async (userInput) => {
         setIsLoading(true);
         try {
             const response = await fetch(
@@ -71,9 +72,9 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
             }
 
             const data = await response.json();
-            console.log(data);
+            setUserInsight(data);
 
-            localStorage.setItem('questionsData', JSON.stringify(data));
+            localStorage.setItem('userInsight', JSON.stringify(data));
         } catch (error) {
             console.error('Error generating follow-up questions:', error);
             showSnackbar(
@@ -85,16 +86,15 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
         }
     };
 
-    const getQuestions = useCallback(async () => {
+    const getUserInsight = useCallback(async () => {
         try {
             let data;
-            const cachedQuestions = localStorage.getItem('questionsData');
-            console.log(backendUrl);
-            if (cachedQuestions) {
-                data = JSON.parse(cachedQuestions);
+            const cachedUserInsight = localStorage.getItem('userInsight');
+            if (cachedUserInsight) {
+                data = JSON.parse(cachedUserInsight);
             } else {
                 const response = await fetch(
-                    `${backendUrl}/insight/questions`,
+                    `${backendUrl}/insight`,
                     {
                         method: 'GET',
                         headers: {
@@ -105,13 +105,9 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
                     }
                 );
                 data = await response.json();
-                localStorage.setItem('questionsData', JSON.stringify(data));
+                localStorage.setItem('userInsight', JSON.stringify(data));
             }
-            console.log(data);
-            setQuestionsData(data);
-            setActiveCategory(data[0]);
-            setIsGraphOpen(data.length > 0);
-            setIsQuestionsFormOpen(data.length === 0);
+            setUserInsight(data);
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);
@@ -123,17 +119,17 @@ export const useQuestionsManager = (backendUrl, uid, showSnackbar) => {
     useEffect(() => {
         if (!uid) return;
         setIsLoading(true);
-        getQuestions();
-    }, [getQuestions, uid]);
+        getUserInsight();
+    }, [getUserInsight, uid]);
 
     return {
         updateAnswer,
-        questionsData,
+        userInsight,
         setActiveCategory,
         activeCategory,
         activeQuestion,
         setActiveQuestion,
-        generateBaseQuestions,
+        generateBaseQuestions: generateBaseUserInsight,
         isLoading,
         isQuestionsFormOpen,
         isGraphOpen,
