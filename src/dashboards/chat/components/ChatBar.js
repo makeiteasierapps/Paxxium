@@ -21,7 +21,6 @@ const ChatBar = ({ type, sx }) => {
     const systemContext = useContext(SystemContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [deleteClicked, setDeleteClicked] = useState(false);
-
     const context = type === 'user' ? userContext : systemContext;
     const selectedChat =
         type === 'user' ? context.selectedChat : context.selectedSystemChat;

@@ -17,7 +17,7 @@ const ChatDash = () => {
                     </Box>
                 ) : selectedChat ? (
                     <>
-                        <Chat selectedChat={selectedChat} chatArray={chatArray} setSelectedChatId={setSelectedChatId} />
+                        <Chat selectedChat={selectedChat} chatArray={chatArray} setSelectedChatId={setSelectedChatId} type="user" />
                     </>
                 ) : (
                     <Box>

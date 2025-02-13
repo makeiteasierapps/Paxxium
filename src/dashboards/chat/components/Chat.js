@@ -64,6 +64,7 @@ const Chat = ({
                     <ScrollContent alignItems="center">
                         {chatArray.map((chat) => (
                             <Button
+                                key={chat.chatId}
                                 variant={
                                     selectedChat.chatId === chat.chatId
                                         ? 'contained'

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import Markdown from 'react-markdown';
 
+
 // AgentDash.js
 export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
@@ -28,22 +29,27 @@ SettingsSubmitButton.defaultProps = {
 };
 
 export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
-    '& h1, & h2, & h3, & h4, & h5, & h6, & p': {
-        margin: '0',
-        padding: '0',
-        display: 'inline',
-        lineHeight: '1.2',
+    '& h1, & h2, & h3, & h4, & h5, & h6': {
+        margin: '1em 0 0.5em 0', // Add spacing around headers
+    },
+    '& p': {
+        margin: '0.75em 0', // Add spacing around paragraphs
+        lineHeight: '1.6',
     },
     '& ul, & ol': {
         margin: '0',
         paddingLeft: '.6em',
-        lineHeight: '0.6',
-        listStylePosition: 'inside',
+        listStylePosition: 'outside',
     },
     '& li': {
-        lineHeight: '1.4',
+        marginBottom: '0.5em',
+        lineHeight: '1.6',
+        display: 'list-item', // Ensures proper list rendering
+        '& p': {
+            display: 'inline', // Makes paragraph content inline with the number
+            margin: 0, // Removes paragraph margins within list items
+        },
     },
-
     '& pre': {
         margin: '0',
     },
@@ -55,15 +61,12 @@ export const StyledMarkdown = styled(Markdown)(({ theme }) => ({
     '& th, & td': {
         border: '1px solid #ddd',
         padding: '12px',
-        textAlign: 'left',
     },
     '& th': {
         fontWeight: 'bold',
     },
-    '& td:first-of-type': {
-        width: '1%',
-        wordBreak: 'keep-all',
-        textAlign: 'center',
+    '& li:last-child': {
+        marginBottom: 0, // Remove margin from last item
     },
 }));
 

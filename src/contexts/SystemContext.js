@@ -4,7 +4,6 @@ import {
     useMemo,
     useState,
     useEffect,
-    useCallback,
 } from 'react';
 import { AuthContext } from './AuthContext';
 import { useSocket } from './SocketProvider';

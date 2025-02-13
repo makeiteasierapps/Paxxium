@@ -46,7 +46,7 @@ const AgentMessage = ({ message }) => {
                                       components={components}
                                       remarkPlugins={[remarkGfm]}
                                   >
-                                      {msg.content.replace(/\n\s*\n/g, ' \n')}
+                                      {msg.content}
                                   </StyledMarkdown>
                               );
                           } else if (msg.type === 'code') {
