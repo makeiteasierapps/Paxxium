@@ -57,7 +57,6 @@ export const useSingleChatMessageManager = ({
 
     const handleStreamingResponse = useCallback(
         (data) => {
-            console.log(data);
             setChat((prevChat) => {
                 const currentChatThread = prevChat.messages || [];
 
@@ -131,6 +130,7 @@ export const useSingleChatMessageManager = ({
                 ...currentChat,
                 messages: updatedMessages,
             };
+            console.log(updatedChat);
 
             if (socket) {
                 socket.emit(socketEvent, {

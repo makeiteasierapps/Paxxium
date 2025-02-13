@@ -9,9 +9,9 @@ import { ContextManagerProvider } from '../../contexts/ContextManagerContext';
 import HelpDialog from './components/HelpDialog';
 import SingleChat from '../chat/components/SingleChat';
 const InsightDash = () => {
-    const { userInsight, isLoading, insightChat } = useContext(InsightContext);
+    const { insightUserData, isLoading, insightChat } =
+        useContext(InsightContext);
     const [isHelpOpen, setHelpOpen] = useState(false);
-
     const handleHelpOpen = () => setHelpOpen(true);
     const handleHelpClose = () => setHelpOpen(false);
 
@@ -40,7 +40,7 @@ const InsightDash = () => {
                             height="100vh"
                         >
                             <UserProfileView
-                                userInsight={userInsight.user_profile}
+                                userInsight={insightUserData}
                             />
                             <SingleChat chat={insightChat} type="insight" />
                         </Box>

@@ -9,7 +9,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const CategorySection = ({ category }) => {
+const CategorySection = ({ category, categoryType }) => {
+
     const renderValue = (key, value) => {
         // Handle null/undefined values
         if (value === null || value === undefined) {
@@ -38,18 +39,20 @@ const CategorySection = ({ category }) => {
 
         // Handle nested objects
         if (typeof value === 'object') {
-            return Object.entries(value).map(([nestedKey, nestedVal]) => (
-                <Box key={nestedKey} sx={{ mt: 1, ml: 2 }}>
-                    <Typography
-                        variant="subtitle2"
-                        color="primary"
-                        sx={{ textTransform: 'uppercase' }}
-                    >
-                        {nestedKey.replace(/_/g, ' ')}
-                    </Typography>
-                    {renderValue(nestedKey, nestedVal)}
-                </Box>
-            ));
+            return Object.entries(value)
+                .filter(([key]) => key !== 'type')
+                .map(([nestedKey, nestedVal]) => (
+                    <Box key={nestedKey} sx={{ mt: 1, ml: 2 }}>
+                        <Typography
+                            variant="subtitle2"
+                            color="primary"
+                            sx={{ textTransform: 'uppercase' }}
+                        >
+                            {nestedKey.replace(/_/g, ' ')}
+                        </Typography>
+                        {renderValue(nestedKey, nestedVal)}
+                    </Box>
+                ));
         }
 
         // Handle primitive values (strings, numbers, etc.)
@@ -57,24 +60,22 @@ const CategorySection = ({ category }) => {
     };
 
     const renderContent = () => {
-        return Object.entries(category)
-            .filter(([key]) => key !== 'category') // Exclude the category title
-            .map(([key, value]) => (
-                <Box key={key} sx={{ mb: 2 }}>
-                    <Typography
-                        variant="subtitle1"
-                        color="primary.main"
-                        sx={{
-                            textTransform: 'uppercase',
-                            fontWeight: 500,
-                            mb: 1,
-                        }}
-                    >
-                        {key.replace(/_/g, ' ')}
-                    </Typography>
-                    {renderValue(key, value)}
-                </Box>
-            ));
+        return Object.entries(category).map(([key, value]) => (
+            <Box key={key} sx={{ mb: 2 }}>
+                <Typography
+                    variant="subtitle1"
+                    color="primary.main"
+                    sx={{
+                        textTransform: 'uppercase',
+                        fontWeight: 500,
+                        mb: 1,
+                    }}
+                >
+                    {key.replace(/_/g, ' ')}
+                </Typography>
+                {renderValue(key, value)}
+            </Box>
+        ));
     };
 
     return (
@@ -88,7 +89,7 @@ const CategorySection = ({ category }) => {
                     mb: 2,
                 }}
             >
-                {category.category}
+                {categoryType.replace(/_/g, ' ')}
             </Typography>
             {renderContent()}
         </StyledCard>

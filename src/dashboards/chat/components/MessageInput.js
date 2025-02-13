@@ -9,7 +9,7 @@ import DetectedItems from './DetectedItems';
 import MentionMenu from './MentionMenu';
 import EndAdornment from './EndAdornment';
 
-const MessageInput = ({ type = 'user' }) => {
+const MessageInput = ({ type }) => {
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
     const insightContext = useContext(InsightContext);

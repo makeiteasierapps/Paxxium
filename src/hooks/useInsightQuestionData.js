@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 export const useInsightQuestionData = ({ uid, showSnackbar, socket }) => {
     const handleUpdatedQuestionData = (data) => {
-        console.log(data);
+        return data;
     };
     useEffect(() => {
         if (!socket) return;

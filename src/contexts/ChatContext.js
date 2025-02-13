@@ -10,8 +10,8 @@ import { AuthContext } from './AuthContext';
 import { useMessageManager } from '../hooks/chat/useMessageManager';
 import { useSnackbar } from './SnackbarContext';
 import { useSocket } from './SocketProvider';
-import { createBaseChatManager } from '../utils/baseChatManager.js';
-import { createBaseSettingsManager } from '../utils/baseSettingsManager';
+import { createBaseChatManager } from '../hooks/chat/base/baseChatManager.js';
+import { createBaseSettingsManager } from '../hooks/chat/base/baseSettingsManager.js';
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {

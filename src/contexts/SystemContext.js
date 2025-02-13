@@ -1,11 +1,18 @@
-import { createContext, useContext, useMemo, useState, useEffect, useCallback } from 'react';
+import {
+    createContext,
+    useContext,
+    useMemo,
+    useState,
+    useEffect,
+    useCallback,
+} from 'react';
 import { AuthContext } from './AuthContext';
 import { useSocket } from './SocketProvider';
 import { useSystemFileManager } from '../hooks/system/useSystemFilesManager';
-import { useMessageManager } from '../hooks/chat/useMessageManager';
+import { useSystemMessageManager } from '../hooks/chat/base/useSystemMessageManager';
 import { useSnackbar } from './SnackbarContext';
-import { createBaseChatManager } from '../utils/baseChatManager.js';
-import { createBaseSettingsManager } from '../utils/baseSettingsManager.js';
+import { createBaseChatManager } from '../hooks/chat/base/baseChatManager.js';
+import { createBaseSettingsManager } from '../hooks/chat/base/baseSettingsManager.js';
 export const SystemContext = createContext();
 
 export const SystemProvider = ({ children }) => {
@@ -69,7 +76,7 @@ export const SystemProvider = ({ children }) => {
         selectedSystemChatId,
     ]);
 
-    const messageManager = useMessageManager({
+    const messageManager = useSystemMessageManager({
         baseUrl: `${backendUrl}/system/chat`,
         uid,
         showSnackbar,

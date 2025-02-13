@@ -18,7 +18,7 @@ const Chat = ({
     chatArray,
     setSelectedChatId,
     sx,
-    type = 'user',
+    type,
 }) => {
     const { onDrop } = useContext(ContextManagerContext);
     const { loadedAvatarImage } = useContext(SettingsContext);
@@ -58,7 +58,7 @@ const Chat = ({
             {...getRootProps()}
             isDragActive={isDragActive}
         >
-            <ChatBar type={type} />
+            {type !== 'insight' && <ChatBar type={type} />}
             {chatArray.length > 1 && (
                 <ScrollContainer>
                     <ScrollContent alignItems="center">

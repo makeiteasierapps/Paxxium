@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import 'react-image-crop/dist/ReactCrop.css';
-import { useQuestionsManager } from '../hooks/useQuestionsManager';
 import { useSocket } from './SocketProvider';
 import { AuthContext } from './AuthContext';
 import { useSnackbar } from './SnackbarContext';
@@ -13,23 +12,36 @@ export const InsightProvider = ({ children }) => {
     const { uid } = useContext(AuthContext);
     const { showSnackbar } = useSnackbar();
     const { socket } = useSocket();
-    const [insightChat, setInsightChat] = useState(null);
+    // Keep useState for updatable state
+    const [insightChat, setInsightChat] = useState({
+        messages: [],
+        chatId: 'insight',
+        uid: 'none'
+    });
+
+    useEffect(() => {
+        if (uid) {
+            setInsightChat(prev => ({ ...prev, uid }));
+        }
+    }, [uid]);
+
     const backendUrl =
         process.env.NODE_ENV === 'development'
             ? `http://${process.env.REACT_APP_BACKEND_URL}`
             : `https://${process.env.REACT_APP_BACKEND_URL_PROD}`;
 
-    const questionsManager = useQuestionsManager(backendUrl, uid, showSnackbar);
     const insightUserData = useInsightUserData({
         uid,
         showSnackbar,
         socket,
     });
+
     const insightQuestionData = useInsightQuestionData({
         uid,
         showSnackbar,
         socket,
     });
+
     const messageManager = useSingleChatMessageManager({
         baseUrl: `${backendUrl}/insight/chat`,
         uid,
@@ -42,8 +54,9 @@ export const InsightProvider = ({ children }) => {
     return (
         <InsightContext.Provider
             value={{
-                ...questionsManager,
                 ...messageManager,
+                ...insightUserData,
+                ...insightQuestionData,
                 backendUrl,
                 insightChat,
                 setInsightChat,

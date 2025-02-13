@@ -1,5 +1,5 @@
-import { useContext, useState, useEffect } from 'react';
-import { Typography, Box } from '@mui/material';
+import { useContext, useState } from 'react';
+import { Box } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,14 +10,13 @@ import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import ChatSettings from './ChatSettings';
 import { ChatContext } from '../../../contexts/ChatContext';
 import { SystemContext } from '../../../contexts/SystemContext';
-import { MainContext } from '../../../contexts/MainContext';
 import {
     Bar,
     ClearAndTrashIcons,
     StyledIconButton,
 } from '../chatStyledComponents';
 
-const ChatBar = ({ type = 'user', sx }) => {
+const ChatBar = ({ type, sx }) => {
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);

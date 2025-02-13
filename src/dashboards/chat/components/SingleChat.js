@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import Chat from './Chat';
 
-const SingleChat = ({ chat, sx, type = 'user' }) => {
+const SingleChat = ({ chat, sx, type }) => {
     return (
         <Chat
             selectedChat={chat}

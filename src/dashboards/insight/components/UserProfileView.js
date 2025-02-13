@@ -39,6 +39,15 @@ const CategoryTitle = styled(Typography)(({ theme }) => ({
 const UserProfileView = ({ userInsight }) => {
     const [value, setValue] = useState(0);
 
+    // Check if userInsight is defined
+    if (!userInsight) {
+        return (
+            <StyledBox>
+                <Typography>No user insight data available</Typography>
+            </StyledBox>
+        );
+    }
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
@@ -68,18 +77,30 @@ const UserProfileView = ({ userInsight }) => {
                     <CategoryTitle variant="h5">
                         {getTitleForTab(0)}
                     </CategoryTitle>
-                    {userInsight?.foundational?.map((category, index) => (
-                        <CategorySection key={index} category={category} />
-                    ))}
+                    {userInsight.foundational && 
+                        Object.entries(userInsight.foundational).map(([categoryType, category]) => (
+                            <CategorySection 
+                                key={categoryType}
+                                categoryType={categoryType}
+                                category={category}
+                            />
+                        ))}
                 </TabPanel>
 
                 <TabPanel value={value} index={1}>
                     <CategoryTitle variant="h5">
                         {getTitleForTab(1)}
                     </CategoryTitle>
-                    {userInsight?.objective?.map((category, index) => (
-                        <CategorySection key={index} category={category} />
-                    ))}
+                    {userInsight.objective &&
+                        Object.entries(userInsight.objective).map(
+                            ([categoryType, category]) => (
+                                <CategorySection
+                                    key={categoryType}
+                                    categoryType={categoryType}
+                                    category={category}
+                                />
+                            )
+                        )}
                 </TabPanel>
             </ContentContainer>
         </StyledBox>
