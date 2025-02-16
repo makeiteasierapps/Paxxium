@@ -1,13 +1,20 @@
-import { useContext } from 'react';
+import { useState } from 'react';
 import { Box } from '@mui/material';
 import { ScrollContainer, ScrollContent } from '../styledInsightComponents';
-import CategoryNode from './CategoryButton';
+import CategoryButton from './CategoryButton';
 import QACard from './QACard';
-import { InsightContext } from '../../../contexts/InsightContext';
 
-const QuestionHub = () => {
-    const { questionsData, setActiveCategory, activeCategory } =
-        useContext(InsightContext);
+const QuestionHub = ({ questionsData }) => {
+    const [activeCategory, setActiveCategory] = useState(
+        Object.keys(questionsData)[0]
+    );
+
+    // Transform data for category buttons
+    const categories = Object.keys(questionsData || {}).map((categoryKey) => ({
+        name: categoryKey.replace(/_/g, ' '),
+        key: categoryKey,
+        subCategories: questionsData[categoryKey],
+    }));
 
     return (
         <Box
@@ -15,39 +22,27 @@ const QuestionHub = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                width: '100%',
-                minHeight: '90vh',
                 gap: '2rem',
             }}
         >
             <ScrollContainer>
                 <ScrollContent>
-                    {questionsData &&
-                        questionsData.length > 0 &&
-                        questionsData.map((category) => (
-                            <CategoryNode
-                                key={category._id}
-                                category={category}
-                                onClick={() => setActiveCategory(category)}
-                            />
-                        ))}
+                    {categories.map((category) => (
+                        <CategoryButton
+                            key={category.key}
+                            name={category.name}
+                            activeCategory={activeCategory}
+                            categoryKey={category.key}
+                            onClick={() => {
+                                setActiveCategory(category.key);
+                            }}
+                        />
+                    ))}
                 </ScrollContent>
             </ScrollContainer>
+
             {activeCategory && (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 2,
-                        justifyContent: 'center',
-                        overflow: 'auto',
-                        maxHeight: '80vh',
-                    }}
-                >
-                    {activeCategory.questions?.map((question) => (
-                        <QACard key={question._id} questionData={question} />
-                    ))}
-                </Box>
+                <QACard questionsData={questionsData[activeCategory]} />
             )}
         </Box>
     );

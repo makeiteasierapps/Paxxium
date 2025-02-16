@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import TabPanel from './TabPanel';
 import CategorySection from './CategorySection';
-
+import QuestionHub from './QuestionsHub';
 const StyledBox = styled(Box)(({ theme }) => ({
     width: '100%',
     height: '100%',
@@ -16,12 +15,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
     },
 }));
 
-const TabsContainer = styled(Box)({
-    position: 'sticky',
-    top: 0,
-    zIndex: 1,
-});
-
 const ContentContainer = styled(Box)(({ theme }) => ({
     flex: 1,
     overflow: 'auto',
@@ -31,14 +24,7 @@ const ContentContainer = styled(Box)(({ theme }) => ({
     },
 }));
 
-const CategoryTitle = styled(Typography)(({ theme }) => ({
-    marginBottom: theme.spacing(2),
-    fontWeight: 600,
-}));
-
 const UserProfileView = ({ userInsight }) => {
-    const [value, setValue] = useState(0);
-
     // Check if userInsight is defined
     if (!userInsight) {
         return (
@@ -48,60 +34,29 @@ const UserProfileView = ({ userInsight }) => {
         );
     }
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-
-    const getTitleForTab = (index) => {
-        return index === 0
-            ? 'Foundational Information'
-            : 'Objective Information';
-    };
-
     return (
         <StyledBox>
-            <TabsContainer>
-                <Tabs
-                    value={value}
-                    onChange={handleChange}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                >
-                    <Tab label="Foundational" />
-                    <Tab label="Objective" />
-                </Tabs>
-            </TabsContainer>
+            <Box
+                display="flex"
+                flexDirection="column"
+                gap={2}
+                width="50vw"
+                height="50vh"
+            >
+                <QuestionHub questionsData={userInsight.categories} />
+            </Box>
 
             <ContentContainer>
-                <TabPanel value={value} index={0}>
-                    <CategoryTitle variant="h5">
-                        {getTitleForTab(0)}
-                    </CategoryTitle>
-                    {userInsight.foundational && 
-                        Object.entries(userInsight.foundational).map(([categoryType, category]) => (
-                            <CategorySection 
-                                key={categoryType}
-                                categoryType={categoryType}
-                                category={category}
+                {userInsight.categories &&
+                    Object.entries(userInsight.categories).map(
+                        ([name, subcategory]) => (
+                            <CategorySection
+                                key={name}
+                                categoryName={name}
+                                subcategory={subcategory}
                             />
-                        ))}
-                </TabPanel>
-
-                <TabPanel value={value} index={1}>
-                    <CategoryTitle variant="h5">
-                        {getTitleForTab(1)}
-                    </CategoryTitle>
-                    {userInsight.objective &&
-                        Object.entries(userInsight.objective).map(
-                            ([categoryType, category]) => (
-                                <CategorySection
-                                    key={categoryType}
-                                    categoryType={categoryType}
-                                    category={category}
-                                />
-                            )
-                        )}
-                </TabPanel>
+                        )
+                    )}
             </ContentContainer>
         </StyledBox>
     );

@@ -9,58 +9,36 @@ const StyledCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const CategorySection = ({ category, categoryType }) => {
-
+const CategorySection = ({ subcategory, categoryName }) => {
     const renderValue = (key, value) => {
-        // Handle null/undefined values
-        if (value === null || value === undefined) {
-            return (
-                <Typography variant="body2" color="text.secondary">
-                    Not specified
-                </Typography>
-            );
-        }
-
-        // Handle arrays
-        if (Array.isArray(value)) {
-            if (value.length === 0) {
-                return (
-                    <Typography variant="body2" color="text.secondary">
-                        None listed
-                    </Typography>
-                );
-            }
-            return value.map((item, index) => (
-                <Typography key={index} variant="body2">
-                    • {item}
-                </Typography>
+        if (typeof value === 'object') {
+            return Object.entries(value).map(([nestedKey, nestedVal]) => (
+                <Box key={nestedKey} sx={{ mt: 1, ml: 2 }}>
+                    {Array.isArray(nestedVal) ? (
+                        nestedVal.map((item, index) => (
+                            <Box key={index} sx={{ mt: 0.5, ml: 2 }}>
+                                {Object.entries(item).map(
+                                    ([itemKey, itemValue]) => (
+                                        <Typography
+                                            key={itemKey}
+                                            variant="body2"
+                                        >
+                                            {`${itemKey}: ${itemValue}`}
+                                        </Typography>
+                                    )
+                                )}
+                            </Box>
+                        ))
+                    ) : (
+                        <Typography variant="body2">{nestedVal}</Typography>
+                    )}
+                </Box>
             ));
         }
-
-        // Handle nested objects
-        if (typeof value === 'object') {
-            return Object.entries(value)
-                .filter(([key]) => key !== 'type')
-                .map(([nestedKey, nestedVal]) => (
-                    <Box key={nestedKey} sx={{ mt: 1, ml: 2 }}>
-                        <Typography
-                            variant="subtitle2"
-                            color="primary"
-                            sx={{ textTransform: 'uppercase' }}
-                        >
-                            {nestedKey.replace(/_/g, ' ')}
-                        </Typography>
-                        {renderValue(nestedKey, nestedVal)}
-                    </Box>
-                ));
-        }
-
-        // Handle primitive values (strings, numbers, etc.)
-        return <Typography variant="body2">{value}</Typography>;
     };
 
     const renderContent = () => {
-        return Object.entries(category).map(([key, value]) => (
+        return Object.entries(subcategory).map(([key, value]) => (
             <Box key={key} sx={{ mb: 2 }}>
                 <Typography
                     variant="subtitle1"
@@ -89,7 +67,7 @@ const CategorySection = ({ category, categoryType }) => {
                     mb: 2,
                 }}
             >
-                {categoryType.replace(/_/g, ' ')}
+                {categoryName.replace(/_/g, ' ')}
             </Typography>
             {renderContent()}
         </StyledCard>

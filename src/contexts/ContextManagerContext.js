@@ -9,12 +9,12 @@ import { KbContext } from './KbContext';
 export const ContextManagerContext = createContext();
 
 export const ContextManagerProvider = ({ children, type = 'user' }) => {
-
     const userContext = useContext(ChatContext);
     const systemContext = useContext(SystemContext);
     const context = type === 'user' ? userContext : systemContext;
     const { updateSettings, updateLocalSettings, backendUrl } = context;
-    const chatArray = type === 'user' ? context.chatArray : context.systemChatArray;
+    const chatArray =
+        type === 'user' ? context.chatArray : context.systemChatArray;
     const selectedChat =
         type === 'user' ? context.selectedChat : context.selectedSystemChat;
     const { kbArray } = useContext(KbContext);

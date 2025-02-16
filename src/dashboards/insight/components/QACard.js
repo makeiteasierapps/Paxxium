@@ -1,5 +1,17 @@
 import { useState, useContext } from 'react';
-import { Box, Typography, Card, InputAdornment } from '@mui/material';
+import {
+    Box,
+    Typography,
+    Card,
+    CardContent,
+    Collapse,
+    IconButton,
+    TextField,
+    Button,
+} from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import EditIcon from '@mui/icons-material/Edit';
 import { styled } from '@mui/material/styles';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,138 +42,140 @@ const StyledCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const QACard = ({ questionData }) => {
-    const [isFlipped, setIsFlipped] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [answer, setAnswer] = useState('');
-    const { updateAnswer } = useContext(InsightContext);
+const QACard = ({ questionsData }) => {
+    const [expandedId, setExpandedId] = useState(null);
+    const [editingId, setEditingId] = useState(null);
+    const [editedAnswer, setEditedAnswer] = useState('');
 
-    const handleSaveAnswer = async () => {
-        await updateAnswer(questionData._id, answer);
-        setAnswer('');
-        setIsEditing(false);
+    const handleExpandClick = (index) => {
+        setExpandedId(expandedId === index ? null : index);
+    };
+
+    const handleEditClick = (qa, index) => {
+        setEditingId(index);
+        setEditedAnswer(qa.answer);
+    };
+
+    const handleSaveEdit = () => {
+        // TODO: Add logic to save the edited answer
+        setEditingId(null);
     };
 
     const handleCancelEdit = () => {
-        setIsEditing(false);
-        setAnswer('');
+        setEditingId(null);
+        setEditedAnswer('');
     };
 
-    const handleStartEditing = () => {
-        setAnswer(questionData.answer);
-        setIsEditing(true);
-    };
-
-    const hasAnswerChanged = questionData.answer !== answer;
+    // Get all the Q&A pairs from the category
+    const qaItems = Object.values(questionsData).flatMap((subCategory) =>
+        Object.values(subCategory).flat()
+    );
 
     return (
-        <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
-            {/* Front of card */}
-            <StyledCard
-                onClick={() => setIsFlipped(true)}
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 3,
-                }}
-            >
-                {questionData.answer && (
-                    <CheckCircleIcon
-                        sx={{
-                            position: 'absolute',
-                            top: 12,
-                            right: 12,
-                            color: 'success.main',
-                        }}
-                    />
-                )}
-                <Typography
-                    variant="h6"
-                    textAlign="center"
+        <Box sx={{ width: '100%', maxWidth: 800, mx: 'auto' }}>
+            {qaItems.map((qa, index) => (
+                <Card
+                    key={index}
                     sx={{
-                        fontSize: '1.1rem',
-                        lineHeight: 1.4,
-                        fontWeight: 500,
+                        mb: 2,
+                        backgroundColor: 'background.paper',
+                        '&:hover': {
+                            boxShadow: 3,
+                        },
                     }}
                 >
-                    {questionData.question}
-                </Typography>
-            </StyledCard>
-
-            {/* Back of card */}
-            <StyledCard onClick={() => setIsFlipped(false)}>
-                <Box
-                    sx={{
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        padding: 2,
-                    }}
-                >
-                    <Typography
-                        variant="body1"
-                        gutterBottom
-                        sx={{
-                            fontSize: '0.9rem',
-                            opacity: 0.8,
-                            marginBottom: 2,
-                        }}
-                    >
-                        {questionData.question}
-                    </Typography>
-                    {questionData.answer && !isEditing ? (
-                        <Typography
-                            variant="body1"
+                    <CardContent>
+                        <Box
                             sx={{
-                                fontSize: '1rem',
-                                marginBottom: 2,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
                                 cursor: 'pointer',
-                                '&:hover': {
-                                    opacity: 0.8,
-                                },
                             }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleStartEditing();
-                            }}
+                            onClick={() => handleExpandClick(index)}
                         >
-                            {questionData.answer}
-                        </Typography>
-                    ) : (
-                        <ProfileTextField
-                            sx={{ width: '100%' }}
-                            value={answer}
-                            onChange={(e) => setAnswer(e.target.value)}
-                            placeholder="Enter your answer..."
-                            onClick={(e) => e.stopPropagation()}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <StyledIconButton
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                hasAnswerChanged
-                                                    ? handleSaveAnswer()
-                                                    : handleCancelEdit();
+                            <Typography variant="h6" component="div">
+                                {qa.question}
+                            </Typography>
+                            <IconButton>
+                                {expandedId === index ? (
+                                    <KeyboardArrowUpIcon />
+                                ) : (
+                                    <KeyboardArrowDownIcon />
+                                )}
+                            </IconButton>
+                        </Box>
+
+                        <Collapse in={expandedId === index}>
+                            <Box sx={{ mt: 2 }}>
+                                {editingId === index ? (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 2,
+                                        }}
+                                    >
+                                        <TextField
+                                            multiline
+                                            rows={4}
+                                            value={editedAnswer}
+                                            onChange={(e) =>
+                                                setEditedAnswer(e.target.value)
+                                            }
+                                            fullWidth
+                                        />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                gap: 1,
+                                                justifyContent: 'flex-end',
                                             }}
-                                            disabled={isEditing && !answer}
                                         >
-                                            {hasAnswerChanged ? (
-                                                <SendIcon />
-                                            ) : (
-                                                <CloseIcon />
-                                            )}
-                                        </StyledIconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    )}
-                </Box>
-            </StyledCard>
-        </ReactCardFlip>
+                                            <Button
+                                                variant="outlined"
+                                                color="secondary"
+                                                onClick={handleCancelEdit}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleSaveEdit}
+                                            >
+                                                Save
+                                            </Button>
+                                        </Box>
+                                    </Box>
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'flex-start',
+                                        }}
+                                    >
+                                        <Typography color="text.secondary">
+                                            {qa.answer}
+                                        </Typography>
+                                        <IconButton
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleEditClick(qa, index);
+                                            }}
+                                            sx={{ ml: 2 }}
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </Box>
+                                )}
+                            </Box>
+                        </Collapse>
+                    </CardContent>
+                </Card>
+            ))}
+        </Box>
     );
 };
 

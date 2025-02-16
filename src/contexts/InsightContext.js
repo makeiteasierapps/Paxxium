@@ -4,7 +4,7 @@ import { useSocket } from './SocketProvider';
 import { AuthContext } from './AuthContext';
 import { useSnackbar } from './SnackbarContext';
 import { useSingleChatMessageManager } from '../hooks/chat/useSingleChatMessageManager';
-import { useInsightUserData } from '../hooks/chat/useInsightUserData';
+import { useInsightUserData } from '../hooks/useInsightUserData';
 import { useInsightQuestionData } from '../hooks/useInsightQuestionData';
 export const InsightContext = createContext();
 

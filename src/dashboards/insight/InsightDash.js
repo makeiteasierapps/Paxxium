@@ -37,7 +37,7 @@ const InsightDash = () => {
                             display="flex"
                             flexDirection="row"
                             gap={2}
-                            height="100vh"
+                            height="90vh"
                         >
                             <UserProfileView
                                 userInsight={insightUserData}
