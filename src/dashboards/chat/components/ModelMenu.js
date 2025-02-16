@@ -36,8 +36,14 @@ const ModelMenu = ({
             <MenuItem value={'gpt-4o-mini'} onClick={handleClose('model')}>
                 GPT-4o-mini
             </MenuItem>
-            <MenuItem value={'gpt-4o'} onClick={handleClose('model')}>
+            <MenuItem value={'chatgpt-4o-latest'} onClick={handleClose('model')}>
                 GPT-4o
+            </MenuItem>
+            <MenuItem value={'o1'} onClick={handleClose('model')}>
+                o1
+            </MenuItem>
+            <MenuItem value={'o3-mini'} onClick={handleClose('model')}>
+                o3-mini
             </MenuItem>
             <MenuItem
                 value={'claude-3-5-sonnet-latest'}

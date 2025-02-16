@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import Markdown from 'react-markdown';
 
-
 // AgentDash.js
 export const SettingsSubmitButton = styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
@@ -306,7 +305,6 @@ export const InputArea = styled(Box)(({ theme }) => ({
     },
 }));
 
-// MessageInput
 export const StyledInputTextField = styled(TextField)(({ theme }) => ({
     '& .MuiOutlinedInput-root': {
         '& fieldset': {

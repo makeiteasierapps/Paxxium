@@ -17,8 +17,8 @@ const MessageInput = ({ type }) => {
         type === 'user'
             ? userContext
             : type === 'system'
-              ? systemContext
-              : insightContext;
+            ? systemContext
+            : insightContext;
     const selectedChat =
         type === 'user' ? context.selectedChat : context.selectedSystemChat;
     const { sendMessage } = context;
@@ -36,12 +36,24 @@ const MessageInput = ({ type }) => {
     } = useContext(ContextManagerContext);
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', flexDirection: 'column', alignItems: 'center' }}>
-            {type !== 'insight' && <DetectedItems selectedChat={selectedChat} />}
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
+            {type !== 'insight' && (
+                <DetectedItems selectedChat={selectedChat} />
+            )}
             <InputArea>
                 <StyledInputTextField
                     fullWidth
                     multiline
+                    minRows={1}
+                    maxRows={8}
                     value={input}
                     placeholder="Let's gooooo!"
                     onChange={handleInputChange}
