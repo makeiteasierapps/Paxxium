@@ -12,37 +12,9 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
-import { styled } from '@mui/material/styles';
-import SendIcon from '@mui/icons-material/Send';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ReactCardFlip from 'react-card-flip';
 import { InsightContext } from '../../../contexts/InsightContext';
-import { StyledIconButton } from '../../chat/chatStyledComponents';
-import { ProfileTextField } from '../../userAccount/styledUserAccountComponents';
-
-const StyledCard = styled(Card)(({ theme }) => ({
-    flex: '1 1 calc(33.333% - 16px)',
-    maxWidth: 350,
-    minWidth: 200,
-    height: 200,
-    backgroundColor: theme.palette.background.dark,
-    color: theme.palette.common.white,
-    cursor: 'pointer',
-    boxSizing: 'border-box',
-    [theme.breakpoints.down('sm')]: {
-        flex: '1 1 100%',
-        height: 160,
-        maxWidth: '100%',
-    },
-    [theme.breakpoints.down('md')]: {
-        flex: '1 1 100%',
-        height: 160,
-        maxWidth: 500,
-    },
-}));
-
-const QACard = ({ questionsData }) => {
+const QACard = ({ questionsData, category }) => {
+    const { updateAnswer } = useContext(InsightContext);
     const [expandedId, setExpandedId] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [editedAnswer, setEditedAnswer] = useState('');
@@ -56,9 +28,13 @@ const QACard = ({ questionsData }) => {
         setEditedAnswer(qa.answer);
     };
 
-    const handleSaveEdit = () => {
-        // TODO: Add logic to save the edited answer
+    const handleSaveEdit = (qa) => {
+        const updatedAnswer = {
+            ...qa,
+            answer: editedAnswer,
+        };
         setEditingId(null);
+        updateAnswer(category, updatedAnswer);
     };
 
     const handleCancelEdit = () => {
@@ -67,8 +43,14 @@ const QACard = ({ questionsData }) => {
     };
 
     // Get all the Q&A pairs from the category
-    const qaItems = Object.values(questionsData).flatMap((subCategory) =>
-        Object.values(subCategory).flat()
+    const qaItems = Object.entries(questionsData).flatMap(
+        ([subCategory, items]) =>
+            Object.values(items)
+                .map((item, index) => ({
+                    ...item,
+                    subCategory,
+                    index,
+                }))
     );
 
     return (
@@ -142,7 +124,9 @@ const QACard = ({ questionsData }) => {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                onClick={handleSaveEdit}
+                                                onClick={() =>
+                                                    handleSaveEdit(qa)
+                                                }
                                             >
                                                 Save
                                             </Button>

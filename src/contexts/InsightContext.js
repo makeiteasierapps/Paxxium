@@ -34,12 +34,15 @@ export const InsightProvider = ({ children }) => {
         uid,
         showSnackbar,
         socket,
+        backendUrl,
     });
 
     const insightQuestionData = useInsightQuestionData({
         uid,
         showSnackbar,
         socket,
+        backendUrl,
+        onQuestionDataUpdate: insightUserData.updateQuestionData,
     });
 
     const messageManager = useSingleChatMessageManager({

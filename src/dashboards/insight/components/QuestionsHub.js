@@ -6,8 +6,24 @@ import QACard from './QACard';
 
 const QuestionHub = ({ questionsData }) => {
     const [activeCategory, setActiveCategory] = useState(
-        Object.keys(questionsData)[0]
+        questionsData ? Object.keys(questionsData)[0] : null
     );
+
+    // If no data, return early
+    if (!questionsData) {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                }}
+            >
+                No questions available
+            </Box>
+        );
+    }
 
     // Transform data for category buttons
     const categories = Object.keys(questionsData || {}).map((categoryKey) => ({
@@ -42,7 +58,10 @@ const QuestionHub = ({ questionsData }) => {
             </ScrollContainer>
 
             {activeCategory && (
-                <QACard questionsData={questionsData[activeCategory]} />
+                <QACard
+                    questionsData={questionsData[activeCategory]}
+                    category={activeCategory}
+                />
             )}
         </Box>
     );

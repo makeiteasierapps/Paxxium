@@ -43,10 +43,10 @@ const UserProfileView = ({ userInsight }) => {
                 width="50vw"
                 height="50vh"
             >
-                <QuestionHub questionsData={userInsight.categories} />
+                <QuestionHub questionsData={userInsight.questions_data} />
             </Box>
 
-            <ContentContainer>
+            {/* <ContentContainer>
                 {userInsight.categories &&
                     Object.entries(userInsight.categories).map(
                         ([name, subcategory]) => (
@@ -57,7 +57,7 @@ const UserProfileView = ({ userInsight }) => {
                             />
                         )
                     )}
-            </ContentContainer>
+            </ContentContainer> */}
         </StyledBox>
     );
 };
