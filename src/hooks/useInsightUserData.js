@@ -34,7 +34,7 @@ export const useInsightUserData = ({
             };
 
             // Update localStorage with the new state
-            localStorage.setItem('userInsight', JSON.stringify(newState));
+            // localStorage.setItem('userInsight', JSON.stringify(newState));
             return newState;
         });
     }, []);
@@ -57,10 +57,11 @@ export const useInsightUserData = ({
                     });
                     if (response.ok) {
                         data = await response.json();
-                        localStorage.setItem(
-                            'userInsight',
-                            JSON.stringify(data)
-                        );
+                        // localStorage.setItem(
+                        //     'userInsight',
+                        //     JSON.stringify(data)
+                        // );
+                        console.log(data);
                     } else {
                         throw new Error('Failed to fetch user insight');
                     }
@@ -72,7 +73,6 @@ export const useInsightUserData = ({
                     console.error(error);
                 }
             }
-            console.log(data);
             setInsightUserData(data);
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
