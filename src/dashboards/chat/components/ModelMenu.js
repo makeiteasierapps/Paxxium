@@ -51,6 +51,12 @@ const ModelMenu = ({
             >
                 Claude 3.5 Sonnet
             </MenuItem>
+            <MenuItem
+                value={'claude-3-7-sonnet-latest'}
+                onClick={handleClose('model')}
+            >
+                Claude 3.7 Sonnet
+            </MenuItem>
         </Menu>
     );
 };
