@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import {
     MessageListItem,
@@ -68,4 +69,4 @@ const AgentMessage = ({ message }) => {
     );
 };
 
-export default AgentMessage;
+export default memo(AgentMessage);

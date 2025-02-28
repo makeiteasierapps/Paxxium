@@ -1,8 +1,7 @@
 import { memo, useEffect, useRef, useState, useContext, useMemo } from 'react';
-import AgentMessage from './AgentMessage';
 import MessageInput from './MessageInput';
-import UserMessage from './UserMessage';
 import ChatBar from './ChatBar';
+import MessageList from './MessageList';
 import {
     ScrollContainer,
     ScrollContent,
@@ -10,16 +9,10 @@ import {
 import { Button } from '@mui/material';
 import { ContextManagerContext } from '../../../contexts/ContextManagerContext';
 import { SettingsContext } from '../../../contexts/SettingsContext';
-import { MessageArea, ChatContainerStyled } from '../chatStyledComponents';
+import { ChatContainerStyled } from '../chatStyledComponents';
 import { useDropzone } from 'react-dropzone';
 
-const Chat = ({
-    selectedChat,
-    chatArray,
-    setSelectedChatId,
-    sx,
-    type,
-}) => {
+const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
     const { onDrop } = useContext(ContextManagerContext);
     const { loadedAvatarImage } = useContext(SettingsContext);
     const messageAreaRef = useRef(null);
@@ -99,22 +92,12 @@ const Chat = ({
                 </ScrollContainer>
             )}
 
-            <MessageArea ref={messageAreaRef} onScroll={handleScroll}>
-                {messages?.map((message, index) => {
-                    const MessageComponent =
-                        message.message_from === 'user'
-                            ? UserMessage
-                            : AgentMessage;
-                    return (
-                        <MessageComponent
-                            className="message-item"
-                            key={`${message.message_from}-${index}`}
-                            message={message}
-                            loadedAvatarImage={loadedAvatarImage}
-                        />
-                    );
-                })}
-            </MessageArea>
+            <MessageList
+                messages={messages}
+                loadedAvatarImage={loadedAvatarImage}
+                messageAreaRef={messageAreaRef}
+                handleScroll={handleScroll}
+            />
             <MessageInput type={type} />
         </ChatContainerStyled>
     );
