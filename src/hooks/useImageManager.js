@@ -33,8 +33,6 @@ export const useImageManager = () => {
 
             const imageArray = await response.json();
             setImageList(imageArray);
-            // Only store the image paths in localStorage
-            localStorage.setItem('imageList', JSON.stringify(imageArray));
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -67,10 +65,6 @@ export const useImageManager = () => {
 
             setImageList((prevImageList) => {
                 const updatedImageList = [...prevImageList, data];
-                localStorage.setItem(
-                    'imageList',
-                    JSON.stringify(updatedImageList)
-                );
                 return updatedImageList;
             });
         } catch (error) {
@@ -100,10 +94,6 @@ export const useImageManager = () => {
             setImageList((prevImageList) => {
                 const updatedImageList = prevImageList.filter(
                     (image) => image.path !== path
-                );
-                localStorage.setItem(
-                    'imageList',
-                    JSON.stringify(updatedImageList)
                 );
                 return updatedImageList;
             });
@@ -150,11 +140,6 @@ export const useImageManager = () => {
 
     useEffect(() => {
         if (!uid) {
-            return;
-        }
-        const cachedImageUrls = localStorage.getItem('imageList');
-        if (cachedImageUrls) {
-            setImageList(JSON.parse(cachedImageUrls));
             return;
         }
         fetchImages();

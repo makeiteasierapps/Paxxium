@@ -4,7 +4,6 @@ import { useBaseMessageManager } from './useBaseMessageManager';
 export const useSystemMessageManager = (props) => {
     const baseManager = useBaseMessageManager({
         ...props,
-        storageKey: 'systemChatArray',
     });
 
     const sendMessage = async (input) => {

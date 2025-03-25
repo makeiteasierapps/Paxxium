@@ -48,35 +48,8 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
         [kbId]
     );
 
-    const updateLocalStorage = useCallback((dataToUpdate) => {
-        const { kbId, id, pagesToChange } = dataToUpdate;
-        const savedData = JSON.parse(localStorage.getItem('documents')) || {};
-        savedData[kbId] = savedData[kbId] || [];
-
-        const docIndex = savedData[kbId].findIndex((doc) => doc.id === id);
-        if (docIndex !== -1) {
-            const updatedDoc = { ...savedData[kbId][docIndex] };
-            pagesToChange.forEach((page) => {
-                const existingPageIndex = updatedDoc.content.findIndex(
-                    (p) => p.source === page.source
-                );
-                if (existingPageIndex !== -1) {
-                    updatedDoc.content[existingPageIndex] = page;
-                } else {
-                    updatedDoc.content.push(page);
-                }
-            });
-            savedData[kbId][docIndex] = updatedDoc;
-        } else {
-            console.error('Document not found in localStorage:', id);
-        }
-
-        localStorage.setItem('documents', JSON.stringify(savedData));
-    }, []);
-
     const handleSave = (dataToUpdate) => {
         saveKbDoc(dataToUpdate);
-        updateLocalStorage(dataToUpdate);
     };
 
     const embedKbDoc = async (docId) => {
@@ -197,15 +170,6 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
                     [kbId]: updatedKbDocs,
                 };
             });
-
-            const savedData =
-                JSON.parse(localStorage.getItem('documents')) || {};
-            const updatedKbDocs =
-                savedData[kbId]?.filter((doc) => doc.id !== docId) || [];
-            localStorage.setItem(
-                'documents',
-                JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
-            );
         } catch (error) {
             showSnackbar('Error deleting document', 'error');
             setIsDocManagerLoading(false);
@@ -251,26 +215,6 @@ export const useKbDocManager = (backendUrl, uid, showSnackbar, selectedKb) => {
                     [kbId]: updatedKbDocs,
                 };
             });
-
-            // Update localStorage
-            const savedData =
-                JSON.parse(localStorage.getItem('documents')) || {};
-            const updatedKbDocs =
-                savedData[kbId]?.map((doc) => {
-                    if (doc.id === docId) {
-                        return {
-                            ...doc,
-                            content: doc.content.filter(
-                                (page) => page.metadata.sourceURL !== pageSource
-                            ),
-                        };
-                    }
-                    return doc;
-                }) || [];
-            localStorage.setItem(
-                'documents',
-                JSON.stringify({ ...savedData, [kbId]: updatedKbDocs })
-            );
         } catch (error) {
             showSnackbar('Error deleting document page', 'error');
             setIsDocManagerLoading(false);

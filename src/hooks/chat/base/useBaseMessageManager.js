@@ -9,7 +9,6 @@ export const useBaseMessageManager = ({
     setChatArray,
     selectedChat,
     updateLocalSettings,
-    storageKey,
 }) => {
     const { uploadFile } = useFileUpload();
     const streamDestinationId = useRef(null);
@@ -35,21 +34,10 @@ export const useBaseMessageManager = ({
                     (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
                 );
 
-                if (!isOptimistic) {
-                    try {
-                        localStorage.setItem(
-                            storageKey,
-                            JSON.stringify(sortedChatArray)
-                        );
-                    } catch (e) {
-                        console.warn('Failed to save to localStorage:', e);
-                    }
-                }
-
                 return sortedChatArray;
             });
         },
-        [setChatArray, storageKey]
+        [setChatArray]
     );
 
     const addMessage = useCallback(
@@ -153,12 +141,6 @@ export const useBaseMessageManager = ({
                     return agent;
                 });
 
-                // Update local storage with the updated agent array
-                localStorage.setItem(
-                    storageKey,
-                    JSON.stringify(updatedChatArray)
-                );
-
                 return updatedChatArray;
             });
         } catch (error) {
@@ -170,7 +152,6 @@ export const useBaseMessageManager = ({
     // Direct streaming handler - explicitly retrieve the latest state for each token
     const handleStreamingResponse = useCallback(
         (data) => {
-
             // Set destination chat ID
             streamDestinationId.current = data.room;
 
@@ -238,22 +219,10 @@ export const useBaseMessageManager = ({
                     (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
                 );
 
-                // Update localStorage (not on every token to save performance)
-                if (data.type === 'end_of_stream') {
-                    try {
-                        localStorage.setItem(
-                            storageKey,
-                            JSON.stringify(sortedChatArray)
-                        );
-                    } catch (e) {
-                        console.warn('Failed to save to localStorage:', e);
-                    }
-                }
-
                 return sortedChatArray;
             });
         },
-        [setChatArray, storageKey]
+        [setChatArray]
     );
 
     const handleChatSettingsUpdated = useCallback(

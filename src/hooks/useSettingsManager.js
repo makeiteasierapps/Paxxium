@@ -38,16 +38,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
     const loadProfile = useCallback(async () => {
         try {
-            const cachedProfileData = localStorage.getItem('profileData');
-            const data = cachedProfileData
-                ? JSON.parse(cachedProfileData)
-                : null;
-
-            if (data) {
-                setProfileData(data);
-                return;
-            }
-
             const response = await fetch(`${backendUrl}/profile`, {
                 method: 'GET',
                 headers: { uid: uid, dbName: process.env.REACT_APP_DB_NAME },
@@ -57,7 +47,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
 
             const profileData = await response.json();
             setProfileData(profileData);
-            localStorage.setItem('profileData', JSON.stringify(profileData));
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.log(error);
@@ -80,8 +69,6 @@ export const useSettingsManager = (backendUrl, uid, showSnackbar) => {
             if (!response.ok) {
                 throw new Error('Failed to update user profile');
             }
-
-            localStorage.setItem('profileData', JSON.stringify(profileData));
 
             showSnackbar('User profile updated', 'success');
         } catch (error) {

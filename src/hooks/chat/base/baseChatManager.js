@@ -1,6 +1,5 @@
 export const createBaseChatManager = ({
     baseUrl,
-    storageKey,
     uid,
     showSnackbar,
     setChatArray,
@@ -33,7 +32,6 @@ export const createBaseChatManager = ({
                 setSelectedChatId(sortedData[0].chatId);
             }
 
-            localStorage.setItem(storageKey, JSON.stringify(sortedData));
             return sortedData;
         } catch (error) {
             console.error('Error in fetchChatsFromDB:', error);
@@ -44,13 +42,7 @@ export const createBaseChatManager = ({
 
     const getChats = async () => {
         try {
-            const cachedChats = JSON.parse(localStorage.getItem(storageKey));
-            if (cachedChats && cachedChats.length > 0) {
-                setChatArray(cachedChats);
-                setSelectedChatId(cachedChats[0].chatId);
-            } else {
-                return await fetchChatsFromDB();
-            }
+            return await fetchChatsFromDB();
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -81,12 +73,6 @@ export const createBaseChatManager = ({
             setChatArray((prevChats) => [data, ...prevChats]);
             setSelectedChatId(data.chatId);
 
-            const updatedChatArray = [
-                data,
-                ...JSON.parse(localStorage.getItem(storageKey) || '[]'),
-            ];
-            localStorage.setItem(storageKey, JSON.stringify(updatedChatArray));
-
             return data;
         } catch (error) {
             console.error(error);
@@ -112,11 +98,6 @@ export const createBaseChatManager = ({
             setChatArray((prevChatArray) => {
                 const updatedChatArray = prevChatArray.filter(
                     (chatObj) => chatObj.chatId !== chatId
-                );
-
-                localStorage.setItem(
-                    storageKey,
-                    JSON.stringify(updatedChatArray)
                 );
 
                 if (updatedChatArray.length > 0) {

@@ -3,7 +3,7 @@ import { useBaseMessageManager } from './base/useBaseMessageManager';
 export const useMessageManager = (props) => {
     const baseManager = useBaseMessageManager({
         ...props,
-        storageKey: 'chatArray',
+
     });
 
     const sendMessage = async (input) => {

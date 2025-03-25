@@ -44,7 +44,7 @@ export const SystemProvider = ({ children }) => {
     const baseManager = useMemo(() => {
         return createBaseChatManager({
             baseUrl: `${backendUrl}/system/chat`,
-            storageKey: 'systemChatArray',
+
             uid,
             showSnackbar,
             setChatArray: setSystemChatArray,
@@ -61,7 +61,7 @@ export const SystemProvider = ({ children }) => {
     const settingsManager = useMemo(() => {
         return createBaseSettingsManager({
             baseUrl: `${backendUrl}/system/chat`,
-            storageKey: 'systemChatArray',
+
             uid,
             showSnackbar,
             setChatArray: setSystemChatArray,

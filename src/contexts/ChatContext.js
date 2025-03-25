@@ -48,7 +48,7 @@ export const ChatProvider = ({ children }) => {
     const baseManager = useMemo(() => {
         return createBaseChatManager({
             baseUrl: `${backendUrl}/chat`,
-            storageKey: 'chatArray',
+
             uid,
             showSnackbar,
             setChatArray,
@@ -59,7 +59,7 @@ export const ChatProvider = ({ children }) => {
     const settingsManager = useMemo(() => {
         return createBaseSettingsManager({
             baseUrl: `${backendUrl}/chat`,
-            storageKey: 'chatArray',
+
             uid,
             selectedChatId,
             showSnackbar,

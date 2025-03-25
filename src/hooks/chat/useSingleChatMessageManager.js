@@ -160,10 +160,6 @@ export const useSingleChatMessageManager = ({
                 ...prevChat,
                 messages: [],
             }));
-            localStorage.setItem(
-                'singleChat',
-                JSON.stringify({ ...chat, messages: [] })
-            );
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');

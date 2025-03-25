@@ -25,10 +25,6 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
                 const updatedDisplayedNews = prevNewsDataArray.filter(
                     (news) => news._id !== newsId
                 );
-                localStorage.setItem(
-                    'newsData',
-                    JSON.stringify(updatedDisplayedNews)
-                );
                 return updatedDisplayedNews;
             });
         } catch (error) {
@@ -58,10 +54,6 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
                     news._id === newsId ? { ...news, is_read: isRead } : news
                 );
 
-                localStorage.setItem(
-                    'newsData',
-                    JSON.stringify(updatedDisplayedNews)
-                );
                 return readFilter
                     ? updatedDisplayedNews.filter((news) => !news.is_read)
                     : updatedDisplayedNews;
@@ -81,28 +73,21 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
     const loadNewsData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const cachedNewsData = localStorage.getItem('newsData');
-            if (cachedNewsData) {
-                const parsedNewsData = JSON.parse(cachedNewsData);
-                setNewsDataArray(parsedNewsData);
-            } else {
-                const response = await fetch(`${backendUrl}/news`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        uid: uid,
-                        dbName: process.env.REACT_APP_DB_NAME,
-                    },
-                });
+            const response = await fetch(`${backendUrl}/news`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    uid: uid,
+                    dbName: process.env.REACT_APP_DB_NAME,
+                },
+            });
 
-                if (!response.ok) {
-                    throw new Error('Failed to load news data');
-                }
-
-                const data = await response.json();
-                setNewsDataArray(data);
-                localStorage.setItem('newsData', JSON.stringify(data));
+            if (!response.ok) {
+                throw new Error('Failed to load news data');
             }
+
+            const data = await response.json();
+            setNewsDataArray(data);
         } catch (error) {
             console.error(error);
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
@@ -132,10 +117,6 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
                 const newData = await response.json();
                 setNewsDataArray((currentNewsData) => {
                     const updatedNewsData = [...newData, ...currentNewsData];
-                    localStorage.setItem(
-                        'newsData',
-                        JSON.stringify(updatedNewsData)
-                    );
 
                     return updatedNewsData;
                 });
@@ -171,10 +152,6 @@ export const useNewsManager = (uid, showSnackbar, backendUrl) => {
             const data = await response.json();
             setNewsDataArray((currentNewsData) => {
                 const updatedNewsData = [...data, ...currentNewsData];
-                localStorage.setItem(
-                    'newsData',
-                    JSON.stringify(updatedNewsData)
-                );
 
                 return updatedNewsData;
             });

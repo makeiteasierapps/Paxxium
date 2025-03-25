@@ -46,9 +46,7 @@ const AuthenticatedApp = () => {
 
     // Check local storage for persisted authorization state on component mount
     useEffect(() => {
-        const persistedIsAuthorized =
-            localStorage.getItem('isAuthorized') === 'true';
-        setIsAuthorized(persistedIsAuthorized);
+        setIsAuthorized(true);
         setInitialCheckDone(true);
     }, [setIsAuthorized]);
 
@@ -77,7 +75,6 @@ const AuthenticatedApp = () => {
                     // Checks if admin has grtanted access to the app
                     if (responseData.auth_status) {
                         setIsAuthorized(true);
-                        localStorage.setItem('isAuthorized', 'true');
                         setUid(user.uid);
                     }
                 } catch (error) {

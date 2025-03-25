@@ -32,48 +32,34 @@ export const useInsightUserData = ({
                     },
                 },
             };
-
-            // Update localStorage with the new state
-            // localStorage.setItem('userInsight', JSON.stringify(newState));
             return newState;
         });
     }, []);
 
     const getUserInsight = useCallback(async () => {
         try {
-            let data;
-            const cachedUserInsight = localStorage.getItem('userInsight');
-            if (cachedUserInsight) {
-                data = JSON.parse(cachedUserInsight);
-            } else {
-                try {
-                    const response = await fetch(`${backendUrl}/insight`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            uid: uid,
-                            dbName: process.env.REACT_APP_DB_NAME,
-                        },
-                    });
-                    if (response.ok) {
-                        data = await response.json();
-                        // localStorage.setItem(
-                        //     'userInsight',
-                        //     JSON.stringify(data)
-                        // );
-                        console.log(data);
-                    } else {
-                        throw new Error('Failed to fetch user insight');
-                    }
-                } catch (error) {
-                    showSnackbar(
-                        `Network or fetch error: ${error.message}`,
-                        'error'
-                    );
-                    console.error(error);
+            try {
+                const response = await fetch(`${backendUrl}/insight`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        uid: uid,
+                        dbName: process.env.REACT_APP_DB_NAME,
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setInsightUserData(data);
+                } else {
+                    throw new Error('Failed to fetch user insight');
                 }
+            } catch (error) {
+                showSnackbar(
+                    `Network or fetch error: ${error.message}`,
+                    'error'
+                );
+                console.error(error);
             }
-            setInsightUserData(data);
         } catch (error) {
             showSnackbar(`Network or fetch error: ${error.message}`, 'error');
             console.error(error);

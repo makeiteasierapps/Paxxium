@@ -1,6 +1,5 @@
 export const createBaseSettingsManager = ({
     baseUrl,
-    storageKey,
     uid,
     selectedChatId,
     showSnackbar,
@@ -14,7 +13,6 @@ export const createBaseSettingsManager = ({
                     : chat
             );
 
-            localStorage.setItem(storageKey, JSON.stringify(updatedChatArray));
             return updatedChatArray;
         });
     };

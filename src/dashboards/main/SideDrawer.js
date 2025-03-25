@@ -1,10 +1,9 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import { Box, Drawer, Typography, Tooltip } from '@mui/material';
 import {
     Home as HomeIcon,
     SettingsApplications as SettingsIcon,
     Psychology as PsychologyIcon,
-    AccountCircle as ProfileIcon,
     AccountTree as AccountTreeIcon,
     Logout as LogoutIcon,
     Chat as ChatIcon,
@@ -33,8 +32,6 @@ const SideDrawer = ({
         setIsDrawerExpanded(!isDrawerExpanded);
     };
     const location = useLocation();
-    const [chatsOpen, setChatsOpen] = useState(false);
-    const chatButtonRef = useRef(null);
     const navigate = useNavigate();
     const { setIdToken, setUser, setIsAuthorized } = useContext(AuthContext);
 
@@ -44,7 +41,6 @@ const SideDrawer = ({
             setIdToken(null);
             setUser(null);
             setIsAuthorized(false);
-            localStorage.clear();
             navigate('/');
         } catch (error) {
             console.log(error);
