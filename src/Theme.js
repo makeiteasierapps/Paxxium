@@ -15,7 +15,7 @@ let theme = createTheme({
         background: {
             default: 'rgb(18, 18, 18)',
             paper: 'rgb(18, 18, 18)',
-            agent: 'rgb(18, 18, 18)',
+            agent: 'rgb(27, 27, 27)',
             user: 'rgb(53, 53, 76)',
         },
         text: {

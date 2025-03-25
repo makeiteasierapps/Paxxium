@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { processIncomingStream } from '../../../dashboards/utils/processIncomingStream';
 import { useFileUpload } from '../useFileUpload';
 
@@ -13,28 +13,37 @@ export const useBaseMessageManager = ({
 }) => {
     const { uploadFile } = useFileUpload();
     const streamDestinationId = useRef(null);
+
+    // Use direct state access instead of refs for token processing
     const updateChatMessagesList = useCallback(
         (chatId, newMessages, isOptimistic = false) => {
+            // Use a functional update to ensure we're working with the latest state
             setChatArray((prevChatArray) => {
-                const updatedChatArray = prevChatArray.map((chat) =>
-                    chat.chatId === chatId
-                        ? {
-                              ...chat,
-                              messages: newMessages,
-                              updated_at: new Date().toISOString(),
-                          }
-                        : chat
-                );
+                // Apply updates to a fresh copy
+                const updatedChatArray = prevChatArray.map((chat) => {
+                    if (chat.chatId === chatId) {
+                        return {
+                            ...chat,
+                            messages: newMessages,
+                            updated_at: new Date().toISOString(),
+                        };
+                    }
+                    return chat;
+                });
 
                 const sortedChatArray = updatedChatArray.sort(
                     (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
                 );
 
                 if (!isOptimistic) {
-                    localStorage.setItem(
-                        storageKey,
-                        JSON.stringify(sortedChatArray)
-                    );
+                    try {
+                        localStorage.setItem(
+                            storageKey,
+                            JSON.stringify(sortedChatArray)
+                        );
+                    } catch (e) {
+                        console.warn('Failed to save to localStorage:', e);
+                    }
                 }
 
                 return sortedChatArray;
@@ -158,45 +167,93 @@ export const useBaseMessageManager = ({
         }
     };
 
+    // Direct streaming handler - explicitly retrieve the latest state for each token
     const handleStreamingResponse = useCallback(
-        async (data) => {
-            console.log(data);
+        (data) => {
+
+            // Set destination chat ID
             streamDestinationId.current = data.room;
-            const currentChatThread = selectedChat?.messages || [];
 
-            if (data.type === 'end_of_stream') {
-                // For end of stream, update immediately
-                const lastUserMessageIndex = currentChatThread
-                    .map((m) => m.message_from)
-                    .lastIndexOf('user');
+            // Force a state update to ensure the token is processed
+            setChatArray((prevChatArray) => {
+                // Find the current chat
+                const currentChat = prevChatArray.find(
+                    (chat) => chat.chatId === streamDestinationId.current
+                );
 
-                if (lastUserMessageIndex !== -1) {
-                    const updatedThread = [...currentChatThread];
-                    updatedThread[lastUserMessageIndex] = {
-                        ...updatedThread[lastUserMessageIndex],
-                        image_path: data.image_path,
-                    };
+                if (!currentChat) {
+                    console.warn(
+                        'Chat not found:',
+                        streamDestinationId.current
+                    );
+                    return prevChatArray;
+                }
 
-                    updateChatMessagesList(
-                        streamDestinationId.current,
-                        updatedThread
+                // Get the current messages
+                const currentMessages = currentChat.messages || [];
+
+                // Process the token
+                let updatedMessages;
+
+                if (data.type === 'end_of_stream') {
+                    // For end of stream, update correctly
+                    const lastUserMessageIndex = currentMessages
+                        .map((m) => m.message_from)
+                        .lastIndexOf('user');
+
+                    if (lastUserMessageIndex !== -1) {
+                        // Create a deep copy
+                        updatedMessages = JSON.parse(
+                            JSON.stringify(currentMessages)
+                        );
+                        updatedMessages[lastUserMessageIndex] = {
+                            ...updatedMessages[lastUserMessageIndex],
+                            image_path: data.image_path,
+                        };
+                    } else {
+                        updatedMessages = currentMessages;
+                    }
+                } else {
+                    // Process the token and create updated messages
+                    updatedMessages = processIncomingStream(
+                        currentMessages,
+                        data
                     );
                 }
-            } else {
-                // Process token and update immediately
-                const updatedThread = processIncomingStream(
-                    currentChatThread,
-                    data
+
+                // Create the updated chat array
+                const updatedChatArray = prevChatArray.map((chat) => {
+                    if (chat.chatId === streamDestinationId.current) {
+                        return {
+                            ...chat,
+                            messages: updatedMessages,
+                            updated_at: new Date().toISOString(),
+                        };
+                    }
+                    return chat;
+                });
+
+                // Sort chats by updated_at
+                const sortedChatArray = updatedChatArray.sort(
+                    (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
                 );
 
-                // Update without throttling
-                updateChatMessagesList(
-                    streamDestinationId.current,
-                    updatedThread
-                );
-            }
+                // Update localStorage (not on every token to save performance)
+                if (data.type === 'end_of_stream') {
+                    try {
+                        localStorage.setItem(
+                            storageKey,
+                            JSON.stringify(sortedChatArray)
+                        );
+                    } catch (e) {
+                        console.warn('Failed to save to localStorage:', e);
+                    }
+                }
+
+                return sortedChatArray;
+            });
         },
-        [updateChatMessagesList, selectedChat]
+        [setChatArray, storageKey]
     );
 
     const handleChatSettingsUpdated = useCallback(

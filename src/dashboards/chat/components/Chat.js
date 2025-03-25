@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo, useRef } from 'react';
 import MessageInput from './MessageInput';
 import ChatBar from './ChatBar';
 import MessageList from './MessageList';
@@ -15,14 +15,20 @@ import { useDropzone } from 'react-dropzone';
 const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
     const { onDrop } = useContext(ContextManagerContext);
     const { loadedAvatarImage } = useContext(SettingsContext);
+    const chatContainerRef = useRef(null);
+
     const { getRootProps, isDragActive } = useDropzone({
         onDrop,
         noClick: true,
     });
+
+    // Memoize messages to prevent unnecessary re-renders
     const messages = useMemo(
         () => selectedChat?.messages || [],
         [selectedChat]
     );
+
+    // Switch to another chat
     const handleMenuClick = (event, chatId) => {
         setSelectedChatId(chatId);
     };
@@ -30,11 +36,13 @@ const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
     return (
         <ChatContainerStyled
             id="chat-container"
+            ref={chatContainerRef}
             sx={sx}
             {...getRootProps()}
             isDragActive={isDragActive}
         >
             {type !== 'insight' && <ChatBar type={type} />}
+
             {chatArray.length > 1 && (
                 <ScrollContainer>
                     <ScrollContent alignItems="center">
@@ -76,9 +84,12 @@ const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
             )}
 
             <MessageList
+                id="message-list-container"
                 messages={messages}
                 loadedAvatarImage={loadedAvatarImage}
+                selectedChatId={selectedChat?.chatId}
             />
+
             <MessageInput type={type} />
         </ChatContainerStyled>
     );
