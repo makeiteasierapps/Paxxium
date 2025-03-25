@@ -4,7 +4,6 @@ import {
     MessageListItem,
     MessageContent,
     StyledMarkdown,
-    StyledAgentIcon,
 } from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -87,13 +86,13 @@ const AgentMessage = ({ message }) => {
 
                 if (item.type === 'text') {
                     return (
-                        <Box key={key} className="text-content" mb={1}>
+                        <Box key={key} className="text-content">
                             <MarkdownContent content={item.content} />
                         </Box>
                     );
                 } else if (item.type === 'code') {
                     return (
-                        <Box key={key} className="code-content" mb={1}>
+                        <Box key={key} className="code-content">
                             <DirectCodeBlock
                                 language={item.language || 'javascript'}
                                 content={item.content}
@@ -119,11 +118,7 @@ const AgentMessage = ({ message }) => {
 
     return (
         <MessageListItem ref={messageRef} messageFrom={message.message_from}>
-            <StyledAgentIcon>
-                <SmartToyOutlinedIcon />
-            </StyledAgentIcon>
-
-            <MessageContent>{renderContent()}</MessageContent>
+            <Box>{renderContent()}</Box>
         </MessageListItem>
     );
 };

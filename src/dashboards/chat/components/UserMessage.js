@@ -1,11 +1,6 @@
-import { Avatar } from '@mui/material';
 import { useRef, useEffect } from 'react';
-import {
-    MessageListItem,
-    MessageContent,
-    StyledUserAvatar,
-} from '../chatStyledComponents';
-
+import { MessageListItem, MessageContent } from '../chatStyledComponents';
+import { Box } from '@mui/material';
 const UserMessage = ({ message, loadedAvatarImage, onRender }) => {
     const messageRef = useRef(null);
 
@@ -24,10 +19,7 @@ const UserMessage = ({ message, loadedAvatarImage, onRender }) => {
     }, [message.content, onRender]);
     return (
         <MessageListItem ref={messageRef} messageFrom="user">
-            <StyledUserAvatar>
-                <Avatar src={loadedAvatarImage} />
-            </StyledUserAvatar>
-            <MessageContent>{message.content}</MessageContent>
+            <Box>{message.content}</Box>
         </MessageListItem>
     );
 };

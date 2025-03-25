@@ -93,7 +93,24 @@ const MessageList = ({
         const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 
         // Show button when content is streaming beyond visible area
-        setShowMoreButton(distanceFromBottom > SCROLL_THRESHOLD);
+        // Only when actively streaming
+        setShowMoreButton(isStreaming && distanceFromBottom > SCROLL_THRESHOLD);
+    }, [isStreaming]);
+
+    // Add scroll event handler to hide button when user reaches bottom
+    const handleScroll = useCallback(() => {
+        if (!listRef.current) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+        // If user has scrolled to near bottom, hide the button
+        if (distanceFromBottom < SCROLL_THRESHOLD) {
+            setShowMoreButton(false);
+        } else if (isStreaming) {
+            // Only show button while streaming
+            setShowMoreButton(true);
+        }
     }, [isStreaming]);
 
     // Show more content - Improved to move bottom content to top of view
@@ -148,11 +165,21 @@ const MessageList = ({
 
             // Do an immediate check
             checkContentOverflow();
+
+            // Add scroll listener to detect when user reaches bottom
+            if (listRef.current) {
+                listRef.current.addEventListener('scroll', handleScroll);
+            }
         } else {
             // Clear interval when streaming stops
             if (checkHeightIntervalRef.current) {
                 clearInterval(checkHeightIntervalRef.current);
                 checkHeightIntervalRef.current = null;
+            }
+
+            // Remove scroll listener when streaming stops
+            if (listRef.current) {
+                listRef.current.removeEventListener('scroll', handleScroll);
             }
 
             // Hide button when streaming ends
@@ -164,8 +191,13 @@ const MessageList = ({
                 clearInterval(checkHeightIntervalRef.current);
                 checkHeightIntervalRef.current = null;
             }
+
+            // Clean up scroll listener
+            if (listRef.current) {
+                listRef.current.removeEventListener('scroll', handleScroll);
+            }
         };
-    }, [isStreaming, checkContentOverflow]);
+    }, [isStreaming, checkContentOverflow, handleScroll]);
 
     // Detect streaming by monitoring content length changes
     useEffect(() => {
@@ -366,6 +398,22 @@ const MessageList = ({
                         itemData={{ messages, loadedAvatarImage }}
                         overscanCount={5}
                         key={`${selectedChatId}-virt-${messages.length}`}
+                        onScroll={({ scrollOffset, scrollDirection }) => {
+                            // Handle scroll in virtualized list
+                            if (!isStreaming) return;
+
+                            const container = virtualListRef.current._outerRef;
+                            const { clientHeight } = container;
+                            const scrollHeight = messages.length * 100; // Approx height based on itemSize
+                            const distanceFromBottom =
+                                scrollHeight - scrollOffset - clientHeight;
+
+                            if (distanceFromBottom < SCROLL_THRESHOLD) {
+                                setShowMoreButton(false);
+                            } else if (isStreaming) {
+                                setShowMoreButton(true);
+                            }
+                        }}
                     >
                         {MessageRow}
                     </VirtualList>

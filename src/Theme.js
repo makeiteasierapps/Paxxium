@@ -13,10 +13,9 @@ let theme = createTheme({
             dark: '#66BB6A',
         },
         background: {
-            default: 'rgb(18, 18, 18)',
-            paper: 'rgb(18, 18, 18)',
-            agent: 'rgb(27, 27, 27)',
-            user: 'rgb(53, 53, 76)',
+            default: 'rgb(36, 36, 36)',
+            paper: 'rgb(36, 36, 36)',
+            user: 'rgb(27, 27, 27)',
         },
         text: {
             primary: 'rgba(255, 255, 255, 0.87)',

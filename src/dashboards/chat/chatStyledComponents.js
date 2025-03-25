@@ -157,18 +157,18 @@ export const MessageArea = styled(List)(({ theme }) => ({
 export const MessageListItem = styled(ListItem, {
     shouldForwardProp: (prop) => prop !== 'messageFrom',
 })(({ theme, messageFrom }) => ({
-    backgroundColor: theme.palette.background[messageFrom],
-    width: messageFrom === 'user' ? '60%' : '80%',
+    backgroundColor:
+        messageFrom === 'user' ? theme.palette.background.user : 'transparent',
+    maxWidth: messageFrom === 'user' ? '60%' : '100%', // Keep maxWidth for user messages
+    width: messageFrom === 'user' ? 'fit-content' : '100%', // Apply fit-content only for user
     height: 'auto',
     wordBreak: 'break-word',
-    padding: theme.spacing(1.5),
-    margin: `${theme.spacing(2)} auto`,
+    margin: messageFrom === 'user' ? '0 0 0 auto' : '0 auto 0 0',
     borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[3],
+    boxShadow: messageFrom === 'user' ? theme.shadows[3] : 'none',
     display: 'block',
-
     [theme.breakpoints.down('sm')]: {
-        width: '95%',
+        maxWidth: '95%', // Adjust maxWidth for smaller screens
         padding: theme.spacing(1),
     },
 }));
@@ -209,47 +209,6 @@ export const StyledUserAvatar = styled('div')(({ theme }) => ({
         top: theme.spacing(0),
     },
 }));
-
-export const StyledAgentIcon = styled('div')(({ theme }) => ({
-    float: 'left',
-    color: theme.palette.primary.dark,
-    marginRight: theme.spacing(1.5),
-    lineHeight: 1,
-    shapeOutside: 'margin-box',
-    position: 'relative',
-    top: theme.spacing(-0.8),
-    '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: `radial-gradient(circle, 
-            transparent 0%, 
-            transparent 35%, 
-            ${theme.palette.background.agent} 70%, 
-            ${theme.palette.background.agent} 100%)`,
-        pointerEvents: 'none',
-    },
-    '& .MuiSvgIcon-root': {
-        width: '1.5em',
-        height: '1.5em',
-        display: 'block',
-    },
-
-    [theme.breakpoints.down('sm')]: {
-        '& .MuiSvgIcon-root': {
-            width: '1em',
-            height: '1em',
-        },
-        top: theme.spacing(0),
-    },
-}));
-
-export const MessageContent = styled(Box)({
-    display: 'block',
-});
 
 // Chatbar
 export const Bar = styled(Box, {
