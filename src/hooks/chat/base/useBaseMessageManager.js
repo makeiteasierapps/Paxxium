@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { processIncomingStream } from '../../../dashboards/utils/processIncomingStream';
 import { useFileUpload } from '../useFileUpload';
-import throttle from 'lodash/throttle';
 
 export const useBaseMessageManager = ({
     baseUrl,
@@ -159,16 +158,6 @@ export const useBaseMessageManager = ({
         }
     };
 
-    const throttledUpdateRef = useRef(
-        throttle(
-            (id, thread) => {
-                updateChatMessagesList(id, thread);
-            },
-            8,
-            { leading: true, trailing: true }
-        ) // Use throttle with both leading and trailing edges
-    ).current;
-
     const handleStreamingResponse = useCallback(
         async (data) => {
             console.log(data);
@@ -176,8 +165,6 @@ export const useBaseMessageManager = ({
             const currentChatThread = selectedChat?.messages || [];
 
             if (data.type === 'end_of_stream') {
-                throttledUpdateRef.cancel();
-
                 // For end of stream, update immediately
                 const lastUserMessageIndex = currentChatThread
                     .map((m) => m.message_from)
@@ -196,17 +183,20 @@ export const useBaseMessageManager = ({
                     );
                 }
             } else {
-                // Process token immediately
+                // Process token and update immediately
                 const updatedThread = processIncomingStream(
                     currentChatThread,
                     data
                 );
 
-                // Schedule update
-                throttledUpdateRef(streamDestinationId.current, updatedThread);
+                // Update without throttling
+                updateChatMessagesList(
+                    streamDestinationId.current,
+                    updatedThread
+                );
             }
         },
-        [updateChatMessagesList, selectedChat, throttledUpdateRef]
+        [updateChatMessagesList, selectedChat]
     );
 
     const handleChatSettingsUpdated = useCallback(
@@ -216,13 +206,6 @@ export const useBaseMessageManager = ({
         },
         [updateLocalSettings]
     );
-
-    // Cleanup
-    useEffect(() => {
-        return () => {
-            throttledUpdateRef.cancel();
-        };
-    }, [throttledUpdateRef]);
 
     return {
         addMessage,

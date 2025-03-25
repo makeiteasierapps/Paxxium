@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState, useContext, useMemo } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import MessageInput from './MessageInput';
 import ChatBar from './ChatBar';
 import MessageList from './MessageList';
@@ -15,8 +15,6 @@ import { useDropzone } from 'react-dropzone';
 const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
     const { onDrop } = useContext(ContextManagerContext);
     const { loadedAvatarImage } = useContext(SettingsContext);
-    const messageAreaRef = useRef(null);
-    const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
     const { getRootProps, isDragActive } = useDropzone({
         onDrop,
         noClick: true,
@@ -27,21 +25,6 @@ const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
     );
     const handleMenuClick = (event, chatId) => {
         setSelectedChatId(chatId);
-    };
-
-    useEffect(() => {
-        if (shouldAutoScroll && messageAreaRef.current) {
-            const node = messageAreaRef.current;
-            node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
-        }
-    }, [messages, shouldAutoScroll]);
-
-    const handleScroll = () => {
-        const node = messageAreaRef.current;
-        const isAtBottom =
-            Math.abs(node.scrollHeight - node.clientHeight - node.scrollTop) <=
-            1;
-        setShouldAutoScroll(isAtBottom);
     };
 
     return (
@@ -95,8 +78,6 @@ const Chat = ({ selectedChat, chatArray, setSelectedChatId, sx, type }) => {
             <MessageList
                 messages={messages}
                 loadedAvatarImage={loadedAvatarImage}
-                messageAreaRef={messageAreaRef}
-                handleScroll={handleScroll}
             />
             <MessageInput type={type} />
         </ChatContainerStyled>
