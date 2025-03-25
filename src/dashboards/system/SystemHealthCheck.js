@@ -12,7 +12,7 @@ const ServiceGroup = styled(Box)(({ theme, expanded }) => ({
     position: 'absolute',
     top: 2,
     right: 2,
-    zIndex: 1000,
+    zIndex: 10000,
     height: expanded ? 'auto' : '25px',
     width: expanded ? '250px' : '100px',
     boxShadow: theme.shadows[4],

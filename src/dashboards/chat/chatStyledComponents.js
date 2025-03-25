@@ -218,7 +218,7 @@ export const Bar = styled(Box, {
     justifyContent: 'flex-end',
     width: '100%',
     flexDirection: 'row',
-    zIndex: theme.zIndex.drawer,
+    zIndex: 100,
     padding: theme.spacing(1, 2),
     ...(sx || {}),
 }));

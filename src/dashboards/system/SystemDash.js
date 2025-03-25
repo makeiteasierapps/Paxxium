@@ -39,7 +39,7 @@ const SystemDash = () => {
                     left: isDrawerExpanded ? 150 : 50,
                     right: 0,
                     bgcolor: 'background.paper',
-                    zIndex: 1100,
+                    zIndex: 500,
                 }}
             >
                 <Tabs value={activeTab} onChange={handleTabChange}>
