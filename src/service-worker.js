@@ -1,12 +1,5 @@
 /* eslint-disable no-restricted-globals */
 
-// This service worker can be customized!
-// See https://developers.google.com/web/tools/workbox/modules
-// for the list of available Workbox modules, or add any other
-// code you'd like.
-// You can also remove this file if you'd prefer not to use a
-// service worker, and the Workbox build step will be skipped.
-
 import { clientsClaim } from 'workbox-core';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching';
@@ -69,4 +62,77 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Any other custom service worker logic can go here.
+const CACHE_VERSION = 'app-cache-v1';
+// Install event - minimal caching for critical resources
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then(cache => {
+      return cache.addAll([
+        '/',
+        '/index.html',
+        '/offline.html' // Create a simple offline page
+      ]);
+    }).then(() => {
+      // Force activation on all browsers
+      return self.skipWaiting();
+    })
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.filter(cacheName => {
+          return cacheName !== CACHE_VERSION;
+        }).map(cacheName => {
+          return caches.delete(cacheName);
+        })
+      );
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
+    })
+  );
+});
+
+// Fetch event - network-first strategy
+self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) return;
+  
+  // Don't cache API requests or version checks
+  if (event.request.url.includes('/api/') || 
+      event.request.url.includes('version.json')) {
+    return;
+  }
+  
+  // For HTML navigation requests, always go to network first
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match('/offline.html');
+      })
+    );
+    return;
+  }
+  
+  // For other assets, use network first with cache fallback
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Cache the response for future use
+        if (response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_VERSION).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
+  );
+});

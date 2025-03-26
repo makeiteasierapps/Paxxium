@@ -1,0 +1,44 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Offline - Paxxium</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 50px 20px;
+                color: #333;
+            }
+            .offline-container {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+            h1 {
+                color: #2c3e50;
+            }
+            .refresh-button {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="offline-container">
+            <h1>You're offline</h1>
+            <p>
+                It looks like you've lost your internet connection. Please check
+                your connection and try again.
+            </p>
+            <button class="refresh-button" onclick="window.location.reload()">
+                Refresh
+            </button>
+        </div>
+    </body>
+</html>

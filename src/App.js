@@ -23,10 +23,10 @@ import { InsightProvider } from './contexts/InsightContext';
 import { SocketProvider } from './contexts/SocketProvider';
 import { MainProvider } from './contexts/MainContext';
 import { SystemProvider } from './contexts/SystemContext';
-import MainContent from './dashboards/main/MainContent';
-import SnackbarWrapper from './utils/SnackbarWrapper';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { KbProvider } from './contexts/KbContext';
+import MainContent from './dashboards/main/MainContent';
+import SnackbarWrapper from './utils/SnackbarWrapper';
 import Header from './dashboards/main/Header';
 import SideDrawer from './dashboards/main/SideDrawer';
 import SystemDash from './dashboards/system/SystemDash';
@@ -44,7 +44,6 @@ const AuthenticatedApp = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [initialCheckDone, setInitialCheckDone] = useState(false);
 
-    // Check local storage for persisted authorization state on component mount
     useEffect(() => {
         setIsAuthorized(true);
         setInitialCheckDone(true);
