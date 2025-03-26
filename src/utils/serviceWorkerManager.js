@@ -1,10 +1,19 @@
 export async function checkAndUpdateServiceWorker() {
     try {
+        // Prevent rapid rechecks - minimum 2 minute interval between checks
         const lastUpdateCheck = localStorage.getItem('last_update_check');
         const now = Date.now();
 
-        // Don't check again if we checked in the last 30 seconds
-        if (lastUpdateCheck && now - parseInt(lastUpdateCheck) < 30000) {
+        // Don't check again if we checked in the last 2 minutes (increased from 30s)
+        if (lastUpdateCheck && now - parseInt(lastUpdateCheck) < 120000) {
+            return false;
+        }
+
+        // Check if an update was recently applied to prevent update loops
+        const lastUpdateApplied = localStorage.getItem('last_update_applied');
+        if (lastUpdateApplied && now - parseInt(lastUpdateApplied) < 300000) {
+            // 5 minute cooldown
+            console.log('Update recently applied, skipping check');
             return false;
         }
 
@@ -35,6 +44,8 @@ export async function checkAndUpdateServiceWorker() {
 
             // Store the new version
             localStorage.setItem('app_version', version);
+            // Mark the time we applied an update
+            localStorage.setItem('last_update_applied', now.toString());
 
             // Only handle service worker updates if they're supported
             if ('serviceWorker' in navigator) {
@@ -43,20 +54,26 @@ export async function checkAndUpdateServiceWorker() {
                         await navigator.serviceWorker.getRegistrations();
 
                     // Instead of immediately unregistering, send update message first
-                    registrations.forEach((registration) => {
+                    for (const registration of registrations) {
                         if (registration.waiting) {
                             registration.waiting.postMessage({
                                 type: 'SKIP_WAITING',
                             });
+                            // Only trigger one update at a time
+                            break;
                         }
-                    });
+                    }
 
                     // Give service worker time to update
                     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-                    // Now unregister for a clean slate
-                    for (const registration of registrations) {
-                        await registration.unregister();
+                    // Now we only unregister if needed - many browsers don't need this step
+                    // and it can cause refresh loops
+                    const shouldForceUnregister = false; // Set to true only if needed
+                    if (shouldForceUnregister) {
+                        for (const registration of registrations) {
+                            await registration.unregister();
+                        }
                     }
                 } catch (err) {
                     console.error('Service worker update failed:', err);

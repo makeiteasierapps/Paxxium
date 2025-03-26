@@ -8,6 +8,7 @@ import { StaleWhileRevalidate } from 'workbox-strategies';
 
 clientsClaim();
 
+// This array will be populated by workbox during build
 precacheAndRoute(self.__WB_MANIFEST);
 
 const fileExtensionRegexp = new RegExp('/[^/?]+\\.[^/]+$');
@@ -46,16 +47,28 @@ registerRoute(
     })
 );
 
+// Track if we've already handled a skipWaiting message
+let skipWaitingMessageHandled = false;
+
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (
+        event.data &&
+        event.data.type === 'SKIP_WAITING' &&
+        !skipWaitingMessageHandled
+    ) {
         console.log('Skip waiting message received');
+        skipWaitingMessageHandled = true;
         self.skipWaiting();
     }
 });
 
 const CACHE_VERSION = 'app-cache-v1';
+
 // Install event - minimal caching for critical resources
 self.addEventListener('install', (event) => {
+    console.log(
+        `Service worker installing with cache version: ${CACHE_VERSION}`
+    );
     event.waitUntil(
         caches
             .open(CACHE_VERSION)
@@ -67,14 +80,21 @@ self.addEventListener('install', (event) => {
                 ]);
             })
             .then(() => {
-                // Force activation on all browsers
-                return self.skipWaiting();
+                // Skip waiting only in specific cases, not automatically
+                // This helps prevent infinite loops
+                return Promise.resolve();
             })
     );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+    console.log(
+        `Service worker activating with cache version: ${CACHE_VERSION}`
+    );
+    // Reset the skipWaiting flag
+    skipWaitingMessageHandled = false;
+
     event.waitUntil(
         caches
             .keys()
