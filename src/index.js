@@ -8,10 +8,18 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 // Create a wrapper component to handle update checks
 function AppWithUpdateCheck() {
     useEffect(() => {
-        // Check for updates on startup
-        checkAndUpdateServiceWorker();
+        // Check if we just completed an update
+        const isUpdating = sessionStorage.getItem('app_updating') === 'true';
+        if (isUpdating) {
+            // Clear the flag and don't immediately check again
+            sessionStorage.removeItem('app_updating');
+        } else {
+            // Only check for updates if we didn't just update
+            checkAndUpdateServiceWorker();
+        }
+
         setupBrowserCompatibility();
-        
+
         // Set up periodic checks
         const checkInterval = setInterval(() => {
             checkAndUpdateServiceWorker();

@@ -1,5 +1,16 @@
 export async function checkAndUpdateServiceWorker() {
     try {
+        const lastUpdateCheck = localStorage.getItem('last_update_check');
+        const now = Date.now();
+
+        // Don't check again if we checked in the last 30 seconds
+        if (lastUpdateCheck && now - parseInt(lastUpdateCheck) < 30000) {
+            return false;
+        }
+
+        // Record this check time
+        localStorage.setItem('last_update_check', now.toString());
+
         // Fetch the current version with cache-busting
         const timestamp = new Date().getTime();
         const response = await fetch(`/version.json?_=${timestamp}`, {
@@ -18,23 +29,42 @@ export async function checkAndUpdateServiceWorker() {
 
         // If version changed, update the app
         if (!storedVersion || storedVersion !== version) {
-            // Store the new version first
+            console.log(
+                `Version change detected: ${storedVersion} → ${version}`
+            );
+
+            // Store the new version
             localStorage.setItem('app_version', version);
 
-            // Unregister service workers
+            // Only handle service worker updates if they're supported
             if ('serviceWorker' in navigator) {
-                const registrations =
-                    await navigator.serviceWorker.getRegistrations();
-                for (const registration of registrations) {
-                    await registration.unregister();
+                try {
+                    const registrations =
+                        await navigator.serviceWorker.getRegistrations();
+
+                    // Instead of immediately unregistering, send update message first
+                    registrations.forEach((registration) => {
+                        if (registration.waiting) {
+                            registration.waiting.postMessage({
+                                type: 'SKIP_WAITING',
+                            });
+                        }
+                    });
+
+                    // Give service worker time to update
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                    // Now unregister for a clean slate
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                } catch (err) {
+                    console.error('Service worker update failed:', err);
                 }
             }
 
-            // Clear caches
-            if ('caches' in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map((key) => caches.delete(key)));
-            }
+            // Set a flag to indicate we're refreshing due to an update
+            sessionStorage.setItem('app_updating', 'true');
 
             // Reload the page
             window.location.reload(true);
