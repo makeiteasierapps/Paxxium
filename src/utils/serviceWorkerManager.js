@@ -1,27 +1,36 @@
 export async function checkAndUpdateServiceWorker() {
     try {
-        // Prevent rapid rechecks - minimum 2 minute interval between checks
+        // Prevent rapid rechecks with a longer cooldown period
         const lastUpdateCheck = localStorage.getItem('last_update_check');
         const now = Date.now();
 
-        // Don't check again if we checked in the last 2 minutes (increased from 30s)
-        if (lastUpdateCheck && now - parseInt(lastUpdateCheck) < 120000) {
+        // Don't check again if we checked in the last 5 minutes (increased from 2 mins)
+        if (lastUpdateCheck && now - parseInt(lastUpdateCheck) < 300000) {
+            console.log('Update check throttled - checked recently');
             return false;
         }
 
         // Check if an update was recently applied to prevent update loops
         const lastUpdateApplied = localStorage.getItem('last_update_applied');
-        if (lastUpdateApplied && now - parseInt(lastUpdateApplied) < 300000) {
-            // 5 minute cooldown
+        if (lastUpdateApplied && now - parseInt(lastUpdateApplied) < 600000) {
+            // 10 minute cooldown (increased)
             console.log('Update recently applied, skipping check');
+            return false;
+        }
+
+        // Check if we're already in an update process
+        if (sessionStorage.getItem('app_updating') === 'true') {
+            console.log('Already in update process, skipping check');
             return false;
         }
 
         // Record this check time
         localStorage.setItem('last_update_check', now.toString());
 
-        // Fetch the current version with cache-busting
-        const timestamp = new Date().getTime();
+        console.log('Fetching version information...');
+
+        // Fetch the current version with aggressive cache-busting
+        const timestamp = now;
         const response = await fetch(`/version.json?_=${timestamp}`, {
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -31,18 +40,33 @@ export async function checkAndUpdateServiceWorker() {
             cache: 'no-store',
         });
 
-        if (!response.ok) return false;
+        if (!response.ok) {
+            console.log(
+                'Version check failed - server returned',
+                response.status
+            );
+            return false;
+        }
 
-        const { version } = await response.json();
+        const versionData = await response.json();
+        const { version } = versionData;
         const storedVersion = localStorage.getItem('app_version');
+
+        console.log(
+            `Current version: ${
+                storedVersion || 'none'
+            }, Server version: ${version}`
+        );
 
         // If version changed, update the app
         if (!storedVersion || storedVersion !== version) {
             console.log(
-                `Version change detected: ${storedVersion} → ${version}`
+                `Version change detected: ${
+                    storedVersion || 'none'
+                } → ${version}`
             );
 
-            // Store the new version
+            // Store the new version first
             localStorage.setItem('app_version', version);
             // Mark the time we applied an update
             localStorage.setItem('last_update_applied', now.toString());
@@ -50,47 +74,83 @@ export async function checkAndUpdateServiceWorker() {
             // Only handle service worker updates if they're supported
             if ('serviceWorker' in navigator) {
                 try {
+                    console.log('Triggering service worker update');
                     const registrations =
                         await navigator.serviceWorker.getRegistrations();
 
-                    // Instead of immediately unregistering, send update message first
+                    if (registrations.length === 0) {
+                        console.log('No service workers registered');
+                    }
+
+                    // Find waiting service workers and send update message
+                    let foundWaiting = false;
                     for (const registration of registrations) {
                         if (registration.waiting) {
+                            console.log(
+                                'Found waiting service worker, sending SKIP_WAITING'
+                            );
+                            foundWaiting = true;
+
+                            // Set flag before sending message to prevent race conditions
+                            sessionStorage.setItem('app_updating', 'true');
+
                             registration.waiting.postMessage({
                                 type: 'SKIP_WAITING',
                             });
+
                             // Only trigger one update at a time
                             break;
                         }
                     }
 
-                    // Give service worker time to update
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-                    // Now we only unregister if needed - many browsers don't need this step
-                    // and it can cause refresh loops
-                    const shouldForceUnregister = false; // Set to true only if needed
-                    if (shouldForceUnregister) {
+                    // If no waiting workers, update them manually
+                    if (!foundWaiting && registrations.length > 0) {
+                        console.log(
+                            'No waiting workers, updating all registrations'
+                        );
+                        // Update all service worker registrations
                         for (const registration of registrations) {
-                            await registration.unregister();
+                            await registration.update();
                         }
+
+                        // Set flag that we're updating
+                        sessionStorage.setItem('app_updating', 'true');
+
+                        // Give a small delay for update to process
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 2000)
+                        );
+
+                        // Reload the page directly if no service worker took over
+                        window.location.reload(true);
+                        return true;
                     }
                 } catch (err) {
                     console.error('Service worker update failed:', err);
+                    // Clean up in case of error
+                    sessionStorage.removeItem('app_updating');
                 }
+            } else {
+                console.log(
+                    'Service workers not supported, reloading directly'
+                );
+                // Set flag to prevent loops
+                sessionStorage.setItem('app_updating', 'true');
+                // Reload the page directly
+                window.location.reload(true);
+                return true;
             }
 
-            // Set a flag to indicate we're refreshing due to an update
-            sessionStorage.setItem('app_updating', 'true');
-
-            // Reload the page
-            window.location.reload(true);
             return true;
+        } else {
+            console.log('Version unchanged, no update needed');
         }
 
         return false;
     } catch (error) {
         console.error('Update check failed:', error);
+        // Clean up in case of error
+        sessionStorage.removeItem('app_updating');
         return false;
     }
 }

@@ -62,6 +62,7 @@ self.addEventListener('message', (event) => {
     }
 });
 
+// This string will be replaced by version-injector.js during build
 const CACHE_VERSION = 'app-cache-v1';
 
 // Install event - minimal caching for critical resources

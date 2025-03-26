@@ -10,21 +10,30 @@ const versionString = `${version}-${buildTimestamp}`;
 console.log(`Using version: ${versionString}`);
 
 // Create version.json
-fs.writeFileSync(
-    path.join(__dirname, 'build', 'version.json'),
-    JSON.stringify({ version: versionString })
-);
+const versionJson = path.join(__dirname, 'build', 'version.json');
+fs.writeFileSync(versionJson, JSON.stringify({ version: versionString }));
+console.log(`Version information written to ${versionJson}`);
 
 // Inject into service worker
 const swPath = path.join(__dirname, 'build', 'service-worker.js');
 if (fs.existsSync(swPath)) {
+    console.log(`Injecting version ${versionString} into service worker`);
     let swContent = fs.readFileSync(swPath, 'utf8');
-    swContent = swContent.replace(
-        /const CACHE_VERSION = ['"].*?['"];/,
-        `const CACHE_VERSION = 'app-cache-${versionString}';`
-    );
-    fs.writeFileSync(swPath, swContent);
-    console.log(`Version ${versionString} injected into service worker cache`);
+
+    // Make sure we're replacing the right string
+    const cacheVersionRegex = /const CACHE_VERSION = ['"].*?['"];/;
+    if (cacheVersionRegex.test(swContent)) {
+        swContent = swContent.replace(
+            cacheVersionRegex,
+            `const CACHE_VERSION = 'app-cache-${versionString}';`
+        );
+        fs.writeFileSync(swPath, swContent);
+        console.log(
+            `Successfully injected version ${versionString} into service worker cache`
+        );
+    } else {
+        console.error('Could not find CACHE_VERSION in service worker');
+    }
 } else {
     console.log('Service worker file not found, skipping injection');
 }
