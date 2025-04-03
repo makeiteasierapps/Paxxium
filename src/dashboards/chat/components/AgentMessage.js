@@ -1,43 +1,112 @@
 import React, { useRef, useState, useEffect } from 'react';
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-import {
-    MessageListItem,
-    MessageContent,
-    StyledMarkdown,
-} from '../chatStyledComponents';
+import { MessageListItem, StyledMarkdown } from '../chatStyledComponents';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 
-// Direct code block component - most reliable option for code rendering
-const DirectCodeBlock = ({ language, content }) => (
-    <SyntaxHighlighter
-        style={duotoneDark}
-        language={language || 'javascript'}
-        PreTag="div"
-        className="syntax-highlighter"
-        customStyle={{ maxHeight: '400px' }}
-    >
-        {content || ''}
-    </SyntaxHighlighter>
-);
+// Direct code block component - with copy button properly overlaid
+const DirectCodeBlock = ({ language, content }) => {
+    const [copied, setCopied] = useState(false);
 
-// Basic code block renderer for markdown content
+    const handleCopy = () => {
+        navigator.clipboard.writeText(content || '');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <Box sx={{ position: 'relative' }}>
+            <Tooltip title={copied ? 'Copied!' : 'Copy code'}>
+                <IconButton
+                    onClick={handleCopy}
+                    size="small"
+                    sx={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        backgroundColor: 'rgba(30, 30, 30, 0.6)',
+                        '&:hover': {
+                            backgroundColor: 'rgba(60, 60, 60, 0.8)',
+                            color: 'white',
+                        },
+                        zIndex: 2,
+                        padding: '4px',
+                    }}
+                >
+                    {copied ? (
+                        <CheckIcon fontSize="small" />
+                    ) : (
+                        <ContentCopyIcon fontSize="small" />
+                    )}
+                </IconButton>
+            </Tooltip>
+            <SyntaxHighlighter
+                style={duotoneDark}
+                language={language || 'javascript'}
+                PreTag="div"
+                className="syntax-highlighter"
+                customStyle={{ maxHeight: 'none' }} // Removed the paddingTop
+            >
+                {content || ''}
+            </SyntaxHighlighter>
+        </Box>
+    );
+};
+
+// Basic code block renderer for markdown content - with copy button properly overlaid
 const CodeBlock = ({ language, children, inline, className }) => {
     const match = /language-(\w+)/.exec(className || '');
+    const [copied, setCopied] = useState(false);
+    const codeContent = String(children).replace(/\n$/, '');
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(codeContent);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (!inline && (match || language)) {
         return (
-            <SyntaxHighlighter
-                style={duotoneDark}
-                language={language || match?.[1]}
-                PreTag="div"
-                className="syntax-highlighter"
-                customStyle={{ maxHeight: '400px' }}
-            >
-                {String(children).replace(/\n$/, '')}
-            </SyntaxHighlighter>
+            <Box sx={{ position: 'relative' }}>
+                <Tooltip title={copied ? 'Copied!' : 'Copy code'}>
+                    <IconButton
+                        onClick={handleCopy}
+                        size="small"
+                        sx={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            backgroundColor: 'rgba(30, 30, 30, 0.6)',
+                            '&:hover': {
+                                backgroundColor: 'rgba(60, 60, 60, 0.8)',
+                                color: 'white',
+                            },
+                            zIndex: 2,
+                            padding: '4px',
+                        }}
+                    >
+                        {copied ? (
+                            <CheckIcon fontSize="small" />
+                        ) : (
+                            <ContentCopyIcon fontSize="small" />
+                        )}
+                    </IconButton>
+                </Tooltip>
+                <SyntaxHighlighter
+                    style={duotoneDark}
+                    language={language || match?.[1]}
+                    PreTag="div"
+                    className="syntax-highlighter"
+                    customStyle={{ maxHeight: 'none' }} // Removed the paddingTop
+                >
+                    {codeContent}
+                </SyntaxHighlighter>
+            </Box>
         );
     }
 
@@ -86,13 +155,24 @@ const AgentMessage = ({ message }) => {
 
                 if (item.type === 'text') {
                     return (
-                        <Box key={key} className="text-content">
+                        <Box
+                            key={key}
+                            className="text-content"
+                            sx={{ width: '100%' }}
+                        >
                             <MarkdownContent content={item.content} />
                         </Box>
                     );
                 } else if (item.type === 'code') {
                     return (
-                        <Box key={key} className="code-content">
+                        <Box
+                            key={key}
+                            className="code-content"
+                            sx={{
+                                width: '100%',
+                                backgroundColor: 'red',
+                            }}
+                        >
                             <DirectCodeBlock
                                 language={item.language || 'javascript'}
                                 content={item.content}
@@ -107,7 +187,7 @@ const AgentMessage = ({ message }) => {
         // String format (database content)
         if (typeof messageContent === 'string') {
             return (
-                <Box key={`string-${counter}`}>
+                <Box key={`string-${counter}`} sx={{ width: '100%' }}>
                     <MarkdownContent content={messageContent} />
                 </Box>
             );
@@ -117,8 +197,12 @@ const AgentMessage = ({ message }) => {
     };
 
     return (
-        <MessageListItem ref={messageRef} messageFrom={message.message_from}>
-            <Box>{renderContent()}</Box>
+        <MessageListItem
+            ref={messageRef}
+            messageFrom={message.message_from}
+            sx={{ height: 'auto', maxHeight: 'none' }}
+        >
+            <Box sx={{ width: '100%' }}>{renderContent()}</Box>
         </MessageListItem>
     );
 };
