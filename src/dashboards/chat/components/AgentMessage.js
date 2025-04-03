@@ -102,7 +102,7 @@ const CodeBlock = ({ language, children, inline, className }) => {
                     language={language || match?.[1]}
                     PreTag="div"
                     className="syntax-highlighter"
-                    customStyle={{ maxHeight: 'none' }} // Removed the paddingTop
+                    customStyle={{ maxHeight: 'none' }}
                 >
                     {codeContent}
                 </SyntaxHighlighter>
